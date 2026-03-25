@@ -1,0 +1,38 @@
+{
+    "name": "sujip/xero-php-sdk",
+    "description": "A modern, fluent, zero-dependency Xero SDK for PHP 8.2+.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "xero",
+        "sdk",
+        "api",
+        "accounting",
+        "php"
+    ],
+    "require": {
+        "php": "^8.2",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^11.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Sujip\\Xero\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Sujip\\Xero\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "analyse": "@php vendor/bin/phpstan analyse --configuration phpstan.neon.dist",
+        "test": "@php vendor/bin/phpunit --configuration phpunit.xml.dist --do-not-cache-result"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

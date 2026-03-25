@@ -1,0 +1,75 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Sujip\Xero\Accounting\BankTransfer;
+
+use Sujip\Xero\Client;
+use Sujip\Xero\Support\Concerns\BuildsQueries;
+use Sujip\Xero\Support\Concerns\InteractsWithBindings;
+use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Support\ResourceCollection;
+use Sujip\Xero\Support\ScopeRequirements;
+
+final class BankTransfers implements DefinesScopes
+{
+    use BuildsQueries;
+    use InteractsWithBindings;
+
+    public function __construct(
+        private readonly Client $client
+    ) {
+    }
+
+    public function scopes(): ScopeRequirements
+    {
+        return new ScopeRequirements(
+            broad: ['accounting.transactions'],
+            granular: ['accounting.transactions.read', 'accounting.transactions']
+        );
+    }
+
+    public function where(string $expression, mixed ...$bindings): self
+    {
+        $clone = clone $this;
+        $clone->query['where'] = $this->interpolateBindings($expression, $bindings);
+
+        return $clone;
+    }
+
+    /**
+     * @return ResourceCollection<BankTransfer>
+     */
+    public function get(): ResourceCollection
+    {
+        $response = $this->client
+            ->get('/api.xro/2.0/BankTransfers')
+            ->withQuery($this->queryParameters())
+            ->send();
+
+        $payload = $response->json();
+        $items = array_values(array_map(
+            fn (array $bankTransfer): BankTransfer => BankTransfer::fromArray($bankTransfer, $this->client),
+            $payload['BankTransfers'] ?? []
+        ));
+
+        return new ResourceCollection($items);
+    }
+
+    public function find(string $bankTransferId): ?BankTransfer
+    {
+        $response = $this->client
+            ->get('/api.xro/2.0/BankTransfers/' . $bankTransferId)
+            ->send();
+
+        $payload = $response->json();
+        $bankTransfer = $payload['BankTransfers'][0] ?? null;
+
+        return is_array($bankTransfer) ? BankTransfer::fromArray($bankTransfer, $this->client) : null;
+    }
+
+    public function create(): Payload
+    {
+        return new Payload($this->client);
+    }
+}
