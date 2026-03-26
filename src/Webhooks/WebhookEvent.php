@@ -33,4 +33,44 @@ final readonly class WebhookEvent
             $payload
         );
     }
+
+    public function is(string $category, ?string $type = null): bool
+    {
+        if ($this->eventCategory !== strtoupper($category)) {
+            return false;
+        }
+
+        if ($type === null) {
+            return true;
+        }
+
+        return $this->eventType === strtoupper($type);
+    }
+
+    public function isCreate(): bool
+    {
+        return $this->eventType === 'CREATE';
+    }
+
+    public function isUpdate(): bool
+    {
+        return $this->eventType === 'UPDATE';
+    }
+
+    public function isDelete(): bool
+    {
+        return $this->eventType === 'DELETE';
+    }
+
+    public function path(): ?string
+    {
+        if ($this->resourceUrl === null || $this->resourceUrl === '') {
+            return null;
+        }
+
+        $parts = parse_url($this->resourceUrl);
+        $path = $parts['path'] ?? null;
+
+        return is_string($path) ? $path : null;
+    }
 }

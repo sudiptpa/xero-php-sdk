@@ -32,10 +32,11 @@ final class ConnectionManagerTest extends TestCase
             $repository
         );
 
-        $token = $manager->exchange('code-123');
+        $token = $manager->exchange('code-123', 'pkce-verifier');
 
         self::assertSame('access-token', $token->accessToken);
         self::assertSame('access-token', $repository->get('default')?->accessToken);
+        self::assertStringContainsString('code_verifier=pkce-verifier', (string) $transport->requests()[0]->body);
     }
 
     public function test_it_can_refresh_a_stored_token(): void
@@ -89,5 +90,62 @@ final class ConnectionManagerTest extends TestCase
 
         self::assertSame('tenant-1', $connected->connection->tenantId);
         self::assertSame('tenant-1', $connected->client->context()->tenantId);
+    }
+
+    public function test_it_can_exchange_and_connect_a_tenant_in_one_step(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(
+            new Response(200, body: json_encode([
+                'access_token' => 'access-token',
+                'refresh_token' => 'refresh-token',
+                'expires_in' => 1800,
+                'scope' => 'offline_access accounting.contacts',
+                'token_type' => 'Bearer',
+            ], JSON_THROW_ON_ERROR))
+        );
+        $transport->push(
+            new Response(200, body: json_encode([
+                [
+                    'id' => 'connection-1',
+                    'tenantId' => 'tenant-1',
+                    'tenantName' => 'Acme Pty Ltd',
+                ],
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        $repository = new InMemoryTokenRepository();
+        $manager = new ConnectionManager(
+            new OAuth2Client('client-id', 'client-secret', 'https://example.com/callback', $transport),
+            $repository
+        );
+
+        $connected = $manager->exchangeAndConnect('code-123', 'tenant-1', 'pkce-verifier');
+
+        self::assertSame('tenant-1', $connected->connection->tenantId);
+        self::assertSame('tenant-1', $connected->client->context()->tenantId);
+    }
+
+    public function test_it_can_create_a_custom_connection_client(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode([
+                'access_token' => 'custom-token',
+                'expires_in' => 1800,
+                'scope' => 'finance.statements.read',
+                'token_type' => 'Bearer',
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        $repository = new InMemoryTokenRepository();
+        $manager = new ConnectionManager(
+            new OAuth2Client('client-id', 'client-secret', null, $transport),
+            $repository
+        );
+
+        $client = $manager->customConnection(['finance.statements.read']);
+
+        self::assertSame('custom-token', $repository->get('default')?->accessToken);
+        self::assertSame('custom-token', $client->context()->accessToken);
     }
 }

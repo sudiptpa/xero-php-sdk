@@ -52,4 +52,13 @@ final class Associations implements DefinesScopes
             ->objectType($objectType)
             ->objectGroup($objectGroup);
     }
+
+    public function delete(string $objectId): bool
+    {
+        $response = $this->client
+            ->delete(self::BASE_PATH . '/' . $this->fileId . '/Associations/' . $objectId)
+            ->send();
+
+        return $response->status === 204;
+    }
 }

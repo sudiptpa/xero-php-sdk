@@ -93,4 +93,13 @@ final readonly class Folder
 
         return new Upload($this->client, $name, $content, $filename, $this->id);
     }
+
+    public function delete(): bool
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot delete a folder without a bound client context and folder id.');
+        }
+
+        return (new Folders($this->client))->delete($this->id);
+    }
 }

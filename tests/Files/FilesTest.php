@@ -167,4 +167,62 @@ final class FilesTest extends TestCase
         self::assertSame('invoice-2', $transport->requests()[1]->json['ObjectId']);
         self::assertSame('Invoice', $created->objectType);
     }
+
+    public function test_it_can_list_files_associated_with_an_object_and_delete_an_association(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'Items' => [[
+                'Id' => 'file-1',
+                'Name' => 'invoice.pdf',
+                'MimeType' => 'application/pdf',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(204));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $files = $client->files()
+            ->forObject('invoice-1')
+            ->orderBy('CreatedDateUTC', 'DESC')
+            ->page(2)
+            ->perPage(25)
+            ->get();
+
+        $deleted = $client->files()
+            ->associations('file-1')
+            ->delete('invoice-1');
+
+        self::assertSame('/files.xro/1.0/Associations/invoice-1', $transport->requests()[0]->path);
+        self::assertSame('CreatedDateUTC', $transport->requests()[0]->query['sort']);
+        self::assertSame('DESC', $transport->requests()[0]->query['direction']);
+        self::assertSame(2, $transport->requests()[0]->query['page']);
+        self::assertSame(25, $transport->requests()[0]->query['pagesize']);
+        self::assertInstanceOf(File::class, $files->first());
+        self::assertSame('/files.xro/1.0/Files/file-1/Associations/invoice-1', $transport->requests()[1]->path);
+        self::assertTrue($deleted);
+    }
+
+    public function test_loaded_file_can_be_deleted(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'Items' => [[
+                'Id' => 'file-1',
+                'Name' => 'contract.pdf',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(204));
+
+        $file = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->files()
+            ->find('file-1');
+
+        $deleted = $file?->delete();
+
+        self::assertSame('DELETE', $transport->requests()[1]->method);
+        self::assertSame('/files.xro/1.0/Files/file-1', $transport->requests()[1]->path);
+        self::assertTrue((bool) $deleted);
+    }
 }

@@ -41,4 +41,11 @@ final readonly class WebhookVerifier
 
         return WebhookPayload::fromArray($decoded);
     }
+
+    public function verifyAndParse(string $payload, ?string $signature): WebhookPayload
+    {
+        $this->assertValid($payload, $signature);
+
+        return $this->parse($payload);
+    }
 }

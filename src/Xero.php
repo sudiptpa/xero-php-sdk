@@ -6,6 +6,7 @@ namespace Sujip\Xero;
 
 use Sujip\Xero\Auth\OAuth2;
 use Sujip\Xero\Auth\OAuth2Client;
+use Sujip\Xero\Auth\Pkce;
 use Sujip\Xero\Auth\Token;
 use Sujip\Xero\Http\Transport;
 use Sujip\Xero\Webhooks\WebhookVerifier;
@@ -33,9 +34,10 @@ final class Xero
         string $redirectUri,
         array $scopes,
         string $state,
-        ?string $codeChallenge = null
+        ?string $codeChallenge = null,
+        string $codeChallengeMethod = 'S256'
     ): string {
-        return OAuth2::authorizationUrl($clientId, $redirectUri, $scopes, $state, $codeChallenge);
+        return OAuth2::authorizationUrl($clientId, $redirectUri, $scopes, $state, $codeChallenge, $codeChallengeMethod);
     }
 
     public static function oauth2(
@@ -49,5 +51,10 @@ final class Xero
     public static function webhookVerifier(string $signingKey): WebhookVerifier
     {
         return new WebhookVerifier($signingKey);
+    }
+
+    public static function pkce(): Pkce
+    {
+        return new Pkce();
     }
 }

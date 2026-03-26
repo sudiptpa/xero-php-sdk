@@ -134,4 +134,26 @@ final class FoldersTest extends TestCase
         self::assertSame('terms.pdf', $uploaded?->name);
         self::assertSame('contract.pdf', $files?->first()?->name);
     }
+
+    public function test_loaded_folder_can_be_deleted_and_files_root_can_find_a_folder_directly(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'Items' => [[
+                'Id' => 'folder-1',
+                'Name' => 'Contracts',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(204));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $folder = $client->files()->findFolder('folder-1');
+        $deleted = $folder?->delete();
+
+        self::assertSame('/files.xro/1.0/Folders/folder-1', $transport->requests()[0]->path);
+        self::assertSame('DELETE', $transport->requests()[1]->method);
+        self::assertSame('/files.xro/1.0/Folders/folder-1', $transport->requests()[1]->path);
+        self::assertTrue((bool) $deleted);
+    }
 }

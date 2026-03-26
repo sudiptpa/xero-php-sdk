@@ -1,0 +1,135 @@
+# Payroll AU
+
+Payroll AU has its own rules and query style. The package keeps that explicit instead of pretending it is the same as Accounting.
+
+Current coverage:
+
+- employees
+- leave applications
+- pay items
+- pay runs
+- timesheets
+- settings
+- employee find and write flows
+
+## Employees
+
+```php
+$employees = $xero->payroll()
+    ->au()
+    ->employees()
+    ->where('Status=="ACTIVE"')
+    ->orderBy('LastName ASC')
+    ->page(1)
+    ->get();
+```
+
+```php
+$employee = $xero->payroll()
+    ->au()
+    ->employees()
+    ->find('employee-id');
+```
+
+```php
+$employee = $xero->payroll()
+    ->au()
+    ->employees()
+    ->create()
+    ->firstName('Grace')
+    ->lastName('Hopper')
+    ->emailAddress('grace@example.test')
+    ->save();
+```
+
+## Leave Applications
+
+```php
+$leaveApplications = $xero->payroll()
+    ->au()
+    ->leaveApplications()
+    ->where('Status=="REQUESTED"')
+    ->get();
+```
+
+```php
+$leave = $xero->payroll()
+    ->au()
+    ->leaveApplications()
+    ->create()
+    ->employee('employee-id')
+    ->leaveType('leave-type-id')
+    ->title('Annual Leave')
+    ->startDate('2026-04-01')
+    ->endDate('2026-04-02')
+    ->save();
+```
+
+## Pay Items
+
+```php
+$payItems = $xero->payroll()
+    ->au()
+    ->payItems()
+    ->page(1)
+    ->get();
+```
+
+## Pay Runs
+
+```php
+$payRuns = $xero->payroll()
+    ->au()
+    ->payRuns()
+    ->where('Status=="DRAFT"')
+    ->get();
+```
+
+```php
+$payRun = $xero->payroll()
+    ->au()
+    ->payRuns()
+    ->create()
+    ->payrollCalendar('calendar-id')
+    ->save();
+```
+
+## Timesheets
+
+```php
+$timesheets = $xero->payroll()
+    ->au()
+    ->timesheets()
+    ->where('Status=="DRAFT"')
+    ->get();
+```
+
+```php
+$timesheet = $xero->payroll()
+    ->au()
+    ->timesheets()
+    ->create()
+    ->employee('employee-id')
+    ->startDate('2026-03-23')
+    ->endDate('2026-03-29')
+    ->status('DRAFT')
+    ->save();
+```
+
+## Settings
+
+```php
+$settings = $xero->payroll()
+    ->au()
+    ->settings()
+    ->get();
+```
+
+## Scope Notes
+
+Payroll AU uses several scope families:
+
+- employees and leave applications: broad `payroll.employees`, granular `payroll.employees.read`, `payroll.employees`
+- pay items and settings: broad `payroll.settings`, granular `payroll.settings.read`, `payroll.settings`
+- pay runs: broad `payroll.payruns`, granular `payroll.payruns.read`, `payroll.payruns`
+- timesheets: broad `payroll.timesheets`, granular `payroll.timesheets.read`, `payroll.timesheets`

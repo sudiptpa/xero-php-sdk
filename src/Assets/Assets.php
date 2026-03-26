@@ -9,9 +9,11 @@ use Sujip\Xero\Assets\Asset\Assets as AssetsResource;
 use Sujip\Xero\Assets\Asset\Payload as AssetPayload;
 use Sujip\Xero\Assets\Settings\Settings;
 use Sujip\Xero\Assets\Type\Payload as AssetTypePayload;
+use Sujip\Xero\Assets\Type\Type;
 use Sujip\Xero\Assets\Type\Types;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Support\PaginatedResult;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -30,12 +32,60 @@ final class Assets implements DefinesScopes
         return $this->assets->scopes();
     }
 
+    public function status(string $status): self
+    {
+        $clone = clone $this;
+        $clone->assets = $this->assets->status($status);
+
+        return $clone;
+    }
+
+    public function page(int $page): self
+    {
+        $clone = clone $this;
+        $clone->assets = $this->assets->page($page);
+
+        return $clone;
+    }
+
+    public function perPage(int $perPage): self
+    {
+        $clone = clone $this;
+        $clone->assets = $this->assets->perPage($perPage);
+
+        return $clone;
+    }
+
+    public function orderBy(string $field, string $direction = 'ASC'): self
+    {
+        $clone = clone $this;
+        $clone->assets = $this->assets->orderBy($field, $direction);
+
+        return $clone;
+    }
+
+    public function filterBy(string $value): self
+    {
+        $clone = clone $this;
+        $clone->assets = $this->assets->filterBy($value);
+
+        return $clone;
+    }
+
     /**
      * @return ResourceCollection<Asset>
      */
     public function get(): ResourceCollection
     {
         return $this->assets->get();
+    }
+
+    /**
+     * @return PaginatedResult<Asset>
+     */
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    {
+        return $this->assets->paginate($page, $perPage);
     }
 
     public function find(string $assetId): ?Asset
@@ -51,6 +101,14 @@ final class Assets implements DefinesScopes
     public function assetTypes(): Types
     {
         return new Types($this->client);
+    }
+
+    /**
+     * @return ResourceCollection<Type>
+     */
+    public function getAssetTypes(): ResourceCollection
+    {
+        return $this->assetTypes()->get();
     }
 
     public function createAssetType(): AssetTypePayload

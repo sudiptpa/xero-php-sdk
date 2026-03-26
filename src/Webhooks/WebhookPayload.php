@@ -37,4 +37,76 @@ final readonly class WebhookPayload
             $payload
         );
     }
+
+    public function hasEvents(): bool
+    {
+        return $this->events->count() > 0;
+    }
+
+    public function isEmpty(): bool
+    {
+        return ! $this->hasEvents();
+    }
+
+    public function first(): ?WebhookEvent
+    {
+        return $this->events->first();
+    }
+
+    public function last(): ?WebhookEvent
+    {
+        $all = $this->events->all();
+
+        if ($all === []) {
+            return null;
+        }
+
+        /** @var WebhookEvent $last */
+        $last = end($all);
+
+        return $last;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function categories(): array
+    {
+        $categories = [];
+
+        foreach ($this->events as $event) {
+            if ($event->eventCategory !== null) {
+                $categories[] = $event->eventCategory;
+            }
+        }
+
+        return array_values(array_unique($categories));
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function eventTypes(): array
+    {
+        $types = [];
+
+        foreach ($this->events as $event) {
+            if ($event->eventType !== null) {
+                $types[] = $event->eventType;
+            }
+        }
+
+        return array_values(array_unique($types));
+    }
+
+    public function contains(string $category, ?string $type = null): bool
+    {
+        foreach ($this->events as $event) {
+            if ($event->is($category, $type)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

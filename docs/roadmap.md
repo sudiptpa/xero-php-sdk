@@ -6,13 +6,25 @@ It is intentionally opinionated. The goal is not to touch every Xero endpoint qu
 
 ## Current Position
 
-The package now has production-shaped foundations and three real API slices:
+The package now has the core foundation in place and nine real API slices:
 
 - Accounting
 - Files
 - Assets
+- Projects
+- Payroll AU
+- Payroll NZ
+- Payroll UK
+- Finance
+- App Store
 
-That gives the project enough shape to stop thinking in scaffolds and start thinking in adoption.
+That means the next work should be about finishing and polishing, not proving the structure works.
+
+## Release View
+
+If the goal is a first serious public release, use [release-checklist.md](release-checklist.md) as the practical source of truth.
+
+The roadmap below is still useful for sequencing work, but the checklist is the better guide for deciding what must be finished before tagging a release.
 
 ## Next
 
@@ -22,36 +34,41 @@ That gives the project enough shape to stop thinking in scaffolds and start thin
 - tighten the quick-start path from auth to tenant selection to first API call
 - keep the coverage map honest as implementation grows
 
-### 2. Accounting Audit And Helpers
+### 2. Webhooks And Integration Ergonomics
 
-Accounting is now broad enough that the next job is not more random endpoints. It is to audit the live docs again and close the helper gaps that make mature integrations pleasant:
+The webhook core is solid, but the surrounding developer experience can still improve:
 
-- remaining attachments and history surfaces
-- report helper coverage review
-- sharper scope notes per resource
-- any small endpoint gaps still left in the Accounting sidebar
+- richer event helpers
+- clearer framework integration examples
+- a smoother first-successful-webhook story in the docs
 
-### 3. Projects
+### 3. Payroll And Projects Long-Tail Pass
 
-Projects should be the next serious API family.
+These families are now real enough that the next work should be selective:
 
-Why this is next:
+- review the live payroll docs for the next useful AU, NZ, and UK helper gaps
+- review the live Projects docs for the next useful lifecycle or reporting helpers
+- keep the public API taste calm and consistent instead of mirroring every endpoint mechanically
 
-- it expands real package breadth
-- it is distinct from Accounting, so it proves the architecture scales
-- it is easier to shape well now than jumping straight into deep payroll coverage
+### 4. Files And Assets Long-Tail Pass
 
-### 4. Payroll Expansion
+Files and Assets are in a good place now, but they still have room for a focused cleanup pass:
 
-Payroll should keep the domain-first, country-second pattern:
+- close the next useful lifecycle helpers from the live docs
+- keep the docs and scope guidance aligned with the actual supported surface
 
-- AU depth beyond employees
-- NZ first real slice
-- UK first real slice
+### 5. Focused Accounting Re-Audit
 
-### 5. Finance And App Store
+Accounting is already broad. The next accounting work should only come from a live docs sweep:
 
-These should come after the package has stronger adoption value in the more common surfaces.
+- find any remaining helper gaps that still matter in application code
+- avoid reopening broad endpoint sprawl unless the docs audit clearly justifies it
+
+### 6. Whole-Product Audit Mode
+
+The package has enough real surface now that planning should be driven by the live parity audit rather than by intuition.
+
+Use [xero-parity-audit.md](xero-parity-audit.md) as the source of truth for the next batches.
 
 ## Quality Bar
 

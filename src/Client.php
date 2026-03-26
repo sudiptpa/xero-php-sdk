@@ -124,6 +124,16 @@ final class Client
         return new PendingRequest($this, 'PUT', $path);
     }
 
+    public function patch(string $path): PendingRequest
+    {
+        return new PendingRequest($this, 'PATCH', $path);
+    }
+
+    public function delete(string $path): PendingRequest
+    {
+        return new PendingRequest($this, 'DELETE', $path);
+    }
+
     public function send(Request $request): Response
     {
         $request = $request->withBaseUri($this->context->baseUri)

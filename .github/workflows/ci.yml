@@ -14,9 +14,18 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          coverage: none
+          coverage: xdebug
 
       - uses: ramsey/composer-install@v3
 
+      - run: mkdir -p build/logs
       - run: composer test
+      - run: composer stan
+      - run: composer coverage
       - run: find src tests -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phpunit-coverage
+          path: build/logs/clover.xml

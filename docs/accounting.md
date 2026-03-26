@@ -627,6 +627,18 @@ $profitAndLoss = $xero->accounting()
 
 ## Scope Notes
 
+Accounting is the broadest family in the package, so it is also the easiest place to ask for too many scopes.
+
+Use this rule of thumb:
+
+- reads can use granular `*.read` scopes where Xero exposes them
+- writes and action endpoints need the corresponding write scopes
+- attachments, history actions, and PDFs should be treated as resource-specific operations, not as “free extras”
+
+For the current per-resource implementation picture, use:
+
+- [Accounting Parity](accounting-parity.md)
+
 The package carries scope metadata on these resources already.
 
 Current implemented scope shape:

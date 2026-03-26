@@ -125,4 +125,13 @@ final readonly class File
 
         return new Associations($this->client, $this->id);
     }
+
+    public function delete(): bool
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot delete a file without a bound client context and file id.');
+        }
+
+        return (new Files($this->client))->delete($this->id);
+    }
 }

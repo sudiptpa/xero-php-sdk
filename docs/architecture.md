@@ -89,6 +89,12 @@ The SDK now has the basic pieces needed for a serious integration:
 - fluent query and create builders for contacts, invoices, payments, and accounts
 - a real Files slice for uploads, folders, inbox, and associations
 - a real Assets slice for assets, asset types, and settings
+- a real Projects slice for projects, users, tasks, and time entries
+- a real Payroll AU slice for employees, leave applications, pay items, pay runs, timesheets, and settings
+- a real Payroll NZ slice for employees, leave types, pay run calendars, pay runs, timesheets, and settings
+- a real Payroll UK slice for employees, leave balances, pay run calendars, pay runs, and timesheets
+- a real Finance slice for accounting activities, cash validation, and financial statements
+- a real App Store slice for subscriptions and usage records
 
 That still leaves a lot to build, but the package is now moving on reusable rails instead of one-off endpoint classes.
 
