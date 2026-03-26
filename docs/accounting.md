@@ -34,13 +34,24 @@ The current surface is still early, but it already covers the basic shape for:
 - payment services
 - reports
 - invoice attachments
+- invoice attachment downloads
 - invoice history
 - invoice PDF
 - credit note attachments
+- credit note attachment downloads
 - credit note history
 - credit note PDF
+- bank transaction history
+- batch payment history
+- item history
+- payment history
 - purchase order attachments
+- purchase order attachment downloads
+- purchase order history
 - quote PDF
+- receipt history
+- manual journal attachments
+- manual journal attachment downloads
 
 If you want the full current Accounting API picture, use the parity tracker:
 
@@ -114,6 +125,13 @@ $attachment = $xero->accounting()
     ->save();
 ```
 
+```php
+$binary = $xero->accounting()
+    ->invoices()
+    ->attachments('invoice-id')
+    ->download('invoice.pdf', 'application/pdf');
+```
+
 ## Invoice History
 
 ```php
@@ -143,6 +161,13 @@ $updated = $xero->accounting()
     ->update('payment-id')
     ->reference('PAY-1002')
     ->save();
+```
+
+```php
+$history = $xero->accounting()
+    ->payments()
+    ->history('payment-id')
+    ->record('Payment reconciled');
 ```
 
 ## Accounts
@@ -192,6 +217,13 @@ $item = $xero->accounting()
     ->name('Widget')
     ->description('Standard widget')
     ->save();
+```
+
+```php
+$history = $xero->accounting()
+    ->items()
+    ->history('item-id')
+    ->record('Item updated from ERP');
 ```
 
 ## Tax Rates
@@ -342,6 +374,13 @@ $attachments = $xero->accounting()
 ```
 
 ```php
+$binary = $xero->accounting()
+    ->creditNotes()
+    ->attachments('credit-note-id')
+    ->downloadById('attachment-id', 'application/pdf');
+```
+
+```php
 $history = $xero->accounting()
     ->creditNotes()
     ->history('credit-note-id')
@@ -471,6 +510,13 @@ $manualJournal = $xero->accounting()
     ->save();
 ```
 
+```php
+$binary = $xero->accounting()
+    ->manualJournals()
+    ->attachments('manual-journal-id')
+    ->download('journal.pdf', 'application/pdf');
+```
+
 ## Purchase Orders
 
 ```php
@@ -498,6 +544,13 @@ $attachment = $xero->accounting()
     ->mimeType('application/pdf')
     ->includeOnline()
     ->save();
+```
+
+```php
+$binary = $xero->accounting()
+    ->purchaseOrders()
+    ->attachments('purchase-order-id')
+    ->downloadById('attachment-id', 'application/pdf');
 ```
 
 ## Quotes

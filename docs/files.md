@@ -13,6 +13,7 @@ Current coverage:
 - inbox
 - file associations
 - object-side file association lookups
+- association counts
 
 ## Files
 
@@ -73,6 +74,12 @@ $files = $xero->files()
 $xero->files()
     ->associations('file-id')
     ->delete('invoice-id');
+```
+
+```php
+$counts = $xero->files()
+    ->associations('file-id')
+    ->countFor('invoice-id', 'contact-id');
 ```
 
 ## Folders

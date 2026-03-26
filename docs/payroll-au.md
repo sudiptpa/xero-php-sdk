@@ -4,13 +4,36 @@ Payroll AU has its own rules and query style. The package keeps that explicit in
 
 Current coverage:
 
+- payroll calendars
 - employees
 - leave applications
 - pay items
 - pay runs
 - timesheets
 - settings
+- super funds
 - employee find and write flows
+
+## Payroll Calendars
+
+```php
+$calendars = $xero->payroll()
+    ->au()
+    ->payrollCalendars()
+    ->get();
+```
+
+```php
+$calendar = $xero->payroll()
+    ->au()
+    ->payrollCalendars()
+    ->create()
+    ->name('Weekly')
+    ->calendarType('WEEKLY')
+    ->startDate('2026-04-01')
+    ->paymentDate('2026-04-08')
+    ->save();
+```
 
 ## Employees
 
@@ -125,11 +148,21 @@ $settings = $xero->payroll()
     ->get();
 ```
 
+## Super Funds
+
+```php
+$superFunds = $xero->payroll()
+    ->au()
+    ->superFunds()
+    ->get();
+```
+
 ## Scope Notes
 
 Payroll AU uses several scope families:
 
 - employees and leave applications: broad `payroll.employees`, granular `payroll.employees.read`, `payroll.employees`
 - pay items and settings: broad `payroll.settings`, granular `payroll.settings.read`, `payroll.settings`
+- payroll calendars and super funds: broad `payroll.settings`, granular `payroll.settings.read`, `payroll.settings`
 - pay runs: broad `payroll.payruns`, granular `payroll.payruns.read`, `payroll.payruns`
 - timesheets: broad `payroll.timesheets`, granular `payroll.timesheets.read`, `payroll.timesheets`

@@ -45,6 +45,27 @@ final class Associations implements DefinesScopes
         return new ResourceCollection($items);
     }
 
+    /**
+     * @return ResourceCollection<AssociationCount>
+     */
+    public function countFor(string ...$objectIds): ResourceCollection
+    {
+        $payload = $this->client
+            ->get('/files.xro/1.0/Associations/Count')
+            ->withQuery([
+                'ObjectIds' => implode(',', $objectIds),
+            ])
+            ->send()
+            ->json();
+
+        $items = array_values(array_map(
+            static fn (array $count): AssociationCount => AssociationCount::fromArray($count),
+            $payload['Items'] ?? []
+        ));
+
+        return new ResourceCollection($items);
+    }
+
     public function attach(string $objectId, string $objectType, ?string $objectGroup = null): AssociationPayload
     {
         return (new AssociationPayload($this->client, $this->fileId))

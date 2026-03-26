@@ -203,6 +203,26 @@ final class FilesTest extends TestCase
         self::assertTrue($deleted);
     }
 
+    public function test_it_can_get_association_counts_for_objects(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'Items' => [[
+                'ObjectId' => 'invoice-1',
+                'Count' => 3,
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $counts = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->files()
+            ->associations('file-1')
+            ->countFor('invoice-1', 'invoice-2');
+
+        self::assertSame('/files.xro/1.0/Associations/Count', $transport->requests()[0]->path);
+        self::assertSame('invoice-1,invoice-2', $transport->requests()[0]->query['ObjectIds']);
+        self::assertSame(3, $counts->first()?->count);
+    }
+
     public function test_loaded_file_can_be_deleted(): void
     {
         $transport = new FakeTransport();

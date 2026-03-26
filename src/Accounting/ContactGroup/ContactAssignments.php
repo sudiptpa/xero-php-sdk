@@ -31,4 +31,13 @@ final readonly class ContactAssignments
 
         return ContactGroup::fromArray(is_array($contactGroup) ? $contactGroup : [], $this->client);
     }
+
+    public function remove(string $contactId): bool
+    {
+        $response = $this->client
+            ->delete('/api.xro/2.0/ContactGroups/' . $this->contactGroupId . '/Contacts/' . $contactId)
+            ->send();
+
+        return $response->status === 204;
+    }
 }

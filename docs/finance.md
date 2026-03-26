@@ -6,7 +6,10 @@ Current coverage:
 
 - accounting activities
   - account usage
+  - lock history
   - report history
+  - user activities
+- bank statement accounting
 - cash validation
 - financial statements
   - balance sheet
@@ -37,6 +40,29 @@ $accountUsage = $xero->finance()
 $reportHistory = $xero->finance()
     ->accountingActivities()
     ->reportHistory(new DateTimeImmutable('2026-03-31'));
+```
+
+```php
+$lockHistory = $xero->finance()
+    ->accountingActivities()
+    ->lockHistory(new DateTimeImmutable('2026-03-31'));
+```
+
+```php
+$userActivities = $xero->finance()
+    ->accountingActivities()
+    ->userActivities('2026-02');
+```
+
+## Bank Statement Accounting
+
+```php
+$entries = $xero->finance()
+    ->bankStatementAccounting()
+    ->get(
+        new DateTimeImmutable('2026-03-31'),
+        new DateTimeImmutable('2026-03-31'),
+    );
 ```
 
 ## Cash Validation

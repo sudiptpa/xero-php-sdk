@@ -48,4 +48,26 @@ final class PurchaseOrderAttachmentsTest extends TestCase
         self::assertSame('application/pdf', $transport->requests()[1]->headers['Content-Type']);
         self::assertTrue((bool) $uploaded->includeOnline);
     }
+
+    public function test_it_can_download_purchase_order_attachments_by_name_and_id(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: 'purchase-order-by-name'));
+        $transport->push(new Response(200, body: 'purchase-order-by-id'));
+
+        $attachments = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->purchaseOrders()
+            ->attachments('po-1');
+
+        $byName = $attachments->download('purchase-order.pdf', 'application/pdf');
+        $byId = $attachments->downloadById('attachment-1', 'application/pdf');
+
+        self::assertSame('/api.xro/2.0/PurchaseOrders/po-1/Attachments/purchase-order.pdf', $transport->requests()[0]->path);
+        self::assertSame('application/pdf', $transport->requests()[0]->headers['Accept']);
+        self::assertSame('/api.xro/2.0/PurchaseOrders/po-1/Attachments/attachment-1', $transport->requests()[1]->path);
+        self::assertSame('purchase-order-by-name', $byName);
+        self::assertSame('purchase-order-by-id', $byId);
+    }
 }

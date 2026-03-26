@@ -40,6 +40,11 @@ final readonly class Finance implements DefinesScopes
         return new CashValidation($this->client);
     }
 
+    public function bankStatementAccounting(): BankStatementAccounting
+    {
+        return new BankStatementAccounting($this->client);
+    }
+
     public function statements(): FinancialStatements
     {
         return new FinancialStatements($this->client);

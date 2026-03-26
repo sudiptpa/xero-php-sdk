@@ -5,12 +5,13 @@ Payroll NZ has its own shape, especially around leave and pay-run setup.
 Current coverage:
 
 - employees
+- employee leave balances, leave records, and payment method helpers
 - leave types
 - pay run calendars
 - pay runs
 - timesheets
 - settings
-- employee leave helpers
+- statutory deductions
 
 ## Employees
 
@@ -38,6 +39,12 @@ $employee = $xero->payroll()
 $leaveTypes = $employee->leaveTypes();
 
 $leavePeriods = $employee->leavePeriods('2026-01-01', '2026-03-31');
+
+$leaveBalances = $employee->leaveBalances();
+
+$leaves = $employee->leaves();
+
+$paymentMethod = $employee->paymentMethod();
 ```
 
 ## Leave Types
@@ -112,6 +119,13 @@ $settings = $xero->payroll()
     ->nz()
     ->settings()
     ->get();
+```
+
+```php
+$deductions = $xero->payroll()
+    ->nz()
+    ->settings()
+    ->statutoryDeductions();
 ```
 
 ## Scope Notes

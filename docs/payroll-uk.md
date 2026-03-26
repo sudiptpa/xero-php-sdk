@@ -7,9 +7,11 @@ Current coverage:
 - employees
 - employee leave balances
 - employee statutory leave balance
+- employee leave records and payment method helpers
 - pay run calendars
 - pay runs
 - timesheets
+- settings helpers for tracking categories, reimbursements, and statutory leave summary
 
 ## Employees
 
@@ -37,6 +39,10 @@ $employee = $xero->payroll()
 $balances = $employee->leaveBalances();
 
 $statutory = $employee->statutoryLeaveBalance();
+
+$leaves = $employee->leaves();
+
+$paymentMethod = $employee->paymentMethod();
 ```
 
 ## Pay Run Calendars
@@ -92,6 +98,22 @@ $timesheet = $xero->payroll()
 ```php
 $approved = $timesheet->approve();
 $reverted = $approved->revert();
+```
+
+## Settings
+
+```php
+$trackingCategories = $xero->payroll()
+    ->uk()
+    ->settings()
+    ->trackingCategories();
+```
+
+```php
+$summary = $xero->payroll()
+    ->uk()
+    ->settings()
+    ->statutoryLeaveSummary('employee-id');
 ```
 
 ## Scope Notes

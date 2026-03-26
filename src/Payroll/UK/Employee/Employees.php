@@ -122,4 +122,37 @@ final class Employees implements PaginatesResults, DefinesScopes
             ->send()
             ->json();
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function leaves(string $employeeId): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/Leave')
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function leave(string $employeeId, string $leaveId): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/Leave/' . $leaveId)
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function paymentMethod(string $employeeId): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/PaymentMethod')
+            ->send()
+            ->json();
+    }
 }

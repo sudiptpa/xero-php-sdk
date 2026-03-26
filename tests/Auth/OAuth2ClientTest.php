@@ -78,4 +78,5 @@ final class OAuth2ClientTest extends TestCase
         self::assertStringContainsString('scope=finance.statements.read', (string) $request->body);
         self::assertSame('custom-connection-token', $token->accessToken);
     }
+
 }

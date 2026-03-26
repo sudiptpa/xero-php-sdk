@@ -71,9 +71,22 @@ final class WebhookVerifierTest extends TestCase
         self::assertSame('contact-1', $webhook->last()?->resourceId);
         self::assertSame(['INVOICE', 'CONTACT'], $webhook->categories());
         self::assertSame(['CREATE', 'UPDATE'], $webhook->eventTypes());
+        self::assertSame(2, $webhook->count());
         self::assertTrue($webhook->contains('invoice'));
+        self::assertTrue($webhook->has('contact', 'update'));
+        self::assertSame(['invoice-1', 'contact-1'], $webhook->resourceIds());
+        self::assertSame([
+            '/api.xro/2.0/Invoices/invoice-1',
+            '/api.xro/2.0/Contacts/contact-1',
+        ], $webhook->paths());
+        self::assertCount(1, $webhook->only('contact', 'update'));
         self::assertTrue($webhook->contains('contact', 'update'));
         self::assertSame('/api.xro/2.0/Invoices/invoice-1', $webhook->first()->path());
+        self::assertSame('Invoices', $webhook->first()->resourceName());
+        self::assertTrue($webhook->first()->category('invoice'));
+        self::assertTrue($webhook->first()->type('create'));
+        self::assertTrue($webhook->first()->resource('invoice-1'));
+        self::assertSame('2026-03-25T00:00:00+00:00', $webhook->first()->occurredAt()?->format(\DateTimeInterface::ATOM));
         self::assertTrue($webhook->first()->isCreate());
         self::assertTrue($webhook->last()->isUpdate());
     }
@@ -98,5 +111,35 @@ final class WebhookVerifierTest extends TestCase
 
         self::assertSame('invoice-1', $webhook->first()->resourceId);
         self::assertTrue($webhook->first()->isDelete());
+    }
+
+    public function test_it_can_work_with_header_arrays_directly(): void
+    {
+        $payload = json_encode([
+            'firstEventSequence' => 10,
+            'lastEventSequence' => 10,
+            'events' => [[
+                'resourceUrl' => 'https://api.xero.com/api.xro/2.0/Invoices/invoice-1',
+                'resourceId' => 'invoice-1',
+                'eventCategory' => 'INVOICE',
+                'eventType' => 'UPDATE',
+                'eventDateUtc' => '2026-03-25T00:00:00',
+            ]],
+        ], JSON_THROW_ON_ERROR);
+
+        $verifier = Xero::webhookVerifier('webhook-key');
+        $signature = $verifier->signatureFor($payload);
+        $headers = [
+            'Content-Type' => 'application/json',
+            'X-Xero-Signature' => $signature,
+        ];
+
+        self::assertSame($signature, $verifier->signatureFromHeaders($headers));
+        self::assertTrue($verifier->verifyHeaders($payload, $headers));
+
+        $parsed = $verifier->verifyAndParseHeaders($payload, $headers);
+
+        self::assertSame('invoice-1', $parsed->first()->resourceId);
+        self::assertTrue($parsed->first()->isUpdate());
     }
 }

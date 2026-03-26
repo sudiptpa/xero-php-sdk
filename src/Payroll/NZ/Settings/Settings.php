@@ -33,4 +33,29 @@ final readonly class Settings implements DefinesScopes
             ->send()
             ->json();
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function statutoryDeductions(?int $page = null): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/StatutoryDeductions')
+            ->withQuery(array_filter([
+                'page' => $page,
+            ], static fn (mixed $value): bool => $value !== null))
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function statutoryDeduction(string $id): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/StatutoryDeductions/' . $id)
+            ->send()
+            ->json();
+    }
 }

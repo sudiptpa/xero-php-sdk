@@ -21,6 +21,12 @@ $verifier->assertValid($rawPayload, $signatureHeader);
 
 If the signature does not match, the package throws `InvalidWebhookSignatureException`.
 
+If your HTTP layer gives you a header array instead of a single string:
+
+```php
+$verifier->assertValidHeaders($rawPayload, $headers);
+```
+
 ## Parse The Payload
 
 ```php
@@ -37,6 +43,12 @@ Or in one step:
 $payload = $verifier->verifyAndParse($rawPayload, $signatureHeader);
 ```
 
+Or directly from a framework-neutral header array:
+
+```php
+$payload = $verifier->verifyAndParseHeaders($rawPayload, $headers);
+```
+
 ## Event Helpers
 
 ```php
@@ -49,7 +61,13 @@ if ($payload->contains('invoice', 'create')) {
 if ($first?->isCreate()) {
     $resourceId = $first->resourceId;
     $path = $first->path();
+    $resource = $first->resourceName();
 }
+```
+
+```php
+$invoiceEvents = $payload->only('invoice');
+$ids = $payload->resourceIds();
 ```
 
 ## Practical Notes
@@ -58,6 +76,7 @@ if ($first?->isCreate()) {
 - keep the raw payload if you need to retry processing
 - return quickly to Xero and do heavier work asynchronously in your app
 - treat webhook delivery as a signal, not as your only source of truth
+- route from event category and id, then re-fetch current data from Xero when accuracy matters
 
 ## Scope Notes
 

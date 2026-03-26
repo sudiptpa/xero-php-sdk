@@ -60,6 +60,28 @@ final class EmployeesTest extends TestCase
                 'EndDate' => '2026-03-31',
             ]],
         ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'LeaveBalances' => [[
+                'Balance' => 24.5,
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'Leave' => [[
+                'LeaveID' => 'leave-1',
+                'Status' => 'APPROVED',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'Leave' => [
+                'LeaveID' => 'leave-1',
+                'Status' => 'APPROVED',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'PaymentMethod' => [
+                'BankAccountNumber' => '12-1234-1234567-00',
+            ],
+        ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
@@ -77,6 +99,10 @@ final class EmployeesTest extends TestCase
             ->save();
         $leaveTypes = $employee?->leaveTypes();
         $leavePeriods = $employee?->leavePeriods('2026-01-01', '2026-03-31');
+        $leaveBalances = $employee?->leaveBalances();
+        $leaves = $employee?->leaves();
+        $leave = $employee?->leave('leave-1');
+        $paymentMethod = $employee?->paymentMethod();
 
         self::assertSame('/payroll.xro/2.0/Employees', $transport->requests()[0]->path);
         self::assertSame('Ada', $transport->requests()[0]->query['filter']);
@@ -89,10 +115,18 @@ final class EmployeesTest extends TestCase
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeavePeriods', $transport->requests()[5]->path);
         self::assertSame('2026-01-01', $transport->requests()[5]->query['startDate']);
         self::assertSame('2026-03-31', $transport->requests()[5]->query['endDate']);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeaveBalances', $transport->requests()[6]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[7]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave/leave-1', $transport->requests()[8]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PaymentMethods', $transport->requests()[9]->path);
         self::assertSame('employee-1', $employee?->id);
         self::assertSame('employee-2', $created->id);
         self::assertSame('employee-2', $updated->id);
         self::assertSame('Annual Leave', $leaveTypes?->first()?->name);
         self::assertSame('2026-01-01', $leavePeriods['LeavePeriods'][0]['StartDate']);
+        self::assertEquals(24.5, $leaveBalances['LeaveBalances'][0]['Balance']);
+        self::assertSame('leave-1', $leaves['Leave'][0]['LeaveID']);
+        self::assertSame('leave-1', $leave['Leave']['LeaveID']);
+        self::assertSame('12-1234-1234567-00', $paymentMethod['PaymentMethod']['BankAccountNumber']);
     }
 }

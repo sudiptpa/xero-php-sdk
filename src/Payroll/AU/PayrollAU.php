@@ -8,6 +8,11 @@ use Sujip\Xero\Payroll\Shared\PayrollRegion;
 
 final readonly class PayrollAU extends PayrollRegion
 {
+    public function payrollCalendars(): PayrollCalendar\PayrollCalendars
+    {
+        return new PayrollCalendar\PayrollCalendars($this->client);
+    }
+
     public function employees(): Employees
     {
         return new Employees($this->client);
@@ -36,5 +41,10 @@ final readonly class PayrollAU extends PayrollRegion
     public function settings(): Settings\Settings
     {
         return new Settings\Settings($this->client);
+    }
+
+    public function superFunds(): SuperFund\SuperFunds
+    {
+        return new SuperFund\SuperFunds($this->client);
     }
 }

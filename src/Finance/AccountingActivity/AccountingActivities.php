@@ -107,4 +107,54 @@ final readonly class AccountingActivities implements DefinesScopes
 
         return new ResourceCollection($items);
     }
+
+    /**
+     * @return ResourceCollection<LockHistory>
+     */
+    public function lockHistory(?DateTimeInterface $endDate = null): ResourceCollection
+    {
+        $query = [];
+
+        if ($endDate !== null) {
+            $query['endDate'] = $endDate->format('Y-m-d');
+        }
+
+        $payload = $this->client
+            ->get('/finance.xro/1.0/AccountingActivities/LockHistory')
+            ->withQuery($query)
+            ->send()
+            ->json();
+
+        $items = array_values(array_map(
+            static fn (array $history): LockHistory => LockHistory::fromArray($history),
+            $payload['Items'] ?? $payload['LockHistory'] ?? []
+        ));
+
+        return new ResourceCollection($items);
+    }
+
+    /**
+     * @return ResourceCollection<UserActivity>
+     */
+    public function userActivities(?string $dataMonth = null): ResourceCollection
+    {
+        $query = [];
+
+        if ($dataMonth !== null) {
+            $query['dataMonth'] = $dataMonth;
+        }
+
+        $payload = $this->client
+            ->get('/finance.xro/1.0/AccountingActivities/UserActivities')
+            ->withQuery($query)
+            ->send()
+            ->json();
+
+        $items = array_values(array_map(
+            static fn (array $activity): UserActivity => UserActivity::fromArray($activity),
+            $payload['Items'] ?? $payload['UserActivities'] ?? []
+        ));
+
+        return new ResourceCollection($items);
+    }
 }

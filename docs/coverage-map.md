@@ -15,16 +15,16 @@ It is meant to answer three practical questions quickly:
 | Core client, context, transport | Built | Native transport, fake transport, request pipeline, error mapping |
 | Auth | Strong working slice | Authorization URL, token exchange client, refresh, PKCE, custom connections, token storage, and connection manager are in place |
 | Identity | Built | Tenant discovery through `/connections` is covered |
-| Webhooks | Built base | Signature verification and payload parsing are covered; richer app/framework ergonomics are still light |
+| Webhooks | Strong working slice | Signature verification, header-array helpers, payload parsing, and event-query helpers are covered |
 | Accounting | Broad coverage | Core workflows, settings, transactions, reporting, and long-tail resources are now in place |
-| Files | Strong working slice | Files, uploads, deletes, folders, inbox, associations, object-side association lookup |
-| Assets | Strong working slice | Assets, asset types, settings, and documented collection search parameters |
-| Payroll AU | Strong slice | Employees, leave applications, pay items, pay runs, timesheets, settings |
-| Payroll NZ | Strong slice | Employees, leave types, pay run calendars, pay runs, timesheets, settings |
-| Payroll UK | Strong slice | Employees, leave balances, pay run calendars, pay runs, timesheets |
+| Files | Strong working slice | Files, uploads, deletes, folders, inbox, associations, object-side association lookup, and associations count |
+| Assets | Near-complete overview slice | Assets, asset types, settings, and documented collection search parameters |
+| Payroll AU | Strong slice | Employees, payroll calendars, super funds, leave applications, pay items, pay runs, timesheets, settings |
+| Payroll NZ | Strong slice | Employees, employee leave helpers, leave types, pay run calendars, pay runs, timesheets, settings, statutory deductions |
+| Payroll UK | Strong slice | Employees, leave balances, leave records, payment methods, pay run calendars, pay runs, timesheets, settings helpers |
 | Projects | Strong working slice | Projects, project lifecycle patch helpers, project users, tasks, and time entries |
-| Finance | Strong working slice | Accounting activities, account usage, report history, cash validation, financial statements |
-| App Store | Strong working slice | Subscription lookup, documented subscription-item usage paths, and usage record updates |
+| Finance | Strong working slice | Accounting activities, account usage, lock history, report history, user activities, cash validation, bank statement accounting, and financial statements |
+| App Store | Complete current core slice | Subscription lookup, documented subscription-item usage paths, and usage record updates |
 
 ## Foundation
 
@@ -112,6 +112,7 @@ Detailed parity tracking for Accounting lives in [accounting-parity.md](accounti
 | File content | Yes | n/a | Yes | Yes | Partial |
 | File associations | Yes | Create, delete association | Yes | Yes | Partial |
 | Object-side file associations | Yes | n/a | Yes | Yes | Partial |
+| Associations count | Yes | n/a | Yes | Yes | Partial |
 | Folders | Yes | Create, update, delete | Yes | Yes | Partial |
 | Inbox | Yes | n/a | Yes | Yes | Partial |
 
@@ -132,19 +133,22 @@ Detailed parity tracking for Accounting lives in [accounting-parity.md](accounti
 | AU pay items | Yes | No | Yes | Yes | Partial |
 | AU pay runs | Yes | Create, update | Yes | Yes | Partial |
 | AU timesheets | Yes | Create, update | Yes | Yes | Partial |
+| AU payroll calendars | Yes | Create, update | Yes | Yes | Partial |
+| AU super funds | Yes | No | Yes | Yes | Partial |
 | AU settings | Yes | No | Yes | Yes | Partial |
-| NZ employees | Yes | Create, update, leave helpers | Yes | Yes | Partial |
+| NZ employees | Yes | Create, update, leave and payment helpers | Yes | Yes | Partial |
 | NZ leave types | Yes | No | Yes | Yes | Partial |
 | NZ pay run calendars | Yes | No | Yes | Yes | Partial |
 | NZ pay runs | Yes | Create | Yes | Yes | Partial |
 | NZ timesheets | Yes | Create, update, approve, revert, delete | Yes | Yes | Partial |
-| NZ settings | Yes | No | Yes | Yes | Partial |
-| UK employees | Yes | Create, update | Yes | Yes | Partial |
+| NZ settings | Yes | Statutory deductions read helpers | Yes | Yes | Partial |
+| UK employees | Yes | Create, update, leave and payment helpers | Yes | Yes | Partial |
 | UK employee leave balances | Yes | No | Yes | Yes | Partial |
 | UK employee statutory leave balance | Yes | No | Yes | Yes | Partial |
 | UK pay run calendars | Yes | No | Yes | Yes | Partial |
 | UK pay runs | Yes | Create | Yes | Yes | Partial |
 | UK timesheets | Yes | Create, update, approve, revert | Yes | Yes | Partial |
+| UK settings helpers | Yes | No | Yes | Yes | Partial |
 
 ## Finance
 
@@ -152,7 +156,10 @@ Detailed parity tracking for Accounting lives in [accounting-parity.md](accounti
 | --- | --- | --- | --- | --- | --- |
 | Accounting activities | Yes | No | Yes | Yes | Partial |
 | Accounting activity account usage | Yes | No | Yes | Yes | Partial |
+| Accounting activity lock history | Yes | No | Yes | Yes | Partial |
 | Accounting activity report history | Yes | No | Yes | Yes | Partial |
+| Accounting activity user activities | Yes | No | Yes | Yes | Partial |
+| Bank statement accounting | Yes | No | Yes | Yes | Partial |
 | Cash validation | Yes | No | Yes | Yes | Partial |
 | Balance sheet | Yes | No | Yes | Yes | Partial |
 | Cashflow | Yes | No | Yes | Yes | Partial |
@@ -187,7 +194,7 @@ Detailed parity tracking for Accounting lives in [accounting-parity.md](accounti
 
 ## Next Priority
 
-1. Tighten broad vs granular scopes per implemented resource page.
-2. Tighten quick-start docs around auth, tenant selection, and first successful call.
-3. Improve webhook and application integration ergonomics.
-4. Re-run the parity audit after each serious domain pass.
+1. Close the remaining exact Accounting helper endpoints from the latest live sweep.
+2. Tighten broad vs granular scopes per implemented resource page.
+3. Tighten quick-start docs around auth, tenant selection, and first successful call.
+4. Do the next webhook and framework-integration polish pass.

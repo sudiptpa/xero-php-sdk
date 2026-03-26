@@ -89,4 +89,40 @@ final readonly class Employee
 
         return (new Employees($this->client))->statutoryLeaveBalance($this->id);
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function leaves(): array
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot load employee leave records without a bound client context and employee id.');
+        }
+
+        return (new Employees($this->client))->leaves($this->id);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function leave(string $leaveId): array
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot load a specific employee leave record without a bound client context and employee id.');
+        }
+
+        return (new Employees($this->client))->leave($this->id, $leaveId);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function paymentMethod(): array
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot load employee payment method without a bound client context and employee id.');
+        }
+
+        return (new Employees($this->client))->paymentMethod($this->id);
+    }
 }

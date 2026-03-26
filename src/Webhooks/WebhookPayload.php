@@ -48,6 +48,11 @@ final readonly class WebhookPayload
         return ! $this->hasEvents();
     }
 
+    public function count(): int
+    {
+        return $this->events->count();
+    }
+
     public function first(): ?WebhookEvent
     {
         return $this->events->first();
@@ -108,5 +113,60 @@ final readonly class WebhookPayload
         }
 
         return false;
+    }
+
+    /**
+     * @return ResourceCollection<WebhookEvent>
+     */
+    public function only(string $category, ?string $type = null): ResourceCollection
+    {
+        $events = [];
+
+        foreach ($this->events as $event) {
+            if ($event->is($category, $type)) {
+                $events[] = $event;
+            }
+        }
+
+        return new ResourceCollection($events);
+    }
+
+    public function has(string $category, ?string $type = null): bool
+    {
+        return $this->contains($category, $type);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function resourceIds(): array
+    {
+        $ids = [];
+
+        foreach ($this->events as $event) {
+            if ($event->resourceId !== null) {
+                $ids[] = $event->resourceId;
+            }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function paths(): array
+    {
+        $paths = [];
+
+        foreach ($this->events as $event) {
+            $path = $event->path();
+
+            if ($path !== null) {
+                $paths[] = $path;
+            }
+        }
+
+        return array_values(array_unique($paths));
     }
 }

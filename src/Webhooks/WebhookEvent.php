@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Webhooks;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+
 final readonly class WebhookEvent
 {
     /**
@@ -60,6 +63,54 @@ final readonly class WebhookEvent
     public function isDelete(): bool
     {
         return $this->eventType === 'DELETE';
+    }
+
+    public function category(string $category): bool
+    {
+        return $this->eventCategory === strtoupper($category);
+    }
+
+    public function type(string $type): bool
+    {
+        return $this->eventType === strtoupper($type);
+    }
+
+    public function resource(string $resourceId): bool
+    {
+        return $this->resourceId === $resourceId;
+    }
+
+    public function occurredAt(): ?DateTimeImmutable
+    {
+        if ($this->eventDateUtc === null || $this->eventDateUtc === '') {
+            return null;
+        }
+
+        return new DateTimeImmutable($this->eventDateUtc);
+    }
+
+    public function resourceName(): ?string
+    {
+        $path = $this->path();
+
+        if ($path === null) {
+            return null;
+        }
+
+        $segments = array_values(array_filter(explode('/', $path), static fn (string $segment): bool => $segment !== ''));
+
+        if ($segments === []) {
+            return null;
+        }
+
+        $lastIndex = count($segments) - 1;
+        $resource = $segments[$lastIndex];
+
+        if ($this->resourceId !== null && $resource === $this->resourceId) {
+            return $segments[$lastIndex - 1] ?? null;
+        }
+
+        return $resource;
     }
 
     public function path(): ?string
