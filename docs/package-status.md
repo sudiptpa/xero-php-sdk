@@ -26,16 +26,16 @@ The audit is based on the current official Xero docs and overview pages:
 
 | Area | Audit status | Notes |
 | --- | --- | --- |
-| Auth and Identity | Strong working coverage | Core OAuth lifecycle, PKCE, custom connections, token exchange, refresh, tenant discovery, connection management, and tenant-aware request handling are present |
-| Webhooks | Strong working coverage | Signature verification, header-array helpers, payload parsing, and event-query ergonomics are in place; remaining work is mostly docs depth |
+| Auth and Identity | Strong coverage | Core OAuth lifecycle, PKCE, custom connections, token exchange, refresh, tenant discovery, connection management, and tenant-aware request handling are present |
+| Webhooks | Strong coverage | Signature verification, header-array helpers, payload parsing, and event-query ergonomics are in place; remaining work is mostly docs depth |
 | Accounting | Broad coverage, still partial | Strongest family in the package today; the remaining work is now low-traffic helper depth rather than major resource absence |
-| Files | Strong working coverage | Reads, uploads, deletes, folders, inbox, associations, object-side lookup, and association counts are covered |
+| Files | Strong coverage | Reads, uploads, deletes, folders, inbox, associations, object-side lookup, and association counts are covered |
 | Assets | Near-complete overview coverage | The overview-level Assets methods are covered: assets, asset types, settings, and documented query parameters |
-| Projects | Strong working coverage | The core documented overview methods are covered: projects, users, tasks, time entries, and patch/update flows |
-| Payroll AU | Strong working coverage | Employees, payroll calendars, super funds, leave applications, pay items, pay runs, payslips, timesheets, and settings are covered with meaningful helper support |
-| Payroll NZ | Strong working coverage | Employees, leave helpers, payment-method helpers, tax and working-pattern helpers, leave setup, opening balances, leave types, pay run calendars, pay runs, timesheets, settings, and statutory deductions are covered |
-| Payroll UK | Strong working coverage | Employees, leave balances, statutory leave balance, leave records, payment-method helpers, pay run calendars, pay runs, payslips, timesheets, and settings helpers are covered |
-| Finance | Strong working coverage | Core statements, cash validation, bank statement accounting, account usage, lock history, report history, and user activities are covered; note that Xero says Accounting Activities is being decommissioned effective April 6, 2026 |
+| Projects | Strong coverage | The core documented overview methods are covered: projects, users, tasks, time entries, and patch/update flows |
+| Payroll AU | Strong coverage | Employees, payroll calendars, super funds, leave applications, pay items, pay runs, payslips, timesheets, and settings are covered with meaningful helper support |
+| Payroll NZ | Strong coverage | Employees, leave helpers, payment-method helpers, tax and working-pattern helpers, leave setup, opening balances, leave types, pay run calendars, pay runs, timesheets, settings, and statutory deductions are covered |
+| Payroll UK | Strong coverage | Employees, leave balances, statutory leave balance, leave records, payment-method helpers, pay run calendars, pay runs, payslips, timesheets, and settings helpers are covered |
+| Finance | Strong coverage | Core statements, cash validation, bank statement accounting, account usage, lock history, report history, and user activities are covered; note that Xero says Accounting Activities is being decommissioned effective April 6, 2026 |
 | App Store | Complete current core coverage | The currently documented subscription and usage-record flows are covered |
 
 ## Family Matrix
@@ -43,16 +43,16 @@ The audit is based on the current official Xero docs and overview pages:
 | Family | Package status | Tested | Docs | Main remaining gaps |
 | --- | --- | --- | --- | --- |
 | Accounting | Broad coverage, still partial | Yes | Yes | final long-tail helper sweep and any remaining low-traffic attachment variants from the live docs |
-| Files | Strong working coverage | Yes | Yes | remaining work is now convenience and long-tail helper depth rather than obvious overview-level endpoint gaps |
+| Files | Strong coverage | Yes | Yes | remaining work is now convenience and long-tail helper depth rather than obvious overview-level endpoint gaps |
 | Assets | Near-complete overview coverage | Yes | Yes | no obvious missing overview-level methods from the current Assets docs; remaining work is deeper lifecycle polish |
-| Projects | Strong working coverage | Yes | Yes | no obvious missing overview-level methods from the current Projects docs; remaining work is helper depth rather than core endpoint absence |
-| Payroll AU | Strong working coverage | Yes | Yes | remaining documented AU helper surfaces are now narrower long-tail payroll helpers rather than obvious payrun gaps |
-| Payroll NZ | Strong working coverage | Yes | Yes | remaining documented NZ helper surfaces beyond the current employee-side leave, tax, working-pattern, setup, and opening-balance helpers |
-| Payroll UK | Strong working coverage | Yes | Yes | remaining documented UK helper surfaces beyond the current leave, payrun, payslip, and settings coverage |
-| Finance | Strong working coverage | Yes | Yes | remaining work is polish and any future finance-surface expansion rather than obvious missing overview-level reads |
+| Projects | Strong coverage | Yes | Yes | no obvious missing overview-level methods from the current Projects docs; remaining work is helper depth rather than core endpoint absence |
+| Payroll AU | Strong coverage | Yes | Yes | remaining documented AU helper surfaces are now narrower long-tail payroll helpers rather than obvious payrun gaps |
+| Payroll NZ | Strong coverage | Yes | Yes | remaining documented NZ helper surfaces beyond the current employee-side leave, tax, working-pattern, setup, and opening-balance helpers |
+| Payroll UK | Strong coverage | Yes | Yes | remaining documented UK helper surfaces beyond the current leave, payrun, payslip, and settings coverage |
+| Finance | Strong coverage | Yes | Yes | remaining work is polish and any future finance-surface expansion rather than obvious missing overview-level reads |
 | App Store | Complete current core coverage | Yes | Yes | no obvious missing overview-level methods from the current App Store docs |
-| Auth / Identity | Strong working coverage | Yes | Yes | stronger scope guidance, clearer first-run integration docs, and more tenant-connect polish |
-| Webhooks | Strong working coverage | Yes | Yes | more framework-specific examples if we decide they are worth documenting |
+| Auth / Identity | Strong coverage | Yes | Yes | stronger scope guidance, clearer first-run integration docs, and more tenant-connect polish |
+| Webhooks | Strong coverage | Yes | Yes | more framework-specific examples if we decide they are worth documenting |
 
 ## What Looks Strong Today
 

@@ -43,7 +43,7 @@ $closed = $xero->projects()
     ->save();
 ```
 
-Loaded projects keep the same fluent feel:
+Loaded projects keep the same fluent style:
 
 ```php
 $reopened = $project?->close()->reopen();

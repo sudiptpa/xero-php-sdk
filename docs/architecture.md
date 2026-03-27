@@ -13,7 +13,7 @@
 
 ## Public API Style
 
-The SDK should feel like a Xero-native request DSL:
+The SDK should feel like a Xero-native request layer:
 
 ```php
 $xero->accounting()->contacts()->where(...)->page(1)->get();
@@ -21,7 +21,7 @@ $xero->accounting()->invoices()->create()->draft()->lineItem(...)->save();
 $xero->payroll()->au()->employees()->get();
 ```
 
-The package should not feel like a generated SDK. It should feel like a carefully-designed framework integration.
+The package should not feel like a generated SDK. It should feel clean, fluent, and easy to use in real apps.
 
 ## Internal Layers
 
@@ -96,7 +96,7 @@ The SDK now has the basic pieces needed for a serious integration:
 - real Finance coverage for accounting activities, cash validation, and financial statements
 - real App Store coverage for subscriptions and usage records
 
-That still leaves a lot to build, but the package is now moving on reusable rails instead of one-off endpoint classes.
+There is still more to build, but the package now has a solid structure instead of one-off endpoint classes.
 
 ## Tenant Handling
 
@@ -110,7 +110,7 @@ This separation matters because it shapes how apps connect the first time and ho
 
 ## Webhooks
 
-Webhook support should feel boring and reliable:
+Webhook support should be clear and reliable:
 
 - verify the `x-xero-signature` header
 - parse the payload into typed events

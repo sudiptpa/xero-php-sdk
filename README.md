@@ -1,4 +1,4 @@
-# Sujip Xero PHP SDK
+# Xero PHP SDK
 
 A fluent Xero SDK for PHP 8.2+ with no runtime dependencies.
 
@@ -7,12 +7,12 @@ A fluent Xero SDK for PHP 8.2+ with no runtime dependencies.
 The package already includes:
 
 - domain-first architecture
-- fluent client architecture
+- fluent client design
 - zero runtime dependencies
 - multi-tenant context handling
 - transport abstraction
 - elegant resource builders
-- docs-first API coverage planning
+- docs-first API planning
 - production-grade maintainability
 
 ## Installation

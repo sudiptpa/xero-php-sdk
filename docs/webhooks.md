@@ -1,6 +1,6 @@
 # Webhooks
 
-Webhook handling should be boring.
+Webhook handling should be clear and reliable.
 
 The package does two things:
 
