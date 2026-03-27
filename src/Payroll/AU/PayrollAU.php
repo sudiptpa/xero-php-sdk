@@ -47,4 +47,9 @@ final readonly class PayrollAU extends PayrollRegion
     {
         return new SuperFund\SuperFunds($this->client);
     }
+
+    public function superFundProducts(): SuperFund\Products
+    {
+        return new SuperFund\Products($this->client);
+    }
 }

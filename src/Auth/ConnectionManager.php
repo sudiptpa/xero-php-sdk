@@ -88,6 +88,25 @@ final class ConnectionManager
         return $this->connectTenant($tenantId, $this->exchange($code, $codeVerifier));
     }
 
+    public function disconnectConnection(string $connectionId, ?Token $token = null): bool
+    {
+        return $this->client($token)
+            ->identity()
+            ->connections()
+            ->disconnect($connectionId);
+    }
+
+    public function disconnectTenant(string $tenantId, ?Token $token = null): bool
+    {
+        $connection = $this->client($token)
+            ->identity()
+            ->connections()
+            ->findByTenant($tenantId)
+            ?? throw new \RuntimeException('No Xero connection found for tenant [' . $tenantId . '].');
+
+        return $connection->disconnect();
+    }
+
     /**
      * @param list<string> $scopes
      */

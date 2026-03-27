@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\ManualJournal;
 
+use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
@@ -100,5 +101,10 @@ final class ManualJournals implements PaginatesResults, DefinesScopes
     public function attachments(string $manualJournalId): Attachments
     {
         return new Attachments($this->client, $manualJournalId);
+    }
+
+    public function history(string $manualJournalId): History
+    {
+        return new History($this->client, '/api.xro/2.0/ManualJournals/' . $manualJournalId . '/History');
     }
 }

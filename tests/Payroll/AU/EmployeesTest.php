@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\AU\Employee;
+use Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication;
 use Sujip\Xero\Xero;
 
 final class EmployeesTest extends TestCase
@@ -85,6 +86,49 @@ final class EmployeesTest extends TestCase
         self::assertSame('employee-1', $employee?->id);
         self::assertSame('employee-2', $created->id);
         self::assertSame('employee-2', $updated->id);
+    }
+
+    public function test_it_can_load_payroll_au_employee_leave_balances(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'Employee' => [
+                'EmployeeID' => 'employee-1',
+                'FirstName' => 'Jane',
+                'LastName' => 'Smith',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'LeaveBalances' => [[
+                'LeaveName' => 'Annual Leave',
+                'Balance' => 18.25,
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'LeaveApplication' => [
+                'LeaveApplicationID' => 'leave-1',
+                'EmployeeID' => 'employee-1',
+                'Title' => 'Annual Leave',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $employee = $client->payroll()->au()->employees()->find('employee-1');
+        $leaveBalances = $employee?->leaveBalances();
+        $leaveApplication = $employee?->createLeaveApplication()
+            ->leaveType('leave-type-1')
+            ->title('Annual Leave')
+            ->startDate('2026-04-01')
+            ->endDate('2026-04-02')
+            ->save();
+
+        self::assertSame('/payroll.xro/1.0/Employees/employee-1', $transport->requests()[0]->path);
+        self::assertSame('/payroll.xro/1.0/Employees/employee-1/LeaveBalances', $transport->requests()[1]->path);
+        self::assertSame('/payroll.xro/1.0/LeaveApplications', $transport->requests()[2]->path);
+        self::assertEquals(18.25, $leaveBalances['LeaveBalances'][0]['Balance']);
+        self::assertInstanceOf(LeaveApplication::class, $leaveApplication);
+        self::assertSame('employee-1', $leaveApplication->raw['EmployeeID']);
     }
 
     public function test_it_can_paginate_payroll_au_employees(): void

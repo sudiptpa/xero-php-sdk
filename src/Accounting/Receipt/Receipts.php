@@ -69,6 +69,11 @@ final class Receipts implements DefinesScopes
         return is_array($receipt) ? Receipt::fromArray($receipt, $this->client) : null;
     }
 
+    public function attachments(string $receiptId): Attachments
+    {
+        return new Attachments($this->client, $receiptId);
+    }
+
     public function history(string $receiptId): History
     {
         return new History($this->client, '/api.xro/2.0/Receipts/' . $receiptId . '/History');

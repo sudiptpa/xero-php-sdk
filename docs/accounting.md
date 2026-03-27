@@ -37,6 +37,7 @@ The package now covers the main Accounting surface and a lot of the helper paths
 - invoice attachment downloads
 - invoice history
 - invoice PDF
+- invoice reminder settings
 - credit note attachments
 - credit note attachment downloads
 - credit note history
@@ -48,10 +49,14 @@ The package now covers the main Accounting surface and a lot of the helper paths
 - purchase order attachments
 - purchase order attachment downloads
 - purchase order history
+- purchase order PDF
 - quote PDF
 - receipt history
+- receipt attachments
+- receipt attachment downloads
 - manual journal attachments
 - manual journal attachment downloads
+- manual journal history
 
 If you want the full current Accounting API picture, use the Accounting coverage guide:
 
@@ -151,6 +156,14 @@ $history = $xero->accounting()
     ->record('Invoice synced from back office');
 ```
 
+## Invoice Reminders
+
+```php
+$settings = $xero->accounting()
+    ->invoiceReminders()
+    ->settings();
+```
+
 ## Payments
 
 ```php
@@ -178,6 +191,24 @@ $history = $xero->accounting()
     ->payments()
     ->history('payment-id')
     ->record('Payment reconciled');
+```
+
+## Receipts
+
+```php
+$attachment = $xero->accounting()
+    ->receipts()
+    ->attachments('receipt-id')
+    ->upload('receipt.jpg', $binaryImage)
+    ->mimeType('image/jpeg')
+    ->save();
+```
+
+```php
+$binary = $xero->accounting()
+    ->receipts()
+    ->attachments('receipt-id')
+    ->download('receipt.jpg', 'image/jpeg');
 ```
 
 ## Accounts
@@ -704,7 +735,7 @@ For the current per-resource implementation picture, use:
 
 The package carries scope metadata on these resources already.
 
-Current implemented scope shape:
+Current scope shape:
 
 - contacts: broad `accounting.contacts`, granular `accounting.contacts.read`, `accounting.contacts`
 - invoices: broad `accounting.transactions`, granular `accounting.invoices.read`, `accounting.invoices`; PDF stays under the same invoice scope family

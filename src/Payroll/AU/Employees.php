@@ -116,4 +116,15 @@ final class Employees implements PaginatesResults
     {
         return (new Payload($this->client))->id($employeeId);
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function leaveBalances(string $employeeId): array
+    {
+        return $this->client
+            ->get('/payroll.xro/1.0/Employees/' . $employeeId . '/LeaveBalances')
+            ->send()
+            ->json();
+    }
 }

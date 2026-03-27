@@ -56,6 +56,11 @@ final readonly class Settings implements DefinesScopes
             ->json();
     }
 
+    public function createReimbursement(): ReimbursementPayload
+    {
+        return new ReimbursementPayload($this->client);
+    }
+
     /**
      * @return array<string, mixed>
      */

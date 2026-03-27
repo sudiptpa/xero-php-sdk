@@ -6,6 +6,7 @@ namespace Sujip\Xero\Payroll\UK\Employee;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\ResourceCollection;
 
 final readonly class Employee
 {
@@ -81,13 +82,13 @@ final readonly class Employee
     /**
      * @return array<string, mixed>
      */
-    public function statutoryLeaveBalance(): array
+    public function statutoryLeaveBalance(?string $leaveType = null, ?string $asOfDate = null): array
     {
         if ($this->client === null || $this->id === null) {
             throw new RuntimeException('Cannot load statutory leave balance without a bound client context and employee id.');
         }
 
-        return (new Employees($this->client))->statutoryLeaveBalance($this->id);
+        return (new Employees($this->client))->statutoryLeaveBalance($this->id, $leaveType, $asOfDate);
     }
 
     /**
@@ -124,5 +125,47 @@ final readonly class Employee
         }
 
         return (new Employees($this->client))->paymentMethod($this->id);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function employment(): array
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot load employee employment details without a bound client context and employee id.');
+        }
+
+        return (new Employees($this->client))->employment($this->id);
+    }
+
+    /**
+     * @return ResourceCollection<LeaveType>
+     */
+    public function leaveTypes(): ResourceCollection
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot load employee leave types without a bound client context and employee id.');
+        }
+
+        return (new Employees($this->client))->leaveTypes($this->id);
+    }
+
+    public function createLeave(): LeavePayload
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot create employee leave without a bound client context and employee id.');
+        }
+
+        return (new Employees($this->client))->createLeave($this->id);
+    }
+
+    public function createLeaveType(): LeaveTypePayload
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot create employee leave types without a bound client context and employee id.');
+        }
+
+        return (new Employees($this->client))->createLeaveType($this->id);
     }
 }

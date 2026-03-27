@@ -83,6 +83,6 @@ Implemented Assets resources use:
 
 Use `assets.read` for asset, asset-type, and settings reads.
 
-Use `assets` for create flows and any future update, depreciation, or disposal actions we add.
+Use `assets` for create flows and asset-changing actions.
 
 If the app only reports on assets, `assets.read` is enough.

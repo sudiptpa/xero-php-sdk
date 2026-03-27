@@ -9,10 +9,15 @@ use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
-final readonly class SuperFunds implements DefinesScopes
+final class Products implements DefinesScopes
 {
+    /**
+     * @var array<string, string>
+     */
+    private array $query = [];
+
     public function __construct(
-        private Client $client
+        private readonly Client $client
     ) {
     }
 
@@ -24,38 +29,38 @@ final readonly class SuperFunds implements DefinesScopes
         );
     }
 
+    public function abn(string $abn): self
+    {
+        $clone = clone $this;
+        $clone->query['ABN'] = $abn;
+
+        return $clone;
+    }
+
+    public function usi(string $usi): self
+    {
+        $clone = clone $this;
+        $clone->query['USI'] = $usi;
+
+        return $clone;
+    }
+
     /**
-     * @return ResourceCollection<SuperFund>
+     * @return ResourceCollection<Product>
      */
     public function get(): ResourceCollection
     {
         $payload = $this->client
-            ->get('/payroll.xro/1.0/SuperFunds')
+            ->get('/payroll.xro/1.0/SuperFundProducts')
+            ->withQuery($this->query)
             ->send()
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $fund): SuperFund => SuperFund::fromArray($fund),
-            $payload['SuperFunds'] ?? []
+            static fn (array $product): Product => Product::fromArray($product),
+            $payload['SuperFundProducts'] ?? []
         ));
 
         return new ResourceCollection($items);
-    }
-
-    public function find(string $superFundId): ?SuperFund
-    {
-        $payload = $this->client
-            ->get('/payroll.xro/1.0/SuperFunds/' . $superFundId)
-            ->send()
-            ->json();
-
-        $fund = $payload['SuperFunds'][0] ?? $payload['SuperFund'] ?? null;
-
-        return is_array($fund) ? SuperFund::fromArray($fund) : null;
-    }
-
-    public function create(): Payload
-    {
-        return new Payload($this->client);
     }
 }

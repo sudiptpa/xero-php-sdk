@@ -117,4 +117,72 @@ final class ManualJournalsTest extends TestCase
         self::assertSame('journal-by-name', $byName);
         self::assertSame('journal-by-id', $byId);
     }
+
+    public function test_it_can_access_manual_journal_attachments_from_a_loaded_model(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'ManualJournals' => [[
+                'ManualJournalID' => 'journal-1',
+                'Narration' => 'Month end adjustments',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'Attachments' => [[
+                'AttachmentID' => 'attachment-1',
+                'FileName' => 'journal.pdf',
+                'MimeType' => 'application/pdf',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $manualJournal = $client->accounting()->manualJournals()->find('journal-1');
+        $attachments = $manualJournal?->attachments()->get();
+
+        self::assertSame('/api.xro/2.0/ManualJournals/journal-1', $transport->requests()[0]->path);
+        self::assertSame('/api.xro/2.0/ManualJournals/journal-1/Attachments', $transport->requests()[1]->path);
+        self::assertSame('journal.pdf', $attachments?->first()?->fileName);
+    }
+
+    public function test_it_can_list_and_record_manual_journal_history_from_resource_and_model(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'HistoryRecords' => [[
+                'Details' => 'Created in app',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'HistoryRecords' => [[
+                'Details' => 'Updated in app',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'ManualJournals' => [[
+                'ManualJournalID' => 'journal-1',
+                'Narration' => 'Month end adjustments',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'HistoryRecords' => [[
+                'Details' => 'Viewed from model',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $history = $client->accounting()->manualJournals()->history('journal-1')->get();
+        $record = $client->accounting()->manualJournals()->history('journal-1')->record('Updated in app');
+        $manualJournal = $client->accounting()->manualJournals()->find('journal-1');
+        $modelHistory = $manualJournal?->history()->get();
+
+        self::assertSame('/api.xro/2.0/ManualJournals/journal-1/History', $transport->requests()[0]->path);
+        self::assertSame('/api.xro/2.0/ManualJournals/journal-1/History', $transport->requests()[1]->path);
+        self::assertSame('/api.xro/2.0/ManualJournals/journal-1', $transport->requests()[2]->path);
+        self::assertSame('/api.xro/2.0/ManualJournals/journal-1/History', $transport->requests()[3]->path);
+        self::assertSame('Created in app', $history->first()?->details);
+        self::assertSame('Updated in app', $record->details);
+        self::assertSame('Viewed from model', $modelHistory->first()?->details);
+    }
 }

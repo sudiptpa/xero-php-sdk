@@ -108,4 +108,14 @@ final class PurchaseOrders implements PaginatesResults, DefinesScopes
     {
         return new History($this->client, '/api.xro/2.0/PurchaseOrders/' . $purchaseOrderId . '/History');
     }
+
+    public function pdf(string $purchaseOrderId): string
+    {
+        $response = $this->client
+            ->get('/api.xro/2.0/PurchaseOrders/' . $purchaseOrderId . '/pdf')
+            ->withHeaders(['Accept' => 'application/pdf'])
+            ->send();
+
+        return $response->body;
+    }
 }

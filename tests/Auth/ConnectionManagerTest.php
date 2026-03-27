@@ -148,4 +148,29 @@ final class ConnectionManagerTest extends TestCase
         self::assertSame('custom-token', $repository->get('default')?->accessToken);
         self::assertSame('custom-token', $client->context()->accessToken);
     }
+
+    public function test_it_can_disconnect_a_tenant(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(
+            new Response(200, body: json_encode([
+                [
+                    'id' => 'connection-1',
+                    'tenantId' => 'tenant-1',
+                    'tenantName' => 'Acme Pty Ltd',
+                ],
+            ], JSON_THROW_ON_ERROR))
+        );
+        $transport->push(new Response(204));
+
+        $repository = new InMemoryTokenRepository();
+        $repository->put('default', new Token('access-token', 'refresh-token'));
+
+        $manager = new ConnectionManager(
+            new OAuth2Client('client-id', 'client-secret', 'https://example.com/callback', $transport),
+            $repository
+        );
+
+        self::assertTrue($manager->disconnectTenant('tenant-1'));
+    }
 }

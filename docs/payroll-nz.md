@@ -7,6 +7,8 @@ Current coverage:
 - employees
 - employee leave balances, leave records, payment methods, tax, and working-pattern helpers
 - employee leave setup and opening balances
+- employee employment, leave, payment-method, salary-and-wages, and working-pattern create helpers
+- employee employment, salary-and-wages, and single salary record helpers
 - leave types
 - pay run calendars
 - pay runs
@@ -50,6 +52,50 @@ $paymentMethod = $employee->paymentMethod();
 $tax = $employee->tax();
 
 $workingPatterns = $employee->workingPatterns();
+
+$employment = $employee->employment();
+
+$salaryAndWages = $employee->salaryAndWages(page: 2);
+
+$salaryAndWage = $employee->salaryAndWage('salary-id');
+```
+
+```php
+$employment = $employee->createEmployment()
+    ->using([
+        'StartDate' => '2026-04-01',
+        'PayrollCalendarID' => 'calendar-id',
+    ])
+    ->save();
+
+$leave = $employee->createLeave()
+    ->using([
+        'LeaveTypeID' => 'leave-type-id',
+        'StartDate' => '2026-04-10',
+        'EndDate' => '2026-04-11',
+    ])
+    ->save();
+
+$paymentMethod = $employee->createPaymentMethod()
+    ->using([
+        'BankAccount' => [
+            'AccountNumber' => '12-1234-1234567-00',
+        ],
+    ])
+    ->save();
+
+$salaryAndWage = $employee->createSalaryAndWage()
+    ->using([
+        'PaymentType' => 'HOURLY',
+        'EarningsRateID' => 'earning-rate-id',
+    ])
+    ->save();
+
+$workingPattern = $employee->createWorkingPattern()
+    ->using([
+        'EffectiveFrom' => '2026-04-01',
+    ])
+    ->save();
 ```
 
 ```php

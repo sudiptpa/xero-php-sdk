@@ -7,12 +7,13 @@ Current coverage:
 - employees
 - employee leave balances
 - employee statutory leave balance
-- employee leave records and payment method helpers
+- employee leave records, leave creation, leave types, leave-type creation, employment, and payment method helpers
 - pay run calendars
 - pay runs
 - pay run payslips
 - timesheets
 - settings helpers for tracking categories, reimbursements, and statutory leave summary
+- reimbursement create flow
 
 ## Employees
 
@@ -39,11 +40,30 @@ $employee = $xero->payroll()
 ```php
 $balances = $employee->leaveBalances();
 
-$statutory = $employee->statutoryLeaveBalance();
+$statutory = $employee->statutoryLeaveBalance('sick', '2026-03-27');
 
 $leaves = $employee->leaves();
 
+$leaveTypes = $employee->leaveTypes();
+
+$employment = $employee->employment();
+
 $paymentMethod = $employee->paymentMethod();
+```
+
+```php
+$createdLeave = $employee->createLeave()
+    ->leaveType('leave-type-id')
+    ->startDate('2026-04-01')
+    ->endDate('2026-04-03')
+    ->title('Holiday')
+    ->save();
+
+$createdLeaveType = $employee->createLeaveType()
+    ->leaveType('leave-type-id')
+    ->scheduleOfAccrual('OnAnniversaryDate')
+    ->openingBalance(12.5)
+    ->save();
 ```
 
 ## Pay Run Calendars
@@ -123,6 +143,16 @@ $summary = $xero->payroll()
     ->uk()
     ->settings()
     ->statutoryLeaveSummary('employee-id');
+```
+
+```php
+$reimbursement = $xero->payroll()
+    ->uk()
+    ->settings()
+    ->createReimbursement()
+    ->name('Meals')
+    ->accountCode('400')
+    ->save();
 ```
 
 ## Scope Notes
