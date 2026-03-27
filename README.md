@@ -37,6 +37,8 @@ Most Xero integrations follow the same path:
 4. choose one tenant
 5. make your first tenant-scoped call
 
+This is the shortest useful path:
+
 ```php
 use Sujip\Xero\Auth\InMemoryTokenRepository;
 use Sujip\Xero\Xero;
@@ -56,13 +58,22 @@ $url = $manager->authorizationUrl(
 When Xero redirects back:
 
 ```php
-$connected = $manager->exchangeAndConnect($code, 'tenant-id');
+$token = $manager->exchange($code);
+$tenants = $manager->connections();
+
+$connected = $manager->connectTenant($tenants[0]->tenantId);
 
 $contacts = $connected->client
     ->accounting()
     ->contacts()
     ->page(1)
     ->get();
+```
+
+If you already know the tenant id, `exchangeAndConnect()` is the shorter path:
+
+```php
+$connected = $manager->exchangeAndConnect($code, 'tenant-id');
 ```
 
 ## Design Direction
@@ -258,6 +269,12 @@ Xero's scope model is changing. The package needs to stay honest about that.
 - Apps created on or after 2 March 2026 use granular scopes
 - Apps created before 2 March 2026 can begin requesting granular scopes from April 2026
 - Existing apps have until September 2027 to complete migration from broad scopes
+
+Practical rule:
+
+- ask only for the scopes the integration actually uses
+- use granular scopes for new apps
+- keep broad scopes only where an older app still needs migration time
 - Calling an endpoint without the required granular scope can return a `401` with insufficient scope details
 
 The package already carries scope metadata on implemented resources. The goal is straightforward: if an endpoint needs a scope, it should be obvious in both the code and the docs.

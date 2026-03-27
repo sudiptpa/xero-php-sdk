@@ -5,7 +5,8 @@ Payroll NZ has its own shape, especially around leave and pay-run setup.
 Current coverage:
 
 - employees
-- employee leave balances, leave records, and payment method helpers
+- employee leave balances, leave records, payment methods, tax, and working-pattern helpers
+- employee leave setup and opening balances
 - leave types
 - pay run calendars
 - pay runs
@@ -45,6 +46,27 @@ $leaveBalances = $employee->leaveBalances();
 $leaves = $employee->leaves();
 
 $paymentMethod = $employee->paymentMethod();
+
+$tax = $employee->tax();
+
+$workingPatterns = $employee->workingPatterns();
+```
+
+```php
+$leaveSetup = $employee->leaveSetup()
+    ->using([
+        'LeaveTypeID' => 'leave-type-id',
+        'ScheduleOfAccrual' => 'ON_ANNIVERSARY_DATE',
+    ])
+    ->save();
+
+$openingBalances = $employee->openingBalances()
+    ->using([
+        'PeriodEndDate' => '2026-03-31',
+        'DaysPaid' => 5,
+        'GrossEarnings' => 1730.77,
+    ])
+    ->save();
 ```
 
 ## Leave Types

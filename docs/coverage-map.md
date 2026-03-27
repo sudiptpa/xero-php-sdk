@@ -20,10 +20,10 @@ It is meant to answer three practical questions quickly:
 | Files | Strong working slice | Files, uploads, deletes, folders, inbox, associations, object-side association lookup, and associations count |
 | Assets | Near-complete overview slice | Assets, asset types, settings, and documented collection search parameters |
 | Payroll AU | Strong slice | Employees, payroll calendars, super funds, leave applications, pay items, pay runs, timesheets, settings |
-| Payroll NZ | Strong slice | Employees, employee leave helpers, leave types, pay run calendars, pay runs, timesheets, settings, statutory deductions |
-| Payroll UK | Strong slice | Employees, leave balances, leave records, payment methods, pay run calendars, pay runs, timesheets, settings helpers |
+| Payroll NZ | Strong slice | Employees, employee leave/tax/working-pattern helpers, leave setup, opening balances, leave types, pay run calendars, pay runs, timesheets, settings, statutory deductions |
+| Payroll UK | Strong slice | Employees, leave balances, leave records, payment methods, pay run calendars, pay runs, payslips, timesheets, settings helpers |
 | Projects | Strong working slice | Projects, project lifecycle patch helpers, project users, tasks, and time entries |
-| Finance | Strong working slice | Accounting activities, account usage, lock history, report history, user activities, cash validation, bank statement accounting, and financial statements |
+| Finance | Strong working slice | Accounting activities, account usage, lock history, report history, user activities, cash validation, bank statement accounting, and financial statements; note the documented Accounting Activities decommissioning scheduled for April 6, 2026 |
 | App Store | Complete current core slice | Subscription lookup, documented subscription-item usage paths, and usage record updates |
 
 ## Foundation
@@ -136,7 +136,7 @@ Detailed parity tracking for Accounting lives in [accounting-parity.md](accounti
 | AU payroll calendars | Yes | Create, update | Yes | Yes | Partial |
 | AU super funds | Yes | No | Yes | Yes | Partial |
 | AU settings | Yes | No | Yes | Yes | Partial |
-| NZ employees | Yes | Create, update, leave and payment helpers | Yes | Yes | Partial |
+| NZ employees | Yes | Create, update, leave, payment, tax, working-pattern, leave-setup, and opening-balance helpers | Yes | Yes | Partial |
 | NZ leave types | Yes | No | Yes | Yes | Partial |
 | NZ pay run calendars | Yes | No | Yes | Yes | Partial |
 | NZ pay runs | Yes | Create | Yes | Yes | Partial |
@@ -146,7 +146,7 @@ Detailed parity tracking for Accounting lives in [accounting-parity.md](accounti
 | UK employee leave balances | Yes | No | Yes | Yes | Partial |
 | UK employee statutory leave balance | Yes | No | Yes | Yes | Partial |
 | UK pay run calendars | Yes | No | Yes | Yes | Partial |
-| UK pay runs | Yes | Create | Yes | Yes | Partial |
+| UK pay runs | Yes | Create, payslip reads | Yes | Yes | Partial |
 | UK timesheets | Yes | Create, update, approve, revert | Yes | Yes | Partial |
 | UK settings helpers | Yes | No | Yes | Yes | Partial |
 
@@ -194,7 +194,7 @@ Detailed parity tracking for Accounting lives in [accounting-parity.md](accounti
 
 ## Next Priority
 
-1. Close the remaining exact Accounting helper endpoints from the latest live sweep.
-2. Tighten broad vs granular scopes per implemented resource page.
-3. Tighten quick-start docs around auth, tenant selection, and first successful call.
-4. Do the next webhook and framework-integration polish pass.
+1. Tighten broad vs granular scopes per implemented resource page.
+2. Tighten quick-start docs around auth, tenant selection, and first successful call.
+3. Re-run the live docs sweep for any final low-traffic Accounting helpers.
+4. Revisit the last remaining payroll long-tail helpers only if the live docs justify them.

@@ -82,6 +82,33 @@ final class EmployeesTest extends TestCase
                 'BankAccountNumber' => '12-1234-1234567-00',
             ],
         ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'Tax' => [
+                'TaxCode' => 'M',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'WorkingPatterns' => [[
+                'EmployeeWorkingPatternID' => 'pattern-1',
+                'Description' => 'Standard week',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'WorkingPattern' => [
+                'EmployeeWorkingPatternID' => 'pattern-1',
+                'Description' => 'Standard week',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'EmployeeLeaveSetup' => [
+                'EmployeeID' => 'employee-1',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'EmployeeOpeningBalances' => [[
+                'PeriodEndDate' => '2026-03-31',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
@@ -103,6 +130,24 @@ final class EmployeesTest extends TestCase
         $leaves = $employee?->leaves();
         $leave = $employee?->leave('leave-1');
         $paymentMethod = $employee?->paymentMethod();
+        $tax = $employee?->tax();
+        $workingPatterns = $employee?->workingPatterns();
+        $workingPattern = $employee?->workingPattern('pattern-1');
+        $leaveSetup = $employee?->leaveSetup()
+            ->using([
+                'LeaveTypeID' => 'leave-type-1',
+                'ScheduleOfAccrual' => 'ON_ANNIVERSARY_DATE',
+            ])
+            ->idempotencyKey('leave-setup-key')
+            ->save();
+        $openingBalances = $employee?->openingBalances()
+            ->using([
+                'PeriodEndDate' => '2026-03-31',
+                'DaysPaid' => 5,
+                'GrossEarnings' => 1730.77,
+            ])
+            ->idempotencyKey('opening-balances-key')
+            ->save();
 
         self::assertSame('/payroll.xro/2.0/Employees', $transport->requests()[0]->path);
         self::assertSame('Ada', $transport->requests()[0]->query['filter']);
@@ -119,6 +164,13 @@ final class EmployeesTest extends TestCase
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[7]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave/leave-1', $transport->requests()[8]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/PaymentMethods', $transport->requests()[9]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Tax', $transport->requests()[10]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Working-Patterns', $transport->requests()[11]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Working-Patterns/pattern-1', $transport->requests()[12]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeaveSetup', $transport->requests()[13]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/OpeningBalances', $transport->requests()[14]->path);
+        self::assertSame('leave-setup-key', $transport->requests()[13]->headers['Idempotency-Key']);
+        self::assertSame('opening-balances-key', $transport->requests()[14]->headers['Idempotency-Key']);
         self::assertSame('employee-1', $employee?->id);
         self::assertSame('employee-2', $created->id);
         self::assertSame('employee-2', $updated->id);
@@ -128,5 +180,10 @@ final class EmployeesTest extends TestCase
         self::assertSame('leave-1', $leaves['Leave'][0]['LeaveID']);
         self::assertSame('leave-1', $leave['Leave']['LeaveID']);
         self::assertSame('12-1234-1234567-00', $paymentMethod['PaymentMethod']['BankAccountNumber']);
+        self::assertSame('M', $tax['Tax']['TaxCode']);
+        self::assertSame('pattern-1', $workingPatterns['WorkingPatterns'][0]['EmployeeWorkingPatternID']);
+        self::assertSame('pattern-1', $workingPattern['WorkingPattern']['EmployeeWorkingPatternID']);
+        self::assertSame('employee-1', $leaveSetup['EmployeeLeaveSetup']['EmployeeID']);
+        self::assertSame('2026-03-31', $openingBalances['EmployeeOpeningBalances'][0]['PeriodEndDate']);
     }
 }

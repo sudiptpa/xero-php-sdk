@@ -10,6 +10,7 @@ Current coverage:
 - employee leave records and payment method helpers
 - pay run calendars
 - pay runs
+- pay run payslips
 - timesheets
 - settings helpers for tracking categories, reimbursements, and statutory leave summary
 
@@ -71,6 +72,14 @@ $payRun = $xero->payroll()
     ->create()
     ->payrollCalendar('calendar-id')
     ->save();
+```
+
+```php
+$payslips = $xero->payroll()
+    ->uk()
+    ->payRuns()
+    ->payslips('payrun-id')
+    ->get();
 ```
 
 ## Timesheets

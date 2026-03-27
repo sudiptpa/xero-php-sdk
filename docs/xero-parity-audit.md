@@ -2,7 +2,7 @@
 
 This document is the live package-to-docs audit for the SDK.
 
-Audit date: 26 March 2026
+Audit date: 27 March 2026
 
 The goal here is not to claim perfect coverage too early. The goal is to be honest about where the package stands against the current official Xero docs, family by family, and to use that as the next planning input.
 
@@ -33,9 +33,9 @@ The audit is based on the current official Xero docs and overview pages:
 | Assets | Near-complete overview slice | The overview-level Assets methods are covered: assets, asset types, settings, and documented query parameters |
 | Projects | Strong working slice | The core documented overview methods are covered: projects, users, tasks, time entries, and patch/update flows |
 | Payroll AU | Strong working slice | Employees, payroll calendars, super funds, leave applications, pay items, pay runs, timesheets, and settings are covered with meaningful helper support |
-| Payroll NZ | Strong working slice | Employees, leave helpers, payment-method helpers, leave types, pay run calendars, pay runs, timesheets, settings, and statutory deductions are covered |
-| Payroll UK | Strong working slice | Employees, leave balances, statutory leave balance, leave records, payment-method helpers, pay run calendars, pay runs, timesheets, and settings helpers are covered |
-| Finance | Strong working slice | Core statements, cash validation, bank statement accounting, account usage, lock history, report history, and user activities are covered |
+| Payroll NZ | Strong working slice | Employees, leave helpers, payment-method helpers, tax and working-pattern helpers, leave setup, opening balances, leave types, pay run calendars, pay runs, timesheets, settings, and statutory deductions are covered |
+| Payroll UK | Strong working slice | Employees, leave balances, statutory leave balance, leave records, payment-method helpers, pay run calendars, pay runs, payslips, timesheets, and settings helpers are covered |
+| Finance | Strong working slice | Core statements, cash validation, bank statement accounting, account usage, lock history, report history, and user activities are covered; note that Xero says Accounting Activities is being decommissioned effective April 6, 2026 |
 | App Store | Complete current core slice | The currently documented subscription and usage-record flows are covered |
 
 ## Family Matrix
@@ -47,8 +47,8 @@ The audit is based on the current official Xero docs and overview pages:
 | Assets | Near-complete overview slice | Yes | Yes | no obvious missing overview-level methods from the current Assets docs; remaining work is deeper lifecycle polish |
 | Projects | Strong working slice | Yes | Yes | no obvious missing overview-level methods from the current Projects docs; remaining work is helper depth rather than core endpoint absence |
 | Payroll AU | Strong working slice | Yes | Yes | remaining documented AU helper surfaces such as employee payslip-style endpoints and any other payroll-specific long-tail resources |
-| Payroll NZ | Strong working slice | Yes | Yes | remaining documented NZ helper surfaces, especially employee-side leave setup, opening balances, and related write helpers |
-| Payroll UK | Strong working slice | Yes | Yes | remaining documented UK helper surfaces and payroll-specific long-tail resources |
+| Payroll NZ | Strong working slice | Yes | Yes | remaining documented NZ helper surfaces beyond the current employee-side leave, tax, working-pattern, setup, and opening-balance helpers |
+| Payroll UK | Strong working slice | Yes | Yes | remaining documented UK helper surfaces beyond the current leave, payrun, payslip, and settings coverage |
 | Finance | Strong working slice | Yes | Yes | remaining work is polish and any future finance-surface expansion rather than obvious missing overview-level reads |
 | App Store | Complete current core slice | Yes | Yes | no obvious missing overview-level methods from the current App Store docs |
 | Auth / Identity | Strong working slice | Yes | Yes | stronger scope guidance, clearer first-run integration docs, and more tenant-connect polish |
@@ -67,8 +67,6 @@ The audit is based on the current official Xero docs and overview pages:
 These are the clearest remaining gaps after the latest live-docs pass and exact gap-closing work:
 
 - Payroll NZ:
-  - employee leave setup
-  - employee opening balances
   - deeper employee-side leave write helpers where we choose to expose them
 - Payroll UK:
   - remaining employee-side leave and statutory long-tail helpers
@@ -78,7 +76,7 @@ For Files, Assets, Projects, Finance, and App Store, the current overview-level 
 
 ## Recommended Next Order
 
-1. Tighten scope notes and first-run docs after the endpoint gaps are closed.
+1. Tighten scope notes and first-run docs.
 2. Revisit payroll only for the remaining country-specific long-tail helpers.
 3. Re-run the live docs sweep for any final low-traffic Accounting helpers.
 4. Add framework-specific webhook examples only if they materially improve adoption.

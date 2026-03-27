@@ -178,4 +178,47 @@ final class Employees implements PaginatesResults, DefinesScopes
             ->send()
             ->json();
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function tax(string $employeeId): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/Tax')
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function workingPatterns(string $employeeId): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/Working-Patterns')
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function workingPattern(string $employeeId, string $workingPatternId): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/Working-Patterns/' . $workingPatternId)
+            ->send()
+            ->json();
+    }
+
+    public function leaveSetup(string $employeeId): LeaveSetupPayload
+    {
+        return new LeaveSetupPayload($this->client, $employeeId);
+    }
+
+    public function openingBalances(string $employeeId): OpeningBalancesPayload
+    {
+        return new OpeningBalancesPayload($this->client, $employeeId);
+    }
 }

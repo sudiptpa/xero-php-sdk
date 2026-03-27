@@ -2,7 +2,7 @@
 
 Accounting is where the package needs to feel calm and predictable.
 
-The current surface is still early, but it already covers the basic shape for:
+The package now covers the main Accounting surface and a lot of the helper paths that make real integrations less awkward:
 
 - contacts
 - invoices
@@ -56,6 +56,16 @@ The current surface is still early, but it already covers the basic shape for:
 If you want the full current Accounting API picture, use the parity tracker:
 
 - [Accounting Parity](accounting-parity.md)
+
+## Scope Notes
+
+The Accounting surface is split across a few practical scope families:
+
+- `accounting.contacts.read` and `accounting.contacts` for contacts
+- `accounting.settings.read` and `accounting.settings` for settings-style resources like accounts, items, tax rates, tracking categories, branding themes, organisations, and users
+- `accounting.transactions.read` and `accounting.transactions` for invoices, payments, credit notes, bank transactions, manual journals, purchase orders, quotes, receipts, repeating invoices, and similar workflow resources
+
+If a job is read-only, prefer the `.read` scopes. Only ask for the write scope when the app actually creates, updates, uploads, or records history.
 
 ## Contacts
 

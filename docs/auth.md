@@ -45,7 +45,14 @@ $connected = $connections->connectTenant($availableTenants[0]->tenantId);
 $xero = $connected->client;
 ```
 
-At that point you can stop thinking about OAuth and start making normal API calls.
+At that point you can stop thinking about OAuth and make a normal tenant-scoped call:
+
+```php
+$contacts = $xero->accounting()
+    ->contacts()
+    ->page(1)
+    ->get();
+```
 
 If you are using PKCE, pass the original verifier when you exchange the code:
 
@@ -63,6 +70,8 @@ $url = $connections->authorizationUrl(
 
 $connected = $connections->exchangeAndConnect($code, 'tenant-id', $verifier);
 ```
+
+Use `exchangeAndConnect()` when your app already knows which tenant it wants. Use `exchange()` plus `connections()` when the user still has to choose.
 
 ## Refreshing Tokens
 
@@ -92,5 +101,10 @@ Tenant-scoped calls should happen only after you choose a tenant.
 ## Scope Notes
 
 - normal user-consent flows usually need `openid`, `profile`, `email`, and `offline_access` plus the API scopes you actually use
+- `accounting.contacts.read` is enough for read-only contact sync
+- `accounting.contacts` is for contact writes
+- `accounting.transactions.read` is for invoices, payments, credit notes, and similar transaction reads
+- `accounting.transactions` is for transaction writes
+- payroll, files, assets, finance, and app-store flows should each keep their own scope list small instead of reusing one large bundle
 - new apps created on or after 2 March 2026 should expect granular scopes to be the normal path
 - custom connections should request only the scopes that the fixed integration actually needs

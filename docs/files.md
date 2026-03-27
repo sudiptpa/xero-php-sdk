@@ -129,3 +129,5 @@ Implemented Files resources use:
 Use `files.read` for listing, lookup, content reads, inbox reads, and association reads.
 
 Use `files` for uploads, metadata updates, folder writes, file deletes, and association writes.
+
+If the integration only reads or downloads files, `files.read` is the right starting point.

@@ -34,15 +34,7 @@ The roadmap below is still useful for sequencing work, but the checklist is the 
 - tighten the quick-start path from auth to tenant selection to first API call
 - keep the coverage map honest as implementation grows
 
-### 2. Webhooks And Integration Ergonomics
-
-The webhook core is solid, but the surrounding developer experience can still improve:
-
-- richer event helpers
-- clearer framework integration examples
-- a smoother first-successful-webhook story in the docs
-
-### 3. Payroll And Projects Long-Tail Pass
+### 2. Payroll And Projects Long-Tail Pass
 
 These families are now real enough that the next work should be selective:
 
@@ -50,19 +42,26 @@ These families are now real enough that the next work should be selective:
 - review the live Projects docs for the next useful lifecycle or reporting helpers
 - keep the public API taste calm and consistent instead of mirroring every endpoint mechanically
 
-### 4. Files And Assets Long-Tail Pass
+### 3. Files And Assets Long-Tail Pass
 
 Files and Assets are in a good place now, but they still have room for a focused cleanup pass:
 
 - close the next useful lifecycle helpers from the live docs
 - keep the docs and scope guidance aligned with the actual supported surface
 
-### 5. Focused Accounting Re-Audit
+### 4. Focused Accounting Re-Audit
 
 Accounting is already broad. The next accounting work should only come from a live docs sweep:
 
 - find any remaining helper gaps that still matter in application code
 - avoid reopening broad endpoint sprawl unless the docs audit clearly justifies it
+
+### 5. Webhooks And Integration Examples
+
+The webhook core is now strong enough that any remaining work should stay small:
+
+- add framework-specific examples only if they genuinely help adoption
+- avoid turning the SDK into a framework adapter layer
 
 ### 6. Whole-Product Audit Mode
 

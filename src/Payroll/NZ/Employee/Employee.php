@@ -138,4 +138,58 @@ final readonly class Employee
 
         return (new Employees($this->client))->paymentMethod($this->id);
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function tax(): array
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot load employee tax details without a bound client context and employee id.');
+        }
+
+        return (new Employees($this->client))->tax($this->id);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function workingPatterns(): array
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot load employee working patterns without a bound client context and employee id.');
+        }
+
+        return (new Employees($this->client))->workingPatterns($this->id);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function workingPattern(string $workingPatternId): array
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot load a single employee working pattern without a bound client context and employee id.');
+        }
+
+        return (new Employees($this->client))->workingPattern($this->id, $workingPatternId);
+    }
+
+    public function leaveSetup(): LeaveSetupPayload
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot create employee leave setup without a bound client context and employee id.');
+        }
+
+        return (new Employees($this->client))->leaveSetup($this->id);
+    }
+
+    public function openingBalances(): OpeningBalancesPayload
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot create employee opening balances without a bound client context and employee id.');
+        }
+
+        return (new Employees($this->client))->openingBalances($this->id);
+    }
 }
