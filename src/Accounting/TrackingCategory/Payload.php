@@ -8,24 +8,21 @@ use Sujip\Xero\Client;
 
 final class Payload
 {
-    /**
-     * @var array<string, mixed>
-     */
-    private array $payload = [];
-
-    private ?string $trackingCategoryId = null;
+    private TrackingCategory $trackingCategory;
 
     private ?string $idempotencyKey = null;
 
     public function __construct(
         private readonly Client $client
     ) {
+        $this->trackingCategory = new TrackingCategory($client);
     }
 
     public function id(string $trackingCategoryId): self
     {
         $clone = clone $this;
-        $clone->trackingCategoryId = $trackingCategoryId;
+        $clone->trackingCategory = clone $this->trackingCategory;
+        $clone->trackingCategory->setTrackingCategoryID($trackingCategoryId);
 
         return $clone;
     }
@@ -33,7 +30,19 @@ final class Payload
     public function name(string $name): self
     {
         $clone = clone $this;
-        $clone->payload['Name'] = $name;
+        $clone->trackingCategory = clone $this->trackingCategory;
+        $clone->trackingCategory->setName($name);
+
+        return $clone;
+    }
+
+    public function option(string $name): self
+    {
+        $clone = clone $this;
+        $clone->trackingCategory = clone $this->trackingCategory;
+        $clone->trackingCategory->addOption(
+            (new Option())->setName($name)
+        );
 
         return $clone;
     }
@@ -46,18 +55,26 @@ final class Payload
         return $clone;
     }
 
+    public function using(TrackingCategory $trackingCategory): self
+    {
+        $clone = clone $this;
+        $clone->trackingCategory = clone $trackingCategory;
+
+        return $clone;
+    }
+
     public function save(): TrackingCategory
     {
         $path = '/api.xro/2.0/TrackingCategories';
 
-        if ($this->trackingCategoryId !== null) {
-            $path .= '/' . $this->trackingCategoryId;
+        if ($this->trackingCategory->getTrackingCategoryID() !== null) {
+            $path .= '/' . $this->trackingCategory->getTrackingCategoryID();
         }
 
         $response = $this->client
             ->post($path)
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
-            ->withJson($this->payload)
+            ->withJson($this->trackingCategory->toRequest())
             ->send();
 
         $payload = $response->json();

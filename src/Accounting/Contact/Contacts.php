@@ -69,7 +69,7 @@ final class Contacts implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $contact): Contact => Contact::fromArray($contact, $this->client),
+            fn (array $contact): Contact => Contact::fromPayload($contact, $this->client),
             $payload['Contacts'] ?? []
         ));
 
@@ -112,7 +112,7 @@ final class Contacts implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $contact = $payload['Contacts'][0] ?? null;
 
-        return is_array($contact) ? Contact::fromArray($contact, $this->client) : null;
+        return is_array($contact) ? Contact::fromPayload($contact, $this->client) : null;
     }
 
     public function create(): Payload

@@ -98,33 +98,56 @@ $page = $xero->accounting()
 ```
 
 ```php
+use Sujip\Xero\Accounting\Invoice\Invoice;
+use Sujip\Xero\Accounting\Invoice\LineItem;
+
 $invoice = $xero->accounting()
     ->invoices()
     ->create()
-    ->draft()
-    ->contact('contact-id')
-    ->reference('PO-1001')
-    ->lineItem('Consulting', quantity: 2, unitAmount: 150)
+    ->using(
+        (new Invoice())
+            ->setType('ACCREC')
+            ->setStatus('DRAFT')
+            ->setContactID('contact-id')
+            ->setReference('PO-1001')
+            ->addLineItem(
+                (new LineItem())
+                    ->setDescription('Consulting')
+                    ->setQuantity(2)
+                    ->setUnitAmount(150)
+            )
+    )
     ->save();
 ```
 
 ```php
+use Sujip\Xero\Accounting\Payment\Payment;
+
 $payment = $xero->accounting()
     ->payments()
     ->create()
-    ->invoice('invoice-id')
-    ->account('account-id')
-    ->date('2026-03-25')
-    ->amount(150)
-    ->reference('PAY-1001')
+    ->using(
+        (new Payment())
+            ->setInvoiceID('invoice-id')
+            ->setAccountID('account-id')
+            ->setDate('2026-03-25')
+            ->setAmount(150)
+            ->setReference('PAY-1001')
+    )
     ->save();
 ```
 
 ```php
+use Sujip\Xero\Accounting\Contact\Contact;
+
 $updated = $xero->accounting()
     ->contacts()
     ->update('contact-id')
-    ->name('Acme Holdings Pty Ltd')
+    ->using(
+        (new Contact())
+            ->setContactID('contact-id')
+            ->setName('Acme Holdings Pty Ltd')
+    )
     ->save();
 ```
 

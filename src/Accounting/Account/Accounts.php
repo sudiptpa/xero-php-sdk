@@ -53,7 +53,7 @@ final class Accounts implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $account): Account => Account::fromArray($account, $this->client),
+            fn (array $account): Account => Account::fromPayload($account, $this->client),
             $payload['Accounts'] ?? []
         ));
 
@@ -92,7 +92,7 @@ final class Accounts implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $account = $payload['Accounts'][0] ?? null;
 
-        return is_array($account) ? Account::fromArray($account, $this->client) : null;
+        return is_array($account) ? Account::fromPayload($account, $this->client) : null;
     }
 
     public function create(): Payload

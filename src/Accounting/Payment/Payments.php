@@ -54,7 +54,7 @@ final class Payments implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $payment): Payment => Payment::fromArray($payment, $this->client),
+            fn (array $payment): Payment => Payment::fromPayload($payment, $this->client),
             $payload['Payments'] ?? []
         ));
 
@@ -93,7 +93,7 @@ final class Payments implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $payment = $payload['Payments'][0] ?? null;
 
-        return is_array($payment) ? Payment::fromArray($payment, $this->client) : null;
+        return is_array($payment) ? Payment::fromPayload($payment, $this->client) : null;
     }
 
     public function create(): Payload

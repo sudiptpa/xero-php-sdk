@@ -7,17 +7,24 @@ namespace Sujip\Xero\Accounting\Payment;
 use Sujip\Xero\Accounting\History;
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Contracts\BuildsFromPayload;
+use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final readonly class Payment
+final class Payment implements BuildsFromPayload, SerializesForRequest
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
+    private ?string $paymentID = null;
+
+    private ?float $amount = null;
+
+    private ?string $date = null;
+
+    private ?string $reference = null;
+
+    private ?string $invoiceID = null;
+
+    private ?string $accountID = null;
+
     public function __construct(
-        public ?string $id,
-        public ?float $amount,
-        public ?string $date,
-        public array $raw = [],
         private ?Client $client = null
     ) {
     }
@@ -25,31 +32,120 @@ final readonly class Payment
     /**
      * @param array<string, mixed> $payload
      */
+    public static function fromPayload(array $payload, ?Client $client = null): static
+    {
+        return (new self($client))
+            ->setPaymentID($payload['PaymentID'] ?? null)
+            ->setAmount(isset($payload['Amount']) ? (float) $payload['Amount'] : null)
+            ->setDate($payload['Date'] ?? null)
+            ->setReference($payload['Reference'] ?? null)
+            ->setInvoiceID($payload['Invoice']['InvoiceID'] ?? null)
+            ->setAccountID($payload['Account']['AccountID'] ?? null);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
     public static function fromArray(array $payload, ?Client $client = null): self
     {
-        return new self(
-            $payload['PaymentID'] ?? null,
-            isset($payload['Amount']) ? (float) $payload['Amount'] : null,
-            $payload['Date'] ?? null,
-            $payload,
-            $client
-        );
+        return self::fromPayload($payload, $client);
+    }
+
+    public function getPaymentID(): ?string
+    {
+        return $this->paymentID;
+    }
+
+    public function setPaymentID(?string $paymentID): self
+    {
+        $this->paymentID = $paymentID;
+
+        return $this;
+    }
+
+    public function getAmount(): ?float
+    {
+        return $this->amount;
+    }
+
+    public function setAmount(int|float|null $amount): self
+    {
+        $this->amount = $amount === null ? null : (float) $amount;
+
+        return $this;
+    }
+
+    public function getDate(): ?string
+    {
+        return $this->date;
+    }
+
+    public function setDate(?string $date): self
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    public function setReference(?string $reference): self
+    {
+        $this->reference = $reference;
+
+        return $this;
+    }
+
+    public function getInvoiceID(): ?string
+    {
+        return $this->invoiceID;
+    }
+
+    public function setInvoiceID(?string $invoiceID): self
+    {
+        $this->invoiceID = $invoiceID;
+
+        return $this;
+    }
+
+    public function getAccountID(): ?string
+    {
+        return $this->accountID;
+    }
+
+    public function setAccountID(?string $accountID): self
+    {
+        $this->accountID = $accountID;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toRequest(): array
+    {
+        return array_filter([
+            'PaymentID' => $this->getPaymentID(),
+            'Amount' => $this->getAmount(),
+            'Date' => $this->getDate(),
+            'Reference' => $this->getReference(),
+            'Invoice' => $this->getInvoiceID() === null ? null : ['InvoiceID' => $this->getInvoiceID()],
+            'Account' => $this->getAccountID() === null ? null : ['AccountID' => $this->getAccountID()],
+        ], static fn (mixed $value): bool => $value !== null);
     }
 
     public function amount(int|float $amount): self
     {
-        $payload = $this->raw;
-        $payload['Amount'] = $amount;
-
-        return new self($this->id, (float) $amount, $this->date, $payload, $this->client);
+        return $this->setAmount($amount);
     }
 
     public function date(string $date): self
     {
-        $payload = $this->raw;
-        $payload['Date'] = $date;
-
-        return new self($this->id, $this->amount, $date, $payload, $this->client);
+        return $this->setDate($date);
     }
 
     public function save(): self
@@ -60,39 +156,15 @@ final readonly class Payment
 
         $payload = new Payload($this->client);
 
-        if ($this->id !== null) {
-            $payload = $payload->id($this->id);
-        }
-
-        if ($this->amount !== null) {
-            $payload = $payload->amount($this->amount);
-        }
-
-        if ($this->date !== null) {
-            $payload = $payload->date($this->date);
-        }
-
-        if (isset($this->raw['Reference']) && is_string($this->raw['Reference'])) {
-            $payload = $payload->reference($this->raw['Reference']);
-        }
-
-        if (isset($this->raw['Invoice']['InvoiceID']) && is_string($this->raw['Invoice']['InvoiceID'])) {
-            $payload = $payload->invoice($this->raw['Invoice']['InvoiceID']);
-        }
-
-        if (isset($this->raw['Account']['AccountID']) && is_string($this->raw['Account']['AccountID'])) {
-            $payload = $payload->account($this->raw['Account']['AccountID']);
-        }
-
-        return $payload->save();
+        return $payload->using($this)->save();
     }
 
     public function history(): History
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->paymentID === null) {
             throw new RuntimeException('Cannot access payment history without a bound client context and payment id.');
         }
 
-        return (new Payments($this->client))->history($this->id);
+        return (new Payments($this->client))->history($this->paymentID);
     }
 }

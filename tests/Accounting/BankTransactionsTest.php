@@ -6,6 +6,9 @@ namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Accounting\BankTransaction\BankTransaction;
+use Sujip\Xero\Accounting\BankTransaction\BankAccount;
+use Sujip\Xero\Accounting\Contact\Contact;
+use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Xero;
@@ -21,6 +24,18 @@ final class BankTransactionsTest extends TestCase
                 'Type' => 'SPEND',
                 'Status' => 'AUTHORISED',
                 'Reference' => 'BT-1001',
+                'Contact' => [
+                    'ContactID' => 'contact-1',
+                    'Name' => 'Acme Pty Ltd',
+                ],
+                'BankAccount' => [
+                    'AccountID' => 'account-1',
+                ],
+                'LineItems' => [[
+                    'Description' => 'Office supplies',
+                    'Quantity' => 1,
+                    'UnitAmount' => 25,
+                ]],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -40,7 +55,10 @@ final class BankTransactionsTest extends TestCase
         self::assertSame('Status == "AUTHORISED"', $transport->requests()[0]->query['where']);
         self::assertInstanceOf(BankTransaction::class, $transactions->first());
         self::assertSame('/api.xro/2.0/BankTransactions/bank-1', $transport->requests()[1]->path);
-        self::assertSame('bank-1', $transaction?->id);
+        self::assertSame('bank-1', $transaction?->getBankTransactionID());
+        self::assertSame('contact-1', $transactions->first()->getContact()?->getContactID());
+        self::assertSame('account-1', $transactions->first()->getBankAccount()?->getAccountID());
+        self::assertSame('Office supplies', $transactions->first()->getLineItems()[0]->getDescription());
     }
 
     public function test_it_can_create_and_update_bank_transactions(): void
@@ -64,19 +82,35 @@ final class BankTransactionsTest extends TestCase
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $created = $client->accounting()->bankTransactions()->create()
-            ->type('SPEND')
-            ->contact('contact-1')
-            ->bankAccount('account-1')
-            ->reference('BT-1001')
-            ->lineItem('Office supplies', 1, 25)
+            ->using(
+                (new BankTransaction())
+                    ->setType('SPEND')
+                    ->setContact(
+                        (new Contact())
+                            ->setContactID('contact-1')
+                    )
+                    ->setBankAccount(
+                        (new BankAccount())
+                            ->setAccountID('account-1')
+                    )
+                    ->setReference('BT-1001')
+                    ->addLineItem(
+                        (new LineItem())
+                            ->setDescription('Office supplies')
+                            ->setQuantity(1)
+                            ->setUnitAmount(25)
+                    )
+            )
             ->save();
 
         $updated = $created->reference('BT-1002')->save();
 
         self::assertSame('/api.xro/2.0/BankTransactions', $transport->requests()[0]->path);
         self::assertSame('SPEND', $transport->requests()[0]->json['BankTransactions'][0]['Type']);
+        self::assertSame('contact-1', $transport->requests()[0]->json['BankTransactions'][0]['Contact']['ContactID']);
+        self::assertSame('account-1', $transport->requests()[0]->json['BankTransactions'][0]['BankAccount']['AccountID']);
         self::assertSame('/api.xro/2.0/BankTransactions', $transport->requests()[1]->path);
         self::assertSame('bank-1', $transport->requests()[1]->json['BankTransactions'][0]['BankTransactionID']);
-        self::assertSame('BT-1002', $updated->reference);
+        self::assertSame('BT-1002', $updated->getReference());
     }
 }

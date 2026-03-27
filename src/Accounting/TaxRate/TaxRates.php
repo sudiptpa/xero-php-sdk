@@ -49,7 +49,7 @@ final class TaxRates implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $taxRate): TaxRate => TaxRate::fromArray($taxRate, $this->client),
+            fn (array $taxRate): TaxRate => TaxRate::fromPayload($taxRate, $this->client),
             $payload['TaxRates'] ?? []
         ));
 
@@ -65,7 +65,7 @@ final class TaxRates implements DefinesScopes
         $payload = $response->json();
         $taxRate = $payload['TaxRates'][0] ?? null;
 
-        return is_array($taxRate) ? TaxRate::fromArray($taxRate, $this->client) : null;
+        return is_array($taxRate) ? TaxRate::fromPayload($taxRate, $this->client) : null;
     }
 
     public function create(): Payload

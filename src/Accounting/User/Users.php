@@ -49,7 +49,7 @@ final class Users implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $user): User => User::fromArray($user),
+            static fn (array $user): User => User::fromPayload($user),
             $payload['Users'] ?? []
         ));
 

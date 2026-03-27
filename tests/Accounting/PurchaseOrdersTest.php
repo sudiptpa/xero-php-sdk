@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
+use Sujip\Xero\Accounting\Contact\Contact;
+use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Accounting\PurchaseOrder\PurchaseOrder;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
@@ -21,6 +23,15 @@ final class PurchaseOrdersTest extends TestCase
                 'PurchaseOrderNumber' => 'PO-1001',
                 'Status' => 'AUTHORISED',
                 'Reference' => 'PO-REF',
+                'Contact' => [
+                    'ContactID' => 'contact-1',
+                    'Name' => 'Acme Supplies',
+                ],
+                'LineItems' => [[
+                    'Description' => 'Hardware',
+                    'Quantity' => 1,
+                    'UnitAmount' => 250,
+                ]],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -38,7 +49,9 @@ final class PurchaseOrdersTest extends TestCase
         self::assertSame('/api.xro/2.0/PurchaseOrders', $transport->requests()[0]->path);
         self::assertInstanceOf(PurchaseOrder::class, $purchaseOrders->first());
         self::assertSame('/api.xro/2.0/PurchaseOrders/po-1', $transport->requests()[1]->path);
-        self::assertSame('po-1', $purchaseOrder?->id);
+        self::assertSame('po-1', $purchaseOrder?->getPurchaseOrderID());
+        self::assertSame('contact-1', $purchaseOrders->first()->getContact()?->getContactID());
+        self::assertSame('Hardware', $purchaseOrders->first()->getLineItems()[0]->getDescription());
     }
 
     public function test_it_can_create_and_update_purchase_orders(): void
@@ -60,9 +73,20 @@ final class PurchaseOrdersTest extends TestCase
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $created = $client->accounting()->purchaseOrders()->create()
-            ->contact('contact-1')
-            ->reference('PO-REF')
-            ->lineItem('Hardware', 1, 250)
+            ->using(
+                (new PurchaseOrder())
+                    ->setContact(
+                        (new Contact())
+                            ->setContactID('contact-1')
+                    )
+                    ->setReference('PO-REF')
+                    ->addLineItem(
+                        (new LineItem())
+                            ->setDescription('Hardware')
+                            ->setQuantity(1)
+                            ->setUnitAmount(250)
+                    )
+            )
             ->save();
 
         $updated = $created->reference('PO-REF-UPDATED')->save();
@@ -71,6 +95,6 @@ final class PurchaseOrdersTest extends TestCase
         self::assertSame('contact-1', $transport->requests()[0]->json['PurchaseOrders'][0]['Contact']['ContactID']);
         self::assertSame('/api.xro/2.0/PurchaseOrders', $transport->requests()[1]->path);
         self::assertSame('po-1', $transport->requests()[1]->json['PurchaseOrders'][0]['PurchaseOrderID']);
-        self::assertSame('PO-REF-UPDATED', $updated->reference);
+        self::assertSame('PO-REF-UPDATED', $updated->getReference());
     }
 }

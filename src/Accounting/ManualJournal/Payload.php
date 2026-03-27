@@ -8,22 +8,19 @@ use Sujip\Xero\Client;
 
 final class Payload
 {
-    /**
-     * @var array<string, mixed>
-     */
-    private array $payload = [];
-
-    private ?string $manualJournalId = null;
+    private ManualJournal $manualJournal;
 
     public function __construct(
         private readonly Client $client
     ) {
+        $this->manualJournal = new ManualJournal($client);
     }
 
     public function id(string $manualJournalId): self
     {
         $clone = clone $this;
-        $clone->manualJournalId = $manualJournalId;
+        $clone->manualJournal = clone $this->manualJournal;
+        $clone->manualJournal->setManualJournalID($manualJournalId);
 
         return $clone;
     }
@@ -31,7 +28,8 @@ final class Payload
     public function narration(string $narration): self
     {
         $clone = clone $this;
-        $clone->payload['Narration'] = $narration;
+        $clone->manualJournal = clone $this->manualJournal;
+        $clone->manualJournal->setNarration($narration);
 
         return $clone;
     }
@@ -39,30 +37,35 @@ final class Payload
     public function line(int|float $lineAmount, string $accountCode, bool $isDebit = true): self
     {
         $clone = clone $this;
-        $clone->payload['JournalLines'] ??= [];
-        $clone->payload['JournalLines'][] = [
-            'LineAmount' => $lineAmount,
-            'AccountCode' => $accountCode,
-            'IsDebit' => $isDebit,
-        ];
+        $clone->manualJournal = clone $this->manualJournal;
+        $clone->manualJournal->addJournalLine(
+            (new JournalLine())
+                ->setLineAmount($lineAmount)
+                ->setAccountCode($accountCode)
+                ->setIsDebit($isDebit)
+        );
+
+        return $clone;
+    }
+
+    public function using(ManualJournal $manualJournal): self
+    {
+        $clone = clone $this;
+        $clone->manualJournal = clone $manualJournal;
 
         return $clone;
     }
 
     public function save(): ManualJournal
     {
-        if ($this->manualJournalId !== null) {
-            $this->payload['ManualJournalID'] = $this->manualJournalId;
-        }
-
         $response = $this->client
             ->post('/api.xro/2.0/ManualJournals')
-            ->withJson(['ManualJournals' => [$this->payload]])
+            ->withJson(['ManualJournals' => [$this->manualJournal->toRequest()]])
             ->send();
 
         $payload = $response->json();
         $manualJournal = $payload['ManualJournals'][0] ?? [];
 
-        return ManualJournal::fromArray(is_array($manualJournal) ? $manualJournal : [], $this->client);
+        return ManualJournal::fromPayload(is_array($manualJournal) ? $manualJournal : [], $this->client);
     }
 }

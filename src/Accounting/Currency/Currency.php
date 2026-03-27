@@ -6,19 +6,31 @@ namespace Sujip\Xero\Accounting\Currency;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Contracts\BuildsFromPayload;
+use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final readonly class Currency
+final class Currency implements BuildsFromPayload, SerializesForRequest
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
     public function __construct(
-        public ?string $code,
-        public ?string $description,
-        public ?string $status,
-        public array $raw = [],
         private ?Client $client = null
     ) {
+    }
+
+    private ?string $code = null;
+
+    private ?string $description = null;
+
+    private ?string $status = null;
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public static function fromPayload(array $payload, ?Client $client = null): static
+    {
+        return (new self($client))
+            ->setCode($payload['Code'] ?? null)
+            ->setDescription($payload['Description'] ?? null)
+            ->setStatus($payload['Status'] ?? null);
     }
 
     /**
@@ -26,21 +38,60 @@ final readonly class Currency
      */
     public static function fromArray(array $payload, ?Client $client = null): self
     {
-        return new self(
-            $payload['Code'] ?? null,
-            $payload['Description'] ?? null,
-            $payload['Status'] ?? null,
-            $payload,
-            $client
-        );
+        return self::fromPayload($payload, $client);
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(?string $code): self
+    {
+        $this->code = $code === null ? null : strtoupper($code);
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toRequest(): array
+    {
+        return array_filter([
+            'Code' => $this->getCode(),
+            'Description' => $this->getDescription(),
+            'Status' => $this->getStatus(),
+        ], static fn (mixed $value): bool => $value !== null);
     }
 
     public function description(string $description): self
     {
-        $payload = $this->raw;
-        $payload['Description'] = $description;
-
-        return new self($this->code, $description, $this->status, $payload, $this->client);
+        return $this->setDescription($description);
     }
 
     public function save(): self
@@ -51,14 +102,6 @@ final readonly class Currency
 
         $payload = new Payload($this->client);
 
-        if ($this->code !== null) {
-            $payload = $payload->code($this->code);
-        }
-
-        if ($this->description !== null) {
-            $payload = $payload->description($this->description);
-        }
-
-        return $payload->save();
+        return $payload->using($this)->save();
     }
 }

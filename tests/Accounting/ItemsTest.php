@@ -41,7 +41,7 @@ final class ItemsTest extends TestCase
         self::assertSame(4, $transport->requests()[0]->query['unitdp']);
         self::assertInstanceOf(Item::class, $items->first());
         self::assertSame('/api.xro/2.0/Items/item-1', $transport->requests()[1]->path);
-        self::assertSame('item-1', $item?->id);
+        self::assertSame('item-1', $item?->getItemID());
     }
 
     public function test_it_can_create_and_update_items(): void
@@ -67,9 +67,12 @@ final class ItemsTest extends TestCase
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $created = $client->accounting()->items()->create()
-            ->code('ABC123')
-            ->name('Widget')
-            ->description('Standard widget')
+            ->using(
+                (new Item())
+                    ->setCode('ABC123')
+                    ->setName('Widget')
+                    ->setDescription('Standard widget')
+            )
             ->idempotencyKey('item-key')
             ->save();
 
@@ -80,6 +83,6 @@ final class ItemsTest extends TestCase
         self::assertSame('ABC123', $transport->requests()[0]->json['Items'][0]['Code']);
         self::assertSame('/api.xro/2.0/Items', $transport->requests()[1]->path);
         self::assertSame('item-1', $transport->requests()[1]->json['Items'][0]['ItemID']);
-        self::assertSame('Widget Plus', $updated->name);
+        self::assertSame('Widget Plus', $updated->getName());
     }
 }

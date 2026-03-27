@@ -6,21 +6,44 @@ namespace Sujip\Xero\Accounting\TaxRate;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Contracts\BuildsFromPayload;
+use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final readonly class TaxRate
+final class TaxRate implements BuildsFromPayload, SerializesForRequest
 {
-    /**
-     * @param list<array<string, mixed>> $components
-     * @param array<string, mixed> $raw
-     */
     public function __construct(
-        public ?string $name,
-        public ?string $taxType,
-        public ?string $status,
-        public array $components = [],
-        public array $raw = [],
         private ?Client $client = null
     ) {
+    }
+
+    private ?string $name = null;
+
+    private ?string $taxType = null;
+
+    private ?string $status = null;
+
+    /**
+     * @var list<Component>
+     */
+    private array $taxComponents = [];
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public static function fromPayload(array $payload, ?Client $client = null): static
+    {
+        $taxRate = (new self($client))
+            ->setName($payload['Name'] ?? null)
+            ->setTaxType($payload['TaxType'] ?? null)
+            ->setStatus($payload['Status'] ?? null);
+
+        foreach ($payload['TaxComponents'] ?? [] as $component) {
+            if (is_array($component)) {
+                $taxRate->addTaxComponent(Component::fromPayload($component));
+            }
+        }
+
+        return $taxRate;
     }
 
     /**
@@ -28,33 +51,98 @@ final readonly class TaxRate
      */
     public static function fromArray(array $payload, ?Client $client = null): self
     {
-        return new self(
-            $payload['Name'] ?? null,
-            $payload['TaxType'] ?? null,
-            $payload['Status'] ?? null,
-            $payload['TaxComponents'] ?? [],
-            $payload,
-            $client
-        );
+        return self::fromPayload($payload, $client);
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getTaxType(): ?string
+    {
+        return $this->taxType;
+    }
+
+    public function setTaxType(?string $taxType): self
+    {
+        $this->taxType = $taxType;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return list<Component>
+     */
+    public function getTaxComponents(): array
+    {
+        return $this->taxComponents;
+    }
+
+    /**
+     * @param list<Component> $taxComponents
+     */
+    public function setTaxComponents(array $taxComponents): self
+    {
+        $this->taxComponents = $taxComponents;
+
+        return $this;
+    }
+
+    public function addTaxComponent(Component $component): self
+    {
+        $this->taxComponents[] = $component;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toRequest(): array
+    {
+        return array_filter([
+            'Name' => $this->getName(),
+            'TaxType' => $this->getTaxType(),
+            'Status' => $this->getStatus(),
+            'TaxComponents' => array_map(
+                static fn (Component $component): array => $component->toRequest(),
+                $this->getTaxComponents()
+            ),
+        ], static fn (mixed $value): bool => $value !== null);
     }
 
     public function name(string $name): self
     {
-        $payload = $this->raw;
-        $payload['Name'] = $name;
-
-        return new self($name, $this->taxType, $this->status, $this->components, $payload, $this->client);
+        return $this->setName($name);
     }
 
     public function component(string $name, int|float $rate): self
     {
-        $components = $this->components;
-        $components[] = ['Name' => $name, 'Rate' => $rate];
-
-        $payload = $this->raw;
-        $payload['TaxComponents'] = $components;
-
-        return new self($this->name, $this->taxType, $this->status, $components, $payload, $this->client);
+        return $this->addTaxComponent(
+            (new Component())
+                ->setName($name)
+                ->setRate($rate)
+        );
     }
 
     public function save(): self
@@ -65,21 +153,6 @@ final readonly class TaxRate
 
         $payload = new Payload($this->client);
 
-        if ($this->taxType !== null) {
-            $payload = $payload->taxType($this->taxType);
-        }
-
-        if ($this->name !== null) {
-            $payload = $payload->name($this->name);
-        }
-
-        foreach ($this->components as $component) {
-            $payload = $payload->component(
-                (string) ($component['Name'] ?? ''),
-                (float) ($component['Rate'] ?? 0)
-            );
-        }
-
-        return $payload->save();
+        return $payload->using($this)->save();
     }
 }

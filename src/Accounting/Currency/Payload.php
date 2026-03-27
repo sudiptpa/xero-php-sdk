@@ -8,22 +8,21 @@ use Sujip\Xero\Client;
 
 final class Payload
 {
-    /**
-     * @var array<string, mixed>
-     */
-    private array $payload = [];
+    private Currency $currency;
 
     private ?string $idempotencyKey = null;
 
     public function __construct(
         private readonly Client $client
     ) {
+        $this->currency = new Currency($client);
     }
 
     public function code(string $code): self
     {
         $clone = clone $this;
-        $clone->payload['Code'] = strtoupper($code);
+        $clone->currency = clone $this->currency;
+        $clone->currency->setCode($code);
 
         return $clone;
     }
@@ -31,7 +30,8 @@ final class Payload
     public function description(string $description): self
     {
         $clone = clone $this;
-        $clone->payload['Description'] = $description;
+        $clone->currency = clone $this->currency;
+        $clone->currency->setDescription($description);
 
         return $clone;
     }
@@ -44,17 +44,25 @@ final class Payload
         return $clone;
     }
 
+    public function using(Currency $currency): self
+    {
+        $clone = clone $this;
+        $clone->currency = clone $currency;
+
+        return $clone;
+    }
+
     public function save(): Currency
     {
         $response = $this->client
             ->post('/api.xro/2.0/Currencies')
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
-            ->withJson($this->payload)
+            ->withJson($this->currency->toRequest())
             ->send();
 
         $payload = $response->json();
         $currency = $payload['Currencies'][0] ?? $payload['Currency'] ?? [];
 
-        return Currency::fromArray(is_array($currency) ? $currency : [], $this->client);
+        return Currency::fromPayload(is_array($currency) ? $currency : [], $this->client);
     }
 }

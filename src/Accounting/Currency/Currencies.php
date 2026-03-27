@@ -35,7 +35,7 @@ final class Currencies implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $currency): Currency => Currency::fromArray($currency, $this->client),
+            fn (array $currency): Currency => Currency::fromPayload($currency, $this->client),
             $payload['Currencies'] ?? []
         ));
 

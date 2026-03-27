@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
+use Sujip\Xero\Accounting\TaxRate\Component;
 use Sujip\Xero\Accounting\TaxRate\TaxRate;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
@@ -40,7 +41,7 @@ final class TaxRatesTest extends TestCase
         self::assertSame('Name ASC', $transport->requests()[0]->query['order']);
         self::assertInstanceOf(TaxRate::class, $taxRates->first());
         self::assertSame('/api.xro/2.0/TaxRates/OUTPUT', $transport->requests()[1]->path);
-        self::assertSame('OUTPUT', $taxRate?->taxType);
+        self::assertSame('OUTPUT', $taxRate?->getTaxType());
     }
 
     public function test_it_can_create_and_update_tax_rates(): void
@@ -64,9 +65,16 @@ final class TaxRatesTest extends TestCase
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $created = $client->accounting()->taxRates()->create()
-            ->taxType('OUTPUT')
-            ->name('GST')
-            ->component('GST', 15)
+            ->using(
+                (new TaxRate())
+                    ->setTaxType('OUTPUT')
+                    ->setName('GST')
+                    ->addTaxComponent(
+                        (new Component())
+                            ->setName('GST')
+                            ->setRate(15)
+                    )
+            )
             ->idempotencyKey('tax-key')
             ->save();
 
@@ -75,7 +83,8 @@ final class TaxRatesTest extends TestCase
         self::assertSame('/api.xro/2.0/TaxRates', $transport->requests()[0]->path);
         self::assertSame('tax-key', $transport->requests()[0]->headers['Idempotency-Key']);
         self::assertSame('OUTPUT', $transport->requests()[0]->json['TaxRates'][0]['TaxType']);
+        self::assertSame('GST', $transport->requests()[0]->json['TaxRates'][0]['TaxComponents'][0]['Name']);
         self::assertSame('/api.xro/2.0/TaxRates', $transport->requests()[1]->path);
-        self::assertSame('GST Plus', $updated->name);
+        self::assertSame('GST Plus', $updated->getName());
     }
 }

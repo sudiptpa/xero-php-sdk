@@ -8,54 +8,88 @@ use Sujip\Xero\Client;
 
 final class Payload
 {
-    /**
-     * @var array<string, mixed>
-     */
-    private array $payload = [];
-
-    private ?string $contactId = null;
+    private Contact $contact;
 
     public function __construct(
         private readonly Client $client
     ) {
+        $this->contact = new Contact($client);
+    }
+
+    public function setName(?string $name): self
+    {
+        $clone = clone $this;
+        $clone->contact = clone $this->contact;
+        $clone->contact->setName($name);
+
+        return $clone;
+    }
+
+    public function setFirstName(?string $firstName): self
+    {
+        $clone = clone $this;
+        $clone->contact = clone $this->contact;
+        $clone->contact->setFirstName($firstName);
+
+        return $clone;
+    }
+
+    public function setLastName(?string $lastName): self
+    {
+        $clone = clone $this;
+        $clone->contact = clone $this->contact;
+        $clone->contact->setLastName($lastName);
+
+        return $clone;
+    }
+
+    public function setEmailAddress(?string $emailAddress): self
+    {
+        $clone = clone $this;
+        $clone->contact = clone $this->contact;
+        $clone->contact->setEmailAddress($emailAddress);
+
+        return $clone;
+    }
+
+    public function setContactID(?string $contactID): self
+    {
+        $clone = clone $this;
+        $clone->contact = clone $this->contact;
+        $clone->contact->setContactID($contactID);
+
+        return $clone;
     }
 
     public function name(string $name): self
     {
-        $clone = clone $this;
-        $clone->payload['Name'] = $name;
-
-        return $clone;
+        return $this->setName($name);
     }
 
     public function firstName(string $firstName): self
     {
-        $clone = clone $this;
-        $clone->payload['FirstName'] = $firstName;
-
-        return $clone;
+        return $this->setFirstName($firstName);
     }
 
     public function lastName(string $lastName): self
     {
-        $clone = clone $this;
-        $clone->payload['LastName'] = $lastName;
-
-        return $clone;
+        return $this->setLastName($lastName);
     }
 
     public function email(string $email): self
     {
-        $clone = clone $this;
-        $clone->payload['EmailAddress'] = $email;
-
-        return $clone;
+        return $this->setEmailAddress($email);
     }
 
     public function id(string $contactId): self
     {
+        return $this->setContactID($contactId);
+    }
+
+    public function using(Contact $contact): self
+    {
         $clone = clone $this;
-        $clone->contactId = $contactId;
+        $clone->contact = clone $contact;
 
         return $clone;
     }
@@ -64,14 +98,14 @@ final class Payload
     {
         $path = '/api.xro/2.0/Contacts';
 
-        if ($this->contactId !== null) {
-            $path .= '/' . $this->contactId;
+        if ($this->contact->getContactID() !== null) {
+            $path .= '/' . $this->contact->getContactID();
         }
 
         $response = $this->client
             ->post($path)
             ->withJson([
-                'Contacts' => [$this->payload],
+                'Contacts' => [$this->contact->toRequest()],
             ])
             ->send();
 

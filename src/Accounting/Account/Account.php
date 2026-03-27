@@ -6,21 +6,40 @@ namespace Sujip\Xero\Accounting\Account;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Contracts\BuildsFromPayload;
+use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final readonly class Account
+final class Account implements BuildsFromPayload, SerializesForRequest
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
     public function __construct(
-        public ?string $id,
-        public ?string $code,
-        public ?string $name,
-        public ?string $type,
-        public ?string $status,
-        public array $raw = [],
         private ?Client $client = null
     ) {
+    }
+
+    private ?string $accountID = null;
+
+    private ?string $code = null;
+
+    private ?string $name = null;
+
+    private ?string $type = null;
+
+    private ?string $status = null;
+
+    private ?string $description = null;
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public static function fromPayload(array $payload, ?Client $client = null): static
+    {
+        return (new self($client))
+            ->setAccountID($payload['AccountID'] ?? null)
+            ->setCode($payload['Code'] ?? null)
+            ->setName($payload['Name'] ?? null)
+            ->setType($payload['Type'] ?? null)
+            ->setStatus($payload['Status'] ?? null)
+            ->setDescription($payload['Description'] ?? null);
     }
 
     /**
@@ -28,40 +47,109 @@ final readonly class Account
      */
     public static function fromArray(array $payload, ?Client $client = null): self
     {
-        return new self(
-            $payload['AccountID'] ?? null,
-            $payload['Code'] ?? null,
-            $payload['Name'] ?? null,
-            $payload['Type'] ?? null,
-            $payload['Status'] ?? null,
-            $payload,
-            $client
-        );
+        return self::fromPayload($payload, $client);
+    }
+
+    public function getAccountID(): ?string
+    {
+        return $this->accountID;
+    }
+
+    public function setAccountID(?string $accountID): self
+    {
+        $this->accountID = $accountID;
+
+        return $this;
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(?string $code): self
+    {
+        $this->code = $code;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): self
+    {
+        $this->type = $type === null ? null : strtoupper($type);
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toRequest(): array
+    {
+        return array_filter([
+            'AccountID' => $this->getAccountID(),
+            'Code' => $this->getCode(),
+            'Name' => $this->getName(),
+            'Type' => $this->getType(),
+            'Status' => $this->getStatus(),
+            'Description' => $this->getDescription(),
+        ], static fn (mixed $value): bool => $value !== null);
     }
 
     public function code(string $code): self
     {
-        $payload = $this->raw;
-        $payload['Code'] = $code;
-
-        return new self($this->id, $code, $this->name, $this->type, $this->status, $payload, $this->client);
+        return $this->setCode($code);
     }
 
     public function name(string $name): self
     {
-        $payload = $this->raw;
-        $payload['Name'] = $name;
-
-        return new self($this->id, $this->code, $name, $this->type, $this->status, $payload, $this->client);
+        return $this->setName($name);
     }
 
     public function type(string $type): self
     {
-        $type = strtoupper($type);
-        $payload = $this->raw;
-        $payload['Type'] = $type;
-
-        return new self($this->id, $this->code, $this->name, $type, $this->status, $payload, $this->client);
+        return $this->setType($type);
     }
 
     public function save(): self
@@ -72,26 +160,6 @@ final readonly class Account
 
         $payload = new Payload($this->client);
 
-        if ($this->id !== null) {
-            $payload = $payload->id($this->id);
-        }
-
-        if ($this->code !== null) {
-            $payload = $payload->code($this->code);
-        }
-
-        if ($this->name !== null) {
-            $payload = $payload->name($this->name);
-        }
-
-        if ($this->type !== null) {
-            $payload = $payload->type($this->type);
-        }
-
-        if (isset($this->raw['Description']) && is_string($this->raw['Description'])) {
-            $payload = $payload->description($this->raw['Description']);
-        }
-
-        return $payload->save();
+        return $payload->using($this)->save();
     }
 }

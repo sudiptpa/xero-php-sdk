@@ -84,41 +84,91 @@ $contacts = $xero->accounting()
 ```
 
 ```php
+use Sujip\Xero\Accounting\Contact\Contact;
+
 $contact = $xero->accounting()
     ->contacts()
     ->create()
-    ->name('Acme Pty Ltd')
-    ->email('accounts@acme.test')
+    ->using(
+        (new Contact())
+            ->setName('Acme Pty Ltd')
+            ->setEmailAddress('accounts@acme.test')
+    )
     ->save();
 ```
 
 ```php
+use Sujip\Xero\Accounting\Contact\Contact;
+
 $updated = $xero->accounting()
     ->contacts()
     ->update('contact-id')
-    ->name('Acme Holdings Pty Ltd')
+    ->using(
+        (new Contact())
+            ->setContactID('contact-id')
+            ->setName('Acme Holdings Pty Ltd')
+    )
+    ->save();
+```
+
+```php
+$contact = $xero->accounting()
+    ->contacts()
+    ->create()
+    ->using(
+        (new \Sujip\Xero\Accounting\Contact\Contact())
+            ->setName('Acme Pty Ltd')
+            ->addPhone(
+                (new \Sujip\Xero\Accounting\Contact\Phone())
+                    ->setPhoneType('DEFAULT')
+                    ->setPhoneNumber('5551234')
+            )
+            ->addAddress(
+                (new \Sujip\Xero\Accounting\Contact\Address())
+                    ->setAddressType('STREET')
+                    ->setAddressLine1('100 George Street')
+                    ->setCity('Sydney')
+            )
+    )
     ->save();
 ```
 
 ## Invoices
 
 ```php
+use Sujip\Xero\Accounting\Invoice\Invoice;
+use Sujip\Xero\Accounting\Invoice\LineItem;
+
 $invoice = $xero->accounting()
     ->invoices()
     ->create()
-    ->type('ACCREC')
-    ->draft()
-    ->contact('contact-id')
-    ->reference('PO-1001')
-    ->lineItem('Consulting', quantity: 2, unitAmount: 150)
+    ->using(
+        (new Invoice())
+            ->setType('ACCREC')
+            ->setStatus('DRAFT')
+            ->setContactID('contact-id')
+            ->setReference('PO-1001')
+            ->addLineItem(
+                (new LineItem())
+                    ->setDescription('Consulting')
+                    ->setQuantity(2)
+                    ->setUnitAmount(150)
+            )
+    )
     ->save();
 ```
 
 ```php
+use Sujip\Xero\Accounting\Invoice\Invoice;
+
 $updated = $xero->accounting()
     ->invoices()
     ->update('invoice-id')
-    ->reference('PO-1002')
+    ->using(
+        (new Invoice())
+            ->setInvoiceID('invoice-id')
+            ->setReference('PO-1002')
+    )
     ->save();
 ```
 
@@ -167,22 +217,33 @@ $settings = $xero->accounting()
 ## Payments
 
 ```php
+use Sujip\Xero\Accounting\Payment\Payment;
+
 $payment = $xero->accounting()
     ->payments()
     ->create()
-    ->invoice('invoice-id')
-    ->account('account-id')
-    ->date('2026-03-25')
-    ->amount(150)
-    ->reference('PAY-1001')
+    ->using(
+        (new Payment())
+            ->setInvoiceID('invoice-id')
+            ->setAccountID('account-id')
+            ->setDate('2026-03-25')
+            ->setAmount(150)
+            ->setReference('PAY-1001')
+    )
     ->save();
 ```
 
 ```php
+use Sujip\Xero\Accounting\Payment\Payment;
+
 $updated = $xero->accounting()
     ->payments()
     ->update('payment-id')
-    ->reference('PAY-1002')
+    ->using(
+        (new Payment())
+            ->setPaymentID('payment-id')
+            ->setReference('PAY-1002')
+    )
     ->save();
 ```
 
@@ -225,10 +286,13 @@ $accounts = $xero->accounting()
 $account = $xero->accounting()
     ->accounts()
     ->create()
-    ->code('200')
-    ->name('Sales')
-    ->type('REVENUE')
-    ->description('Primary sales account')
+    ->using(
+        (new \Sujip\Xero\Accounting\Account\Account())
+            ->setCode('200')
+            ->setName('Sales')
+            ->setType('REVENUE')
+            ->setDescription('Primary sales account')
+    )
     ->save();
 ```
 
@@ -236,7 +300,11 @@ $account = $xero->accounting()
 $updated = $xero->accounting()
     ->accounts()
     ->update('account-id')
-    ->name('Primary Sales')
+    ->using(
+        (new \Sujip\Xero\Accounting\Account\Account())
+            ->setAccountID('account-id')
+            ->setName('Primary Sales')
+    )
     ->save();
 ```
 
@@ -254,9 +322,12 @@ $items = $xero->accounting()
 $item = $xero->accounting()
     ->items()
     ->create()
-    ->code('ABC123')
-    ->name('Widget')
-    ->description('Standard widget')
+    ->using(
+        (new \Sujip\Xero\Accounting\Item\Item())
+            ->setCode('ABC123')
+            ->setName('Widget')
+            ->setDescription('Standard widget')
+    )
     ->save();
 ```
 
@@ -281,9 +352,16 @@ $taxRates = $xero->accounting()
 $taxRate = $xero->accounting()
     ->taxRates()
     ->create()
-    ->taxType('OUTPUT')
-    ->name('GST')
-    ->component('GST', 15)
+    ->using(
+        (new \Sujip\Xero\Accounting\TaxRate\TaxRate())
+            ->setTaxType('OUTPUT')
+            ->setName('GST')
+            ->addTaxComponent(
+                (new \Sujip\Xero\Accounting\TaxRate\Component())
+                    ->setName('GST')
+                    ->setRate(15)
+            )
+    )
     ->save();
 ```
 
@@ -294,6 +372,21 @@ $categories = $xero->accounting()
     ->trackingCategories()
     ->includeArchived()
     ->get();
+```
+
+```php
+$category = $xero->accounting()
+    ->trackingCategories()
+    ->create()
+    ->using(
+        (new \Sujip\Xero\Accounting\TrackingCategory\TrackingCategory())
+            ->setName('Region')
+            ->addOption(
+                (new \Sujip\Xero\Accounting\TrackingCategory\Option())
+                    ->setName('APAC')
+            )
+    )
+    ->save();
 ```
 
 ```php
@@ -316,8 +409,11 @@ $currencies = $xero->accounting()
 $currency = $xero->accounting()
     ->currencies()
     ->create()
-    ->code('EUR')
-    ->description('Euro')
+    ->using(
+        (new \Sujip\Xero\Accounting\Currency\Currency())
+            ->setCode('EUR')
+            ->setDescription('Euro')
+    )
     ->save();
 ```
 
@@ -400,10 +496,21 @@ $creditNotes = $xero->accounting()
 $creditNote = $xero->accounting()
     ->creditNotes()
     ->create()
-    ->type('ACCRECCREDIT')
-    ->contact('contact-id')
-    ->reference('CN-1001')
-    ->lineItem('Adjustment', 1, 50)
+    ->using(
+        (new \Sujip\Xero\Accounting\CreditNote\CreditNote())
+            ->setType('ACCRECCREDIT')
+            ->setContact(
+                (new \Sujip\Xero\Accounting\Contact\Contact())
+                    ->setContactID('contact-id')
+            )
+            ->setReference('CN-1001')
+            ->addLineItem(
+                (new \Sujip\Xero\Accounting\Invoice\LineItem())
+                    ->setDescription('Adjustment')
+                    ->setQuantity(1)
+                    ->setUnitAmount(50)
+            )
+    )
     ->save();
 ```
 
@@ -447,11 +554,25 @@ $transactions = $xero->accounting()
 $transaction = $xero->accounting()
     ->bankTransactions()
     ->create()
-    ->type('SPEND')
-    ->contact('contact-id')
-    ->bankAccount('account-id')
-    ->reference('BT-1001')
-    ->lineItem('Office supplies', 1, 25)
+    ->using(
+        (new \Sujip\Xero\Accounting\BankTransaction\BankTransaction())
+            ->setType('SPEND')
+            ->setContact(
+                (new \Sujip\Xero\Accounting\Contact\Contact())
+                    ->setContactID('contact-id')
+            )
+            ->setBankAccount(
+                (new \Sujip\Xero\Accounting\BankTransaction\BankAccount())
+                    ->setAccountID('account-id')
+            )
+            ->setReference('BT-1001')
+            ->addLineItem(
+                (new \Sujip\Xero\Accounting\Invoice\LineItem())
+                    ->setDescription('Office supplies')
+                    ->setQuantity(1)
+                    ->setUnitAmount(25)
+            )
+    )
     ->save();
 ```
 
@@ -571,9 +692,20 @@ $purchaseOrders = $xero->accounting()
 $purchaseOrder = $xero->accounting()
     ->purchaseOrders()
     ->create()
-    ->contact('contact-id')
-    ->reference('PO-REF')
-    ->lineItem('Hardware', 1, 250)
+    ->using(
+        (new \Sujip\Xero\Accounting\PurchaseOrder\PurchaseOrder())
+            ->setContact(
+                (new \Sujip\Xero\Accounting\Contact\Contact())
+                    ->setContactID('contact-id')
+            )
+            ->setReference('PO-REF')
+            ->addLineItem(
+                (new \Sujip\Xero\Accounting\Invoice\LineItem())
+                    ->setDescription('Hardware')
+                    ->setQuantity(1)
+                    ->setUnitAmount(250)
+            )
+    )
     ->save();
 ```
 
@@ -607,9 +739,20 @@ $quotes = $xero->accounting()
 $quote = $xero->accounting()
     ->quotes()
     ->create()
-    ->contact('contact-id')
-    ->title('Website redesign')
-    ->lineItem('Design sprint', 1, 1200)
+    ->using(
+        (new \Sujip\Xero\Accounting\Quote\Quote())
+            ->setContact(
+                (new \Sujip\Xero\Accounting\Contact\Contact())
+                    ->setContactID('contact-id')
+            )
+            ->setTitle('Website redesign')
+            ->addLineItem(
+                (new \Sujip\Xero\Accounting\Invoice\LineItem())
+                    ->setDescription('Design sprint')
+                    ->setQuantity(1)
+                    ->setUnitAmount(1200)
+            )
+    )
     ->save();
 ```
 

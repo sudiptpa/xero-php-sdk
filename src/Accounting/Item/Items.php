@@ -54,7 +54,7 @@ final class Items implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $item): Item => Item::fromArray($item, $this->client),
+            fn (array $item): Item => Item::fromPayload($item, $this->client),
             $payload['Items'] ?? []
         ));
 
@@ -94,7 +94,7 @@ final class Items implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $item = $payload['Items'][0] ?? null;
 
-        return is_array($item) ? Item::fromArray($item, $this->client) : null;
+        return is_array($item) ? Item::fromPayload($item, $this->client) : null;
     }
 
     public function create(): Payload

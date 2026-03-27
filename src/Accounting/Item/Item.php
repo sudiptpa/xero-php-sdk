@@ -4,23 +4,37 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Item;
 
-use Sujip\Xero\Accounting\History;
 use RuntimeException;
+use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Contracts\BuildsFromPayload;
+use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final readonly class Item
+final class Item implements BuildsFromPayload, SerializesForRequest
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
     public function __construct(
-        public ?string $id,
-        public ?string $code,
-        public ?string $name,
-        public ?string $description,
-        public array $raw = [],
         private ?Client $client = null
     ) {
+    }
+
+    private ?string $itemID = null;
+
+    private ?string $code = null;
+
+    private ?string $name = null;
+
+    private ?string $description = null;
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public static function fromPayload(array $payload, ?Client $client = null): static
+    {
+        return (new self($client))
+            ->setItemID($payload['ItemID'] ?? null)
+            ->setCode($payload['Code'] ?? null)
+            ->setName($payload['Name'] ?? null)
+            ->setDescription($payload['Description'] ?? null);
     }
 
     /**
@@ -28,38 +42,83 @@ final readonly class Item
      */
     public static function fromArray(array $payload, ?Client $client = null): self
     {
-        return new self(
-            $payload['ItemID'] ?? null,
-            $payload['Code'] ?? null,
-            $payload['Name'] ?? null,
-            $payload['Description'] ?? null,
-            $payload,
-            $client
-        );
+        return self::fromPayload($payload, $client);
+    }
+
+    public function getItemID(): ?string
+    {
+        return $this->itemID;
+    }
+
+    public function setItemID(?string $itemID): self
+    {
+        $this->itemID = $itemID;
+
+        return $this;
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(?string $code): self
+    {
+        $this->code = $code;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toRequest(): array
+    {
+        return array_filter([
+            'ItemID' => $this->getItemID(),
+            'Code' => $this->getCode(),
+            'Name' => $this->getName(),
+            'Description' => $this->getDescription(),
+        ], static fn (mixed $value): bool => $value !== null);
     }
 
     public function code(string $code): self
     {
-        $payload = $this->raw;
-        $payload['Code'] = $code;
-
-        return new self($this->id, $code, $this->name, $this->description, $payload, $this->client);
+        return $this->setCode($code);
     }
 
     public function name(string $name): self
     {
-        $payload = $this->raw;
-        $payload['Name'] = $name;
-
-        return new self($this->id, $this->code, $name, $this->description, $payload, $this->client);
+        return $this->setName($name);
     }
 
     public function description(string $description): self
     {
-        $payload = $this->raw;
-        $payload['Description'] = $description;
-
-        return new self($this->id, $this->code, $this->name, $description, $payload, $this->client);
+        return $this->setDescription($description);
     }
 
     public function save(): self
@@ -70,31 +129,15 @@ final readonly class Item
 
         $payload = new Payload($this->client);
 
-        if ($this->id !== null) {
-            $payload = $payload->id($this->id);
-        }
-
-        if ($this->code !== null) {
-            $payload = $payload->code($this->code);
-        }
-
-        if ($this->name !== null) {
-            $payload = $payload->name($this->name);
-        }
-
-        if ($this->description !== null) {
-            $payload = $payload->description($this->description);
-        }
-
-        return $payload->save();
+        return $payload->using($this)->save();
     }
 
     public function history(): History
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->itemID === null) {
             throw new RuntimeException('Cannot access item history without a bound client context and item id.');
         }
 
-        return (new Items($this->client))->history($this->id);
+        return (new Items($this->client))->history($this->itemID);
     }
 }

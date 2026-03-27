@@ -8,22 +8,19 @@ use Sujip\Xero\Client;
 
 final class Payload
 {
-    /**
-     * @var array<string, mixed>
-     */
-    private array $payload = [];
-
-    private ?string $paymentId = null;
+    private Payment $payment;
 
     public function __construct(
         private readonly Client $client
     ) {
+        $this->payment = new Payment($client);
     }
 
     public function invoice(string $invoiceId): self
     {
         $clone = clone $this;
-        $clone->payload['Invoice'] = ['InvoiceID' => $invoiceId];
+        $clone->payment = clone $this->payment;
+        $clone->payment->setInvoiceID($invoiceId);
 
         return $clone;
     }
@@ -31,7 +28,8 @@ final class Payload
     public function account(string $accountId): self
     {
         $clone = clone $this;
-        $clone->payload['Account'] = ['AccountID' => $accountId];
+        $clone->payment = clone $this->payment;
+        $clone->payment->setAccountID($accountId);
 
         return $clone;
     }
@@ -39,7 +37,8 @@ final class Payload
     public function date(string $date): self
     {
         $clone = clone $this;
-        $clone->payload['Date'] = $date;
+        $clone->payment = clone $this->payment;
+        $clone->payment->setDate($date);
 
         return $clone;
     }
@@ -47,7 +46,8 @@ final class Payload
     public function amount(int|float $amount): self
     {
         $clone = clone $this;
-        $clone->payload['Amount'] = $amount;
+        $clone->payment = clone $this->payment;
+        $clone->payment->setAmount($amount);
 
         return $clone;
     }
@@ -55,7 +55,8 @@ final class Payload
     public function reference(string $reference): self
     {
         $clone = clone $this;
-        $clone->payload['Reference'] = $reference;
+        $clone->payment = clone $this->payment;
+        $clone->payment->setReference($reference);
 
         return $clone;
     }
@@ -63,7 +64,21 @@ final class Payload
     public function id(string $paymentId): self
     {
         $clone = clone $this;
-        $clone->paymentId = $paymentId;
+        $clone->payment = clone $this->payment;
+        $clone->payment->setPaymentID($paymentId);
+
+        return $clone;
+    }
+
+    public function setPaymentID(?string $paymentId): self
+    {
+        return $this->id((string) $paymentId);
+    }
+
+    public function using(Payment $payment): self
+    {
+        $clone = clone $this;
+        $clone->payment = clone $payment;
 
         return $clone;
     }
@@ -72,14 +87,14 @@ final class Payload
     {
         $path = '/api.xro/2.0/Payments';
 
-        if ($this->paymentId !== null) {
-            $path .= '/' . $this->paymentId;
+        if ($this->payment->getPaymentID() !== null) {
+            $path .= '/' . $this->payment->getPaymentID();
         }
 
         $response = $this->client
             ->post($path)
             ->withJson([
-                'Payments' => [$this->payload],
+                'Payments' => [$this->payment->toRequest()],
             ])
             ->send();
 

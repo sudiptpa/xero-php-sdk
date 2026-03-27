@@ -8,30 +8,21 @@ use Sujip\Xero\Client;
 
 final class Draft
 {
-    /**
-     * @var list<array<string, mixed>>
-     */
-    private array $lineItems = [];
-
-    private string $status = 'DRAFT';
-
-    private ?string $contactId = null;
-
-    private ?string $reference = null;
-
-    private string $type = 'ACCREC';
-
-    private ?string $invoiceId = null;
+    private Invoice $invoice;
 
     public function __construct(
         private readonly Client $client
     ) {
+        $this->invoice = (new Invoice($client))
+            ->setType('ACCREC')
+            ->setStatus('DRAFT');
     }
 
     public function draft(): self
     {
         $clone = clone $this;
-        $clone->status = 'DRAFT';
+        $clone->invoice = clone $this->invoice;
+        $clone->invoice->setStatus('DRAFT');
 
         return $clone;
     }
@@ -39,7 +30,8 @@ final class Draft
     public function contact(string $contactId): self
     {
         $clone = clone $this;
-        $clone->contactId = $contactId;
+        $clone->invoice = clone $this->invoice;
+        $clone->invoice->setContactID($contactId);
 
         return $clone;
     }
@@ -47,7 +39,8 @@ final class Draft
     public function type(string $type): self
     {
         $clone = clone $this;
-        $clone->type = strtoupper($type);
+        $clone->invoice = clone $this->invoice;
+        $clone->invoice->setType($type);
 
         return $clone;
     }
@@ -55,7 +48,8 @@ final class Draft
     public function id(string $invoiceId): self
     {
         $clone = clone $this;
-        $clone->invoiceId = $invoiceId;
+        $clone->invoice = clone $this->invoice;
+        $clone->invoice->setInvoiceID($invoiceId);
 
         return $clone;
     }
@@ -63,7 +57,8 @@ final class Draft
     public function reference(string $reference): self
     {
         $clone = clone $this;
-        $clone->reference = $reference;
+        $clone->invoice = clone $this->invoice;
+        $clone->invoice->setReference($reference);
 
         return $clone;
     }
@@ -74,11 +69,21 @@ final class Draft
         int|float $unitAmount
     ): self {
         $clone = clone $this;
-        $clone->lineItems[] = [
-            'Description' => $description,
-            'Quantity' => $quantity,
-            'UnitAmount' => $unitAmount,
-        ];
+        $clone->invoice = clone $this->invoice;
+        $clone->invoice->addLineItem(
+            (new LineItem())
+                ->setDescription($description)
+                ->setQuantity($quantity)
+                ->setUnitAmount($unitAmount)
+        );
+
+        return $clone;
+    }
+
+    public function using(Invoice $invoice): self
+    {
+        $clone = clone $this;
+        $clone->invoice = clone $invoice;
 
         return $clone;
     }
@@ -87,22 +92,14 @@ final class Draft
     {
         $path = '/api.xro/2.0/Invoices';
 
-        if ($this->invoiceId !== null) {
-            $path .= '/' . $this->invoiceId;
+        if ($this->invoice->getInvoiceID() !== null) {
+            $path .= '/' . $this->invoice->getInvoiceID();
         }
 
         $response = $this->client
             ->post($path)
             ->withJson([
-                'Invoices' => [[
-                    'Type' => $this->type,
-                    'Status' => $this->status,
-                    'Reference' => $this->reference,
-                    'Contact' => $this->contactId === null ? null : [
-                        'ContactID' => $this->contactId,
-                    ],
-                    'LineItems' => $this->lineItems,
-                ]],
+                'Invoices' => [$this->invoice->toRequest()],
             ])
             ->send();
 

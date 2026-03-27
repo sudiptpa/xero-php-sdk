@@ -54,7 +54,7 @@ final class BankTransactions implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $bankTransaction): BankTransaction => BankTransaction::fromArray($bankTransaction, $this->client),
+            fn (array $bankTransaction): BankTransaction => BankTransaction::fromPayload($bankTransaction, $this->client),
             $payload['BankTransactions'] ?? []
         ));
 
@@ -88,7 +88,7 @@ final class BankTransactions implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $bankTransaction = $payload['BankTransactions'][0] ?? null;
 
-        return is_array($bankTransaction) ? BankTransaction::fromArray($bankTransaction, $this->client) : null;
+        return is_array($bankTransaction) ? BankTransaction::fromPayload($bankTransaction, $this->client) : null;
     }
 
     public function create(): Payload
