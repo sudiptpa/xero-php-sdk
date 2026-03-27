@@ -38,6 +38,15 @@ final readonly class Receipt
         );
     }
 
+    public function attachments(): Attachments
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot access receipt attachments without a bound client context and receipt id.');
+        }
+
+        return (new Receipts($this->client))->attachments($this->id);
+    }
+
     public function history(): History
     {
         if ($this->client === null || $this->id === null) {

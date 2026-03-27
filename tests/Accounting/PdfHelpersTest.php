@@ -59,4 +59,29 @@ final class PdfHelpersTest extends TestCase
         self::assertSame('/api.xro/2.0/Quotes/quote-1/pdf', $transport->requests()[2]->path);
         self::assertSame('%PDF-quote-model', $modelPdf);
     }
+
+    public function test_it_can_fetch_purchase_order_pdf_from_resource_and_model(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: '%PDF-po-direct'));
+        $transport->push(new Response(200, body: json_encode([
+            'PurchaseOrders' => [[
+                'PurchaseOrderID' => 'po-1',
+                'Reference' => 'PO-1',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: '%PDF-po-model'));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $pdf = $client->accounting()->purchaseOrders()->pdf('po-1');
+        $purchaseOrder = $client->accounting()->purchaseOrders()->find('po-1');
+        $modelPdf = $purchaseOrder?->pdf();
+
+        self::assertSame('/api.xro/2.0/PurchaseOrders/po-1/pdf', $transport->requests()[0]->path);
+        self::assertSame('application/pdf', $transport->requests()[0]->headers['Accept']);
+        self::assertSame('%PDF-po-direct', $pdf);
+        self::assertSame('/api.xro/2.0/PurchaseOrders/po-1/pdf', $transport->requests()[2]->path);
+        self::assertSame('%PDF-po-model', $modelPdf);
+    }
 }

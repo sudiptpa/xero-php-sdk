@@ -16,6 +16,7 @@ use Sujip\Xero\Accounting\Currency\Currencies as CurrenciesResource;
 use Sujip\Xero\Accounting\Employee\Employees as EmployeesResource;
 use Sujip\Xero\Accounting\ExpenseClaim\ExpenseClaims as ExpenseClaimsResource;
 use Sujip\Xero\Accounting\Invoice\Invoices as InvoicesResource;
+use Sujip\Xero\Accounting\InvoiceReminder\InvoiceReminders as InvoiceRemindersResource;
 use Sujip\Xero\Accounting\Item\Items as ItemsResource;
 use Sujip\Xero\Accounting\Journal\Journals as JournalsResource;
 use Sujip\Xero\Accounting\LinkedTransaction\LinkedTransactions as LinkedTransactionsResource;
@@ -180,6 +181,11 @@ final readonly class Accounting
     public function invoices(): InvoicesResource
     {
         return new InvoicesResource($this->client);
+    }
+
+    public function invoiceReminders(): InvoiceRemindersResource
+    {
+        return new InvoiceRemindersResource($this->client);
     }
 
     public function payments(): PaymentsResource

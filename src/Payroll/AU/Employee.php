@@ -6,6 +6,7 @@ namespace Sujip\Xero\Payroll\AU;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Payroll\AU\LeaveApplication\Payload as LeaveApplicationPayload;
 
 final readonly class Employee
 {
@@ -64,5 +65,26 @@ final readonly class Employee
         }
 
         return $payload->save();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function leaveBalances(): array
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot load leave balances without a bound client context and employee id.');
+        }
+
+        return (new Employees($this->client))->leaveBalances($this->id);
+    }
+
+    public function createLeaveApplication(): LeaveApplicationPayload
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot create a leave application without a bound client context and employee id.');
+        }
+
+        return (new LeaveApplicationPayload($this->client))->employee($this->id);
     }
 }

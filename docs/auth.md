@@ -1,6 +1,6 @@
 # Auth
 
-Xero auth is not hard, but it can get messy in application code. The package keeps it clear and easy to follow.
+Xero auth is straightforward, but it can get messy in application code. The package keeps it clear and easy to follow.
 
 1. send the user to Xero
 2. exchange the code for a token
@@ -45,7 +45,7 @@ $connected = $connections->connectTenant($availableTenants[0]->tenantId);
 $xero = $connected->client;
 ```
 
-At that point you can stop thinking about OAuth and make a normal tenant-scoped call:
+At that point you can make a normal API call:
 
 ```php
 $contacts = $xero->accounting()
@@ -71,7 +71,7 @@ $url = $connections->authorizationUrl(
 $connected = $connections->exchangeAndConnect($code, 'tenant-id', $verifier);
 ```
 
-Use `exchangeAndConnect()` when your app already knows which tenant it wants. Use `exchange()` plus `connections()` when the user still has to choose.
+Use `exchangeAndConnect()` when your app already knows which tenant it wants. Use `exchange()` plus `connections()` when the user still needs to choose.
 
 ## Refreshing Tokens
 
@@ -79,7 +79,7 @@ Use `exchangeAndConnect()` when your app already knows which tenant it wants. Us
 $freshToken = $connections->refresh();
 ```
 
-The in-memory repository is only for tests and small examples. Real apps should store tokens in the database.
+The in-memory repository is only for tests and small examples. Real apps should store tokens somewhere persistent.
 
 ## Custom Connections
 
@@ -95,8 +95,13 @@ This is mainly for fixed server-to-server integrations. Keep the scope list smal
 
 ## Tenant Discovery
 
-Tenant discovery uses `identity()->connections()` and does not send a tenant header.
-Tenant-scoped calls should happen only after you choose a tenant.
+Tenant discovery uses `identity()->connections()` and does not send a tenant header. Tenant-scoped calls should happen only after you choose a tenant.
+
+If you need to disconnect an existing connection, use the connection manager after you have a token:
+
+```php
+$connections->disconnectTenant('tenant-id');
+```
 
 ## Scope Notes
 
@@ -105,6 +110,6 @@ Tenant-scoped calls should happen only after you choose a tenant.
 - `accounting.contacts` is for contact writes
 - `accounting.transactions.read` is for invoices, payments, credit notes, and similar transaction reads
 - `accounting.transactions` is for transaction writes
-- payroll, files, assets, finance, and app-store flows should each keep their own scope list small instead of reusing one large bundle
+- payroll, files, assets, finance, and app-store flows should each keep their own scope list small
 - new apps created on or after 2 March 2026 should expect granular scopes to be the normal path
 - custom connections should request only the scopes that the fixed integration actually needs

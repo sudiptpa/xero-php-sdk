@@ -82,4 +82,13 @@ final readonly class PurchaseOrder
 
         return (new PurchaseOrders($this->client))->history($this->id);
     }
+
+    public function pdf(): string
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot access a purchase order PDF without a bound client context and purchase order id.');
+        }
+
+        return (new PurchaseOrders($this->client))->pdf($this->id);
+    }
 }

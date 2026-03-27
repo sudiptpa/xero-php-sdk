@@ -115,10 +115,21 @@ final class Employees implements PaginatesResults, DefinesScopes
     /**
      * @return array<string, mixed>
      */
-    public function statutoryLeaveBalance(string $employeeId): array
+    public function statutoryLeaveBalance(string $employeeId, ?string $leaveType = null, ?string $asOfDate = null): array
     {
-        return $this->client
-            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/StatutoryLeaveBalance')
+        $request = $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/StatutoryLeaveBalance');
+
+        $query = array_filter([
+            'LeaveType' => $leaveType,
+            'AsOfDate' => $asOfDate,
+        ], static fn (mixed $value): bool => $value !== null && $value !== '');
+
+        if ($query !== []) {
+            $request = $request->withQuery($query);
+        }
+
+        return $request
             ->send()
             ->json();
     }
@@ -154,5 +165,44 @@ final class Employees implements PaginatesResults, DefinesScopes
             ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/PaymentMethod')
             ->send()
             ->json();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function employment(string $employeeId): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/Employment')
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @return ResourceCollection<LeaveType>
+     */
+    public function leaveTypes(string $employeeId): ResourceCollection
+    {
+        $payload = $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/LeaveTypes')
+            ->send()
+            ->json();
+
+        $items = array_values(array_map(
+            static fn (array $leaveType): LeaveType => LeaveType::fromArray($leaveType),
+            $payload['LeaveTypes'] ?? []
+        ));
+
+        return new ResourceCollection($items);
+    }
+
+    public function createLeave(string $employeeId): LeavePayload
+    {
+        return new LeavePayload($this->client, $employeeId);
+    }
+
+    public function createLeaveType(string $employeeId): LeaveTypePayload
+    {
+        return new LeaveTypePayload($this->client, $employeeId);
     }
 }

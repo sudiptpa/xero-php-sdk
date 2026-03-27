@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Identity;
 
+use RuntimeException;
+use Sujip\Xero\Client;
+
 final readonly class Connection
 {
     /**
@@ -16,14 +19,15 @@ final readonly class Connection
         public ?string $tenantType,
         public ?string $createdDateUtc,
         public ?string $updatedDateUtc,
-        public array $raw = []
+        public array $raw = [],
+        private ?Client $client = null
     ) {
     }
 
     /**
      * @param array<string, mixed> $payload
      */
-    public static function fromArray(array $payload): self
+    public static function fromArray(array $payload, ?Client $client = null): self
     {
         return new self(
             $payload['id'] ?? null,
@@ -32,7 +36,17 @@ final readonly class Connection
             $payload['tenantType'] ?? null,
             $payload['createdDateUtc'] ?? null,
             $payload['updatedDateUtc'] ?? null,
-            $payload
+            $payload,
+            $client
         );
+    }
+
+    public function disconnect(): bool
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot disconnect a connection without a bound client context and connection id.');
+        }
+
+        return (new Connections($this->client))->disconnect($this->id);
     }
 }

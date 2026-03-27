@@ -221,4 +221,63 @@ final class Employees implements PaginatesResults, DefinesScopes
     {
         return new OpeningBalancesPayload($this->client, $employeeId);
     }
+
+    public function createEmployment(string $employeeId): EmploymentPayload
+    {
+        return new EmploymentPayload($this->client, $employeeId);
+    }
+
+    public function createLeave(string $employeeId): LeavePayload
+    {
+        return new LeavePayload($this->client, $employeeId);
+    }
+
+    public function createPaymentMethod(string $employeeId): PaymentMethodPayload
+    {
+        return new PaymentMethodPayload($this->client, $employeeId);
+    }
+
+    public function createSalaryAndWage(string $employeeId): SalaryAndWagePayload
+    {
+        return new SalaryAndWagePayload($this->client, $employeeId);
+    }
+
+    public function createWorkingPattern(string $employeeId): WorkingPatternPayload
+    {
+        return new WorkingPatternPayload($this->client, $employeeId);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function employment(string $employeeId): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/Employment')
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function salaryAndWages(string $employeeId, int $page = 1): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/SalaryAndWages')
+            ->withQuery(['page' => $page])
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function salaryAndWage(string $employeeId, string $salaryAndWagesId): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/SalaryAndWages/' . $salaryAndWagesId)
+            ->send()
+            ->json();
+    }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\ManualJournal;
 
+use Sujip\Xero\Accounting\History;
 use RuntimeException;
 use Sujip\Xero\Client;
 
@@ -60,5 +61,23 @@ final readonly class ManualJournal
         }
 
         return $payload->save();
+    }
+
+    public function attachments(): Attachments
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot access manual journal attachments without a bound client context and manual journal id.');
+        }
+
+        return (new ManualJournals($this->client))->attachments($this->id);
+    }
+
+    public function history(): History
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot access manual journal history without a bound client context and manual journal id.');
+        }
+
+        return (new ManualJournals($this->client))->history($this->id);
     }
 }

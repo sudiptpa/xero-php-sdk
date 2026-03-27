@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\AU\PayrollCalendar\PayrollCalendar;
+use Sujip\Xero\Payroll\AU\SuperFund\Product;
 use Sujip\Xero\Payroll\AU\SuperFund\SuperFund;
 use Sujip\Xero\Xero;
 
@@ -96,15 +97,59 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
                 'Type' => 'REGULATED',
             ],
         ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'SuperFund' => [
+                'SuperFundID' => 'fund-2',
+                'Name' => 'Future Super',
+                'Type' => 'REGULATED',
+            ],
+        ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $funds = $client->payroll()->au()->superFunds()->get();
         $fund = $client->payroll()->au()->superFunds()->find('fund-1');
+        $created = $client->payroll()->au()->superFunds()->create()
+            ->type('REGULATED')
+            ->name('Future Super')
+            ->uSI('40022701955002')
+            ->abn('12345678901')
+            ->idempotencyKey('superfund-key')
+            ->save();
 
         self::assertSame('/payroll.xro/1.0/SuperFunds', $transport->requests()[0]->path);
         self::assertSame('/payroll.xro/1.0/SuperFunds/fund-1', $transport->requests()[1]->path);
+        self::assertSame('/payroll.xro/1.0/SuperFunds', $transport->requests()[2]->path);
+        self::assertSame('superfund-key', $transport->requests()[2]->headers['Idempotency-Key']);
+        self::assertSame('40022701955002', $transport->requests()[2]->json['USI']);
         self::assertInstanceOf(SuperFund::class, $funds->first());
         self::assertSame('fund-1', $fund?->id);
+        self::assertSame('fund-2', $created->id);
+    }
+
+    public function test_it_can_load_super_fund_products(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'SuperFundProducts' => [[
+                'SuperFundProductID' => 'product-1',
+                'Name' => 'Balanced',
+                'USI' => 'OSF0001AU',
+                'ABN' => '40022701955',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $products = $client->payroll()->au()->superFundProducts()
+            ->abn('40022701955')
+            ->usi('OSF0001AU')
+            ->get();
+
+        self::assertSame('/payroll.xro/1.0/SuperFundProducts', $transport->requests()[0]->path);
+        self::assertSame('40022701955', $transport->requests()[0]->query['ABN']);
+        self::assertSame('OSF0001AU', $transport->requests()[0]->query['USI']);
+        self::assertInstanceOf(Product::class, $products->first());
+        self::assertSame('product-1', $products->first()->id);
     }
 }

@@ -13,7 +13,7 @@
 
 ## Public API Style
 
-The SDK should feel like a Xero-native request layer:
+The SDK is meant to feel like a Xero-native request layer:
 
 ```php
 $xero->accounting()->contacts()->where(...)->page(1)->get();
@@ -47,17 +47,10 @@ This keeps the architecture distinct from older SDK patterns while still making 
 - root client owns auth and tenant context
 - resource builders stay fluent and small
 - endpoint-specific builders compose a shared HTTP layer
-- pagination and common query features should be implemented as shared support concerns
+- pagination and common query features live in shared support concerns
 - payload builders are typed and immutable where practical
 - tests validate request construction before broad endpoint rollout
-- public APIs should read naturally in application code
-
-## Immediate Production Priorities
-
-- native transport with exception mapping
-- OAuth2 token lifecycle support
-- shared request modifiers for current Xero query patterns
-- high-quality vertical coverage before broad endpoint expansion
+- public APIs read naturally in application code
 
 ## Granular Scopes
 
@@ -66,14 +59,7 @@ Xero's granular scopes are now an architectural requirement, not just a docs det
 - Apps created on or after 2 March 2026 use granular scopes by default
 - Apps created before 2 March 2026 can request granular scopes starting in April 2026
 - Existing apps have until September 2027 to migrate from broad scopes
-- Missing granular scopes can result in a `401` insufficient-scope response and should map to a dedicated SDK exception path later
-
-The SDK should eventually include:
-
-- endpoint-to-scope metadata
-- auth helpers that make requested scopes explicit
-- permission upgrade guidance in docs
-- error handling that can surface "update permissions" style recovery paths
+- Missing granular scopes can result in a `401` insufficient-scope response and map to a dedicated SDK exception
 
 ## Current Direction
 
@@ -96,15 +82,15 @@ The SDK now has the basic pieces needed for a serious integration:
 - real Finance coverage for accounting activities, cash validation, and financial statements
 - real App Store coverage for subscriptions and usage records
 
-There is still more to build, but the package now has a solid structure instead of one-off endpoint classes.
+The package has a solid structure instead of one-off endpoint classes.
 
 ## Tenant Handling
 
 Identity connections are not the same thing as tenant-scoped API calls.
 
-- `identity()->connections()` should work without sending a tenant header
-- Accounting, Files, Projects, Assets, and Payroll requests should send the tenant header when a tenant is set
-- tenant discovery should be part of the normal auth story in the docs
+- `identity()->connections()` works without sending a tenant header
+- Accounting, Files, Projects, Assets, and Payroll requests send the tenant header when a tenant is set
+- tenant discovery is part of the normal auth flow in the docs
 
 This separation matters because it shapes how apps connect the first time and how they recover when a tenant connection changes.
 
@@ -116,4 +102,4 @@ Webhook support should be clear and reliable:
 - parse the payload into typed events
 - fail loudly on invalid signatures
 
-That is enough for the first version. Framework adapters and richer event helpers can come later.
+This keeps webhook support small, readable, and framework-neutral.

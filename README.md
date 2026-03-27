@@ -11,9 +11,8 @@ The package already includes:
 - zero runtime dependencies
 - multi-tenant context handling
 - transport abstraction
-- elegant resource builders
-- docs-first API planning
-- production-grade maintainability
+- typed models and write builders
+- production-ready test and static-analysis coverage
 
 ## Installation
 
@@ -35,7 +34,7 @@ Most Xero integrations follow the same path:
 2. exchange the callback code for a token
 3. list available tenant connections
 4. choose one tenant
-5. make your first tenant-scoped call
+5. make your first API call
 
 This is the shortest useful path:
 
@@ -76,7 +75,7 @@ If you already know the tenant id, `exchangeAndConnect()` is the shorter path:
 $connected = $manager->exchangeAndConnect($code, 'tenant-id');
 ```
 
-## Design Direction
+## API Style
 
 ```php
 use Sujip\Xero\Xero;
@@ -254,17 +253,19 @@ $webhook = $verifier->parse($rawPayload);
 
 ## Why This Package
 
-The point of this package is simple:
+The package is meant to feel clean in real application code:
 
-- elegant fluent API instead of generated client sprawl
+- fluent API instead of generated client sprawl
 - domain-first structure that is easy to maintain
+- typed models for reads and focused builders for writes
+- framework-neutral integration points
 - strong testing culture and coverage discipline
 - excellent documentation and migration guidance
 - community-friendly open source foundations
 
 ## Granular Scopes
 
-Xero's scope model is changing. The package needs to stay honest about that.
+Xero's scope model is changing, so the docs need to stay clear about what each integration actually needs.
 
 - Apps created on or after 2 March 2026 use granular scopes
 - Apps created before 2 March 2026 can begin requesting granular scopes from April 2026
@@ -283,7 +284,7 @@ In practice:
 
 - read-only flows should request read scopes where Xero provides them
 - create, update, delete, and action endpoints should request the matching write scopes
-- new apps should be designed around granular scopes first, not broad scopes first
+- new apps should be designed around granular scopes first
 
 ## Identity And Tenants
 

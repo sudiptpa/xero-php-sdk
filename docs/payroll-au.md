@@ -6,6 +6,8 @@ Current coverage:
 
 - payroll calendars
 - employees
+- employee leave balances
+- employee-scoped leave application helper
 - leave applications
 - pay items
 - pay runs
@@ -13,7 +15,9 @@ Current coverage:
 - timesheets
 - settings
 - super funds
+- super fund products
 - employee find and write flows
+- super fund create flow
 
 ## Payroll Calendars
 
@@ -63,6 +67,17 @@ $employee = $xero->payroll()
     ->firstName('Grace')
     ->lastName('Hopper')
     ->emailAddress('grace@example.test')
+    ->save();
+```
+
+```php
+$leaveBalances = $employee->leaveBalances();
+
+$leave = $employee->createLeaveApplication()
+    ->leaveType('leave-type-id')
+    ->title('Annual Leave')
+    ->startDate('2026-04-01')
+    ->endDate('2026-04-02')
     ->save();
 ```
 
@@ -163,6 +178,27 @@ $settings = $xero->payroll()
 $superFunds = $xero->payroll()
     ->au()
     ->superFunds()
+    ->get();
+```
+
+```php
+$superFund = $xero->payroll()
+    ->au()
+    ->superFunds()
+    ->create()
+    ->type('REGULATED')
+    ->name('Future Super')
+    ->uSI('40022701955002')
+    ->abn('12345678901')
+    ->save();
+```
+
+```php
+$products = $xero->payroll()
+    ->au()
+    ->superFundProducts()
+    ->abn('40022701955')
+    ->usi('OSF0001AU')
     ->get();
 ```
 

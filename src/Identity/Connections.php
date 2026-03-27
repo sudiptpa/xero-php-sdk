@@ -30,7 +30,7 @@ final readonly class Connections
         $rows = is_array($decoded) ? array_values($decoded) : [];
 
         $items = array_map(
-            static fn (array $connection): Connection => Connection::fromArray($connection),
+            fn (array $connection): Connection => Connection::fromArray($connection, $this->client),
             $rows
         );
 
@@ -46,5 +46,15 @@ final readonly class Connections
         }
 
         return null;
+    }
+
+    public function disconnect(string $connectionId): bool
+    {
+        $response = $this->client
+            ->delete('/connections/' . $connectionId)
+            ->withoutTenant()
+            ->send();
+
+        return in_array($response->status, [200, 204], true);
     }
 }

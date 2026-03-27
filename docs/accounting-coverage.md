@@ -2,11 +2,9 @@
 
 This document tracks Accounting coverage against the current Xero Accounting documentation surface.
 
-It is not meant to mirror the older `xero-php` package structure. It is meant to show, plainly, what the package has already covered and what is still missing if the goal is full Accounting coverage from top to bottom of the docs.
-
 ## Current Position
 
-The package has broad Accounting coverage, but it still does not cover the full Accounting API.
+The package has broad Accounting coverage.
 
 Current implemented coverage:
 
@@ -19,6 +17,7 @@ Current implemented coverage:
 - invoice attachment downloads
 - invoice history
 - invoice PDF
+- invoice reminder settings
 - items
 - payments
 - tax rates
@@ -37,7 +36,7 @@ Current implemented coverage:
 - prepayments
 - batch payments
 - manual journals
-- manual journal attachments and downloads
+- manual journal attachments, downloads, and history
 - contact groups
 - employees
 - expense claims
@@ -45,9 +44,12 @@ Current implemented coverage:
 - purchase orders
 - purchase order attachments
 - purchase order attachment downloads
+- purchase order PDF
 - quotes
 - quote PDF
 - receipts
+- receipt attachments
+- receipt attachment downloads
 - repeating invoices
 - payment services
 - reports
@@ -62,6 +64,7 @@ Current implemented coverage:
 | Invoice attachments | Built | List, upload, download by filename and attachment id |
 | Invoice history | Built | List, record |
 | Invoice PDF | Built | Direct PDF helper |
+| Invoice reminder settings | Built | Reminder settings read |
 | Payments | Built | Query, find, create, update |
 | Bank transactions | Built | Query, find, create, update |
 | Bank transfers | Built | Query, find, create |
@@ -78,16 +81,17 @@ Current implemented coverage:
 | Items | Built | Query, find, create, update |
 | Journals | Built | Query, find by ID, find by journal number |
 | Linked transactions | Built | Query, create |
-| Manual journals | Built | Query, find, create, update, attachment helpers |
+| Manual journals | Built | Query, find, create, update, attachment helpers, history helpers |
 | Organisations | Built | Current organisation read |
 | Overpayments | Built | Query, find |
 | Payment services | Built | Query, create |
 | Prepayments | Built | Query, find |
-| Purchase orders | Built | Query, find, create, update |
+| Purchase orders | Built | Query, find, create, update, PDF helper |
 | Purchase order attachments | Built | List, upload, download by filename and attachment id |
 | Quotes | Built | Query, find, create, update |
 | Quote PDF | Built | Direct PDF helper |
-| Receipts | Built | Query, find |
+| Receipts | Built | Query, find, attachment helpers |
+| Receipt attachments | Built | List, upload, download by filename and attachment id |
 | Repeating invoices | Built | Query, find, create, update |
 | Reports | Built | Reports list, report by ID, named report helpers |
 | Tax rates | Built | Query, find, create, update |
@@ -104,18 +108,14 @@ Broadly:
 - invoices and payments use transaction scopes
 - accounts use settings-style scopes
 
-This still needs to be made more explicit resource by resource in the docs.
+The package carries this metadata in code, and the docs point to the main scope families used by Accounting resources.
 
-## Exact Remaining Gaps
+## Open Items
 
-The latest live-docs sweep shows that Accounting is now mostly about helper completeness rather than major resource absence.
-
-The clearest remaining gaps are now smaller:
+The open items in Accounting are small:
 
 - a final live-docs recheck for low-traffic long-tail helpers
-- any resource-specific attachment helpers beyond the current invoice, credit note, purchase order, and manual journal set if the docs expose them
-
-That means the next Accounting work should stay narrow and exact, not broaden the family again.
+- any resource-specific attachment helpers beyond the current invoice, credit note, purchase order, manual journal, and receipt set if the docs expose them
 
 ## Definition Of Done For An Accounting Resource
 
@@ -128,4 +128,4 @@ A resource is only done when it has:
 - scope notes in docs
 - coverage map entry
 
-Anything less should be treated as partial work, not finished parity.
+Anything less should not be treated as finished coverage.
