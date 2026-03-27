@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Payment;
 
+use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
@@ -103,5 +104,10 @@ final class Payments implements PaginatesResults, DefinesScopes
     public function update(string $paymentId): Payload
     {
         return (new Payload($this->client))->id($paymentId);
+    }
+
+    public function history(string $paymentId): History
+    {
+        return new History($this->client, '/api.xro/2.0/Payments/' . $paymentId . '/History');
     }
 }

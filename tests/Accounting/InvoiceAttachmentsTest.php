@@ -69,4 +69,27 @@ final class InvoiceAttachmentsTest extends TestCase
         self::assertSame('binary-pdf-content', $request->body);
         self::assertTrue((bool) $attachment->includeOnline);
     }
+
+    public function test_it_can_download_invoice_attachments_by_name_and_id(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: '%PDF-by-name'));
+        $transport->push(new Response(200, body: '%PDF-by-id'));
+
+        $attachments = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->invoices()
+            ->attachments('invoice-1');
+
+        $byName = $attachments->download('invoice.pdf', 'application/pdf');
+        $byId = $attachments->downloadById('attachment-1', 'application/pdf');
+
+        self::assertSame('/api.xro/2.0/Invoices/invoice-1/Attachments/invoice.pdf', $transport->requests()[0]->path);
+        self::assertSame('application/pdf', $transport->requests()[0]->headers['Accept']);
+        self::assertSame('application/pdf', $transport->requests()[0]->headers['contentType']);
+        self::assertSame('/api.xro/2.0/Invoices/invoice-1/Attachments/attachment-1', $transport->requests()[1]->path);
+        self::assertSame('%PDF-by-name', $byName);
+        self::assertSame('%PDF-by-id', $byId);
+    }
 }

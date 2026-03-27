@@ -2,7 +2,7 @@
 
 Accounting is where the package needs to feel calm and predictable.
 
-The current surface is still early, but it already covers the basic shape for:
+The package now covers the main Accounting surface and a lot of the helper paths that make real integrations less awkward:
 
 - contacts
 - invoices
@@ -34,17 +34,38 @@ The current surface is still early, but it already covers the basic shape for:
 - payment services
 - reports
 - invoice attachments
+- invoice attachment downloads
 - invoice history
 - invoice PDF
 - credit note attachments
+- credit note attachment downloads
 - credit note history
 - credit note PDF
+- bank transaction history
+- batch payment history
+- item history
+- payment history
 - purchase order attachments
+- purchase order attachment downloads
+- purchase order history
 - quote PDF
+- receipt history
+- manual journal attachments
+- manual journal attachment downloads
 
 If you want the full current Accounting API picture, use the parity tracker:
 
 - [Accounting Parity](accounting-parity.md)
+
+## Scope Notes
+
+The Accounting surface is split across a few practical scope families:
+
+- `accounting.contacts.read` and `accounting.contacts` for contacts
+- `accounting.settings.read` and `accounting.settings` for settings-style resources like accounts, items, tax rates, tracking categories, branding themes, organisations, and users
+- `accounting.transactions.read` and `accounting.transactions` for invoices, payments, credit notes, bank transactions, manual journals, purchase orders, quotes, receipts, repeating invoices, and similar workflow resources
+
+If a job is read-only, prefer the `.read` scopes. Only ask for the write scope when the app actually creates, updates, uploads, or records history.
 
 ## Contacts
 
@@ -114,6 +135,13 @@ $attachment = $xero->accounting()
     ->save();
 ```
 
+```php
+$binary = $xero->accounting()
+    ->invoices()
+    ->attachments('invoice-id')
+    ->download('invoice.pdf', 'application/pdf');
+```
+
 ## Invoice History
 
 ```php
@@ -143,6 +171,13 @@ $updated = $xero->accounting()
     ->update('payment-id')
     ->reference('PAY-1002')
     ->save();
+```
+
+```php
+$history = $xero->accounting()
+    ->payments()
+    ->history('payment-id')
+    ->record('Payment reconciled');
 ```
 
 ## Accounts
@@ -192,6 +227,13 @@ $item = $xero->accounting()
     ->name('Widget')
     ->description('Standard widget')
     ->save();
+```
+
+```php
+$history = $xero->accounting()
+    ->items()
+    ->history('item-id')
+    ->record('Item updated from ERP');
 ```
 
 ## Tax Rates
@@ -342,6 +384,13 @@ $attachments = $xero->accounting()
 ```
 
 ```php
+$binary = $xero->accounting()
+    ->creditNotes()
+    ->attachments('credit-note-id')
+    ->downloadById('attachment-id', 'application/pdf');
+```
+
+```php
 $history = $xero->accounting()
     ->creditNotes()
     ->history('credit-note-id')
@@ -471,6 +520,13 @@ $manualJournal = $xero->accounting()
     ->save();
 ```
 
+```php
+$binary = $xero->accounting()
+    ->manualJournals()
+    ->attachments('manual-journal-id')
+    ->download('journal.pdf', 'application/pdf');
+```
+
 ## Purchase Orders
 
 ```php
@@ -498,6 +554,13 @@ $attachment = $xero->accounting()
     ->mimeType('application/pdf')
     ->includeOnline()
     ->save();
+```
+
+```php
+$binary = $xero->accounting()
+    ->purchaseOrders()
+    ->attachments('purchase-order-id')
+    ->downloadById('attachment-id', 'application/pdf');
 ```
 
 ## Quotes
@@ -626,6 +689,18 @@ $profitAndLoss = $xero->accounting()
 ```
 
 ## Scope Notes
+
+Accounting is the broadest family in the package, so it is also the easiest place to ask for too many scopes.
+
+Use this rule of thumb:
+
+- reads can use granular `*.read` scopes where Xero exposes them
+- writes and action endpoints need the corresponding write scopes
+- attachments, history actions, and PDFs should be treated as resource-specific operations, not as “free extras”
+
+For the current per-resource implementation picture, use:
+
+- [Accounting Parity](accounting-parity.md)
 
 The package carries scope metadata on these resources already.
 

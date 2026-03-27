@@ -96,4 +96,9 @@ final class ManualJournals implements PaginatesResults, DefinesScopes
     {
         return (new Payload($this->client))->id($manualJournalId);
     }
+
+    public function attachments(string $manualJournalId): Attachments
+    {
+        return new Attachments($this->client, $manualJournalId);
+    }
 }

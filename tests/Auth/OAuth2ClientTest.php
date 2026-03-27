@@ -24,13 +24,14 @@ final class OAuth2ClientTest extends TestCase
         );
 
         $token = (new OAuth2Client('client-id', 'client-secret', 'https://example.com/callback', $transport))
-            ->exchangeAuthorizationCode('code-123');
+            ->exchangeAuthorizationCode('code-123', 'verifier-123');
 
         $request = $transport->requests()[0];
 
         self::assertSame('POST', $request->method);
         self::assertSame('https://identity.xero.com/connect/token', $request->path);
         self::assertStringContainsString('grant_type=authorization_code', (string) $request->body);
+        self::assertStringContainsString('code_verifier=verifier-123', (string) $request->body);
         self::assertSame('access-token', $token->accessToken);
         self::assertSame('refresh-token', $token->refreshToken);
     }
@@ -56,4 +57,26 @@ final class OAuth2ClientTest extends TestCase
         self::assertStringContainsString('refresh_token=refresh-token', (string) $request->body);
         self::assertSame('new-access-token', $token->accessToken);
     }
+
+    public function test_it_can_request_a_custom_connection_token(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode([
+                'access_token' => 'custom-connection-token',
+                'expires_in' => 1800,
+                'scope' => 'finance.statements.read',
+                'token_type' => 'Bearer',
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        $token = (new OAuth2Client('client-id', 'client-secret', null, $transport))
+            ->customConnection(['finance.statements.read']);
+
+        $request = $transport->requests()[0];
+
+        self::assertStringContainsString('grant_type=client_credentials', (string) $request->body);
+        self::assertStringContainsString('scope=finance.statements.read', (string) $request->body);
+        self::assertSame('custom-connection-token', $token->accessToken);
+    }
+
 }

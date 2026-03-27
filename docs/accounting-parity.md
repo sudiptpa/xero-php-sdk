@@ -6,7 +6,7 @@ It is not meant to mirror the older `xero-php` package structure. It is meant to
 
 ## Current Position
 
-The package has a strong first Accounting slice, but it does not yet cover the full Accounting API.
+The package has broad Accounting coverage, but it still does not cover the full Accounting API.
 
 Current implemented slice:
 
@@ -16,6 +16,7 @@ Current implemented slice:
 - branding themes
 - invoices
 - invoice attachments
+- invoice attachment downloads
 - invoice history
 - invoice PDF
 - items
@@ -26,6 +27,7 @@ Current implemented slice:
 - users
 - credit notes
 - credit note attachments
+- credit note attachment downloads
 - credit note history
 - credit note PDF
 - bank transactions
@@ -35,12 +37,14 @@ Current implemented slice:
 - prepayments
 - batch payments
 - manual journals
+- manual journal attachments and downloads
 - contact groups
 - employees
 - expense claims
 - journals
 - purchase orders
 - purchase order attachments
+- purchase order attachment downloads
 - quotes
 - quote PDF
 - receipts
@@ -55,7 +59,7 @@ Current implemented slice:
 | Accounts | Built | Query, find, create, update |
 | Contacts | Built | Query, find, create, update |
 | Invoices | Built | Query, find, create, update |
-| Invoice attachments | Built | List, upload |
+| Invoice attachments | Built | List, upload, download by filename and attachment id |
 | Invoice history | Built | List, record |
 | Invoice PDF | Built | Direct PDF helper |
 | Payments | Built | Query, find, create, update |
@@ -65,7 +69,7 @@ Current implemented slice:
 | Branding themes | Built | Query, find |
 | Contact groups | Built | Query, find, create, update, attach contacts |
 | Credit notes | Built | Query, find, create, update |
-| Credit note attachments | Built | List, upload |
+| Credit note attachments | Built | List, upload, download by filename and attachment id |
 | Credit note history | Built | List, record |
 | Credit note PDF | Built | Direct PDF helper |
 | Currencies | Built | Query, create |
@@ -74,13 +78,13 @@ Current implemented slice:
 | Items | Built | Query, find, create, update |
 | Journals | Built | Query, find by ID, find by journal number |
 | Linked transactions | Built | Query, create |
-| Manual journals | Built | Query, find, create, update |
+| Manual journals | Built | Query, find, create, update, attachment helpers |
 | Organisations | Built | Current organisation read |
 | Overpayments | Built | Query, find |
 | Payment services | Built | Query, create |
 | Prepayments | Built | Query, find |
 | Purchase orders | Built | Query, find, create, update |
-| Purchase order attachments | Built | List, upload |
+| Purchase order attachments | Built | List, upload, download by filename and attachment id |
 | Quotes | Built | Query, find, create, update |
 | Quote PDF | Built | Direct PDF helper |
 | Receipts | Built | Query, find |
@@ -102,46 +106,16 @@ Broadly:
 
 This still needs to be made more explicit resource by resource in the docs.
 
-## Recommended Delivery Order
+## Exact Remaining Gaps
 
-To cover Accounting top to bottom without losing quality, the next batches should be:
+The latest live-docs sweep shows that Accounting is now mostly about helper parity rather than major resource absence.
 
-### 1. Settings And List Foundations
+The clearest remaining gaps are now smaller:
 
-- items
-- tax rates
-- tracking categories
-- currencies
-- branding themes
-- organisations
-- users
+- a final live-docs recheck for low-traffic long-tail helpers
+- any resource-specific attachment helpers beyond the current invoice, credit note, purchase order, and manual journal set if the docs expose them
 
-### 2. Transaction Depth
-
-- credit notes
-- bank transactions
-- overpayments
-- prepayments
-- linked transactions
-- batch payments
-- manual journals
-
-### 3. Commercial Workflow Resources
-
-- purchase orders
-- quotes
-- receipts
-- repeating invoices
-- payment services
-
-### 4. Long Tail And Deep Helpers
-
-- bank transfer attachments and history
-- contact group contact removal helpers
-- expense claim history
-- credit note download-by-name and download-by-id attachment helpers
-- purchase order download-by-name and download-by-id attachment helpers
-- additional attachments, history, PDF helpers where documented
+That means the next Accounting work should stay narrow and exact, not broaden the family again.
 
 ## Definition Of Done For An Accounting Resource
 

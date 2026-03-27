@@ -5,7 +5,7 @@ This document is the working implementation tracker for the package.
 It is meant to answer three practical questions quickly:
 
 - what already exists
-- what is production-shaped
+- what is ready to use
 - what is still missing
 
 ## Current Snapshot
@@ -13,18 +13,18 @@ It is meant to answer three practical questions quickly:
 | Area | Status | Notes |
 | --- | --- | --- |
 | Core client, context, transport | Built | Native transport, fake transport, request pipeline, error mapping |
-| Auth | Partial | Authorization URL, token exchange client, token storage contract, connection manager are in place |
+| Auth | Strong working slice | Authorization URL, token exchange client, refresh, PKCE, custom connections, token storage, and connection manager are in place |
 | Identity | Built | Tenant discovery through `/connections` is covered |
-| Webhooks | Built | Signature verification and payload parsing are covered |
+| Webhooks | Strong working slice | Signature verification, header-array helpers, payload parsing, and event-query helpers are covered |
 | Accounting | Broad coverage | Core workflows, settings, transactions, reporting, and long-tail resources are now in place |
-| Files | Strong first slice | Files, uploads, content, folders, inbox, associations |
-| Assets | Strong first slice | Assets, asset types, settings |
-| Payroll AU | Partial | Employees only |
-| Payroll NZ | Scaffold | Root only |
-| Payroll UK | Scaffold | Root only |
-| Projects | Scaffold | Root only |
-| Finance | Scaffold | Root only |
-| App Store | Scaffold | Root only |
+| Files | Strong working slice | Files, uploads, deletes, folders, inbox, associations, object-side association lookup, and associations count |
+| Assets | Near-complete overview slice | Assets, asset types, settings, and documented collection search parameters |
+| Payroll AU | Strong slice | Employees, payroll calendars, super funds, leave applications, pay items, pay runs, timesheets, settings |
+| Payroll NZ | Strong slice | Employees, employee leave/tax/working-pattern helpers, leave setup, opening balances, leave types, pay run calendars, pay runs, timesheets, settings, statutory deductions |
+| Payroll UK | Strong slice | Employees, leave balances, leave records, payment methods, pay run calendars, pay runs, payslips, timesheets, settings helpers |
+| Projects | Strong working slice | Projects, project lifecycle patch helpers, project users, tasks, and time entries |
+| Finance | Strong working slice | Accounting activities, account usage, lock history, report history, user activities, cash validation, bank statement accounting, and financial statements; note the documented Accounting Activities decommissioning scheduled for April 6, 2026 |
+| App Store | Complete current core slice | Subscription lookup, documented subscription-item usage paths, and usage record updates |
 
 ## Foundation
 
@@ -45,6 +45,8 @@ It is meant to answer three practical questions quickly:
 | Identity connections | Built | Yes | README, auth docs |
 | Webhook verification | Built | Yes | README |
 | Webhook payload parsing | Built | Yes | README |
+| PKCE helper | Built | Yes | auth docs |
+| Custom connection helper | Built | Yes | auth docs |
 
 ## Auth And Identity
 
@@ -55,8 +57,8 @@ It is meant to answer three practical questions quickly:
 | Token refresh helper | Supported in code | Yes | Yes | Partial | Partial |
 | Connection manager | Yes | Yes | Yes | Yes | Partial |
 | Identity connections | Yes | n/a | Yes | Yes | n/a |
-| Custom connections | Not yet | Not yet | No | No | No |
-| PKCE flow | Not yet | Not yet | No | No | No |
+| Custom connections | Yes | Yes | Yes | Yes | Partial |
+| PKCE flow | Yes | Yes | Yes | Yes | Partial |
 
 ## Accounting
 
@@ -106,17 +108,19 @@ Detailed parity tracking for Accounting lives in [accounting-parity.md](accounti
 
 | Resource | Read | Write | Tests | Docs | Scope visibility |
 | --- | --- | --- | --- | --- | --- |
-| Files | Yes | Upload, update metadata | Yes | Yes | Partial |
+| Files | Yes | Upload, update metadata, delete | Yes | Yes | Partial |
 | File content | Yes | n/a | Yes | Yes | Partial |
-| File associations | Yes | Create association | Yes | Yes | Partial |
-| Folders | Yes | Create, update | Yes | Yes | Partial |
+| File associations | Yes | Create, delete association | Yes | Yes | Partial |
+| Object-side file associations | Yes | n/a | Yes | Yes | Partial |
+| Associations count | Yes | n/a | Yes | Yes | Partial |
+| Folders | Yes | Create, update, delete | Yes | Yes | Partial |
 | Inbox | Yes | n/a | Yes | Yes | Partial |
 
 ## Assets
 
 | Resource | Read | Write | Tests | Docs | Scope visibility |
 | --- | --- | --- | --- | --- | --- |
-| Assets | Yes | Create | Yes | Yes | Partial |
+| Assets | Yes | Create, search/query | Yes | Yes | Partial |
 | Asset types | Yes | Create | Yes | Yes | Partial |
 | Asset settings | Yes | n/a | Yes | Yes | Partial |
 
@@ -124,21 +128,73 @@ Detailed parity tracking for Accounting lives in [accounting-parity.md](accounti
 
 | Resource | Read | Write | Tests | Docs | Scope visibility |
 | --- | --- | --- | --- | --- | --- |
-| AU employees | Yes | No | Yes | README only | No |
-| NZ root | No | No | No | No | No |
-| UK root | No | No | No | No | No |
+| AU employees | Yes | Create, update | Yes | Yes | Partial |
+| AU leave applications | Yes | Create, update, approve, reject | Yes | Yes | Partial |
+| AU pay items | Yes | No | Yes | Yes | Partial |
+| AU pay runs | Yes | Create, update | Yes | Yes | Partial |
+| AU timesheets | Yes | Create, update | Yes | Yes | Partial |
+| AU payroll calendars | Yes | Create, update | Yes | Yes | Partial |
+| AU super funds | Yes | No | Yes | Yes | Partial |
+| AU settings | Yes | No | Yes | Yes | Partial |
+| NZ employees | Yes | Create, update, leave, payment, tax, working-pattern, leave-setup, and opening-balance helpers | Yes | Yes | Partial |
+| NZ leave types | Yes | No | Yes | Yes | Partial |
+| NZ pay run calendars | Yes | No | Yes | Yes | Partial |
+| NZ pay runs | Yes | Create | Yes | Yes | Partial |
+| NZ timesheets | Yes | Create, update, approve, revert, delete | Yes | Yes | Partial |
+| NZ settings | Yes | Statutory deductions read helpers | Yes | Yes | Partial |
+| UK employees | Yes | Create, update, leave and payment helpers | Yes | Yes | Partial |
+| UK employee leave balances | Yes | No | Yes | Yes | Partial |
+| UK employee statutory leave balance | Yes | No | Yes | Yes | Partial |
+| UK pay run calendars | Yes | No | Yes | Yes | Partial |
+| UK pay runs | Yes | Create, payslip reads | Yes | Yes | Partial |
+| UK timesheets | Yes | Create, update, approve, revert | Yes | Yes | Partial |
+| UK settings helpers | Yes | No | Yes | Yes | Partial |
+
+## Finance
+
+| Resource | Read | Write | Tests | Docs | Scope visibility |
+| --- | --- | --- | --- | --- | --- |
+| Accounting activities | Yes | No | Yes | Yes | Partial |
+| Accounting activity account usage | Yes | No | Yes | Yes | Partial |
+| Accounting activity lock history | Yes | No | Yes | Yes | Partial |
+| Accounting activity report history | Yes | No | Yes | Yes | Partial |
+| Accounting activity user activities | Yes | No | Yes | Yes | Partial |
+| Bank statement accounting | Yes | No | Yes | Yes | Partial |
+| Cash validation | Yes | No | Yes | Yes | Partial |
+| Balance sheet | Yes | No | Yes | Yes | Partial |
+| Cashflow | Yes | No | Yes | Yes | Partial |
+| Profit and loss | Yes | No | Yes | Yes | Partial |
+| Trial balance | Yes | No | Yes | Yes | Partial |
+| Contact expenses | Yes | No | Yes | Yes | Partial |
+| Contact revenue | Yes | No | Yes | Yes | Partial |
+
+## App Store
+
+| Resource | Read | Write | Tests | Docs | Scope visibility |
+| --- | --- | --- | --- | --- | --- |
+| Subscriptions | Yes | No | Yes | Yes | Partial |
+| Usage records | Yes | Create, update | Yes | Yes | Partial |
+
+## Projects
+
+| Resource | Read | Write | Tests | Docs | Scope visibility |
+| --- | --- | --- | --- | --- | --- |
+| Projects | Yes | Create, update, patch state | Yes | Yes | Partial |
+| Project users | Yes | No | Yes | Yes | Partial |
+| Tasks | Yes | Create, update, delete | Yes | Yes | Partial |
+| Time entries | Yes | Create, update, delete | Yes | Yes | Partial |
 
 ## Remaining API Families
 
 | Domain | Status | Notes |
 | --- | --- | --- |
-| Projects | Scaffold | No real resources yet |
-| Finance | Scaffold | No real resources yet |
-| App Store | Scaffold | No real resources yet |
+| Projects | Strong working slice | Broader helper and long-tail endpoint coverage can come later |
+| Finance | Strong working slice | Read-only finance statements, accounting activity views, and validation are now covered |
+| App Store | Strong working slice | Subscription lookup and documented usage-record flows are now covered |
 
 ## Next Priority
 
 1. Tighten broad vs granular scopes per implemented resource page.
-2. Audit Accounting against the live Xero docs again and close the remaining helper gaps.
-3. Tighten quick-start docs around auth, tenant selection, and first successful call.
-4. Build the next real API family, which should be `Projects`.
+2. Tighten quick-start docs around auth, tenant selection, and first successful call.
+3. Re-run the live docs sweep for any final low-traffic Accounting helpers.
+4. Revisit the last remaining payroll long-tail helpers only if the live docs justify them.

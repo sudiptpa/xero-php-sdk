@@ -72,4 +72,49 @@ final class ManualJournalsTest extends TestCase
         self::assertSame('journal-1', $transport->requests()[1]->json['ManualJournals'][0]['ManualJournalID']);
         self::assertSame('Revised month end adjustments', $updated->narration);
     }
+
+    public function test_it_can_list_upload_and_download_manual_journal_attachments(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'Attachments' => [[
+                'AttachmentID' => 'attachment-1',
+                'FileName' => 'journal.pdf',
+                'MimeType' => 'application/pdf',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'Attachments' => [[
+                'AttachmentID' => 'attachment-1',
+                'FileName' => 'journal.pdf',
+                'MimeType' => 'application/pdf',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: 'journal-by-name'));
+        $transport->push(new Response(200, body: 'journal-by-id'));
+
+        $attachments = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->manualJournals()
+            ->attachments('journal-1');
+
+        $list = $attachments->get();
+        $uploaded = $attachments->upload('journal.pdf', 'binary-journal')
+            ->mimeType('application/pdf')
+            ->save();
+        $byName = $attachments->download('journal.pdf', 'application/pdf');
+        $byId = $attachments->downloadById('attachment-1', 'application/pdf');
+
+        self::assertSame('/api.xro/2.0/ManualJournals/journal-1/Attachments', $transport->requests()[0]->path);
+        self::assertSame('PUT', $transport->requests()[1]->method);
+        self::assertStringContainsString('/api.xro/2.0/ManualJournals/journal-1/Attachments/journal.pdf', $transport->requests()[1]->path);
+        self::assertSame('application/pdf', $transport->requests()[1]->headers['Content-Type']);
+        self::assertSame('/api.xro/2.0/ManualJournals/journal-1/Attachments/journal.pdf', $transport->requests()[2]->path);
+        self::assertSame('/api.xro/2.0/ManualJournals/journal-1/Attachments/attachment-1', $transport->requests()[3]->path);
+        self::assertCount(1, $list);
+        self::assertSame('journal.pdf', $uploaded->fileName);
+        self::assertSame('journal-by-name', $byName);
+        self::assertSame('journal-by-id', $byId);
+    }
 }

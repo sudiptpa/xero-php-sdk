@@ -14,7 +14,7 @@ use Sujip\Xero\Xero;
 
 final class AssetsTest extends TestCase
 {
-    public function test_it_can_list_and_find_assets(): void
+    public function test_it_can_query_list_paginate_and_find_assets(): void
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
@@ -33,15 +33,41 @@ final class AssetsTest extends TestCase
                 'Status' => 'REGISTERED',
             ]],
         ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'Items' => [[
+                'AssetId' => 'asset-1',
+                'AssetName' => 'MacBook Pro',
+                'AssetNumber' => 'FA-1001',
+                'Status' => 'REGISTERED',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
-        $assets = $client->assets()->get();
+        $assets = $client->assets()
+            ->status('registered')
+            ->page(2)
+            ->perPage(5)
+            ->orderBy('AssetName', 'DESC')
+            ->filterBy('MacBook')
+            ->get();
+        $paginated = $client->assets()
+            ->status('registered')
+            ->orderBy('AssetName')
+            ->paginate(page: 3, perPage: 10);
         $asset = $client->assets()->find('asset-1');
 
         self::assertSame('/assets.xro/1.0/Assets', $transport->requests()[0]->path);
+        self::assertSame('REGISTERED', $transport->requests()[0]->query['status']);
+        self::assertSame(2, $transport->requests()[0]->query['page']);
+        self::assertSame(5, $transport->requests()[0]->query['pageSize']);
+        self::assertSame('AssetName', $transport->requests()[0]->query['orderBy']);
+        self::assertSame('DESC', $transport->requests()[0]->query['sortDirection']);
+        self::assertSame('MacBook', $transport->requests()[0]->query['filterBy']);
         self::assertInstanceOf(Asset::class, $assets->first());
-        self::assertSame('/assets.xro/1.0/Assets/asset-1', $transport->requests()[1]->path);
+        self::assertSame(3, $paginated->page);
+        self::assertSame(10, $paginated->perPage);
+        self::assertSame('/assets.xro/1.0/Assets/asset-1', $transport->requests()[2]->path);
         self::assertSame('REGISTERED', $asset?->status);
     }
 
@@ -83,7 +109,7 @@ final class AssetsTest extends TestCase
         self::assertSame('type-1', $asset->assetTypeId);
     }
 
-    public function test_it_can_list_and_create_asset_types(): void
+    public function test_it_can_list_asset_types_from_both_entrypoints_and_create_asset_types(): void
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
@@ -100,10 +126,18 @@ final class AssetsTest extends TestCase
                 'FixedAssetAccountId' => 'account-2',
             ]],
         ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'Items' => [[
+                'AssetTypeId' => 'type-2',
+                'AssetTypeName' => 'Office Equipment',
+                'FixedAssetAccountId' => 'account-2',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $types = $client->assets()->assetTypes()->get();
+        $typesFromRoot = $client->assets()->getAssetTypes();
         $created = $client->assets()
             ->createAssetType()
             ->name('Office Equipment')
@@ -119,9 +153,11 @@ final class AssetsTest extends TestCase
 
         self::assertSame('/assets.xro/1.0/AssetTypes', $transport->requests()[0]->path);
         self::assertInstanceOf(Type::class, $types->first());
+        self::assertInstanceOf(Type::class, $typesFromRoot->first());
         self::assertSame('/assets.xro/1.0/AssetTypes', $transport->requests()[1]->path);
-        self::assertSame('Office Equipment', $transport->requests()[1]->json['AssetTypeName']);
-        self::assertSame('type-key', $transport->requests()[1]->headers['Idempotency-Key']);
+        self::assertSame('/assets.xro/1.0/AssetTypes', $transport->requests()[2]->path);
+        self::assertSame('Office Equipment', $transport->requests()[2]->json['AssetTypeName']);
+        self::assertSame('type-key', $transport->requests()[2]->headers['Idempotency-Key']);
         self::assertSame('Office Equipment', $created->name);
     }
 

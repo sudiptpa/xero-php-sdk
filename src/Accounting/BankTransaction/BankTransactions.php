@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\BankTransaction;
 
+use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
@@ -98,5 +99,10 @@ final class BankTransactions implements PaginatesResults, DefinesScopes
     public function update(string $bankTransactionId): Payload
     {
         return (new Payload($this->client))->id($bankTransactionId);
+    }
+
+    public function history(string $bankTransactionId): History
+    {
+        return new History($this->client, '/api.xro/2.0/BankTransactions/' . $bankTransactionId . '/History');
     }
 }

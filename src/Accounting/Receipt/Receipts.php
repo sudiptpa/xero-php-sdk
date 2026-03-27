@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Receipt;
 
+use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
@@ -66,5 +67,10 @@ final class Receipts implements DefinesScopes
         $receipt = $payload['Receipts'][0] ?? null;
 
         return is_array($receipt) ? Receipt::fromArray($receipt) : null;
+    }
+
+    public function history(string $receiptId): History
+    {
+        return new History($this->client, '/api.xro/2.0/Receipts/' . $receiptId . '/History');
     }
 }

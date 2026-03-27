@@ -1,10 +1,10 @@
 # Sujip Xero PHP SDK
 
-A modern, fluent, dependency-free Xero SDK for PHP 8.2+ inspired by Laravel's HTTP client ergonomics.
+A fluent Xero SDK for PHP 8.2+ with no runtime dependencies.
 
 ## Status
 
-This package is in active development. The initial foundation focuses on:
+The package already includes:
 
 - domain-first architecture
 - fluent client architecture
@@ -14,6 +14,67 @@ This package is in active development. The initial foundation focuses on:
 - elegant resource builders
 - docs-first API coverage planning
 - production-grade maintainability
+
+## Installation
+
+```bash
+composer require sujip/xero-php-sdk
+```
+
+Requirements:
+
+- PHP 8.2+
+- `ext-json`
+- `ext-curl` for the built-in native transport
+
+## Quick Start
+
+Most Xero integrations follow the same path:
+
+1. build an authorization URL
+2. exchange the callback code for a token
+3. list available tenant connections
+4. choose one tenant
+5. make your first tenant-scoped call
+
+This is the shortest useful path:
+
+```php
+use Sujip\Xero\Auth\InMemoryTokenRepository;
+use Sujip\Xero\Xero;
+
+$manager = Xero::oauth2(
+    clientId: 'client-id',
+    clientSecret: 'client-secret',
+    redirectUri: 'https://example.com/xero/callback',
+)->manager(new InMemoryTokenRepository());
+
+$url = $manager->authorizationUrl(
+    scopes: ['openid', 'offline_access', 'accounting.contacts'],
+    state: 'csrf-token',
+);
+```
+
+When Xero redirects back:
+
+```php
+$token = $manager->exchange($code);
+$tenants = $manager->connections();
+
+$connected = $manager->connectTenant($tenants[0]->tenantId);
+
+$contacts = $connected->client
+    ->accounting()
+    ->contacts()
+    ->page(1)
+    ->get();
+```
+
+If you already know the tenant id, `exchangeAndConnect()` is the shorter path:
+
+```php
+$connected = $manager->exchangeAndConnect($code, 'tenant-id');
+```
 
 ## Design Direction
 
@@ -93,13 +154,35 @@ $folder = $xero->files()
 ```
 
 ```php
-$asset = $xero->assets()
+$files = $xero->files()
+    ->forObject('invoice-id')
+    ->get();
+```
+
+```php
+$assets = $xero->assets()
+    ->status('registered')
+    ->orderBy('AssetName')
+    ->filterBy('MacBook')
+    ->get();
+```
+
+```php
+$project = $xero->projects()
     ->create()
-    ->name('MacBook Pro')
-    ->number('FA-1001')
-    ->status('draft')
-    ->assetType('asset-type-id')
+    ->title('Website rebuild')
+    ->contact('contact-id')
+    ->estimateMinutes(600)
     ->save();
+```
+
+```php
+$entries = $xero->projects()
+    ->timeEntries('project-id')
+    ->user('user-id')
+    ->task('task-id')
+    ->states('INPROGRESS')
+    ->get();
 ```
 
 ```php
@@ -108,6 +191,51 @@ $employees = $xero->payroll()
     ->employees()
     ->page(1)
     ->get();
+```
+
+```php
+$leave = $xero->payroll()
+    ->au()
+    ->leaveApplications()
+    ->create()
+    ->employee('employee-id')
+    ->leaveType('leave-type-id')
+    ->title('Annual Leave')
+    ->startDate('2026-04-01')
+    ->endDate('2026-04-02')
+    ->save();
+```
+
+```php
+$timesheet = $xero->payroll()
+    ->nz()
+    ->timesheets()
+    ->create()
+    ->employee('employee-id')
+    ->startDate('2026-03-23')
+    ->endDate('2026-03-29')
+    ->status('DRAFT')
+    ->save();
+```
+
+```php
+$balances = $xero->payroll()
+    ->uk()
+    ->employees()
+    ->find('employee-id')
+    ?->leaveBalances();
+```
+
+```php
+$balanceSheet = $xero->finance()
+    ->statements()
+    ->balanceSheet(new DateTimeImmutable('2026-03-31'));
+```
+
+```php
+$subscription = $xero->appStore()
+    ->subscriptions()
+    ->find('subscription-id');
 ```
 
 ```php
@@ -126,7 +254,7 @@ $webhook = $verifier->parse($rawPayload);
 
 ## Why This Package
 
-The goal is to build a genuinely production-grade Xero package that teams enjoy using and contributing to:
+The point of this package is simple:
 
 - elegant fluent API instead of generated client sprawl
 - domain-first structure that is easy to maintain
@@ -134,16 +262,28 @@ The goal is to build a genuinely production-grade Xero package that teams enjoy 
 - excellent documentation and migration guidance
 - community-friendly open source foundations
 
-## Granular Scopes Note
+## Granular Scopes
 
-Xero's scope model is changing, and this package needs to handle that cleanly.
+Xero's scope model is changing. The package needs to stay honest about that.
 
 - Apps created on or after 2 March 2026 use granular scopes
 - Apps created before 2 March 2026 can begin requesting granular scopes from April 2026
 - Existing apps have until September 2027 to complete migration from broad scopes
+
+Practical rule:
+
+- ask only for the scopes the integration actually uses
+- use granular scopes for new apps
+- keep broad scopes only where an older app still needs migration time
 - Calling an endpoint without the required granular scope can return a `401` with insufficient scope details
 
-The package now carries scope metadata on the first Accounting resources. The long-term goal is simple: every endpoint should make its required scopes obvious in the code and in the docs.
+The package already carries scope metadata on implemented resources. The goal is straightforward: if an endpoint needs a scope, it should be obvious in both the code and the docs.
+
+In practice:
+
+- read-only flows should request read scopes where Xero provides them
+- create, update, delete, and action endpoints should request the matching write scopes
+- new apps should be designed around granular scopes first, not broad scopes first
 
 ## Identity And Tenants
 
@@ -154,7 +294,7 @@ Xero has two different ideas that are easy to blur together:
 
 The package treats them separately.
 
-Use `identity()->connections()` to discover which tenants a token can access. Use `tenant(...)` when you are making tenant-scoped API calls such as Accounting, Files, Projects, and Payroll requests.
+Use `identity()->connections()` to discover which tenants a token can access. Use `tenant(...)` when you make tenant-scoped API calls such as Accounting, Files, Projects, Assets, Finance, and Payroll requests.
 
 ## Auth Flow
 
@@ -185,6 +325,8 @@ $connected = $manager->connectTenant('tenant-id');
 $xero = $connected->client;
 ```
 
+PKCE and custom connections are first-class too. See [Auth](docs/auth.md) for those flows.
+
 ## Current Foundation
 
 - `Sujip\\Xero\\Xero` root entrypoint
@@ -210,15 +352,42 @@ $xero = $connected->client;
 - accounting account update builder
 - files query builder
 - file content download helper
+- file delete helper
 - file upload builder
 - file association helpers
-- folders query and create builders
+- object-side file association lookup
+- folders query, create, and delete builders
 - folder inbox helper
 - assets query builder
+- assets search and pagination helpers
 - asset create builder
 - asset types query and create builders
 - asset settings helper
+- projects query, create, and update builders
+- project users query builder
+- project task query, create, update, and delete helpers
+- project time entry query, create, update, and delete helpers
 - payroll AU employees query builder
+- payroll AU leave applications query, create, update, approve, and reject helpers
+- payroll AU pay items query builder
+- payroll AU pay runs query, create, and update builders
+- payroll AU timesheets query, create, and update builders
+- payroll AU settings helper
+- payroll NZ employees query, create, and update builders
+- payroll NZ leave types query builder
+- payroll NZ pay run calendars query builder
+- payroll NZ pay runs query and create builders
+- payroll NZ timesheets query, create, update, approve, revert, and delete helpers
+- payroll NZ settings helper
+- payroll UK employees query, create, update, and leave balance helpers
+- payroll UK pay run calendars query builder
+- payroll UK pay runs query and create builders
+- payroll UK timesheets query, create, update, approve, and revert helpers
+- finance accounting activities reader
+- finance cash validation reader
+- finance financial statements readers for balance sheet, cashflow, profit and loss, trial balance, contact expenses, and contact revenue
+- app store subscription lookup
+- app store usage record listing, creation, and update helpers
 - shared pagination primitives
 - fake transport for fast test coverage
 
@@ -230,5 +399,22 @@ $xero = $connected->client;
 - [Accounting Parity](docs/accounting-parity.md)
 - [Files](docs/files.md)
 - [Assets](docs/assets.md)
+- [Projects](docs/projects.md)
+- [Payroll AU](docs/payroll-au.md)
+- [Payroll NZ](docs/payroll-nz.md)
+- [Payroll UK](docs/payroll-uk.md)
+- [Finance](docs/finance.md)
+- [App Store](docs/app-store.md)
+- [Webhooks](docs/webhooks.md)
+- [Xero Parity Audit](docs/xero-parity-audit.md)
 - [Coverage Map](docs/coverage-map.md)
 - [Roadmap](docs/roadmap.md)
+- [Release Checklist](docs/release-checklist.md)
+
+## Contributing
+
+If you want to help, start with:
+
+- [Contributing](CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
+- [Release Checklist](docs/release-checklist.md)

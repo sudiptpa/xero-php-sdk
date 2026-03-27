@@ -27,24 +27,32 @@ final class OAuth2Client
     public function authorizationUrl(
         array $scopes,
         string $state,
-        ?string $codeChallenge = null
+        ?string $codeChallenge = null,
+        string $codeChallengeMethod = 'S256'
     ): string {
         return OAuth2::authorizationUrl(
             $this->clientId,
             $this->redirectUri ?? '',
             $scopes,
             $state,
-            $codeChallenge
+            $codeChallenge,
+            $codeChallengeMethod
         );
     }
 
-    public function exchangeAuthorizationCode(string $code): Token
+    public function exchangeAuthorizationCode(string $code, ?string $codeVerifier = null): Token
     {
-        return $this->sendTokenRequest([
+        $payload = [
             'grant_type' => 'authorization_code',
             'code' => $code,
             'redirect_uri' => $this->redirectUri ?? '',
-        ]);
+        ];
+
+        if ($codeVerifier !== null && $codeVerifier !== '') {
+            $payload['code_verifier'] = $codeVerifier;
+        }
+
+        return $this->sendTokenRequest($payload);
     }
 
     public function refreshAccessToken(string $refreshToken): Token
@@ -69,6 +77,16 @@ final class OAuth2Client
         }
 
         return $this->sendTokenRequest($payload);
+    }
+
+    /**
+     * Xero custom connections use the client credentials flow and do not involve tenant discovery.
+     *
+     * @param list<string> $scopes
+     */
+    public function customConnection(array $scopes = []): Token
+    {
+        return $this->clientCredentials($scopes);
     }
 
     public function manager(TokenRepository $tokens, string $tokenKey = 'default'): ConnectionManager

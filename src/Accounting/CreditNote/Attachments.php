@@ -37,4 +37,28 @@ final readonly class Attachments
     {
         return new Upload($this->client, $this->creditNoteId, $fileName, $content);
     }
+
+    public function download(string $fileName, string $contentType = 'application/octet-stream'): string
+    {
+        return $this->client
+            ->get('/api.xro/2.0/CreditNotes/' . $this->creditNoteId . '/Attachments/' . $fileName)
+            ->withHeaders([
+                'Accept' => $contentType,
+                'contentType' => $contentType,
+            ])
+            ->send()
+            ->body;
+    }
+
+    public function downloadById(string $attachmentId, string $contentType = 'application/octet-stream'): string
+    {
+        return $this->client
+            ->get('/api.xro/2.0/CreditNotes/' . $this->creditNoteId . '/Attachments/' . $attachmentId)
+            ->withHeaders([
+                'Accept' => $contentType,
+                'contentType' => $contentType,
+            ])
+            ->send()
+            ->body;
+    }
 }

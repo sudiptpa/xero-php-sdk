@@ -90,4 +90,9 @@ final readonly class ContactGroup
     {
         return $this->contacts()->attach(...$contactIds);
     }
+
+    public function removeContact(string $contactId): bool
+    {
+        return $this->contacts()->remove($contactId);
+    }
 }

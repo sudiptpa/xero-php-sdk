@@ -88,4 +88,13 @@ final class Folders implements DefinesScopes
     {
         return (new Payload($this->client))->id($folderId);
     }
+
+    public function delete(string $folderId): bool
+    {
+        $response = $this->client
+            ->delete(self::BASE_PATH . '/' . $folderId)
+            ->send();
+
+        return $response->status === 204;
+    }
 }

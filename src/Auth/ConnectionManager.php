@@ -25,9 +25,9 @@ final class ConnectionManager
         return $this->oauth2->authorizationUrl($scopes, $state, $codeChallenge);
     }
 
-    public function exchange(string $code): Token
+    public function exchange(string $code, ?string $codeVerifier = null): Token
     {
-        $token = $this->oauth2->exchangeAuthorizationCode($code);
+        $token = $this->oauth2->exchangeAuthorizationCode($code, $codeVerifier);
         $this->tokens->put($this->tokenKey, $token);
 
         return $token;
@@ -36,6 +36,10 @@ final class ConnectionManager
     public function refresh(): Token
     {
         $token = $this->storedToken();
+
+        if (! $token->hasRefreshToken()) {
+            throw new \RuntimeException('The stored token does not have a refresh token.');
+        }
 
         $refreshed = $this->oauth2->refreshAccessToken((string) $token->refreshToken);
         $this->tokens->put($this->tokenKey, $refreshed);
@@ -77,5 +81,21 @@ final class ConnectionManager
             $connection,
             $client->tenant($tenantId)
         );
+    }
+
+    public function exchangeAndConnect(string $code, string $tenantId, ?string $codeVerifier = null): ConnectedAccount
+    {
+        return $this->connectTenant($tenantId, $this->exchange($code, $codeVerifier));
+    }
+
+    /**
+     * @param list<string> $scopes
+     */
+    public function customConnection(array $scopes = []): Client
+    {
+        $token = $this->oauth2->customConnection($scopes);
+        $this->tokens->put($this->tokenKey, $token);
+
+        return $this->client($token);
     }
 }

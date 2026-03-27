@@ -128,6 +128,15 @@ final class Files implements DefinesScopes
             ->body;
     }
 
+    public function delete(string $fileId): bool
+    {
+        $response = $this->client
+            ->delete(self::BASE_PATH . '/Files/' . $fileId)
+            ->send();
+
+        return $response->status === 204;
+    }
+
     public function upload(string $name, string $content, ?string $filename = null): Upload
     {
         return new Upload($this->client, $name, $content, $filename, $this->folderId);
@@ -141,6 +150,11 @@ final class Files implements DefinesScopes
     public function associations(string $fileId): Associations
     {
         return new Associations($this->client, $fileId);
+    }
+
+    public function forObject(string $objectId): ObjectAssociations
+    {
+        return new ObjectAssociations($this->client, $objectId);
     }
 
     public function client(): Client

@@ -1,17 +1,24 @@
 # Assets
 
-The Assets API has a smaller surface than Accounting, but it still needs to feel deliberate.
+The Assets API is smaller than Accounting, but it still needs to feel like a real part of the package.
 
-The current package slice covers:
+Current coverage:
 
 - fixed assets
 - asset types
 - asset settings
+- asset collection search parameters from the documented API
 
 ## Assets
 
 ```php
-$assets = $xero->assets()->get();
+$assets = $xero->assets()
+    ->status('registered')
+    ->page(1)
+    ->perPage(25)
+    ->orderBy('AssetName', 'ASC')
+    ->filterBy('MacBook')
+    ->get();
 ```
 
 ```php
@@ -30,12 +37,22 @@ $asset = $xero->assets()
 $asset = $xero->assets()->find('asset-id');
 ```
 
+```php
+$page = $xero->assets()
+    ->status('draft')
+    ->paginate(page: 2, perPage: 10);
+```
+
 ## Asset Types
 
 ```php
 $types = $xero->assets()
     ->assetTypes()
     ->get();
+```
+
+```php
+$types = $xero->assets()->getAssetTypes();
 ```
 
 ```php
@@ -59,7 +76,13 @@ $settings = $xero->assets()->settings();
 
 ## Scope Notes
 
-- broad scope: `assets`
-- granular scopes: `assets.read`, `assets`
+Implemented Assets resources use:
 
-Read operations can use `assets.read`. Create operations need `assets`.
+- broad `assets`
+- granular `assets.read`, `assets`
+
+Use `assets.read` for asset, asset-type, and settings reads.
+
+Use `assets` for create flows and any future update, depreciation, or disposal actions we add.
+
+If the app only reports on assets, `assets.read` is enough.
