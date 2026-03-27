@@ -81,4 +81,18 @@ final class ReceiptAttachmentsTest extends TestCase
         self::assertSame('receipt-by-id', $byId);
         self::assertInstanceOf(Attachment::class, $fromModel?->first());
     }
+
+    public function test_it_url_encodes_receipt_attachment_filenames_on_download(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: 'encoded-download'));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $binary = $client->accounting()->receipts()->attachments('receipt-1')
+            ->download('receipt image.jpg', 'image/jpeg');
+
+        self::assertSame('/api.xro/2.0/Receipts/receipt-1/Attachments/receipt%20image.jpg', $transport->requests()[0]->path);
+        self::assertSame('encoded-download', $binary);
+    }
 }
