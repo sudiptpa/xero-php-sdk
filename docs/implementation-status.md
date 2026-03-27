@@ -178,7 +178,7 @@ Detailed Accounting tracking lives in [accounting-coverage.md](accounting-covera
 | UK pay run calendars | Yes | No | Yes | Yes | Yes |
 | UK pay runs | Yes | Create, payslip reads | Yes | Yes | Yes |
 | UK timesheets | Yes | Create, update, approve, revert | Yes | Yes | Yes |
-| UK settings helpers | Yes | No | Yes | Yes | Yes |
+| UK settings helpers | Yes | Create reimbursement | Yes | Yes | Yes |
 
 ## Finance
 

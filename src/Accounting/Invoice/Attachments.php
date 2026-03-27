@@ -41,7 +41,7 @@ final readonly class Attachments
     public function download(string $fileName, string $contentType = 'application/octet-stream'): string
     {
         return $this->client
-            ->get('/api.xro/2.0/Invoices/' . $this->invoiceId . '/Attachments/' . $fileName)
+            ->get('/api.xro/2.0/Invoices/' . $this->invoiceId . '/Attachments/' . rawurlencode($fileName))
             ->withHeaders([
                 'Accept' => $contentType,
                 'contentType' => $contentType,
