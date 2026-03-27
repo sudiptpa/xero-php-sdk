@@ -1,6 +1,6 @@
 # Auth
 
-Xero auth is not hard, but it is easy to make messy in application code. The package tries to keep it boring.
+Xero auth is not hard, but it can get messy in application code. The package keeps it clear and easy to follow.
 
 1. send the user to Xero
 2. exchange the code for a token

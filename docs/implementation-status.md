@@ -1,6 +1,6 @@
-# Coverage Map
+# Implementation Status
 
-This document is the working implementation tracker for the package.
+This document shows what is already in the package and what is still left.
 
 It is meant to answer three practical questions quickly:
 
@@ -8,23 +8,39 @@ It is meant to answer three practical questions quickly:
 - what is ready to use
 - what is still missing
 
+## Xero Docs Overview
+
+| Xero docs area | In Xero docs | Integrated in package | Not integrated yet |
+| --- | --- | --- | --- |
+| Auth and Identity | Yes | Yes, broad coverage is in place | small scope and onboarding polish |
+| Webhooks | Yes | Yes, broad coverage is in place | more framework-specific examples if we decide to add them |
+| Accounting | Yes | Yes, broad coverage is in place | low-traffic helper depth and final long-tail review |
+| Files | Yes | Yes, strong coverage is in place | convenience and long-tail helper depth |
+| Assets | Yes | Yes, most overview-level coverage is in place | deeper lifecycle polish |
+| Projects | Yes | Yes, strong coverage is in place | helper depth beyond the core documented flows |
+| Payroll AU | Yes | Yes, strong coverage is in place | narrower long-tail payroll helpers |
+| Payroll NZ | Yes | Yes, strong coverage is in place | deeper employee-side leave and write helpers |
+| Payroll UK | Yes | Yes, strong coverage is in place | remaining statutory and leave long-tail helpers |
+| Finance | Yes | Yes, strong coverage is in place | polish and any future finance-surface depth worth adding |
+| App Store | Yes | Yes, current documented core coverage is in place | no obvious overview-level gap today |
+
 ## Current Snapshot
 
 | Area | Status | Notes |
 | --- | --- | --- |
 | Core client, context, transport | Built | Native transport, fake transport, request pipeline, error mapping |
-| Auth | Strong working slice | Authorization URL, token exchange client, refresh, PKCE, custom connections, token storage, and connection manager are in place |
+| Auth | Strong coverage | Authorization URL, token exchange client, refresh, PKCE, custom connections, token storage, and connection manager are in place |
 | Identity | Built | Tenant discovery through `/connections` is covered |
-| Webhooks | Strong working slice | Signature verification, header-array helpers, payload parsing, and event-query helpers are covered |
+| Webhooks | Strong coverage | Signature verification, header-array helpers, payload parsing, and event-query helpers are covered |
 | Accounting | Broad coverage | Core workflows, settings, transactions, reporting, and long-tail resources are now in place |
-| Files | Strong working slice | Files, uploads, deletes, folders, inbox, associations, object-side association lookup, and associations count |
-| Assets | Near-complete overview slice | Assets, asset types, settings, and documented collection search parameters |
-| Payroll AU | Strong slice | Employees, payroll calendars, super funds, leave applications, pay items, pay runs, timesheets, settings |
-| Payroll NZ | Strong slice | Employees, employee leave/tax/working-pattern helpers, leave setup, opening balances, leave types, pay run calendars, pay runs, timesheets, settings, statutory deductions |
-| Payroll UK | Strong slice | Employees, leave balances, leave records, payment methods, pay run calendars, pay runs, payslips, timesheets, settings helpers |
-| Projects | Strong working slice | Projects, project lifecycle patch helpers, project users, tasks, and time entries |
-| Finance | Strong working slice | Accounting activities, account usage, lock history, report history, user activities, cash validation, bank statement accounting, and financial statements; note the documented Accounting Activities decommissioning scheduled for April 6, 2026 |
-| App Store | Complete current core slice | Subscription lookup, documented subscription-item usage paths, and usage record updates |
+| Files | Strong coverage | Files, uploads, deletes, folders, inbox, associations, object-side association lookup, and associations count |
+| Assets | Near-complete overview coverage | Assets, asset types, settings, and documented collection search parameters |
+| Payroll AU | Strong coverage | Employees, payroll calendars, super funds, leave applications, pay items, pay runs, payslips, timesheets, settings |
+| Payroll NZ | Strong coverage | Employees, employee leave/tax/working-pattern helpers, leave setup, opening balances, leave types, pay run calendars, pay runs, timesheets, settings, statutory deductions |
+| Payroll UK | Strong coverage | Employees, leave balances, leave records, payment methods, pay run calendars, pay runs, payslips, timesheets, settings helpers |
+| Projects | Strong coverage | Projects, project lifecycle patch helpers, project users, tasks, and time entries |
+| Finance | Strong coverage | Accounting activities, account usage, lock history, report history, user activities, cash validation, bank statement accounting, and financial statements; note the documented Accounting Activities decommissioning scheduled for April 6, 2026 |
+| App Store | Complete current core coverage | Subscription lookup, documented subscription-item usage paths, and usage record updates |
 
 ## Foundation
 
@@ -102,7 +118,7 @@ It is meant to answer three practical questions quickly:
 | Payment services | Yes | Create | Yes | Yes | Partial |
 | Reports | Yes | No | Yes | Yes | Partial |
 
-Detailed parity tracking for Accounting lives in [accounting-parity.md](accounting-parity.md).
+Detailed Accounting tracking lives in [accounting-coverage.md](accounting-coverage.md).
 
 ## Files
 
@@ -131,7 +147,7 @@ Detailed parity tracking for Accounting lives in [accounting-parity.md](accounti
 | AU employees | Yes | Create, update | Yes | Yes | Partial |
 | AU leave applications | Yes | Create, update, approve, reject | Yes | Yes | Partial |
 | AU pay items | Yes | No | Yes | Yes | Partial |
-| AU pay runs | Yes | Create, update | Yes | Yes | Partial |
+| AU pay runs | Yes | Create, update, payslip reads | Yes | Yes | Partial |
 | AU timesheets | Yes | Create, update | Yes | Yes | Partial |
 | AU payroll calendars | Yes | Create, update | Yes | Yes | Partial |
 | AU super funds | Yes | No | Yes | Yes | Partial |
@@ -188,9 +204,9 @@ Detailed parity tracking for Accounting lives in [accounting-parity.md](accounti
 
 | Domain | Status | Notes |
 | --- | --- | --- |
-| Projects | Strong working slice | Broader helper and long-tail endpoint coverage can come later |
-| Finance | Strong working slice | Read-only finance statements, accounting activity views, and validation are now covered |
-| App Store | Strong working slice | Subscription lookup and documented usage-record flows are now covered |
+| Projects | Strong coverage | Broader helper and long-tail endpoint coverage can come later |
+| Finance | Strong coverage | Read-only finance statements, accounting activity views, and validation are now covered |
+| App Store | Strong coverage | Subscription lookup and documented usage-record flows are now covered |
 
 ## Next Priority
 

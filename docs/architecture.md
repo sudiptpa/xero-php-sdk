@@ -13,7 +13,7 @@
 
 ## Public API Style
 
-The SDK should feel like a Xero-native request DSL:
+The SDK should feel like a Xero-native request layer:
 
 ```php
 $xero->accounting()->contacts()->where(...)->page(1)->get();
@@ -21,7 +21,7 @@ $xero->accounting()->invoices()->create()->draft()->lineItem(...)->save();
 $xero->payroll()->au()->employees()->get();
 ```
 
-The package should not feel like a generated SDK. It should feel like a carefully-designed framework integration.
+The package should not feel like a generated SDK. It should feel clean, fluent, and easy to use in real apps.
 
 ## Internal Layers
 
@@ -57,7 +57,7 @@ This keeps the architecture distinct from older SDK patterns while still making 
 - native transport with exception mapping
 - OAuth2 token lifecycle support
 - shared request modifiers for current Xero query patterns
-- high-quality vertical slices before broad endpoint expansion
+- high-quality vertical coverage before broad endpoint expansion
 
 ## Granular Scopes
 
@@ -87,16 +87,16 @@ The SDK now has the basic pieces needed for a serious integration:
 - webhook verification and payload parsing
 - scope metadata on the first Accounting resources
 - fluent query and create builders for contacts, invoices, payments, and accounts
-- a real Files slice for uploads, folders, inbox, and associations
-- a real Assets slice for assets, asset types, and settings
-- a real Projects slice for projects, users, tasks, and time entries
-- a real Payroll AU slice for employees, leave applications, pay items, pay runs, timesheets, and settings
-- a real Payroll NZ slice for employees, leave types, pay run calendars, pay runs, timesheets, and settings
-- a real Payroll UK slice for employees, leave balances, pay run calendars, pay runs, and timesheets
-- a real Finance slice for accounting activities, cash validation, and financial statements
-- a real App Store slice for subscriptions and usage records
+- real Files coverage for uploads, folders, inbox, and associations
+- real Assets coverage for assets, asset types, and settings
+- real Projects coverage for projects, users, tasks, and time entries
+- real Payroll AU coverage for employees, leave applications, pay items, pay runs, timesheets, and settings
+- real Payroll NZ coverage for employees, leave types, pay run calendars, pay runs, timesheets, and settings
+- real Payroll UK coverage for employees, leave balances, pay run calendars, pay runs, and timesheets
+- real Finance coverage for accounting activities, cash validation, and financial statements
+- real App Store coverage for subscriptions and usage records
 
-That still leaves a lot to build, but the package is now moving on reusable rails instead of one-off endpoint classes.
+There is still more to build, but the package now has a solid structure instead of one-off endpoint classes.
 
 ## Tenant Handling
 
@@ -110,7 +110,7 @@ This separation matters because it shapes how apps connect the first time and ho
 
 ## Webhooks
 
-Webhook support should feel boring and reliable:
+Webhook support should be clear and reliable:
 
 - verify the `x-xero-signature` header
 - parse the payload into typed events

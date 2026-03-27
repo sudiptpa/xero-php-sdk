@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\PurchaseOrder;
 
+use Sujip\Xero\Accounting\History;
 use RuntimeException;
 use Sujip\Xero\Client;
 
@@ -71,5 +72,14 @@ final readonly class PurchaseOrder
         }
 
         return new Attachments($this->client, $this->id);
+    }
+
+    public function history(): History
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot access purchase order history without a bound client context and purchase order id.');
+        }
+
+        return (new PurchaseOrders($this->client))->history($this->id);
     }
 }

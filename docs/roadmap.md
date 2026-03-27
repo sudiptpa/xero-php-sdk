@@ -6,7 +6,7 @@ It is intentionally opinionated. The goal is not to touch every Xero endpoint qu
 
 ## Current Position
 
-The package now has the core foundation in place and nine real API slices:
+The package now has the core foundation in place and nine real API areas:
 
 - Accounting
 - Files
@@ -65,9 +65,9 @@ The webhook core is now strong enough that any remaining work should stay small:
 
 ### 6. Whole-Product Audit Mode
 
-The package has enough real surface now that planning should be driven by the live parity audit rather than by intuition.
+The package has enough real surface now that planning should be driven by the live status review rather than by intuition.
 
-Use [xero-parity-audit.md](xero-parity-audit.md) as the source of truth for the next batches.
+Use [package-status.md](package-status.md) as the source of truth for the next batches.
 
 ## Quality Bar
 

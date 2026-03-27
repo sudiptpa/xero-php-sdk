@@ -21,8 +21,8 @@ It is split into two groups:
 
 ## Nice To Have After Release
 
-- deeper long-tail parity in Projects
-- deeper long-tail parity in Payroll AU, NZ, and UK
+- deeper long-tail coverage in Projects
+- deeper long-tail coverage in Payroll AU, NZ, and UK
 - more Files and Assets convenience helpers
 - another focused Accounting helper sweep if the live docs still show useful gaps
 - more framework integration examples around webhook handling

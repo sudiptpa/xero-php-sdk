@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Item;
 
+use Sujip\Xero\Accounting\History;
 use RuntimeException;
 use Sujip\Xero\Client;
 
@@ -86,5 +87,14 @@ final readonly class Item
         }
 
         return $payload->save();
+    }
+
+    public function history(): History
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot access item history without a bound client context and item id.');
+        }
+
+        return (new Items($this->client))->history($this->id);
     }
 }

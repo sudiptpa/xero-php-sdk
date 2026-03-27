@@ -104,7 +104,7 @@ $contactRevenue = $xero->finance()
 
 ## Scope Notes
 
-The current Finance slice is read-only and uses:
+The current Finance coverage is read-only and uses:
 
 - `finance.accountingactivity.read` for accounting activity views
 - `finance.cashvalidation.read` for cash validation

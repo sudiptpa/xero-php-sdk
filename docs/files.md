@@ -40,7 +40,7 @@ $uploaded = $xero->files()
     ->save();
 ```
 
-Loaded files keep the same fluent feel as the Accounting models:
+Loaded files keep the same fluent style as the Accounting models:
 
 ```php
 $renamed = $file?->rename('contract-v2.pdf')

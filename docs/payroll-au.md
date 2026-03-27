@@ -9,6 +9,7 @@ Current coverage:
 - leave applications
 - pay items
 - pay runs
+- pay slips
 - timesheets
 - settings
 - super funds
@@ -115,6 +116,14 @@ $payRun = $xero->payroll()
     ->create()
     ->payrollCalendar('calendar-id')
     ->save();
+```
+
+```php
+$payslips = $xero->payroll()
+    ->au()
+    ->payRuns()
+    ->payslips('payrun-id')
+    ->get();
 ```
 
 ## Timesheets

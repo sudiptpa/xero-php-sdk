@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Payment;
 
+use Sujip\Xero\Accounting\History;
 use RuntimeException;
 use Sujip\Xero\Client;
 
@@ -84,5 +85,14 @@ final readonly class Payment
         }
 
         return $payload->save();
+    }
+
+    public function history(): History
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot access payment history without a bound client context and payment id.');
+        }
+
+        return (new Payments($this->client))->history($this->id);
     }
 }

@@ -117,4 +117,9 @@ final class PayRuns implements PaginatesResults, DefinesScopes
     {
         return (new Payload($this->client))->id($payRunId);
     }
+
+    public function payslips(string $payRunId): Payslips
+    {
+        return new Payslips($this->client, $payRunId);
+    }
 }
