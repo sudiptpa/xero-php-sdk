@@ -12,8 +12,8 @@ The format is intentionally simple and human-maintained.
 - OAuth, PKCE, custom connection, tenant, and webhook support
 - broad Accounting coverage
 - Files, Assets, Projects, Finance, and App Store support
-- Payroll AU, NZ, and UK first real slices
-- tests, static analysis, parity audit, roadmap, and release checklist docs
+- Payroll AU, NZ, and UK first real coverage across the main country APIs
+- tests, static analysis, package status, roadmap, and release checklist docs
 
 ### Changed
 

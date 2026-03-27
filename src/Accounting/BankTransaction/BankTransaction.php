@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\BankTransaction;
 
+use Sujip\Xero\Accounting\History;
 use RuntimeException;
 use Sujip\Xero\Client;
 
@@ -68,5 +69,14 @@ final readonly class BankTransaction
         }
 
         return $payload->save();
+    }
+
+    public function history(): History
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot access bank transaction history without a bound client context and bank transaction id.');
+        }
+
+        return (new BankTransactions($this->client))->history($this->id);
     }
 }

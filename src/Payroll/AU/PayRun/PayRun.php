@@ -37,6 +37,18 @@ final readonly class PayRun
         );
     }
 
+    /**
+     * @return \Sujip\Xero\Support\ResourceCollection<Payslip>
+     */
+    public function payslips(): \Sujip\Xero\Support\ResourceCollection
+    {
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot load payslips without a bound client context and pay run id.');
+        }
+
+        return (new PayRuns($this->client))->payslips($this->id)->get();
+    }
+
     public function save(): self
     {
         if ($this->client === null) {

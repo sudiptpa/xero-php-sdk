@@ -1,4 +1,4 @@
-# Accounting Parity
+# Accounting Coverage
 
 This document tracks Accounting coverage against the current Xero Accounting documentation surface.
 
@@ -8,7 +8,7 @@ It is not meant to mirror the older `xero-php` package structure. It is meant to
 
 The package has broad Accounting coverage, but it still does not cover the full Accounting API.
 
-Current implemented slice:
+Current implemented coverage:
 
 - accounts
 - contacts
@@ -52,7 +52,7 @@ Current implemented slice:
 - payment services
 - reports
 
-## Parity Matrix
+## Coverage Matrix
 
 | Resource Area | Current status | Notes |
 | --- | --- | --- |
@@ -108,7 +108,7 @@ This still needs to be made more explicit resource by resource in the docs.
 
 ## Exact Remaining Gaps
 
-The latest live-docs sweep shows that Accounting is now mostly about helper parity rather than major resource absence.
+The latest live-docs sweep shows that Accounting is now mostly about helper completeness rather than major resource absence.
 
 The clearest remaining gaps are now smaller:
 

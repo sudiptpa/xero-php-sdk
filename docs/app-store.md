@@ -49,4 +49,4 @@ $updated = $xero->appStore()
 
 ## Scope Notes
 
-The current App Store slice uses granular `marketplace.billing`.
+The current App Store coverage uses granular `marketplace.billing`.

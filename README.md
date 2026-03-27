@@ -396,7 +396,7 @@ PKCE and custom connections are first-class too. See [Auth](docs/auth.md) for th
 - [Architecture](docs/architecture.md)
 - [Auth](docs/auth.md)
 - [Accounting](docs/accounting.md)
-- [Accounting Parity](docs/accounting-parity.md)
+- [Accounting Coverage](docs/accounting-coverage.md)
 - [Files](docs/files.md)
 - [Assets](docs/assets.md)
 - [Projects](docs/projects.md)
@@ -406,8 +406,8 @@ PKCE and custom connections are first-class too. See [Auth](docs/auth.md) for th
 - [Finance](docs/finance.md)
 - [App Store](docs/app-store.md)
 - [Webhooks](docs/webhooks.md)
-- [Xero Parity Audit](docs/xero-parity-audit.md)
-- [Coverage Map](docs/coverage-map.md)
+- [Package Status](docs/package-status.md)
+- [Implementation Status](docs/implementation-status.md) — includes the Xero docs overview table
 - [Roadmap](docs/roadmap.md)
 - [Release Checklist](docs/release-checklist.md)
 

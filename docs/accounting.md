@@ -53,9 +53,9 @@ The package now covers the main Accounting surface and a lot of the helper paths
 - manual journal attachments
 - manual journal attachment downloads
 
-If you want the full current Accounting API picture, use the parity tracker:
+If you want the full current Accounting API picture, use the Accounting coverage guide:
 
-- [Accounting Parity](accounting-parity.md)
+- [Accounting Coverage](accounting-coverage.md)
 
 ## Scope Notes
 
@@ -700,7 +700,7 @@ Use this rule of thumb:
 
 For the current per-resource implementation picture, use:
 
-- [Accounting Parity](accounting-parity.md)
+- [Accounting Coverage](accounting-coverage.md)
 
 The package carries scope metadata on these resources already.
 
@@ -736,4 +736,4 @@ Current implemented scope shape:
 - payment services: broad `paymentservices`, granular scope shape still needs to be clarified in docs if Xero expands it
 - reports: granular `accounting.reports.read`
 
-That is only the current implemented slice. The full Accounting parity target is tracked separately in [Accounting Parity](accounting-parity.md).
+That is only the current implemented coverage. The broader Accounting target is tracked separately in [Accounting Coverage](accounting-coverage.md).
