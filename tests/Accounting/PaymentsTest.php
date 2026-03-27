@@ -37,6 +37,7 @@ final class PaymentsTest extends TestCase
         self::assertSame('/api.xro/2.0/Payments', $request->path);
         self::assertSame('Amount == 150', $request->query['where']);
         self::assertInstanceOf(Payment::class, $payments->first());
+        self::assertSame(150.0, $payments->first()->getAmount());
     }
 
     public function test_it_can_create_a_payment(): void
@@ -68,7 +69,7 @@ final class PaymentsTest extends TestCase
         self::assertSame('POST', $request->method);
         self::assertSame('/api.xro/2.0/Payments', $request->path);
         self::assertSame('invoice-1', $request->json['Payments'][0]['Invoice']['InvoiceID']);
-        self::assertSame(150.0, $payment->amount);
+        self::assertSame(150.0, $payment->getAmount());
     }
 
     public function test_it_can_update_a_payment(): void
@@ -94,6 +95,6 @@ final class PaymentsTest extends TestCase
         $request = $transport->requests()[0];
 
         self::assertSame('/api.xro/2.0/Payments/payment-1', $request->path);
-        self::assertSame(150.0, $payment->amount);
+        self::assertSame(150.0, $payment->getAmount());
     }
 }

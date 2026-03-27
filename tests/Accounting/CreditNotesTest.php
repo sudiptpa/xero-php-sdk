@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
+use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Accounting\CreditNote\CreditNote;
+use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Xero;
@@ -21,6 +23,15 @@ final class CreditNotesTest extends TestCase
                 'Type' => 'ACCRECCREDIT',
                 'Status' => 'AUTHORISED',
                 'Reference' => 'CN-1001',
+                'Contact' => [
+                    'ContactID' => 'contact-1',
+                    'Name' => 'Acme Pty Ltd',
+                ],
+                'LineItems' => [[
+                    'Description' => 'Adjustment',
+                    'Quantity' => 1,
+                    'UnitAmount' => 50,
+                ]],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -40,7 +51,9 @@ final class CreditNotesTest extends TestCase
         self::assertSame('Status == "AUTHORISED"', $transport->requests()[0]->query['where']);
         self::assertInstanceOf(CreditNote::class, $creditNotes->first());
         self::assertSame('/api.xro/2.0/CreditNotes/credit-1', $transport->requests()[1]->path);
-        self::assertSame('credit-1', $creditNote?->id);
+        self::assertSame('credit-1', $creditNote?->getCreditNoteID());
+        self::assertSame('contact-1', $creditNotes->first()->getContact()?->getContactID());
+        self::assertSame('Adjustment', $creditNotes->first()->getLineItems()[0]->getDescription());
     }
 
     public function test_it_can_create_and_update_credit_notes(): void
@@ -64,18 +77,30 @@ final class CreditNotesTest extends TestCase
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $created = $client->accounting()->creditNotes()->create()
-            ->type('ACCRECCREDIT')
-            ->contact('contact-1')
-            ->reference('CN-1001')
-            ->lineItem('Adjustment', 1, 50)
+            ->using(
+                (new CreditNote())
+                    ->setType('ACCRECCREDIT')
+                    ->setContact(
+                        (new Contact())
+                            ->setContactID('contact-1')
+                    )
+                    ->setReference('CN-1001')
+                    ->addLineItem(
+                        (new LineItem())
+                            ->setDescription('Adjustment')
+                            ->setQuantity(1)
+                            ->setUnitAmount(50)
+                    )
+            )
             ->save();
 
         $updated = $created->reference('CN-1002')->save();
 
         self::assertSame('/api.xro/2.0/CreditNotes', $transport->requests()[0]->path);
         self::assertSame('ACCRECCREDIT', $transport->requests()[0]->json['CreditNotes'][0]['Type']);
+        self::assertSame('contact-1', $transport->requests()[0]->json['CreditNotes'][0]['Contact']['ContactID']);
         self::assertSame('/api.xro/2.0/CreditNotes', $transport->requests()[1]->path);
         self::assertSame('credit-1', $transport->requests()[1]->json['CreditNotes'][0]['CreditNoteID']);
-        self::assertSame('CN-1002', $updated->reference);
+        self::assertSame('CN-1002', $updated->getReference());
     }
 }

@@ -5,21 +5,29 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Invoice;
 
 use RuntimeException;
+use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Contracts\BuildsFromPayload;
+use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final readonly class Invoice
+final class Invoice implements BuildsFromPayload, SerializesForRequest
 {
+    private ?string $invoiceID = null;
+
+    private ?string $status = null;
+
+    private ?string $reference = null;
+
+    private ?string $type = null;
+
+    private ?Contact $contact = null;
+
     /**
-     * @param list<array<string, mixed>> $lineItems
-     * @param array<string, mixed> $raw
+     * @var list<LineItem>
      */
+    private array $lineItems = [];
+
     public function __construct(
-        public ?string $id,
-        public ?string $status,
-        public ?string $reference,
-        public ?string $type,
-        public array $lineItems = [],
-        public array $raw = [],
         private ?Client $client = null
     ) {
     }
@@ -27,49 +35,178 @@ final readonly class Invoice
     /**
      * @param array<string, mixed> $payload
      */
+    public static function fromPayload(array $payload, ?Client $client = null): static
+    {
+        $invoice = (new self($client))
+            ->setInvoiceID($payload['InvoiceID'] ?? null)
+            ->setStatus($payload['Status'] ?? null)
+            ->setReference($payload['Reference'] ?? null)
+            ->setType($payload['Type'] ?? null);
+
+        $contact = $payload['Contact'] ?? null;
+        if (is_array($contact)) {
+            $invoice->setContact(Contact::fromPayload($contact));
+        }
+
+        foreach ($payload['LineItems'] ?? [] as $lineItem) {
+            if (is_array($lineItem)) {
+                $invoice->addLineItem(LineItem::fromPayload($lineItem));
+            }
+        }
+
+        return $invoice;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
     public static function fromArray(array $payload, ?Client $client = null): self
     {
-        return new self(
-            $payload['InvoiceID'] ?? null,
-            $payload['Status'] ?? null,
-            $payload['Reference'] ?? null,
-            $payload['Type'] ?? null,
-            $payload['LineItems'] ?? [],
-            $payload,
-            $client
-        );
+        return self::fromPayload($payload, $client);
+    }
+
+    public function getInvoiceID(): ?string
+    {
+        return $this->invoiceID;
+    }
+
+    public function setInvoiceID(?string $invoiceID): self
+    {
+        $this->invoiceID = $invoiceID;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    public function setReference(?string $reference): self
+    {
+        $this->reference = $reference;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): self
+    {
+        $this->type = $type === null ? null : strtoupper($type);
+
+        return $this;
+    }
+
+    public function getContact(): ?Contact
+    {
+        return $this->contact;
+    }
+
+    public function setContact(?Contact $contact): self
+    {
+        $this->contact = $contact;
+
+        return $this;
+    }
+
+    public function getContactID(): ?string
+    {
+        return $this->contact?->getContactID();
+    }
+
+    public function setContactID(?string $contactID): self
+    {
+        $contact = $this->contact ?? new Contact();
+        $contact->setContactID($contactID);
+        $this->contact = $contact;
+
+        return $this;
+    }
+
+    /**
+     * @return list<LineItem>
+     */
+    public function getLineItems(): array
+    {
+        return $this->lineItems;
+    }
+
+    /**
+     * @param list<LineItem> $lineItems
+     */
+    public function setLineItems(array $lineItems): self
+    {
+        $this->lineItems = $lineItems;
+
+        return $this;
+    }
+
+    public function addLineItem(LineItem $lineItem): self
+    {
+        $this->lineItems[] = $lineItem;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toRequest(): array
+    {
+        $contact = $this->getContact();
+
+        return array_filter([
+            'InvoiceID' => $this->getInvoiceID(),
+            'Type' => $this->getType(),
+            'Status' => $this->getStatus(),
+            'Reference' => $this->getReference(),
+            'Contact' => $contact?->toRequest(),
+            'LineItems' => array_map(
+                static fn (LineItem $lineItem): array => $lineItem->toRequest(),
+                $this->getLineItems()
+            ),
+        ], static fn (mixed $value): bool => $value !== null);
     }
 
     public function reference(string $reference): self
     {
-        $payload = $this->raw;
-        $payload['Reference'] = $reference;
-
-        return new self($this->id, $this->status, $reference, $this->type, $this->lineItems, $payload, $this->client);
+        return $this->setReference($reference);
     }
 
     public function type(string $type): self
     {
-        $type = strtoupper($type);
-        $payload = $this->raw;
-        $payload['Type'] = $type;
-
-        return new self($this->id, $this->status, $this->reference, $type, $this->lineItems, $payload, $this->client);
+        return $this->setType($type);
     }
 
     public function lineItem(string $description, int|float $quantity, int|float $unitAmount): self
     {
-        $lineItems = $this->lineItems;
-        $lineItems[] = [
-            'Description' => $description,
-            'Quantity' => $quantity,
-            'UnitAmount' => $unitAmount,
-        ];
+        return $this->addLineItem(
+            (new LineItem())
+                ->setDescription($description)
+                ->setQuantity($quantity)
+                ->setUnitAmount($unitAmount)
+        );
+    }
 
-        $payload = $this->raw;
-        $payload['LineItems'] = $lineItems;
-
-        return new self($this->id, $this->status, $this->reference, $this->type, $lineItems, $payload, $this->client);
+    public function draft(): self
+    {
+        return $this->setStatus('DRAFT');
     }
 
     public function save(): self
@@ -80,53 +217,33 @@ final readonly class Invoice
 
         $draft = new Draft($this->client);
 
-        if ($this->id !== null) {
-            $draft = $draft->id($this->id);
-        }
-
-        if ($this->type !== null) {
-            $draft = $draft->type($this->type);
-        }
-
-        if ($this->reference !== null) {
-            $draft = $draft->reference($this->reference);
-        }
-
-        foreach ($this->lineItems as $lineItem) {
-            $draft = $draft->lineItem(
-                (string) ($lineItem['Description'] ?? ''),
-                (float) ($lineItem['Quantity'] ?? 0),
-                (float) ($lineItem['UnitAmount'] ?? 0)
-            );
-        }
-
-        return $draft->save();
+        return $draft->using($this)->save();
     }
 
     public function attachments(): Attachments
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->invoiceID === null) {
             throw new RuntimeException('Cannot access invoice attachments without a bound client context and invoice id.');
         }
 
-        return new Attachments($this->client, $this->id);
+        return new Attachments($this->client, $this->invoiceID);
     }
 
     public function history(): History
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->invoiceID === null) {
             throw new RuntimeException('Cannot access invoice history without a bound client context and invoice id.');
         }
 
-        return new History($this->client, $this->id);
+        return new History($this->client, $this->invoiceID);
     }
 
     public function pdf(): string
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->invoiceID === null) {
             throw new RuntimeException('Cannot access invoice PDF without a bound client context and invoice id.');
         }
 
-        return (new Invoices($this->client))->pdf($this->id);
+        return (new Invoices($this->client))->pdf($this->invoiceID);
     }
 }

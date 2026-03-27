@@ -40,6 +40,7 @@ final class AccountsTest extends TestCase
         self::assertSame('Status == "ACTIVE"', $request->query['where']);
         self::assertSame('Code ASC', $request->query['order']);
         self::assertInstanceOf(Account::class, $accounts->first());
+        self::assertSame('Sales', $accounts->first()->getName());
     }
 
     public function test_it_can_create_an_account(): void
@@ -61,10 +62,13 @@ final class AccountsTest extends TestCase
             ->accounting()
             ->accounts()
             ->create()
-            ->code('200')
-            ->name('Sales')
-            ->type('REVENUE')
-            ->description('Primary sales account')
+            ->using(
+                (new Account())
+                    ->setCode('200')
+                    ->setName('Sales')
+                    ->setType('REVENUE')
+                    ->setDescription('Primary sales account')
+            )
             ->save();
 
         $request = $transport->requests()[0];
@@ -72,7 +76,7 @@ final class AccountsTest extends TestCase
         self::assertSame('POST', $request->method);
         self::assertSame('/api.xro/2.0/Accounts', $request->path);
         self::assertSame('200', $request->json['Accounts'][0]['Code']);
-        self::assertSame('Sales', $account->name);
+        self::assertSame('Sales', $account->getName());
     }
 
     public function test_it_can_update_an_account(): void
@@ -94,12 +98,16 @@ final class AccountsTest extends TestCase
             ->accounting()
             ->accounts()
             ->update('account-1')
-            ->name('Primary Sales')
+            ->using(
+                (new Account())
+                    ->setAccountID('account-1')
+                    ->setName('Primary Sales')
+            )
             ->save();
 
         $request = $transport->requests()[0];
 
         self::assertSame('/api.xro/2.0/Accounts/account-1', $request->path);
-        self::assertSame('Primary Sales', $account->name);
+        self::assertSame('Primary Sales', $account->getName());
     }
 }

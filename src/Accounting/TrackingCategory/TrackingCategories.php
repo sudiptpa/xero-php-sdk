@@ -57,7 +57,7 @@ final class TrackingCategories implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $trackingCategory): TrackingCategory => TrackingCategory::fromArray($trackingCategory, $this->client),
+            fn (array $trackingCategory): TrackingCategory => TrackingCategory::fromPayload($trackingCategory, $this->client),
             $payload['TrackingCategories'] ?? []
         ));
 
@@ -73,7 +73,7 @@ final class TrackingCategories implements DefinesScopes
         $payload = $response->json();
         $trackingCategory = $payload['TrackingCategories'][0] ?? null;
 
-        return is_array($trackingCategory) ? TrackingCategory::fromArray($trackingCategory, $this->client) : null;
+        return is_array($trackingCategory) ? TrackingCategory::fromPayload($trackingCategory, $this->client) : null;
     }
 
     public function create(): Payload

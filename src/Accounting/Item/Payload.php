@@ -8,24 +8,21 @@ use Sujip\Xero\Client;
 
 final class Payload
 {
-    /**
-     * @var array<string, mixed>
-     */
-    private array $payload = [];
-
-    private ?string $itemId = null;
+    private Item $item;
 
     private ?string $idempotencyKey = null;
 
     public function __construct(
         private readonly Client $client
     ) {
+        $this->item = new Item($client);
     }
 
     public function id(string $itemId): self
     {
         $clone = clone $this;
-        $clone->itemId = $itemId;
+        $clone->item = clone $this->item;
+        $clone->item->setItemID($itemId);
 
         return $clone;
     }
@@ -33,7 +30,8 @@ final class Payload
     public function code(string $code): self
     {
         $clone = clone $this;
-        $clone->payload['Code'] = $code;
+        $clone->item = clone $this->item;
+        $clone->item->setCode($code);
 
         return $clone;
     }
@@ -41,7 +39,8 @@ final class Payload
     public function name(string $name): self
     {
         $clone = clone $this;
-        $clone->payload['Name'] = $name;
+        $clone->item = clone $this->item;
+        $clone->item->setName($name);
 
         return $clone;
     }
@@ -49,7 +48,8 @@ final class Payload
     public function description(string $description): self
     {
         $clone = clone $this;
-        $clone->payload['Description'] = $description;
+        $clone->item = clone $this->item;
+        $clone->item->setDescription($description);
 
         return $clone;
     }
@@ -62,23 +62,27 @@ final class Payload
         return $clone;
     }
 
+    public function using(Item $item): self
+    {
+        $clone = clone $this;
+        $clone->item = clone $item;
+
+        return $clone;
+    }
+
     public function save(): Item
     {
-        if ($this->itemId !== null) {
-            $this->payload['ItemID'] = $this->itemId;
-        }
-
         $response = $this->client
             ->post('/api.xro/2.0/Items')
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
             ->withJson([
-                'Items' => [$this->payload],
+                'Items' => [$this->item->toRequest()],
             ])
             ->send();
 
         $payload = $response->json();
         $item = $payload['Items'][0] ?? [];
 
-        return Item::fromArray(is_array($item) ? $item : [], $this->client);
+        return Item::fromPayload(is_array($item) ? $item : [], $this->client);
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
+use Sujip\Xero\Accounting\ManualJournal\JournalLine;
 use Sujip\Xero\Accounting\ManualJournal\ManualJournal;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
@@ -20,6 +21,11 @@ final class ManualJournalsTest extends TestCase
                 'ManualJournalID' => 'journal-1',
                 'Narration' => 'Month end adjustments',
                 'Status' => 'POSTED',
+                'JournalLines' => [[
+                    'LineAmount' => 100,
+                    'AccountCode' => '200',
+                    'IsDebit' => true,
+                ]],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -37,7 +43,8 @@ final class ManualJournalsTest extends TestCase
         self::assertSame('/api.xro/2.0/ManualJournals', $transport->requests()[0]->path);
         self::assertInstanceOf(ManualJournal::class, $manualJournals->first());
         self::assertSame('/api.xro/2.0/ManualJournals/journal-1', $transport->requests()[1]->path);
-        self::assertSame('journal-1', $manualJournal?->id);
+        self::assertSame('journal-1', $manualJournal?->getManualJournalID());
+        self::assertSame('200', $manualJournals->first()->getJournalLines()[0]->getAccountCode());
     }
 
     public function test_it_can_create_and_update_manual_journals(): void
@@ -59,9 +66,22 @@ final class ManualJournalsTest extends TestCase
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $created = $client->accounting()->manualJournals()->create()
-            ->narration('Month end adjustments')
-            ->line(100, '200', true)
-            ->line(100, '300', false)
+            ->using(
+                (new ManualJournal())
+                    ->setNarration('Month end adjustments')
+                    ->addJournalLine(
+                        (new JournalLine())
+                            ->setLineAmount(100)
+                            ->setAccountCode('200')
+                            ->setIsDebit(true)
+                    )
+                    ->addJournalLine(
+                        (new JournalLine())
+                            ->setLineAmount(100)
+                            ->setAccountCode('300')
+                            ->setIsDebit(false)
+                    )
+            )
             ->save();
 
         $updated = $created->narration('Revised month end adjustments')->save();
@@ -70,7 +90,7 @@ final class ManualJournalsTest extends TestCase
         self::assertSame('Month end adjustments', $transport->requests()[0]->json['ManualJournals'][0]['Narration']);
         self::assertSame('/api.xro/2.0/ManualJournals', $transport->requests()[1]->path);
         self::assertSame('journal-1', $transport->requests()[1]->json['ManualJournals'][0]['ManualJournalID']);
-        self::assertSame('Revised month end adjustments', $updated->narration);
+        self::assertSame('Revised month end adjustments', $updated->getNarration());
     }
 
     public function test_it_can_list_upload_and_download_manual_journal_attachments(): void

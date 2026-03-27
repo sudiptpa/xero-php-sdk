@@ -35,7 +35,7 @@ final class Organisations implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $organisation): Organisation => Organisation::fromArray($organisation),
+            static fn (array $organisation): Organisation => Organisation::fromPayload($organisation),
             $payload['Organisations'] ?? []
         ));
 

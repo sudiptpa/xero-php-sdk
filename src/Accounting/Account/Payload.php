@@ -8,22 +8,19 @@ use Sujip\Xero\Client;
 
 final class Payload
 {
-    /**
-     * @var array<string, mixed>
-     */
-    private array $payload = [];
-
-    private ?string $accountId = null;
+    private Account $account;
 
     public function __construct(
         private readonly Client $client
     ) {
+        $this->account = new Account($client);
     }
 
     public function code(string $code): self
     {
         $clone = clone $this;
-        $clone->payload['Code'] = $code;
+        $clone->account = clone $this->account;
+        $clone->account->setCode($code);
 
         return $clone;
     }
@@ -31,7 +28,8 @@ final class Payload
     public function name(string $name): self
     {
         $clone = clone $this;
-        $clone->payload['Name'] = $name;
+        $clone->account = clone $this->account;
+        $clone->account->setName($name);
 
         return $clone;
     }
@@ -39,7 +37,8 @@ final class Payload
     public function type(string $type): self
     {
         $clone = clone $this;
-        $clone->payload['Type'] = strtoupper($type);
+        $clone->account = clone $this->account;
+        $clone->account->setType($type);
 
         return $clone;
     }
@@ -47,7 +46,8 @@ final class Payload
     public function description(string $description): self
     {
         $clone = clone $this;
-        $clone->payload['Description'] = $description;
+        $clone->account = clone $this->account;
+        $clone->account->setDescription($description);
 
         return $clone;
     }
@@ -55,7 +55,16 @@ final class Payload
     public function id(string $accountId): self
     {
         $clone = clone $this;
-        $clone->accountId = $accountId;
+        $clone->account = clone $this->account;
+        $clone->account->setAccountID($accountId);
+
+        return $clone;
+    }
+
+    public function using(Account $account): self
+    {
+        $clone = clone $this;
+        $clone->account = clone $account;
 
         return $clone;
     }
@@ -64,20 +73,20 @@ final class Payload
     {
         $path = '/api.xro/2.0/Accounts';
 
-        if ($this->accountId !== null) {
-            $path .= '/' . $this->accountId;
+        if ($this->account->getAccountID() !== null) {
+            $path .= '/' . $this->account->getAccountID();
         }
 
         $response = $this->client
             ->post($path)
             ->withJson([
-                'Accounts' => [$this->payload],
+                'Accounts' => [$this->account->toRequest()],
             ])
             ->send();
 
         $payload = $response->json();
         $account = $payload['Accounts'][0] ?? [];
 
-        return Account::fromArray(is_array($account) ? $account : [], $this->client);
+        return Account::fromPayload(is_array($account) ? $account : [], $this->client);
     }
 }

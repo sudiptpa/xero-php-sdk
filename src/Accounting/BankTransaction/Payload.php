@@ -4,26 +4,25 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\BankTransaction;
 
+use Sujip\Xero\Accounting\Contact\Contact;
+use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Client;
 
 final class Payload
 {
-    /**
-     * @var array<string, mixed>
-     */
-    private array $payload = [];
-
-    private ?string $bankTransactionId = null;
+    private BankTransaction $transaction;
 
     public function __construct(
         private readonly Client $client
     ) {
+        $this->transaction = new BankTransaction($client);
     }
 
     public function id(string $bankTransactionId): self
     {
         $clone = clone $this;
-        $clone->bankTransactionId = $bankTransactionId;
+        $clone->transaction = clone $this->transaction;
+        $clone->transaction->setBankTransactionID($bankTransactionId);
 
         return $clone;
     }
@@ -31,7 +30,8 @@ final class Payload
     public function type(string $type): self
     {
         $clone = clone $this;
-        $clone->payload['Type'] = strtoupper($type);
+        $clone->transaction = clone $this->transaction;
+        $clone->transaction->setType($type);
 
         return $clone;
     }
@@ -39,7 +39,11 @@ final class Payload
     public function contact(string $contactId): self
     {
         $clone = clone $this;
-        $clone->payload['Contact'] = ['ContactID' => $contactId];
+        $clone->transaction = clone $this->transaction;
+        $clone->transaction->setContact(
+            (new Contact())
+                ->setContactID($contactId)
+        );
 
         return $clone;
     }
@@ -47,7 +51,11 @@ final class Payload
     public function bankAccount(string $accountId): self
     {
         $clone = clone $this;
-        $clone->payload['BankAccount'] = ['AccountID' => $accountId];
+        $clone->transaction = clone $this->transaction;
+        $clone->transaction->setBankAccount(
+            (new BankAccount())
+                ->setAccountID($accountId)
+        );
 
         return $clone;
     }
@@ -55,7 +63,8 @@ final class Payload
     public function reference(string $reference): self
     {
         $clone = clone $this;
-        $clone->payload['Reference'] = $reference;
+        $clone->transaction = clone $this->transaction;
+        $clone->transaction->setReference($reference);
 
         return $clone;
     }
@@ -63,30 +72,35 @@ final class Payload
     public function lineItem(string $description, int|float $quantity, int|float $unitAmount): self
     {
         $clone = clone $this;
-        $clone->payload['LineItems'] ??= [];
-        $clone->payload['LineItems'][] = [
-            'Description' => $description,
-            'Quantity' => $quantity,
-            'UnitAmount' => $unitAmount,
-        ];
+        $clone->transaction = clone $this->transaction;
+        $clone->transaction->addLineItem(
+            (new LineItem())
+                ->setDescription($description)
+                ->setQuantity($quantity)
+                ->setUnitAmount($unitAmount)
+        );
+
+        return $clone;
+    }
+
+    public function using(BankTransaction $transaction): self
+    {
+        $clone = clone $this;
+        $clone->transaction = clone $transaction;
 
         return $clone;
     }
 
     public function save(): BankTransaction
     {
-        if ($this->bankTransactionId !== null) {
-            $this->payload['BankTransactionID'] = $this->bankTransactionId;
-        }
-
         $response = $this->client
             ->post('/api.xro/2.0/BankTransactions')
-            ->withJson(['BankTransactions' => [$this->payload]])
+            ->withJson(['BankTransactions' => [$this->transaction->toRequest()]])
             ->send();
 
         $payload = $response->json();
         $bankTransaction = $payload['BankTransactions'][0] ?? [];
 
-        return BankTransaction::fromArray(is_array($bankTransaction) ? $bankTransaction : [], $this->client);
+        return BankTransaction::fromPayload(is_array($bankTransaction) ? $bankTransaction : [], $this->client);
     }
 }

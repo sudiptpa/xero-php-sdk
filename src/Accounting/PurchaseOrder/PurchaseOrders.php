@@ -54,7 +54,7 @@ final class PurchaseOrders implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $purchaseOrder): PurchaseOrder => PurchaseOrder::fromArray($purchaseOrder, $this->client),
+            fn (array $purchaseOrder): PurchaseOrder => PurchaseOrder::fromPayload($purchaseOrder, $this->client),
             $payload['PurchaseOrders'] ?? []
         ));
 
@@ -86,7 +86,7 @@ final class PurchaseOrders implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $purchaseOrder = $payload['PurchaseOrders'][0] ?? null;
 
-        return is_array($purchaseOrder) ? PurchaseOrder::fromArray($purchaseOrder, $this->client) : null;
+        return is_array($purchaseOrder) ? PurchaseOrder::fromPayload($purchaseOrder, $this->client) : null;
     }
 
     public function create(): Payload

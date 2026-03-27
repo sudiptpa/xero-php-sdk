@@ -6,7 +6,9 @@ namespace Sujip\Xero\Tests\Accounting;
 
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
+use Sujip\Xero\Accounting\Contact\Address;
 use Sujip\Xero\Accounting\Contact\Contact;
+use Sujip\Xero\Accounting\Contact\Phone;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Xero;
@@ -21,6 +23,19 @@ final class ContactsTest extends TestCase
                     'ContactID' => 'contact-1',
                     'Name' => 'Acme Pty Ltd',
                     'EmailAddress' => 'hello@acme.test',
+                    'Addresses' => [[
+                        'AddressType' => 'POBOX',
+                        'AddressLine1' => 'Level 2',
+                        'City' => 'Sydney',
+                        'PostalCode' => '2000',
+                        'Country' => 'Australia',
+                    ]],
+                    'Phones' => [[
+                        'PhoneType' => 'DEFAULT',
+                        'PhoneNumber' => '5551234',
+                        'PhoneAreaCode' => '02',
+                        'PhoneCountryCode' => '61',
+                    ]],
                 ]],
             ], JSON_THROW_ON_ERROR))
         );
@@ -43,7 +58,9 @@ final class ContactsTest extends TestCase
         self::assertSame(1, $request->query['page']);
         self::assertSame('true', $request->query['includeArchived']);
         self::assertInstanceOf(Contact::class, $contacts->first());
-        self::assertSame('Acme Pty Ltd', $contacts->first()->name);
+        self::assertSame('Acme Pty Ltd', $contacts->first()->getName());
+        self::assertInstanceOf(Address::class, $contacts->first()->getAddresses()[0]);
+        self::assertInstanceOf(Phone::class, $contacts->first()->getPhones()[0]);
     }
 
     public function test_it_can_paginate_contacts(): void
@@ -88,7 +105,7 @@ final class ContactsTest extends TestCase
         $request = $transport->requests()[0];
 
         self::assertSame('/api.xro/2.0/Contacts/contact-1', $request->path);
-        self::assertSame('contact-1', $contact?->id);
+        self::assertSame('contact-1', $contact?->getContactID());
     }
 
     public function test_it_can_create_a_contact(): void
@@ -108,8 +125,8 @@ final class ContactsTest extends TestCase
             ->accounting()
             ->contacts()
             ->create()
-            ->name('Acme Pty Ltd')
-            ->email('accounts@acme.test')
+            ->setName('Acme Pty Ltd')
+            ->setEmailAddress('accounts@acme.test')
             ->save();
 
         $request = $transport->requests()[0];
@@ -117,7 +134,58 @@ final class ContactsTest extends TestCase
         self::assertSame('POST', $request->method);
         self::assertSame('/api.xro/2.0/Contacts', $request->path);
         self::assertSame('Acme Pty Ltd', $request->json['Contacts'][0]['Name']);
-        self::assertSame('accounts@acme.test', $contact->emailAddress);
+        self::assertSame('accounts@acme.test', $contact->getEmailAddress());
+    }
+
+    public function test_it_can_add_addresses_and_phones_to_a_contact(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode([
+                'Contacts' => [[
+                    'ContactID' => 'contact-1',
+                    'Name' => 'Acme Pty Ltd',
+                    'Addresses' => [[
+                        'AddressType' => 'STREET',
+                        'AddressLine1' => '100 George Street',
+                        'City' => 'Sydney',
+                    ]],
+                    'Phones' => [[
+                        'PhoneType' => 'DEFAULT',
+                        'PhoneNumber' => '5551234',
+                    ]],
+                ]],
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        $contact = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->contacts()
+            ->create()
+            ->setName('Acme Pty Ltd')
+            ->using(
+                (new Contact())
+                    ->setName('Acme Pty Ltd')
+                    ->addAddress(
+                        (new Address())
+                            ->setAddressType('STREET')
+                            ->setAddressLine1('100 George Street')
+                            ->setCity('Sydney')
+                    )
+                    ->addPhone(
+                        (new Phone())
+                            ->setPhoneType('DEFAULT')
+                            ->setPhoneNumber('5551234')
+                    )
+            )
+            ->save();
+
+        $request = $transport->requests()[0];
+
+        self::assertSame('100 George Street', $request->json['Contacts'][0]['Addresses'][0]['AddressLine1']);
+        self::assertSame('5551234', $request->json['Contacts'][0]['Phones'][0]['PhoneNumber']);
+        self::assertSame('Sydney', $contact->getAddresses()[0]->getCity());
+        self::assertSame('5551234', $contact->getPhones()[0]->getPhoneNumber());
     }
 
     public function test_it_can_update_a_contact(): void
@@ -136,13 +204,13 @@ final class ContactsTest extends TestCase
             ->accounting()
             ->contacts()
             ->update('contact-1')
-            ->name('Acme Holdings Pty Ltd')
+            ->setName('Acme Holdings Pty Ltd')
             ->save();
 
         $request = $transport->requests()[0];
 
         self::assertSame('/api.xro/2.0/Contacts/contact-1', $request->path);
-        self::assertSame('Acme Holdings Pty Ltd', $contact->name);
+        self::assertSame('Acme Holdings Pty Ltd', $contact->getName());
     }
 
     public function test_loaded_contact_can_be_changed_and_saved_fluently(): void
@@ -169,12 +237,12 @@ final class ContactsTest extends TestCase
             ->contacts()
             ->find('contact-1');
 
-        $saved = $contact?->name('Acme Holdings Pty Ltd')->save();
+        $saved = $contact?->setName('Acme Holdings Pty Ltd')->save();
 
         $request = $transport->requests()[1];
 
         self::assertSame('/api.xro/2.0/Contacts/contact-1', $request->path);
-        self::assertSame('Acme Holdings Pty Ltd', $saved?->name);
+        self::assertSame('Acme Holdings Pty Ltd', $saved?->getName());
     }
 
     public function test_it_supports_up_to_date_query_modifiers(): void

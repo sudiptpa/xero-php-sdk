@@ -63,7 +63,7 @@ final class Invoices implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $invoice): Invoice => Invoice::fromArray($invoice, $this->client),
+            fn (array $invoice): Invoice => Invoice::fromPayload($invoice, $this->client),
             $payload['Invoices'] ?? []
         ));
 
@@ -104,7 +104,7 @@ final class Invoices implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $invoice = $payload['Invoices'][0] ?? null;
 
-        return is_array($invoice) ? Invoice::fromArray($invoice, $this->client) : null;
+        return is_array($invoice) ? Invoice::fromPayload($invoice, $this->client) : null;
     }
 
     public function attachments(string $invoiceId): Attachments

@@ -8,27 +8,21 @@ use Sujip\Xero\Client;
 
 final class Payload
 {
-    /**
-     * @var array<string, mixed>
-     */
-    private array $payload = [];
-
-    /**
-     * @var list<array<string, mixed>>
-     */
-    private array $components = [];
+    private TaxRate $taxRate;
 
     private ?string $idempotencyKey = null;
 
     public function __construct(
         private readonly Client $client
     ) {
+        $this->taxRate = new TaxRate($client);
     }
 
     public function taxType(string $taxType): self
     {
         $clone = clone $this;
-        $clone->payload['TaxType'] = $taxType;
+        $clone->taxRate = clone $this->taxRate;
+        $clone->taxRate->setTaxType($taxType);
 
         return $clone;
     }
@@ -36,7 +30,8 @@ final class Payload
     public function name(string $name): self
     {
         $clone = clone $this;
-        $clone->payload['Name'] = $name;
+        $clone->taxRate = clone $this->taxRate;
+        $clone->taxRate->setName($name);
 
         return $clone;
     }
@@ -44,7 +39,12 @@ final class Payload
     public function component(string $name, int|float $rate): self
     {
         $clone = clone $this;
-        $clone->components[] = ['Name' => $name, 'Rate' => $rate];
+        $clone->taxRate = clone $this->taxRate;
+        $clone->taxRate->addTaxComponent(
+            (new Component())
+                ->setName($name)
+                ->setRate($rate)
+        );
 
         return $clone;
     }
@@ -57,25 +57,27 @@ final class Payload
         return $clone;
     }
 
+    public function using(TaxRate $taxRate): self
+    {
+        $clone = clone $this;
+        $clone->taxRate = clone $taxRate;
+
+        return $clone;
+    }
+
     public function save(): TaxRate
     {
-        $payload = $this->payload;
-
-        if ($this->components !== []) {
-            $payload['TaxComponents'] = $this->components;
-        }
-
         $response = $this->client
             ->post('/api.xro/2.0/TaxRates')
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
             ->withJson([
-                'TaxRates' => [$payload],
+                'TaxRates' => [$this->taxRate->toRequest()],
             ])
             ->send();
 
         $decoded = $response->json();
         $taxRate = $decoded['TaxRates'][0] ?? [];
 
-        return TaxRate::fromArray(is_array($taxRate) ? $taxRate : [], $this->client);
+        return TaxRate::fromPayload(is_array($taxRate) ? $taxRate : [], $this->client);
     }
 }

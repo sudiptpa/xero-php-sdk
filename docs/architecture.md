@@ -17,7 +17,7 @@ The SDK is meant to feel like a Xero-native request layer:
 
 ```php
 $xero->accounting()->contacts()->where(...)->page(1)->get();
-$xero->accounting()->invoices()->create()->draft()->lineItem(...)->save();
+$xero->accounting()->invoices()->create()->using(new Invoice())->save();
 $xero->payroll()->au()->employees()->get();
 ```
 
@@ -29,7 +29,7 @@ The package should not feel like a generated SDK. It should feel clean, fluent, 
 - `Auth`: token handling, auth flows, connection strategies
 - `Accounting`, `Files`, `Projects`, `Assets`, `Finance`, `AppStore`
 - `Payroll\\AU`, `Payroll\\NZ`, `Payroll\\UK`
-- `Support`: collections, hydration, helpers, value objects
+- `Support`: collections, factories, serializers, helpers, value objects
 - `Webhooks`: signature verification and event mapping
 
 ## Domain Pattern
@@ -48,9 +48,55 @@ This keeps the architecture distinct from older SDK patterns while still making 
 - resource builders stay fluent and small
 - endpoint-specific builders compose a shared HTTP layer
 - pagination and common query features live in shared support concerns
-- payload builders are typed and immutable where practical
+- request objects are typed and explicit
 - tests validate request construction before broad endpoint rollout
 - public APIs read naturally in application code
+
+## Model Standard
+
+The package uses a richer model layer that stays close to the Xero docs.
+
+The rule is simple:
+
+- Xero field names stay the source of truth
+- PHP code uses the same names in camelCase
+- rich models are the public face of the package
+- arrays stay at the HTTP boundary only
+
+Examples:
+
+- `ContactID` becomes `getContactID()` and `setContactID(...)`
+- `EmailAddress` becomes `getEmailAddress()` and `setEmailAddress(...)`
+- `LineItems` becomes `getLineItems()`, `setLineItems(...)`, and `addLineItem(...)`
+
+This keeps the SDK close to the Xero docs while still feeling natural in PHP.
+
+### Read And Write Rules
+
+- getters should follow the Xero field name exactly in PHP method form
+- setters should use the same field name with a `set...` prefix
+- nested objects should also follow Xero naming
+- collections should keep the Xero plural names
+- append methods like `addLineItem(...)` are preferred for list-style fields
+
+### Boundary Rules
+
+- response JSON is decoded once at the HTTP boundary
+- a `Factory` turns that payload into rich models
+- a `Serializer` turns rich models back into request payloads
+- public models should not expose raw array access as the normal way to work
+
+### Package Shape
+
+The package is designed around:
+
+- rich models for reads and writes
+- explicit nested objects instead of nested arrays
+- `Factory` classes for response mapping
+- `Serializer` classes for request mapping
+- resources remain responsible for transport and endpoint paths
+
+The package should feel object-first in application code, not array-first.
 
 ## Granular Scopes
 

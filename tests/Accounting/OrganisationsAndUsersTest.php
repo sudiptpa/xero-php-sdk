@@ -35,7 +35,7 @@ final class OrganisationsAndUsersTest extends TestCase
 
         self::assertSame('/api.xro/2.0/Organisation', $transport->requests()[0]->path);
         self::assertInstanceOf(Organisation::class, $organisation);
-        self::assertSame('Acme Pty Ltd', $organisation->name);
+        self::assertSame('Acme Pty Ltd', $organisation->getName());
     }
 
     public function test_it_can_query_users(): void
@@ -66,5 +66,6 @@ final class OrganisationsAndUsersTest extends TestCase
         self::assertSame('LastName ASC', $transport->requests()[0]->query['order']);
         self::assertSame('Wed, 25 Mar 2026 00:00:00 GMT', $transport->requests()[0]->query['If-Modified-Since']);
         self::assertInstanceOf(User::class, $users->first());
+        self::assertSame('bruce@example.test', $users->first()->getEmailAddress());
     }
 }

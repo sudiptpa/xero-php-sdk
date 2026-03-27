@@ -53,7 +53,7 @@ final class CreditNotes implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $creditNote): CreditNote => CreditNote::fromArray($creditNote, $this->client),
+            fn (array $creditNote): CreditNote => CreditNote::fromPayload($creditNote, $this->client),
             $payload['CreditNotes'] ?? []
         ));
 
@@ -87,7 +87,7 @@ final class CreditNotes implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $creditNote = $payload['CreditNotes'][0] ?? null;
 
-        return is_array($creditNote) ? CreditNote::fromArray($creditNote, $this->client) : null;
+        return is_array($creditNote) ? CreditNote::fromPayload($creditNote, $this->client) : null;
     }
 
     public function create(): Payload

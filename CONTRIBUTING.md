@@ -59,7 +59,12 @@ If you only changed docs, say that clearly in the pull request.
 ## Coding Notes
 
 - use strict types
-- use typed models and payload objects
+- use typed rich models and explicit request objects
+- keep model naming close to the Xero docs field names
+- prefer `getContactID()` / `setContactID(...)` style over invented synonyms
+- use `Factory` classes for response mapping
+- use `Serializer` classes for request mapping
+- avoid raw array access in public model APIs
 - avoid turning models into heavy active-record objects
 - keep transport and persistence concerns in the resource layer
 - only add comments where they save real reading time

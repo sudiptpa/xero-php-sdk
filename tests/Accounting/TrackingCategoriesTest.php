@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
+use Sujip\Xero\Accounting\TrackingCategory\Option;
 use Sujip\Xero\Accounting\TrackingCategory\TrackingCategory;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
@@ -43,7 +44,9 @@ final class TrackingCategoriesTest extends TestCase
         self::assertSame('true', $transport->requests()[0]->query['includeArchived']);
         self::assertInstanceOf(TrackingCategory::class, $categories->first());
         self::assertSame('/api.xro/2.0/TrackingCategories/tracking-1', $transport->requests()[1]->path);
-        self::assertSame('tracking-1', $category?->id);
+        self::assertSame('tracking-1', $category?->getTrackingCategoryID());
+        self::assertInstanceOf(Option::class, $categories->first()->getOptions()[0]);
+        self::assertSame('APAC', $categories->first()->getOptions()[0]->getName());
     }
 
     public function test_it_can_create_and_update_tracking_categories(): void
@@ -66,6 +69,7 @@ final class TrackingCategoriesTest extends TestCase
 
         $created = $client->accounting()->trackingCategories()->create()
             ->name('Region')
+            ->option('APAC')
             ->idempotencyKey('tracking-key')
             ->save();
 
@@ -74,7 +78,8 @@ final class TrackingCategoriesTest extends TestCase
         self::assertSame('/api.xro/2.0/TrackingCategories', $transport->requests()[0]->path);
         self::assertSame('tracking-key', $transport->requests()[0]->headers['Idempotency-Key']);
         self::assertSame('Region', $transport->requests()[0]->json['Name']);
+        self::assertSame('APAC', $transport->requests()[0]->json['Options'][0]['Name']);
         self::assertSame('/api.xro/2.0/TrackingCategories/tracking-1', $transport->requests()[1]->path);
-        self::assertSame('Sales Region', $updated->name);
+        self::assertSame('Sales Region', $updated->getName());
     }
 }

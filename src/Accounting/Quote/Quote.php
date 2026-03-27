@@ -5,21 +5,57 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Quote;
 
 use RuntimeException;
+use Sujip\Xero\Accounting\Contact\Contact;
+use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Contracts\BuildsFromPayload;
+use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final readonly class Quote
+final class Quote implements BuildsFromPayload, SerializesForRequest
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
     public function __construct(
-        public ?string $id,
-        public ?string $quoteNumber,
-        public ?string $status,
-        public ?string $title,
-        public array $raw = [],
         private ?Client $client = null
     ) {
+    }
+
+    private ?string $quoteID = null;
+
+    private ?string $quoteNumber = null;
+
+    private ?string $status = null;
+
+    private ?string $title = null;
+
+    private ?Contact $contact = null;
+
+    /**
+     * @var list<LineItem>
+     */
+    private array $lineItems = [];
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public static function fromPayload(array $payload, ?Client $client = null): static
+    {
+        $quote = (new self($client))
+            ->setQuoteID($payload['QuoteID'] ?? null)
+            ->setQuoteNumber($payload['QuoteNumber'] ?? null)
+            ->setStatus($payload['Status'] ?? null)
+            ->setTitle($payload['Title'] ?? null);
+
+        $contact = $payload['Contact'] ?? null;
+        if (is_array($contact)) {
+            $quote->setContact(Contact::fromPayload($contact));
+        }
+
+        foreach ($payload['LineItems'] ?? [] as $lineItem) {
+            if (is_array($lineItem)) {
+                $quote->addLineItem(LineItem::fromPayload($lineItem));
+            }
+        }
+
+        return $quote;
     }
 
     /**
@@ -27,22 +63,133 @@ final readonly class Quote
      */
     public static function fromArray(array $payload, ?Client $client = null): self
     {
-        return new self(
-            $payload['QuoteID'] ?? null,
-            $payload['QuoteNumber'] ?? null,
-            $payload['Status'] ?? null,
-            $payload['Title'] ?? null,
-            $payload,
-            $client
-        );
+        return self::fromPayload($payload, $client);
+    }
+
+    public function getQuoteID(): ?string
+    {
+        return $this->quoteID;
+    }
+
+    public function setQuoteID(?string $quoteID): self
+    {
+        $this->quoteID = $quoteID;
+
+        return $this;
+    }
+
+    public function getQuoteNumber(): ?string
+    {
+        return $this->quoteNumber;
+    }
+
+    public function setQuoteNumber(?string $quoteNumber): self
+    {
+        $this->quoteNumber = $quoteNumber;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): self
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function getContact(): ?Contact
+    {
+        return $this->contact;
+    }
+
+    public function setContact(?Contact $contact): self
+    {
+        $this->contact = $contact;
+
+        return $this;
+    }
+
+    /**
+     * @return list<LineItem>
+     */
+    public function getLineItems(): array
+    {
+        return $this->lineItems;
+    }
+
+    /**
+     * @param list<LineItem> $lineItems
+     */
+    public function setLineItems(array $lineItems): self
+    {
+        $this->lineItems = $lineItems;
+
+        return $this;
+    }
+
+    public function addLineItem(LineItem $lineItem): self
+    {
+        $this->lineItems[] = $lineItem;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toRequest(): array
+    {
+        return array_filter([
+            'QuoteID' => $this->getQuoteID(),
+            'QuoteNumber' => $this->getQuoteNumber(),
+            'Status' => $this->getStatus(),
+            'Title' => $this->getTitle(),
+            'Contact' => $this->getContact()?->toRequest(),
+            'LineItems' => array_map(
+                static fn (LineItem $lineItem): array => $lineItem->toRequest(),
+                $this->getLineItems()
+            ),
+        ], static fn (mixed $value): bool => $value !== null);
     }
 
     public function title(string $title): self
     {
-        $payload = $this->raw;
-        $payload['Title'] = $title;
+        return $this->setTitle($title);
+    }
 
-        return new self($this->id, $this->quoteNumber, $this->status, $title, $payload, $this->client);
+    public function contact(string $contactId): self
+    {
+        return $this->setContact(
+            (new Contact())
+                ->setContactID($contactId)
+        );
+    }
+
+    public function lineItem(string $description, int|float $quantity, int|float $unitAmount): self
+    {
+        return $this->addLineItem(
+            (new LineItem())
+                ->setDescription($description)
+                ->setQuantity($quantity)
+                ->setUnitAmount($unitAmount)
+        );
     }
 
     public function save(): self
@@ -53,23 +200,15 @@ final readonly class Quote
 
         $payload = new Payload($this->client);
 
-        if ($this->id !== null) {
-            $payload = $payload->id($this->id);
-        }
-
-        if ($this->title !== null) {
-            $payload = $payload->title($this->title);
-        }
-
-        return $payload->save();
+        return $payload->using($this)->save();
     }
 
     public function pdf(): string
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->quoteID === null) {
             throw new RuntimeException('Cannot access quote PDF without a bound client context and quote id.');
         }
 
-        return (new Quotes($this->client))->pdf($this->id);
+        return (new Quotes($this->client))->pdf($this->quoteID);
     }
 }
