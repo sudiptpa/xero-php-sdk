@@ -13,8 +13,3 @@ Use this before tagging the first stable release.
 - run PHPStan
 - test install in a clean consumer app
 - tag the release only after the verification pass is green
-
-## After Release
-
-- add more workflow recipes where they clearly help
-- add more transport or framework integration examples where they earn their place

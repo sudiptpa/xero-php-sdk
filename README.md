@@ -1,10 +1,14 @@
 # Xero PHP SDK
 
-A framework-agnostic Xero SDK for PHP 8.2+ with rich models, a fluent API, and no runtime dependencies.
+[![PHP 8.2+](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+[![Tests](https://img.shields.io/badge/tests-PHPUnit%20%2B%20PHPStan-0A7EA4)](docs/release-checklist.md)
+[![Framework Agnostic](https://img.shields.io/badge/framework-agnostic-111827)](https://github.com/sudiptpa/xero-php-sdk)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+A fluent, framework-agnostic Xero SDK for PHP 8.2+ with rich models, a fluent API, and no runtime dependencies.
 
 - Rich models for reads and writes
 - Fluent request flows across Xero families
-- Framework-agnostic design
 - Aligned to the official Xero docs
 
 ## Why This Package
@@ -19,7 +23,7 @@ A framework-agnostic Xero SDK for PHP 8.2+ with rich models, a fluent API, and n
 composer require sujip/xero-php-sdk
 ```
 
-Requirements:
+Runtime Notes:
 
 - PHP 8.2+
 - `ext-json` for JSON request and response handling
