@@ -137,6 +137,7 @@ $contact = $xero->accounting()
 
 ```php
 use Sujip\Xero\Accounting\Invoice\Invoice;
+use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Accounting\Invoice\LineItem;
 
 $invoice = $xero->accounting()
@@ -146,7 +147,10 @@ $invoice = $xero->accounting()
         (new Invoice())
             ->setType('ACCREC')
             ->setStatus('DRAFT')
-            ->setContactID('contact-id')
+            ->setContact(
+                (new Contact())
+                    ->setContactID('contact-id')
+            )
             ->setReference('PO-1001')
             ->addLineItem(
                 (new LineItem())
@@ -217,6 +221,7 @@ $settings = $xero->accounting()
 ## Payments
 
 ```php
+use Sujip\Xero\Accounting\Account\Account;
 use Sujip\Xero\Accounting\Payment\Payment;
 
 $payment = $xero->accounting()
@@ -225,7 +230,10 @@ $payment = $xero->accounting()
     ->using(
         (new Payment())
             ->setInvoiceID('invoice-id')
-            ->setAccountID('account-id')
+            ->setAccount(
+                (new Account())
+                    ->setAccountID('account-id')
+            )
             ->setDate('2026-03-25')
             ->setAmount(150)
             ->setReference('PAY-1001')
@@ -270,6 +278,14 @@ $binary = $xero->accounting()
     ->receipts()
     ->attachments('receipt-id')
     ->download('receipt.jpg', 'image/jpeg');
+```
+
+```php
+$receipt = $xero->accounting()
+    ->receipts()
+    ->find('receipt-id');
+
+$contactId = $receipt?->getContact()?->getContactID();
 ```
 
 ## Accounts

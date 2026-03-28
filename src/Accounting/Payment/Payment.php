@@ -6,6 +6,7 @@ namespace Sujip\Xero\Accounting\Payment;
 
 use Sujip\Xero\Accounting\History;
 use RuntimeException;
+use Sujip\Xero\Accounting\Account\Account;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
@@ -22,7 +23,7 @@ final class Payment implements BuildsFromPayload, SerializesForRequest
 
     private ?string $invoiceID = null;
 
-    private ?string $accountID = null;
+    private ?Account $account = null;
 
     public function __construct(
         private ?Client $client = null
@@ -40,7 +41,11 @@ final class Payment implements BuildsFromPayload, SerializesForRequest
             ->setDate($payload['Date'] ?? null)
             ->setReference($payload['Reference'] ?? null)
             ->setInvoiceID($payload['Invoice']['InvoiceID'] ?? null)
-            ->setAccountID($payload['Account']['AccountID'] ?? null);
+            ->setAccount(
+                is_array($payload['Account'] ?? null)
+                    ? Account::fromPayload($payload['Account'])
+                    : null
+            );
     }
 
     /**
@@ -111,14 +116,28 @@ final class Payment implements BuildsFromPayload, SerializesForRequest
         return $this;
     }
 
+    public function getAccount(): ?Account
+    {
+        return $this->account;
+    }
+
+    public function setAccount(?Account $account): self
+    {
+        $this->account = $account;
+
+        return $this;
+    }
+
     public function getAccountID(): ?string
     {
-        return $this->accountID;
+        return $this->account?->getAccountID();
     }
 
     public function setAccountID(?string $accountID): self
     {
-        $this->accountID = $accountID;
+        $account = $this->account ?? new Account();
+        $account->setAccountID($accountID);
+        $this->account = $account;
 
         return $this;
     }
@@ -128,13 +147,15 @@ final class Payment implements BuildsFromPayload, SerializesForRequest
      */
     public function toRequest(): array
     {
+        $account = $this->getAccount();
+
         return array_filter([
             'PaymentID' => $this->getPaymentID(),
             'Amount' => $this->getAmount(),
             'Date' => $this->getDate(),
             'Reference' => $this->getReference(),
             'Invoice' => $this->getInvoiceID() === null ? null : ['InvoiceID' => $this->getInvoiceID()],
-            'Account' => $this->getAccountID() === null ? null : ['AccountID' => $this->getAccountID()],
+            'Account' => $account?->toRequest(),
         ], static fn (mixed $value): bool => $value !== null);
     }
 

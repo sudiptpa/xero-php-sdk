@@ -100,7 +100,7 @@ final class FilesTest extends TestCase
         self::assertSame('application/pdf', $request->headers['Content-Type']);
         self::assertSame('upload-key', $request->headers['Idempotency-Key']);
         self::assertSame('binary-data', $request->body);
-        self::assertSame('folder-1', $file->folderId);
+        self::assertSame('folder-1', $file->getFolderId());
     }
 
     public function test_loaded_file_can_be_changed_and_saved_fluently(): void
@@ -133,7 +133,7 @@ final class FilesTest extends TestCase
         self::assertSame('/files.xro/1.0/Files/file-1', $request->path);
         self::assertSame('contract-v2.pdf', $request->json['Name']);
         self::assertSame('folder-2', $request->json['FolderId']);
-        self::assertSame('contract-v2.pdf', $saved?->name);
+        self::assertSame('contract-v2.pdf', $saved?->getName());
     }
 
     public function test_it_can_list_and_create_file_associations(): void

@@ -84,7 +84,7 @@ final class LinkedTransactions implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $linkedTransaction): LinkedTransaction => LinkedTransaction::fromArray($linkedTransaction),
+            static fn (array $linkedTransaction): LinkedTransaction => LinkedTransaction::fromPayload($linkedTransaction),
             $payload['LinkedTransactions'] ?? []
         ));
 

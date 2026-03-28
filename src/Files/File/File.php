@@ -6,22 +6,32 @@ namespace Sujip\Xero\Files\File;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 
-final readonly class File
+final class File implements BuildsFromPayload
 {
+    private ?string $id = null;
+
+    private ?string $name = null;
+
+    private ?string $mimeType = null;
+
+    private int|string|null $size = null;
+
+    private ?string $folderId = null;
+
+    private ?string $createdDateUtc = null;
+
+    private ?string $updatedDateUtc = null;
+
+    private ?string $user = null;
+
     /**
-     * @param array<string, mixed> $raw
+     * @var array<string, mixed>
      */
+    private array $raw = [];
+
     public function __construct(
-        public ?string $id,
-        public ?string $name,
-        public ?string $mimeType,
-        public int|string|null $size = null,
-        public ?string $folderId = null,
-        public ?string $createdDateUtc = null,
-        public ?string $updatedDateUtc = null,
-        public ?string $user = null,
-        public array $raw = [],
         private ?Client $client = null
     ) {
     }
@@ -29,60 +39,152 @@ final readonly class File
     /**
      * @param array<string, mixed> $payload
      */
-    public static function fromArray(array $payload, ?Client $client = null): self
+    public static function fromPayload(array $payload, ?Client $client = null): static
     {
         $folder = $payload['FolderId'] ?? null;
 
-        return new self(
-            $payload['Id'] ?? null,
-            $payload['Name'] ?? null,
-            $payload['MimeType'] ?? null,
-            $payload['Size'] ?? null,
-            is_array($folder) ? ($folder['Id'] ?? null) : (is_string($folder) ? $folder : null),
-            $payload['CreatedDateUTC'] ?? null,
-            $payload['UpdatedDateUTC'] ?? null,
-            $payload['User'] ?? null,
-            $payload,
-            $client
-        );
+        return (new self($client))
+            ->setId($payload['Id'] ?? null)
+            ->setName($payload['Name'] ?? null)
+            ->setMimeType($payload['MimeType'] ?? null)
+            ->setSize($payload['Size'] ?? null)
+            ->setFolderId(is_array($folder) ? ($folder['Id'] ?? null) : (is_string($folder) ? $folder : null))
+            ->setCreatedDateUTC($payload['CreatedDateUTC'] ?? null)
+            ->setUpdatedDateUTC($payload['UpdatedDateUTC'] ?? null)
+            ->setUser(is_string($payload['User'] ?? null) ? $payload['User'] : null)
+            ->setRaw($payload);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public static function fromArray(array $payload, ?Client $client = null): self
+    {
+        return self::fromPayload($payload, $client);
+    }
+
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
+
+    public function setId(?string $id): self
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getMimeType(): ?string
+    {
+        return $this->mimeType;
+    }
+
+    public function setMimeType(?string $mimeType): self
+    {
+        $this->mimeType = $mimeType;
+
+        return $this;
+    }
+
+    public function getSize(): int|string|null
+    {
+        return $this->size;
+    }
+
+    public function setSize(int|string|null $size): self
+    {
+        $this->size = $size;
+
+        return $this;
+    }
+
+    public function getFolderId(): ?string
+    {
+        return $this->folderId;
+    }
+
+    public function setFolderId(?string $folderId): self
+    {
+        $this->folderId = $folderId;
+
+        return $this;
+    }
+
+    public function getCreatedDateUTC(): ?string
+    {
+        return $this->createdDateUtc;
+    }
+
+    public function setCreatedDateUTC(?string $createdDateUtc): self
+    {
+        $this->createdDateUtc = $createdDateUtc;
+
+        return $this;
+    }
+
+    public function getUpdatedDateUTC(): ?string
+    {
+        return $this->updatedDateUtc;
+    }
+
+    public function setUpdatedDateUTC(?string $updatedDateUtc): self
+    {
+        $this->updatedDateUtc = $updatedDateUtc;
+
+        return $this;
+    }
+
+    public function getUser(): ?string
+    {
+        return $this->user;
+    }
+
+    public function setUser(?string $user): self
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getRaw(): array
+    {
+        return $this->raw;
+    }
+
+    /**
+     * @param array<string, mixed> $raw
+     */
+    public function setRaw(array $raw): self
+    {
+        $this->raw = $raw;
+
+        return $this;
     }
 
     public function rename(string $name): self
     {
-        $payload = $this->raw;
-        $payload['Name'] = $name;
-
-        return new self(
-            $this->id,
-            $name,
-            $this->mimeType,
-            $this->size,
-            $this->folderId,
-            $this->createdDateUtc,
-            $this->updatedDateUtc,
-            $this->user,
-            $payload,
-            $this->client
-        );
+        return $this->setName($name);
     }
 
     public function moveToFolder(string $folderId): self
     {
-        $payload = $this->raw;
-        $payload['FolderId'] = $folderId;
-
-        return new self(
-            $this->id,
-            $this->name,
-            $this->mimeType,
-            $this->size,
-            $folderId,
-            $this->createdDateUtc,
-            $this->updatedDateUtc,
-            $this->user,
-            $payload,
-            $this->client
-        );
+        return $this->setFolderId($folderId);
     }
 
     public function save(): self

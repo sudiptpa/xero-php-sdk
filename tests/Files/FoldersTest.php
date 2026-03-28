@@ -39,7 +39,7 @@ final class FoldersTest extends TestCase
         self::assertSame('CreatedDateUTC DESC', $transport->requests()[0]->query['sort']);
         self::assertInstanceOf(Folder::class, $folders->first());
         self::assertSame('/files.xro/1.0/Folders/folder-1', $transport->requests()[1]->path);
-        self::assertSame('folder-1', $folder?->id);
+        self::assertSame('folder-1', $folder?->getId());
     }
 
     public function test_it_can_fetch_the_inbox_folder(): void
@@ -62,7 +62,7 @@ final class FoldersTest extends TestCase
             ->inbox();
 
         self::assertSame('/files.xro/1.0/Inbox', $transport->requests()[0]->path);
-        self::assertTrue((bool) $inbox?->isInbox);
+        self::assertTrue((bool) $inbox?->getIsInbox());
     }
 
     public function test_it_can_create_and_update_folders(): void
@@ -91,7 +91,7 @@ final class FoldersTest extends TestCase
         self::assertSame('Contracts', $transport->requests()[0]->json['Name']);
         self::assertSame('PUT', $transport->requests()[1]->method);
         self::assertSame('/files.xro/1.0/Folders/folder-1', $transport->requests()[1]->path);
-        self::assertSame('Contracts 2026', $updated->name);
+        self::assertSame('Contracts 2026', $updated->getName());
     }
 
     public function test_loaded_folder_can_list_its_files_and_upload_into_it(): void
@@ -131,8 +131,8 @@ final class FoldersTest extends TestCase
 
         self::assertSame('/files.xro/1.0/Folders/folder-1/Files', $transport->requests()[1]->path);
         self::assertSame('/files.xro/1.0/Files/folder-1', $transport->requests()[2]->path);
-        self::assertSame('terms.pdf', $uploaded?->name);
-        self::assertSame('contract.pdf', $files?->first()?->name);
+        self::assertSame('terms.pdf', $uploaded?->getName());
+        self::assertSame('contract.pdf', $files?->first()?->getName());
     }
 
     public function test_loaded_folder_can_be_deleted_and_files_root_can_find_a_folder_directly(): void

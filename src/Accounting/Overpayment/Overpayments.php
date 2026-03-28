@@ -53,7 +53,7 @@ final class Overpayments implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $overpayment): Overpayment => Overpayment::fromArray($overpayment),
+            static fn (array $overpayment): Overpayment => Overpayment::fromPayload($overpayment),
             $payload['Overpayments'] ?? []
         ));
 
@@ -84,6 +84,6 @@ final class Overpayments implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $overpayment = $payload['Overpayments'][0] ?? null;
 
-        return is_array($overpayment) ? Overpayment::fromArray($overpayment) : null;
+        return is_array($overpayment) ? Overpayment::fromPayload($overpayment) : null;
     }
 }

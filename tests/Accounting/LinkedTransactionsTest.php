@@ -39,6 +39,7 @@ final class LinkedTransactionsTest extends TestCase
         self::assertSame('source-1', $transport->requests()[0]->query['SourceTransactionID']);
         self::assertSame('ACTIVE', $transport->requests()[0]->query['Status']);
         self::assertInstanceOf(LinkedTransaction::class, $linkedTransactions->first());
+        self::assertSame('source-1', $linkedTransactions->first()->getSourceTransactionID());
     }
 
     public function test_it_can_create_linked_transactions(): void
@@ -59,13 +60,16 @@ final class LinkedTransactionsTest extends TestCase
             ->accounting()
             ->linkedTransactions()
             ->create()
-            ->sourceTransaction('source-1')
-            ->targetTransaction('target-1')
-            ->contact('contact-1')
+            ->using(
+                (new LinkedTransaction())
+                    ->setSourceTransactionID('source-1')
+                    ->setTargetTransactionID('target-1')
+                    ->setContactID('contact-1')
+            )
             ->save();
 
         self::assertSame('/api.xro/2.0/LinkedTransactions', $transport->requests()[0]->path);
         self::assertSame('source-1', $transport->requests()[0]->json['SourceTransactionID']);
-        self::assertSame('target-1', $linkedTransaction->targetTransactionId);
+        self::assertSame('target-1', $linkedTransaction->getTargetTransactionID());
     }
 }

@@ -48,7 +48,7 @@ final class Folders implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $folder): Folder => Folder::fromArray($folder, $this->client),
+            fn (array $folder): Folder => Folder::fromPayload($folder, $this->client),
             $payload['Items'] ?? []
         ));
 
@@ -64,7 +64,7 @@ final class Folders implements DefinesScopes
         $payload = $response->json();
         $folder = $payload['Items'][0] ?? null;
 
-        return is_array($folder) ? Folder::fromArray($folder, $this->client) : null;
+        return is_array($folder) ? Folder::fromPayload($folder, $this->client) : null;
     }
 
     public function inbox(): ?Folder
@@ -76,7 +76,7 @@ final class Folders implements DefinesScopes
         $payload = $response->json();
         $folder = $payload['Items'][0] ?? null;
 
-        return is_array($folder) ? Folder::fromArray($folder, $this->client) : null;
+        return is_array($folder) ? Folder::fromPayload($folder, $this->client) : null;
     }
 
     public function create(): Payload

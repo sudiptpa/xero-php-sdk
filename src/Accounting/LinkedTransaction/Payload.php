@@ -8,20 +8,19 @@ use Sujip\Xero\Client;
 
 final class Payload
 {
-    /**
-     * @var array<string, mixed>
-     */
-    private array $payload = [];
+    private LinkedTransaction $linkedTransaction;
 
     public function __construct(
         private readonly Client $client
     ) {
+        $this->linkedTransaction = new LinkedTransaction();
     }
 
     public function sourceTransaction(string $id): self
     {
         $clone = clone $this;
-        $clone->payload['SourceTransactionID'] = $id;
+        $clone->linkedTransaction = clone $this->linkedTransaction;
+        $clone->linkedTransaction->setSourceTransactionID($id);
 
         return $clone;
     }
@@ -29,7 +28,8 @@ final class Payload
     public function targetTransaction(string $id): self
     {
         $clone = clone $this;
-        $clone->payload['TargetTransactionID'] = $id;
+        $clone->linkedTransaction = clone $this->linkedTransaction;
+        $clone->linkedTransaction->setTargetTransactionID($id);
 
         return $clone;
     }
@@ -37,7 +37,16 @@ final class Payload
     public function contact(string $contactId): self
     {
         $clone = clone $this;
-        $clone->payload['ContactID'] = $contactId;
+        $clone->linkedTransaction = clone $this->linkedTransaction;
+        $clone->linkedTransaction->setContactID($contactId);
+
+        return $clone;
+    }
+
+    public function using(LinkedTransaction $linkedTransaction): self
+    {
+        $clone = clone $this;
+        $clone->linkedTransaction = clone $linkedTransaction;
 
         return $clone;
     }
@@ -46,12 +55,12 @@ final class Payload
     {
         $response = $this->client
             ->post('/api.xro/2.0/LinkedTransactions')
-            ->withJson($this->payload)
+            ->withJson($this->linkedTransaction->toRequest())
             ->send();
 
         $payload = $response->json();
         $linkedTransaction = $payload['LinkedTransactions'][0] ?? $payload['LinkedTransaction'] ?? [];
 
-        return LinkedTransaction::fromArray(is_array($linkedTransaction) ? $linkedTransaction : []);
+        return LinkedTransaction::fromPayload(is_array($linkedTransaction) ? $linkedTransaction : []);
     }
 }

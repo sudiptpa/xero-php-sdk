@@ -4,23 +4,58 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\BatchPayment;
 
+use Sujip\Xero\Accounting\Account\Account;
 use Sujip\Xero\Accounting\History;
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Contracts\BuildsFromPayload;
+use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final readonly class BatchPayment
+final class BatchPayment implements BuildsFromPayload, SerializesForRequest
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
     public function __construct(
-        public ?string $id,
-        public ?string $reference,
-        public ?string $status,
-        public int|float|null $amount = null,
-        public array $raw = [],
         private ?Client $client = null
     ) {
+    }
+
+    private ?string $batchPaymentID = null;
+
+    private ?string $reference = null;
+
+    private ?string $status = null;
+
+    private int|float|null $amount = null;
+
+    private ?Account $account = null;
+
+    /**
+     * @var list<PaymentEntry>
+     */
+    private array $payments = [];
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public static function fromPayload(array $payload, ?Client $client = null): static
+    {
+        $batchPayment = (new self($client))
+            ->setBatchPaymentID($payload['BatchPaymentID'] ?? null)
+            ->setReference($payload['Reference'] ?? null)
+            ->setStatus($payload['Status'] ?? null)
+            ->setAmount($payload['Amount'] ?? null);
+
+        $account = $payload['Account'] ?? null;
+        if (is_array($account)) {
+            $batchPayment->setAccount(Account::fromPayload($account, $client));
+        }
+
+        foreach ($payload['Payments'] ?? [] as $payment) {
+            if (is_array($payment)) {
+                $batchPayment->addPayment(PaymentEntry::fromPayload($payment));
+            }
+        }
+
+        return $batchPayment;
     }
 
     /**
@@ -28,22 +63,118 @@ final readonly class BatchPayment
      */
     public static function fromArray(array $payload, ?Client $client = null): self
     {
-        return new self(
-            $payload['BatchPaymentID'] ?? null,
-            $payload['Reference'] ?? null,
-            $payload['Status'] ?? null,
-            $payload['Amount'] ?? null,
-            $payload,
-            $client
-        );
+        return self::fromPayload($payload, $client);
+    }
+
+    public function getBatchPaymentID(): ?string
+    {
+        return $this->batchPaymentID;
+    }
+
+    public function setBatchPaymentID(?string $batchPaymentID): self
+    {
+        $this->batchPaymentID = $batchPaymentID;
+
+        return $this;
+    }
+
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    public function setReference(?string $reference): self
+    {
+        $this->reference = $reference;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getAmount(): int|float|null
+    {
+        return $this->amount;
+    }
+
+    public function setAmount(int|float|null $amount): self
+    {
+        $this->amount = $amount;
+
+        return $this;
+    }
+
+    public function getAccount(): ?Account
+    {
+        return $this->account;
+    }
+
+    public function setAccount(?Account $account): self
+    {
+        $this->account = $account;
+
+        return $this;
+    }
+
+    /**
+     * @return list<PaymentEntry>
+     */
+    public function getPayments(): array
+    {
+        return $this->payments;
+    }
+
+    /**
+     * @param list<PaymentEntry> $payments
+     */
+    public function setPayments(array $payments): self
+    {
+        $this->payments = $payments;
+
+        return $this;
+    }
+
+    public function addPayment(PaymentEntry $payment): self
+    {
+        $this->payments[] = $payment;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toRequest(): array
+    {
+        return array_filter([
+            'BatchPaymentID' => $this->getBatchPaymentID(),
+            'Reference' => $this->getReference(),
+            'Status' => $this->getStatus(),
+            'Amount' => $this->getAmount(),
+            'Account' => $this->getAccount()?->toRequest(),
+            'Payments' => array_map(
+                static fn (PaymentEntry $payment): array => $payment->toRequest(),
+                $this->getPayments()
+            ),
+        ], static fn (mixed $value): bool => $value !== null);
     }
 
     public function history(): History
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->batchPaymentID === null) {
             throw new RuntimeException('Cannot access batch payment history without a bound client context and batch payment id.');
         }
 
-        return (new BatchPayments($this->client))->history($this->id);
+        return (new BatchPayments($this->client))->history($this->batchPaymentID);
     }
 }

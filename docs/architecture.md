@@ -29,7 +29,7 @@ The package should not feel like a generated SDK. It should feel clean, fluent, 
 - `Auth`: token handling, auth flows, connection strategies
 - `Accounting`, `Files`, `Projects`, `Assets`, `Finance`, `AppStore`
 - `Payroll\\AU`, `Payroll\\NZ`, `Payroll\\UK`
-- `Support`: collections, factories, serializers, helpers, value objects
+- `Support`: collections, helpers, and shared value objects
 - `Webhooks`: signature verification and event mapping
 
 ## Domain Pattern
@@ -82,8 +82,7 @@ This keeps the SDK close to the Xero docs while still feeling natural in PHP.
 ### Boundary Rules
 
 - response JSON is decoded once at the HTTP boundary
-- a `Factory` turns that payload into rich models
-- a `Serializer` turns rich models back into request payloads
+- request and response mapping stays inside the SDK
 - public models should not expose raw array access as the normal way to work
 
 ### Package Shape
@@ -92,8 +91,6 @@ The package is designed around:
 
 - rich models for reads and writes
 - explicit nested objects instead of nested arrays
-- `Factory` classes for response mapping
-- `Serializer` classes for request mapping
 - resources remain responsible for transport and endpoint paths
 
 The package should feel object-first in application code, not array-first.

@@ -8,19 +8,26 @@ use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Files\File\Files as FilesResource;
 use Sujip\Xero\Files\File\Upload;
+use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 
-final readonly class Folder
+final class Folder implements BuildsFromPayload
 {
+    private ?string $id = null;
+
+    private ?string $name = null;
+
+    private int|string|null $fileCount = null;
+
+    private ?string $email = null;
+
+    private ?bool $isInbox = null;
+
     /**
-     * @param array<string, mixed> $raw
+     * @var array<string, mixed>
      */
+    private array $raw = [];
+
     public function __construct(
-        public ?string $id,
-        public ?string $name,
-        public int|string|null $fileCount = null,
-        public ?string $email = null,
-        public ?bool $isInbox = null,
-        public array $raw = [],
         private ?Client $client = null
     ) {
     }
@@ -28,33 +35,106 @@ final readonly class Folder
     /**
      * @param array<string, mixed> $payload
      */
+    public static function fromPayload(array $payload, ?Client $client = null): static
+    {
+        return (new self($client))
+            ->setId($payload['Id'] ?? null)
+            ->setName($payload['Name'] ?? null)
+            ->setFileCount($payload['FileCount'] ?? null)
+            ->setEmail($payload['Email'] ?? null)
+            ->setIsInbox($payload['IsInbox'] ?? null)
+            ->setRaw($payload);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
     public static function fromArray(array $payload, ?Client $client = null): self
     {
-        return new self(
-            $payload['Id'] ?? null,
-            $payload['Name'] ?? null,
-            $payload['FileCount'] ?? null,
-            $payload['Email'] ?? null,
-            $payload['IsInbox'] ?? null,
-            $payload,
-            $client
-        );
+        return self::fromPayload($payload, $client);
+    }
+
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
+
+    public function setId(?string $id): self
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getFileCount(): int|string|null
+    {
+        return $this->fileCount;
+    }
+
+    public function setFileCount(int|string|null $fileCount): self
+    {
+        $this->fileCount = $fileCount;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getIsInbox(): ?bool
+    {
+        return $this->isInbox;
+    }
+
+    public function setIsInbox(?bool $isInbox): self
+    {
+        $this->isInbox = $isInbox;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getRaw(): array
+    {
+        return $this->raw;
+    }
+
+    /**
+     * @param array<string, mixed> $raw
+     */
+    public function setRaw(array $raw): self
+    {
+        $this->raw = $raw;
+
+        return $this;
     }
 
     public function name(string $name): self
     {
-        $payload = $this->raw;
-        $payload['Name'] = $name;
-
-        return new self(
-            $this->id,
-            $name,
-            $this->fileCount,
-            $this->email,
-            $this->isInbox,
-            $payload,
-            $this->client
-        );
+        return $this->setName($name);
     }
 
     public function save(): self

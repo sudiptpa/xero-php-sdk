@@ -78,7 +78,7 @@ final class Files implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $file): File => File::fromArray($file, $this->client),
+            fn (array $file): File => File::fromPayload($file, $this->client),
             $payload['Items'] ?? []
         ));
 
@@ -117,7 +117,7 @@ final class Files implements DefinesScopes
         $payload = $response->json();
         $file = $payload['Items'][0] ?? null;
 
-        return is_array($file) ? File::fromArray($file, $this->client) : null;
+        return is_array($file) ? File::fromPayload($file, $this->client) : null;
     }
 
     public function content(string $fileId): string

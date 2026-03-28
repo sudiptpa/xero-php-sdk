@@ -11,7 +11,7 @@ The package already includes:
 - zero runtime dependencies
 - multi-tenant context handling
 - transport abstraction
-- typed models and write builders
+- rich typed models
 - production-ready test and static-analysis coverage
 
 ## Installation
@@ -25,6 +25,17 @@ Requirements:
 - PHP 8.2+
 - `ext-json`
 - `ext-curl` for the built-in native transport
+
+## Mac Setup
+
+If you are moving your development environment from Linux to a MacBook Pro on Apple Silicon, use the repository setup guide:
+
+- [`docs/macbook-pro-m5-setup.md`](/var/www/html/packages/xero-php-sdk/docs/macbook-pro-m5-setup.md)
+
+The repo also includes:
+
+- [`Brewfile.mac`](/var/www/html/packages/xero-php-sdk/Brewfile.mac)
+- [`scripts/macos/bootstrap.sh`](/var/www/html/packages/xero-php-sdk/scripts/macos/bootstrap.sh)
 
 ## Quick Start
 
@@ -99,6 +110,7 @@ $page = $xero->accounting()
 
 ```php
 use Sujip\Xero\Accounting\Invoice\Invoice;
+use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Accounting\Invoice\LineItem;
 
 $invoice = $xero->accounting()
@@ -108,7 +120,10 @@ $invoice = $xero->accounting()
         (new Invoice())
             ->setType('ACCREC')
             ->setStatus('DRAFT')
-            ->setContactID('contact-id')
+            ->setContact(
+                (new Contact())
+                    ->setContactID('contact-id')
+            )
             ->setReference('PO-1001')
             ->addLineItem(
                 (new LineItem())
@@ -121,6 +136,7 @@ $invoice = $xero->accounting()
 ```
 
 ```php
+use Sujip\Xero\Accounting\Account\Account;
 use Sujip\Xero\Accounting\Payment\Payment;
 
 $payment = $xero->accounting()
@@ -129,7 +145,10 @@ $payment = $xero->accounting()
     ->using(
         (new Payment())
             ->setInvoiceID('invoice-id')
-            ->setAccountID('account-id')
+            ->setAccount(
+                (new Account())
+                    ->setAccountID('account-id')
+            )
             ->setDate('2026-03-25')
             ->setAmount(150)
             ->setReference('PAY-1001')

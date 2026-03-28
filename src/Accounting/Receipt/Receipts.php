@@ -50,7 +50,7 @@ final class Receipts implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $receipt): Receipt => Receipt::fromArray($receipt, $this->client),
+            fn (array $receipt): Receipt => Receipt::fromPayload($receipt, $this->client),
             $payload['Receipts'] ?? []
         ));
 
@@ -66,7 +66,7 @@ final class Receipts implements DefinesScopes
         $payload = $response->json();
         $receipt = $payload['Receipts'][0] ?? null;
 
-        return is_array($receipt) ? Receipt::fromArray($receipt, $this->client) : null;
+        return is_array($receipt) ? Receipt::fromPayload($receipt, $this->client) : null;
     }
 
     public function attachments(string $receiptId): Attachments

@@ -54,7 +54,7 @@ final class BatchPayments implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $batchPayment): BatchPayment => BatchPayment::fromArray($batchPayment, $this->client),
+            fn (array $batchPayment): BatchPayment => BatchPayment::fromPayload($batchPayment, $this->client),
             $payload['BatchPayments'] ?? []
         ));
 
@@ -85,7 +85,7 @@ final class BatchPayments implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $batchPayment = $payload['BatchPayments'][0] ?? null;
 
-        return is_array($batchPayment) ? BatchPayment::fromArray($batchPayment, $this->client) : null;
+        return is_array($batchPayment) ? BatchPayment::fromPayload($batchPayment, $this->client) : null;
     }
 
     public function create(): Payload
