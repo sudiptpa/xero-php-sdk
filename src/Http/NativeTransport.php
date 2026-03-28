@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Http;
 
 use Sujip\Xero\Exceptions\TransportException;
+use Sujip\Xero\Support\Json;
 
 final class NativeTransport implements Transport
 {
@@ -59,7 +60,7 @@ final class NativeTransport implements Transport
         ]);
 
         if ($request->json !== null) {
-            curl_setopt($handle, CURLOPT_POSTFIELDS, json_encode($request->json, JSON_THROW_ON_ERROR));
+            curl_setopt($handle, CURLOPT_POSTFIELDS, Json::encode($request->json));
         } elseif ($request->body !== null) {
             curl_setopt($handle, CURLOPT_POSTFIELDS, $request->body);
         }

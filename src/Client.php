@@ -10,7 +10,6 @@ use Sujip\Xero\Assets\Assets;
 use Sujip\Xero\Auth\Token;
 use Sujip\Xero\Files\Files;
 use Sujip\Xero\Finance\Finance;
-use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\NativeTransport;
 use Sujip\Xero\Http\PendingRequest;
 use Sujip\Xero\Http\Request;
@@ -29,7 +28,7 @@ final class Client
         private readonly Context $context,
         ?Transport $transport = null
     ) {
-        $this->transport = $transport ?? new FakeTransport();
+        $this->transport = $transport ?? new NativeTransport();
     }
 
     public function tenant(string $tenantId): self

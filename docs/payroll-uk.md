@@ -1,8 +1,7 @@
 # Payroll UK
+UK payroll resources and helpers.
 
-Payroll UK is close to NZ in some places and different in others. The package keeps the UK-specific parts explicit.
-
-Current coverage:
+Coverage:
 
 - employees
 - employee leave balances

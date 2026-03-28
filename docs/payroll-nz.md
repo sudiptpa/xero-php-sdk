@@ -1,10 +1,7 @@
 # Payroll NZ
+NZ payroll resources and employee-side helpers.
 
-Payroll NZ has its own shape, especially around leave and pay-run setup.
-
-Most reads now come back as rich models, and the main employee-side write helpers now use explicit fluent methods too.
-
-Current coverage:
+Coverage:
 
 - employees
 - employee leave balances, leave records, payment methods, tax, and working-pattern helpers

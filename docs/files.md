@@ -1,8 +1,7 @@
 # Files
+Files, folders, uploads, and associations.
 
-The Files API gets messy fast if the SDK treats everything as raw upload plumbing. This package keeps it small and direct.
-
-Current coverage:
+Coverage:
 
 - files
 - file content
@@ -41,8 +40,6 @@ $uploaded = $xero->files()
     ->toFolder('folder-id')
     ->save();
 ```
-
-Loaded files keep the same fluent style as the Accounting models:
 
 ```php
 $renamed = $file?->rename('contract-v2.pdf')
@@ -118,8 +115,6 @@ $folder = $xero->files()->findFolder('folder-id');
 
 $folder?->delete();
 ```
-
-Folders are first-class too:
 
 ```php
 $uploaded = $folder?->upload('terms.pdf', $binary)

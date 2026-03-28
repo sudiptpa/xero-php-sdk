@@ -1,6 +1,5 @@
 # Auth
-
-Xero auth is straightforward, but it can get messy in application code. The package keeps it clear and easy to follow.
+OAuth, tenant discovery, refresh, and custom connections.
 
 1. send the user to Xero
 2. exchange the code for a token
@@ -9,8 +8,6 @@ Xero auth is straightforward, but it can get messy in application code. The pack
 5. keep the token fresh
 
 ## Basic Flow
-
-This is the normal user-consent flow for tenant-scoped apps.
 
 ```php
 use Sujip\Xero\Auth\ConnectionManager;
@@ -71,7 +68,7 @@ $url = $connections->authorizationUrl(
 $connected = $connections->exchangeAndConnect($code, 'tenant-id', $verifier);
 ```
 
-Use `exchangeAndConnect()` when your app already knows which tenant it wants. Use `exchange()` plus `connections()` when the user still needs to choose.
+Use `exchangeAndConnect()` when the tenant is already known. Use `exchange()` plus `connections()` when the user still needs to choose.
 
 ## Refreshing Tokens
 
@@ -82,7 +79,7 @@ $accessToken = $freshToken->getAccessToken();
 $refreshToken = $freshToken->getRefreshToken();
 ```
 
-The in-memory repository is only for tests and small examples. Real apps should store tokens somewhere persistent.
+The in-memory repository is only for tests and examples. Real apps should store tokens somewhere persistent.
 
 ## Custom Connections
 
@@ -94,7 +91,7 @@ $client = $connections->customConnection([
 ]);
 ```
 
-This is mainly for fixed server-to-server integrations. Keep the scope list small.
+Keep the scope list small.
 
 ## Tenant Discovery
 

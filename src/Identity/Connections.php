@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Identity;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Support\ResourceCollection;
 
 final readonly class Connections
@@ -24,7 +25,7 @@ final readonly class Connections
             ->withoutTenant()
             ->send();
 
-        $decoded = json_decode($response->body, true);
+        $decoded = Json::decode($response->body);
 
         /** @var list<array<string, mixed>> $rows */
         $rows = is_array($decoded) ? array_values($decoded) : [];

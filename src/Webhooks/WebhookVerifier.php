@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Webhooks;
 
 use Sujip\Xero\Exceptions\InvalidWebhookSignatureException;
+use Sujip\Xero\Support\Json;
 
 final readonly class WebhookVerifier
 {
@@ -75,7 +76,7 @@ final readonly class WebhookVerifier
     public function parse(string $payload): WebhookPayload
     {
         /** @var array<string, mixed> $decoded */
-        $decoded = json_decode($payload, true, flags: JSON_THROW_ON_ERROR);
+        $decoded = Json::decodeObject($payload);
 
         $events = array_values(array_map(
             fn (array $event): WebhookEvent => $this->mapEvent($event),
