@@ -7,34 +7,65 @@ namespace Sujip\Xero\Payroll\AU\PayRun;
 use RuntimeException;
 use Sujip\Xero\Client;
 
-final readonly class PayRun
+final class PayRun
 {
     /**
-     * @param array<string, mixed> $raw
      */
     public function __construct(
-        public ?string $id,
-        public ?string $payrollCalendarId,
-        public ?string $status,
-        public ?string $paymentDate,
-        public array $raw = [],
-        private ?Client $client = null
+        private ?Client $client = null,
+        private ?string $payRunID = null,
+        private ?string $payrollCalendarID = null,
+        private ?string $payRunStatus = null,
+        private ?string $paymentDate = null,
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
+    public function getPayRunID(): ?string
     {
-        return new self(
-            $payload['PayRunID'] ?? null,
-            $payload['PayrollCalendarID'] ?? null,
-            $payload['PayRunStatus'] ?? $payload['Status'] ?? null,
-            $payload['PaymentDate'] ?? null,
-            $payload,
-            $client
-        );
+        return $this->payRunID;
+    }
+
+    public function setPayRunID(?string $payRunID): self
+    {
+        $this->payRunID = $payRunID;
+
+        return $this;
+    }
+
+    public function getPayrollCalendarID(): ?string
+    {
+        return $this->payrollCalendarID;
+    }
+
+    public function setPayrollCalendarID(?string $payrollCalendarID): self
+    {
+        $this->payrollCalendarID = $payrollCalendarID;
+
+        return $this;
+    }
+
+    public function getPayRunStatus(): ?string
+    {
+        return $this->payRunStatus;
+    }
+
+    public function setPayRunStatus(?string $payRunStatus): self
+    {
+        $this->payRunStatus = $payRunStatus;
+
+        return $this;
+    }
+
+    public function getPaymentDate(): ?string
+    {
+        return $this->paymentDate;
+    }
+
+    public function setPaymentDate(?string $paymentDate): self
+    {
+        $this->paymentDate = $paymentDate;
+
+        return $this;
     }
 
     /**
@@ -42,11 +73,11 @@ final readonly class PayRun
      */
     public function payslips(): \Sujip\Xero\Support\ResourceCollection
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->payRunID === null) {
             throw new RuntimeException('Cannot load payslips without a bound client context and pay run id.');
         }
 
-        return (new PayRuns($this->client))->payslips($this->id)->get();
+        return (new PayRuns($this->client))->payslips($this->payRunID)->get();
     }
 
     public function save(): self
@@ -57,12 +88,12 @@ final readonly class PayRun
 
         $payload = new Payload($this->client);
 
-        if ($this->id !== null) {
-            $payload = $payload->id($this->id);
+        if ($this->payRunID !== null) {
+            $payload = $payload->id($this->payRunID);
         }
 
-        if ($this->payrollCalendarId !== null) {
-            $payload = $payload->payrollCalendar($this->payrollCalendarId);
+        if ($this->payrollCalendarID !== null) {
+            $payload = $payload->payrollCalendar($this->payrollCalendarID);
         }
 
         return $payload->save();

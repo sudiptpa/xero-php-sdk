@@ -7,35 +7,39 @@ namespace Sujip\Xero\Webhooks;
 use DateTimeImmutable;
 use DateTimeInterface;
 
-final readonly class WebhookEvent
+final class WebhookEvent
 {
     /**
      * @param array<string, mixed> $payload
      */
     public function __construct(
-        public ?string $resourceUrl,
-        public ?string $resourceId,
-        public ?string $eventCategory,
-        public ?string $eventType,
-        public ?string $eventDateUtc,
-        public array $payload = []
+        private ?string $resourceUrl = null,
+        private ?string $resourceId = null,
+        private ?string $eventCategory = null,
+        private ?string $eventType = null,
+        private ?string $eventDateUtc = null,
+        private array $payload = []
     ) {
     }
 
+    public function getResourceUrl(): ?string { return $this->resourceUrl; }
+    public function setResourceUrl(?string $resourceUrl): self { $this->resourceUrl = $resourceUrl; return $this; }
+    public function getResourceId(): ?string { return $this->resourceId; }
+    public function setResourceId(?string $resourceId): self { $this->resourceId = $resourceId; return $this; }
+    public function getEventCategory(): ?string { return $this->eventCategory; }
+    public function setEventCategory(?string $eventCategory): self { $this->eventCategory = $eventCategory; return $this; }
+    public function getEventType(): ?string { return $this->eventType; }
+    public function setEventType(?string $eventType): self { $this->eventType = $eventType; return $this; }
+    public function getEventDateUtc(): ?string { return $this->eventDateUtc; }
+    public function setEventDateUtc(?string $eventDateUtc): self { $this->eventDateUtc = $eventDateUtc; return $this; }
+    /**
+     * @return array<string, mixed>
+     */
+    public function getPayload(): array { return $this->payload; }
     /**
      * @param array<string, mixed> $payload
      */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            $payload['resourceUrl'] ?? null,
-            $payload['resourceId'] ?? null,
-            $payload['eventCategory'] ?? null,
-            $payload['eventType'] ?? null,
-            $payload['eventDateUtc'] ?? null,
-            $payload
-        );
-    }
+    public function setPayload(array $payload): self { $this->payload = $payload; return $this; }
 
     public function is(string $category, ?string $type = null): bool
     {

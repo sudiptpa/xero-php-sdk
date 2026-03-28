@@ -49,7 +49,7 @@ final class ExpenseClaims implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $expenseClaim): ExpenseClaim => ExpenseClaim::fromArray($expenseClaim, $this->client),
+            fn (array $expenseClaim): ExpenseClaim => $this->mapExpenseClaim($expenseClaim),
             $payload['ExpenseClaims'] ?? []
         ));
 
@@ -65,7 +65,7 @@ final class ExpenseClaims implements DefinesScopes
         $payload = $response->json();
         $expenseClaim = $payload['ExpenseClaims'][0] ?? null;
 
-        return is_array($expenseClaim) ? ExpenseClaim::fromArray($expenseClaim, $this->client) : null;
+        return is_array($expenseClaim) ? $this->mapExpenseClaim($expenseClaim) : null;
     }
 
     public function create(): Payload
@@ -76,5 +76,33 @@ final class ExpenseClaims implements DefinesScopes
     public function update(string $expenseClaimId): Payload
     {
         return (new Payload($this->client))->id($expenseClaimId);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapExpenseClaim(array $payload): ExpenseClaim
+    {
+        $receiptIds = [];
+
+        foreach (($payload['Receipts'] ?? []) as $receipt) {
+            if (is_array($receipt) && isset($receipt['ReceiptID']) && is_string($receipt['ReceiptID'])) {
+                $receiptIds[] = $receipt['ReceiptID'];
+            }
+        }
+
+        return (new ExpenseClaim($this->client))
+            ->setExpenseClaimID(isset($payload['ExpenseClaimID']) ? (string) $payload['ExpenseClaimID'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
+            ->setEmployeeID(
+                isset($payload['User']['UserID']) && is_string($payload['User']['UserID'])
+                    ? $payload['User']['UserID']
+                    : (isset($payload['Employee']['EmployeeID']) && is_string($payload['Employee']['EmployeeID'])
+                        ? $payload['Employee']['EmployeeID']
+                        : null)
+            )
+            ->setReceiptIDs($receiptIds)
+            ->setTotal(isset($payload['Total']) && is_numeric($payload['Total']) ? $payload['Total'] + 0 : null)
+            ;
     }
 }

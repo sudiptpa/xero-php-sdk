@@ -68,7 +68,7 @@ final class ContactGroupsTest extends TestCase
         self::assertSame('/api.xro/2.0/ContactGroups/group-2', $transport->requests()[3]->path);
         self::assertSame('/api.xro/2.0/ContactGroups/group-2/Contacts', $transport->requests()[4]->path);
         self::assertSame('contact-1', $transport->requests()[4]->json['Contacts'][0]['ContactID']);
-        self::assertSame(['contact-1'], $attached->contactIds);
-        self::assertSame('group-1', $group?->id);
+        self::assertSame(['contact-1'], $attached->getContactIDs());
+        self::assertSame('group-1', $group?->getContactGroupID());
     }
 }

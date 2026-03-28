@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Organisation;
 
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
-
-final class Organisation implements BuildsFromPayload
+final class Organisation
 {
     private ?string $name = null;
 
@@ -15,26 +13,6 @@ final class Organisation implements BuildsFromPayload
     private ?string $shortCode = null;
 
     private ?string $countryCode = null;
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?\Sujip\Xero\Client $client = null): static
-    {
-        return (new self())
-            ->setName($payload['Name'] ?? null)
-            ->setLegalName($payload['LegalName'] ?? null)
-            ->setShortCode($payload['ShortCode'] ?? null)
-            ->setCountryCode($payload['CountryCode'] ?? null);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return self::fromPayload($payload);
-    }
 
     public function getName(): ?string
     {

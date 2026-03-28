@@ -30,6 +30,8 @@ $file = $xero->files()
     ->find('file-id');
 
 $content = $file?->content();
+$name = $file?->getName();
+$folderId = $file?->getFolderId();
 ```
 
 ```php
@@ -80,6 +82,10 @@ $xero->files()
 $counts = $xero->files()
     ->associations('file-id')
     ->countFor('invoice-id', 'contact-id');
+
+$firstCount = $counts->first();
+$objectId = $firstCount?->getObjectId();
+$count = $firstCount?->getCount();
 ```
 
 ## Folders
@@ -103,6 +109,8 @@ $folder = $xero->files()
 $inbox = $xero->files()
     ->folders()
     ->inbox();
+
+$isInbox = $inbox?->getIsInbox();
 ```
 
 ```php
@@ -117,6 +125,8 @@ Folders are first-class too:
 $uploaded = $folder?->upload('terms.pdf', $binary)
     ->mimeType('application/pdf')
     ->save();
+
+$uploadedName = $uploaded?->getName();
 ```
 
 ## Scope Notes

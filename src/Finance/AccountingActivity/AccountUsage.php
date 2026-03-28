@@ -4,31 +4,22 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Finance\AccountingActivity;
 
-final readonly class AccountUsage
+final class AccountUsage
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
     public function __construct(
-        public ?string $accountId,
-        public ?string $accountCode,
-        public ?string $accountName,
-        public ?float $amount,
-        public array $raw = []
+        private ?string $accountID = null,
+        private ?string $accountCode = null,
+        private ?string $accountName = null,
+        private ?float $amount = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            isset($payload['AccountID']) ? (string) $payload['AccountID'] : null,
-            isset($payload['AccountCode']) ? (string) $payload['AccountCode'] : null,
-            isset($payload['AccountName']) ? (string) $payload['AccountName'] : null,
-            isset($payload['Amount']) ? (float) $payload['Amount'] : null,
-            $payload
-        );
-    }
+    public function getAccountID(): ?string { return $this->accountID; }
+    public function setAccountID(?string $accountID): self { $this->accountID = $accountID; return $this; }
+    public function getAccountCode(): ?string { return $this->accountCode; }
+    public function setAccountCode(?string $accountCode): self { $this->accountCode = $accountCode; return $this; }
+    public function getAccountName(): ?string { return $this->accountName; }
+    public function setAccountName(?string $accountName): self { $this->accountName = $accountName; return $this; }
+    public function getAmount(): ?float { return $this->amount; }
+    public function setAmount(?float $amount): self { $this->amount = $amount; return $this; }
 }

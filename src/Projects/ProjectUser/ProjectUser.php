@@ -4,29 +4,48 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Projects\ProjectUser;
 
-final readonly class ProjectUser
+final class ProjectUser
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
-    public function __construct(
-        public ?string $id,
-        public ?string $name,
-        public ?string $emailAddress,
-        public array $raw = []
-    ) {
+    private ?string $userID = null;
+
+    private ?string $name = null;
+
+    private ?string $emailAddress = null;
+
+    public function getUserID(): ?string
+    {
+        return $this->userID;
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
+    public function setUserID(?string $userID): self
     {
-        return new self(
-            $payload['UserID'] ?? $payload['UserId'] ?? null,
-            $payload['Name'] ?? null,
-            $payload['Email'] ?? $payload['EmailAddress'] ?? null,
-            $payload
-        );
+        $this->userID = $userID;
+
+        return $this;
     }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getEmailAddress(): ?string
+    {
+        return $this->emailAddress;
+    }
+
+    public function setEmailAddress(?string $emailAddress): self
+    {
+        $this->emailAddress = $emailAddress;
+
+        return $this;
+    }
+
 }

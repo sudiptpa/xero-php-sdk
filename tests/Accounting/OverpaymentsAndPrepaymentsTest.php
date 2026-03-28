@@ -39,7 +39,7 @@ final class OverpaymentsAndPrepaymentsTest extends TestCase
         self::assertSame('/api.xro/2.0/Overpayments', $transport->requests()[0]->path);
         self::assertInstanceOf(Overpayment::class, $overpayments->first());
         self::assertSame('/api.xro/2.0/Overpayments/over-1', $transport->requests()[1]->path);
-        self::assertSame('over-1', $overpayment?->id);
+        self::assertSame('over-1', $overpayment?->getOverpaymentID());
     }
 
     public function test_it_can_query_and_find_prepayments(): void
@@ -68,6 +68,6 @@ final class OverpaymentsAndPrepaymentsTest extends TestCase
         self::assertSame('/api.xro/2.0/Prepayments', $transport->requests()[0]->path);
         self::assertInstanceOf(Prepayment::class, $prepayments->first());
         self::assertSame('/api.xro/2.0/Prepayments/pre-1', $transport->requests()[1]->path);
-        self::assertSame('pre-1', $prepayment?->id);
+        self::assertSame('pre-1', $prepayment?->getPrepaymentID());
     }
 }

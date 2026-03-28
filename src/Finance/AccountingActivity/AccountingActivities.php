@@ -47,7 +47,7 @@ final readonly class AccountingActivities implements DefinesScopes
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $activity): AccountingActivity => AccountingActivity::fromArray($activity),
+            fn (array $activity): AccountingActivity => $this->mapAccountingActivity($activity),
             $payload['Items'] ?? $payload['AccountingActivities'] ?? []
         ));
 
@@ -76,7 +76,7 @@ final readonly class AccountingActivities implements DefinesScopes
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $usage): AccountUsage => AccountUsage::fromArray($usage),
+            fn (array $usage): AccountUsage => $this->mapAccountUsage($usage),
             $payload['Items'] ?? $payload['AccountUsage'] ?? []
         ));
 
@@ -101,7 +101,7 @@ final readonly class AccountingActivities implements DefinesScopes
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $history): ReportHistory => ReportHistory::fromArray($history),
+            fn (array $history): ReportHistory => $this->mapReportHistory($history),
             $payload['Items'] ?? $payload['ReportHistory'] ?? []
         ));
 
@@ -126,7 +126,7 @@ final readonly class AccountingActivities implements DefinesScopes
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $history): LockHistory => LockHistory::fromArray($history),
+            fn (array $history): LockHistory => $this->mapLockHistory($history),
             $payload['Items'] ?? $payload['LockHistory'] ?? []
         ));
 
@@ -151,10 +151,66 @@ final readonly class AccountingActivities implements DefinesScopes
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $activity): UserActivity => UserActivity::fromArray($activity),
+            fn (array $activity): UserActivity => $this->mapUserActivity($activity),
             $payload['Items'] ?? $payload['UserActivities'] ?? []
         ));
 
         return new ResourceCollection($items);
+    }
+
+    /**
+     * @param array<string, mixed> $activity
+     */
+    public function mapAccountingActivity(array $activity): AccountingActivity
+    {
+        return (new AccountingActivity())
+            ->setMonth(isset($activity['Month']) ? (string) $activity['Month'] : null)
+            ->setTotalIncome(isset($activity['TotalIncome']) ? (float) $activity['TotalIncome'] : null)
+            ->setTotalExpense(isset($activity['TotalExpense']) ? (float) $activity['TotalExpense'] : null);
+    }
+
+    /**
+     * @param array<string, mixed> $usage
+     */
+    public function mapAccountUsage(array $usage): AccountUsage
+    {
+        return (new AccountUsage())
+            ->setAccountID(isset($usage['AccountID']) ? (string) $usage['AccountID'] : null)
+            ->setAccountCode(isset($usage['AccountCode']) ? (string) $usage['AccountCode'] : null)
+            ->setAccountName(isset($usage['AccountName']) ? (string) $usage['AccountName'] : null)
+            ->setAmount(isset($usage['Amount']) ? (float) $usage['Amount'] : null);
+    }
+
+    /**
+     * @param array<string, mixed> $history
+     */
+    public function mapReportHistory(array $history): ReportHistory
+    {
+        return (new ReportHistory())
+            ->setReportName(isset($history['ReportName']) ? (string) $history['ReportName'] : null)
+            ->setPublishedDateUTC(isset($history['PublishedDateUTC']) ? (string) $history['PublishedDateUTC'] : null)
+            ->setPublishedBy(isset($history['PublishedBy']) ? (string) $history['PublishedBy'] : null);
+    }
+
+    /**
+     * @param array<string, mixed> $history
+     */
+    public function mapLockHistory(array $history): LockHistory
+    {
+        return (new LockHistory())
+            ->setLockDate(isset($history['LockDate']) ? (string) $history['LockDate'] : null)
+            ->setLockType(isset($history['LockType']) ? (string) $history['LockType'] : null)
+            ->setChangedDateUTC(isset($history['ChangedDateUTC']) ? (string) $history['ChangedDateUTC'] : null);
+    }
+
+    /**
+     * @param array<string, mixed> $activity
+     */
+    public function mapUserActivity(array $activity): UserActivity
+    {
+        return (new UserActivity())
+            ->setUserId(isset($activity['UserId']) ? (string) $activity['UserId'] : null)
+            ->setFullName(isset($activity['FullName']) ? (string) $activity['FullName'] : null)
+            ->setTransactionCount(isset($activity['TransactionCount']) ? (int) $activity['TransactionCount'] : null);
     }
 }

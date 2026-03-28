@@ -4,27 +4,34 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Files\File;
 
-final readonly class AssociationCount
+final class AssociationCount
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
-    public function __construct(
-        public ?string $objectId,
-        public ?int $count,
-        public array $raw = []
-    ) {
+    private ?string $objectId = null;
+
+    private ?int $count = null;
+
+    public function getObjectId(): ?string
+    {
+        return $this->objectId;
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
+    public function setObjectId(?string $objectId): self
     {
-        return new self(
-            isset($payload['ObjectId']) ? (string) $payload['ObjectId'] : null,
-            isset($payload['Count']) ? (int) $payload['Count'] : null,
-            $payload
-        );
+        $this->objectId = $objectId;
+
+        return $this;
     }
+
+    public function getCount(): ?int
+    {
+        return $this->count;
+    }
+
+    public function setCount(?int $count): self
+    {
+        $this->count = $count;
+
+        return $this;
+    }
+
 }

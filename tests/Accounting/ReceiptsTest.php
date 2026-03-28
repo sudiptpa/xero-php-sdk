@@ -21,6 +21,9 @@ final class ReceiptsTest extends TestCase
                 'ReceiptNumber' => 'REC-1001',
                 'Status' => 'DRAFT',
                 'Total' => 45,
+                'Contact' => [
+                    'ContactID' => 'contact-1',
+                ],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -38,7 +41,8 @@ final class ReceiptsTest extends TestCase
         self::assertSame('/api.xro/2.0/Receipts', $transport->requests()[0]->path);
         self::assertSame(4, $transport->requests()[0]->query['unitdp']);
         self::assertInstanceOf(Receipt::class, $receipts->first());
+        self::assertSame('contact-1', $receipts->first()->getContact()?->getContactID());
         self::assertSame('/api.xro/2.0/Receipts/receipt-1', $transport->requests()[1]->path);
-        self::assertSame('receipt-1', $receipt?->id);
+        self::assertSame('receipt-1', $receipt?->getReceiptID());
     }
 }

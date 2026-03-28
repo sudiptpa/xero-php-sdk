@@ -6,10 +6,9 @@ namespace Sujip\Xero\Accounting\Account;
 
 use RuntimeException;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class Account implements BuildsFromPayload, SerializesForRequest
+final class Account implements SerializesForRequest
 {
     public function __construct(
         private ?Client $client = null
@@ -27,28 +26,6 @@ final class Account implements BuildsFromPayload, SerializesForRequest
     private ?string $status = null;
 
     private ?string $description = null;
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?Client $client = null): static
-    {
-        return (new self($client))
-            ->setAccountID($payload['AccountID'] ?? null)
-            ->setCode($payload['Code'] ?? null)
-            ->setName($payload['Name'] ?? null)
-            ->setType($payload['Type'] ?? null)
-            ->setStatus($payload['Status'] ?? null)
-            ->setDescription($payload['Description'] ?? null);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
-    }
 
     public function getAccountID(): ?string
     {

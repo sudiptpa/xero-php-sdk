@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\CreditNote;
 
+use Sujip\Xero\Accounting\Contact\Contacts;
+use Sujip\Xero\Accounting\Invoice\Invoices;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
@@ -53,7 +55,7 @@ final class CreditNotes implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $creditNote): CreditNote => CreditNote::fromPayload($creditNote, $this->client),
+            fn (array $creditNote): CreditNote => $this->mapCreditNote($creditNote),
             $payload['CreditNotes'] ?? []
         ));
 
@@ -87,7 +89,7 @@ final class CreditNotes implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $creditNote = $payload['CreditNotes'][0] ?? null;
 
-        return is_array($creditNote) ? CreditNote::fromPayload($creditNote, $this->client) : null;
+        return is_array($creditNote) ? $this->mapCreditNote($creditNote) : null;
     }
 
     public function create(): Payload
@@ -118,5 +120,30 @@ final class CreditNotes implements PaginatesResults, DefinesScopes
             ->send();
 
         return $response->body;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapCreditNote(array $payload): CreditNote
+    {
+        $creditNote = (new CreditNote($this->client))
+            ->setCreditNoteID(isset($payload['CreditNoteID']) ? (string) $payload['CreditNoteID'] : null)
+            ->setType(isset($payload['Type']) ? (string) $payload['Type'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
+            ->setReference(isset($payload['Reference']) ? (string) $payload['Reference'] : null)
+            ->setTotal(isset($payload['Total']) && is_numeric($payload['Total']) ? $payload['Total'] + 0 : null);
+
+        if (is_array($payload['Contact'] ?? null)) {
+            $creditNote->setContact((new Contacts($this->client))->mapContact($payload['Contact']));
+        }
+
+        foreach ($payload['LineItems'] ?? [] as $lineItem) {
+            if (is_array($lineItem)) {
+                $creditNote->addLineItem((new Invoices($this->client))->mapLineItem($lineItem));
+            }
+        }
+
+        return $creditNote;
     }
 }

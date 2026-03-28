@@ -4,29 +4,19 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Finance\CashValidation;
 
-final readonly class CashValidationResult
+final class CashValidationResult
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
     public function __construct(
-        public ?string $status,
-        public ?float $balance,
-        public ?string $currency,
-        public array $raw = []
+        private ?string $status = null,
+        private ?float $balance = null,
+        private ?string $currency = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            isset($payload['Status']) ? (string) $payload['Status'] : null,
-            isset($payload['Balance']) ? (float) $payload['Balance'] : null,
-            isset($payload['Currency']) ? (string) $payload['Currency'] : null,
-            $payload
-        );
-    }
+    public function getStatus(): ?string { return $this->status; }
+    public function setStatus(?string $status): self { $this->status = $status; return $this; }
+    public function getBalance(): ?float { return $this->balance; }
+    public function setBalance(?float $balance): self { $this->balance = $balance; return $this; }
+    public function getCurrency(): ?string { return $this->currency; }
+    public function setCurrency(?string $currency): self { $this->currency = $currency; return $this; }
 }

@@ -35,7 +35,7 @@ final class BrandingThemes implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $brandingTheme): BrandingTheme => BrandingTheme::fromPayload($brandingTheme),
+            fn (array $brandingTheme): BrandingTheme => $this->mapBrandingTheme($brandingTheme),
             $payload['BrandingThemes'] ?? []
         ));
 
@@ -51,6 +51,17 @@ final class BrandingThemes implements DefinesScopes
         $payload = $response->json();
         $brandingTheme = $payload['BrandingThemes'][0] ?? null;
 
-        return is_array($brandingTheme) ? BrandingTheme::fromPayload($brandingTheme) : null;
+        return is_array($brandingTheme) ? $this->mapBrandingTheme($brandingTheme) : null;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapBrandingTheme(array $payload): BrandingTheme
+    {
+        return (new BrandingTheme())
+            ->setBrandingThemeID(isset($payload['BrandingThemeID']) ? (string) $payload['BrandingThemeID'] : null)
+            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
+            ->setSortOrder(isset($payload['SortOrder']) ? (string) $payload['SortOrder'] : null);
     }
 }

@@ -54,7 +54,7 @@ final class Timesheets implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $timesheet): Timesheet => Timesheet::fromArray($timesheet, $this->client),
+            fn (array $timesheet): Timesheet => $this->mapTimesheet($timesheet),
             $payload['Timesheets'] ?? []
         ));
 
@@ -88,7 +88,7 @@ final class Timesheets implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $timesheet = $payload['Timesheets'][0] ?? $payload['Timesheet'] ?? null;
 
-        return is_array($timesheet) ? Timesheet::fromArray($timesheet, $this->client) : null;
+        return is_array($timesheet) ? $this->mapTimesheet($timesheet) : null;
     }
 
     public function create(): Payload
@@ -110,7 +110,7 @@ final class Timesheets implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $timesheet = $payload['Timesheets'][0] ?? $payload['Timesheet'] ?? [];
 
-        return Timesheet::fromArray(is_array($timesheet) ? $timesheet : [], $this->client);
+        return is_array($timesheet) ? $this->mapTimesheet($timesheet) : new Timesheet($this->client);
     }
 
     public function revert(string $timesheetId): Timesheet
@@ -122,6 +122,20 @@ final class Timesheets implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $timesheet = $payload['Timesheets'][0] ?? $payload['Timesheet'] ?? [];
 
-        return Timesheet::fromArray(is_array($timesheet) ? $timesheet : [], $this->client);
+        return is_array($timesheet) ? $this->mapTimesheet($timesheet) : new Timesheet($this->client);
+    }
+
+    /**
+     * @param array<string, mixed> $timesheet
+     */
+    public function mapTimesheet(array $timesheet): Timesheet
+    {
+        return (new Timesheet($this->client))
+            ->setTimesheetID($timesheet['TimesheetID'] ?? null)
+            ->setEmployeeID($timesheet['EmployeeID'] ?? null)
+            ->setStartDate($timesheet['StartDate'] ?? null)
+            ->setEndDate($timesheet['EndDate'] ?? null)
+            ->setStatus($timesheet['Status'] ?? null)
+            ;
     }
 }

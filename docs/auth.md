@@ -40,9 +40,9 @@ After Xero redirects back with a code:
 $token = $connections->exchange($code);
 
 $availableTenants = $connections->connections();
-$connected = $connections->connectTenant($availableTenants[0]->tenantId);
+$connected = $connections->connectTenant($availableTenants[0]->getTenantId());
 
-$xero = $connected->client;
+$xero = $connected->getClient();
 ```
 
 At that point you can make a normal API call:
@@ -77,6 +77,9 @@ Use `exchangeAndConnect()` when your app already knows which tenant it wants. Us
 
 ```php
 $freshToken = $connections->refresh();
+
+$accessToken = $freshToken->getAccessToken();
+$refreshToken = $freshToken->getRefreshToken();
 ```
 
 The in-memory repository is only for tests and small examples. Real apps should store tokens somewhere persistent.

@@ -51,7 +51,7 @@ final class Client
     {
         return new self(
             Context::make(
-                accessToken: $token->accessToken,
+                accessToken: $token->getAccessToken(),
                 tenantId: $this->context->tenantId,
                 baseUri: $this->context->baseUri
             ),

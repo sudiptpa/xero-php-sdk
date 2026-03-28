@@ -4,29 +4,19 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Finance\AccountingActivity;
 
-final readonly class AccountingActivity
+final class AccountingActivity
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
     public function __construct(
-        public ?string $month,
-        public ?float $totalIncome,
-        public ?float $totalExpense,
-        public array $raw = []
+        private ?string $month = null,
+        private ?float $totalIncome = null,
+        private ?float $totalExpense = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            isset($payload['Month']) ? (string) $payload['Month'] : null,
-            isset($payload['TotalIncome']) ? (float) $payload['TotalIncome'] : null,
-            isset($payload['TotalExpense']) ? (float) $payload['TotalExpense'] : null,
-            $payload
-        );
-    }
+    public function getMonth(): ?string { return $this->month; }
+    public function setMonth(?string $month): self { $this->month = $month; return $this; }
+    public function getTotalIncome(): ?float { return $this->totalIncome; }
+    public function setTotalIncome(?float $totalIncome): self { $this->totalIncome = $totalIncome; return $this; }
+    public function getTotalExpense(): ?float { return $this->totalExpense; }
+    public function setTotalExpense(?float $totalExpense): self { $this->totalExpense = $totalExpense; return $this; }
 }

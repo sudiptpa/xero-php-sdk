@@ -4,31 +4,30 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\AU\SuperFund;
 
-final readonly class Product
+final class Product
 {
     /**
-     * @param array<string, mixed> $raw
      */
     public function __construct(
-        public ?string $id,
-        public ?string $name,
-        public ?string $usi,
-        public ?string $abn,
-        public array $raw = [],
+        private ?string $superFundProductID = null,
+        private ?string $name = null,
+        private ?string $uSI = null,
+        private ?string $aBN = null,
     ) {
     }
 
+    public function getSuperFundProductID(): ?string { return $this->superFundProductID; }
+    public function setSuperFundProductID(?string $superFundProductID): self { $this->superFundProductID = $superFundProductID; return $this; }
+    public function getName(): ?string { return $this->name; }
+    public function setName(?string $name): self { $this->name = $name; return $this; }
+    public function getUSI(): ?string { return $this->uSI; }
+    public function setUSI(?string $uSI): self { $this->uSI = $uSI; return $this; }
+    public function getABN(): ?string { return $this->aBN; }
+    public function setABN(?string $aBN): self { $this->aBN = $aBN; return $this; }
     /**
-     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
      */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            $payload['SuperFundProductID'] ?? null,
-            $payload['Name'] ?? null,
-            $payload['USI'] ?? null,
-            $payload['ABN'] ?? null,
-            $payload,
-        );
-    }
+    /**
+     * @param array<string, mixed> $raw
+     */
 }

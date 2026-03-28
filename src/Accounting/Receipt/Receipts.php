@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Receipt;
 
 use Sujip\Xero\Accounting\History;
+use Sujip\Xero\Accounting\Contact\Contacts;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
@@ -50,7 +51,7 @@ final class Receipts implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $receipt): Receipt => Receipt::fromArray($receipt, $this->client),
+            fn (array $receipt): Receipt => $this->mapReceipt($receipt),
             $payload['Receipts'] ?? []
         ));
 
@@ -66,7 +67,7 @@ final class Receipts implements DefinesScopes
         $payload = $response->json();
         $receipt = $payload['Receipts'][0] ?? null;
 
-        return is_array($receipt) ? Receipt::fromArray($receipt, $this->client) : null;
+        return is_array($receipt) ? $this->mapReceipt($receipt) : null;
     }
 
     public function attachments(string $receiptId): Attachments
@@ -77,5 +78,22 @@ final class Receipts implements DefinesScopes
     public function history(string $receiptId): History
     {
         return new History($this->client, '/api.xro/2.0/Receipts/' . $receiptId . '/History');
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapReceipt(array $payload): Receipt
+    {
+        return (new Receipt($this->client))
+            ->setReceiptID(isset($payload['ReceiptID']) ? (string) $payload['ReceiptID'] : null)
+            ->setReceiptNumber(isset($payload['ReceiptNumber']) ? (string) $payload['ReceiptNumber'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
+            ->setTotal(isset($payload['Total']) && is_numeric($payload['Total']) ? $payload['Total'] + 0 : null)
+            ->setContact(
+                is_array($payload['Contact'] ?? null)
+                    ? (new Contacts($this->client))->mapContact($payload['Contact'])
+                    : null
+            );
     }
 }

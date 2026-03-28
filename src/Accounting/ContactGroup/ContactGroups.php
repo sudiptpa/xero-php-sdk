@@ -49,7 +49,7 @@ final class ContactGroups implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $contactGroup): ContactGroup => ContactGroup::fromArray($contactGroup, $this->client),
+            fn (array $contactGroup): ContactGroup => $this->mapContactGroup($contactGroup),
             $payload['ContactGroups'] ?? []
         ));
 
@@ -65,7 +65,7 @@ final class ContactGroups implements DefinesScopes
         $payload = $response->json();
         $contactGroup = $payload['ContactGroups'][0] ?? $payload['ContactGroup'] ?? null;
 
-        return is_array($contactGroup) ? ContactGroup::fromArray($contactGroup, $this->client) : null;
+        return is_array($contactGroup) ? $this->mapContactGroup($contactGroup) : null;
     }
 
     public function create(): Payload
@@ -81,5 +81,26 @@ final class ContactGroups implements DefinesScopes
     public function contacts(string $contactGroupId): ContactAssignments
     {
         return new ContactAssignments($this->client, $contactGroupId);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapContactGroup(array $payload): ContactGroup
+    {
+        $contacts = [];
+
+        foreach (($payload['Contacts'] ?? []) as $contact) {
+            if (is_array($contact) && isset($contact['ContactID']) && is_string($contact['ContactID'])) {
+                $contacts[] = $contact['ContactID'];
+            }
+        }
+
+        return (new ContactGroup($this->client))
+            ->setContactGroupID(isset($payload['ContactGroupID']) ? (string) $payload['ContactGroupID'] : null)
+            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
+            ->setContactIDs($contacts)
+            ;
     }
 }

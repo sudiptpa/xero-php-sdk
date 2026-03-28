@@ -35,7 +35,7 @@ final class Currencies implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $currency): Currency => Currency::fromPayload($currency, $this->client),
+            fn (array $currency): Currency => $this->mapCurrency($currency),
             $payload['Currencies'] ?? []
         ));
 
@@ -45,5 +45,16 @@ final class Currencies implements DefinesScopes
     public function create(): Payload
     {
         return new Payload($this->client);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapCurrency(array $payload): Currency
+    {
+        return (new Currency($this->client))
+            ->setCode(isset($payload['Code']) ? (string) $payload['Code'] : null)
+            ->setDescription(isset($payload['Description']) ? (string) $payload['Description'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null);
     }
 }

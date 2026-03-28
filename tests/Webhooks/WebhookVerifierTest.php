@@ -65,10 +65,10 @@ final class WebhookVerifierTest extends TestCase
         $webhook = Xero::webhookVerifier('webhook-key')->parse($payload);
 
         self::assertInstanceOf(WebhookPayload::class, $webhook);
-        self::assertSame('1', $webhook->firstEventSequence);
+        self::assertSame('1', $webhook->getFirstEventSequence());
         self::assertTrue($webhook->hasEvents());
-        self::assertSame('invoice-1', $webhook->first()?->resourceId);
-        self::assertSame('contact-1', $webhook->last()?->resourceId);
+        self::assertSame('invoice-1', $webhook->first()?->getResourceId());
+        self::assertSame('contact-1', $webhook->last()?->getResourceId());
         self::assertSame(['INVOICE', 'CONTACT'], $webhook->categories());
         self::assertSame(['CREATE', 'UPDATE'], $webhook->eventTypes());
         self::assertSame(2, $webhook->count());
@@ -109,7 +109,7 @@ final class WebhookVerifierTest extends TestCase
         $signature = $verifier->signatureFor($payload);
         $webhook = $verifier->verifyAndParse($payload, $signature);
 
-        self::assertSame('invoice-1', $webhook->first()->resourceId);
+        self::assertSame('invoice-1', $webhook->first()->getResourceId());
         self::assertTrue($webhook->first()->isDelete());
     }
 
@@ -139,7 +139,7 @@ final class WebhookVerifierTest extends TestCase
 
         $parsed = $verifier->verifyAndParseHeaders($payload, $headers);
 
-        self::assertSame('invoice-1', $parsed->first()->resourceId);
+        self::assertSame('invoice-1', $parsed->first()->getResourceId());
         self::assertTrue($parsed->first()->isUpdate());
     }
 }

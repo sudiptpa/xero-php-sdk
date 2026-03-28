@@ -4,29 +4,19 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Finance\FinancialStatement;
 
-final readonly class ContactStatement
+final class ContactStatement
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
     public function __construct(
-        public ?string $contactId,
-        public ?string $name,
-        public ?float $total,
-        public array $raw = []
+        private ?string $contactID = null,
+        private ?string $name = null,
+        private ?float $total = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            isset($payload['ContactID']) ? (string) $payload['ContactID'] : null,
-            isset($payload['Name']) ? (string) $payload['Name'] : null,
-            isset($payload['Total']) ? (float) $payload['Total'] : null,
-            $payload
-        );
-    }
+    public function getContactID(): ?string { return $this->contactID; }
+    public function setContactID(?string $contactID): self { $this->contactID = $contactID; return $this; }
+    public function getName(): ?string { return $this->name; }
+    public function setName(?string $name): self { $this->name = $name; return $this; }
+    public function getTotal(): ?float { return $this->total; }
+    public function setTotal(?float $total): self { $this->total = $total; return $this; }
 }

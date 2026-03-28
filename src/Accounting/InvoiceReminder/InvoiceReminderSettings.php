@@ -4,25 +4,42 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\InvoiceReminder;
 
-final readonly class InvoiceReminderSettings
+final class InvoiceReminderSettings
 {
+    private bool $enabled = false;
+
     /**
-     * @param array<string, mixed> $raw
+     * @var list<int|string>
      */
-    public function __construct(
-        public bool $enabled,
-        public array $raw = []
-    ) {
+    private array $days = [];
+
+    public function getEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    public function setEnabled(bool $enabled): self
+    {
+        $this->enabled = $enabled;
+
+        return $this;
     }
 
     /**
-     * @param array<string, mixed> $payload
+     * @return list<int|string>
      */
-    public static function fromArray(array $payload): self
+    public function getDays(): array
     {
-        return new self(
-            isset($payload['Enabled']) ? (bool) $payload['Enabled'] : false,
-            $payload
-        );
+        return $this->days;
+    }
+
+    /**
+     * @param list<int|string> $days
+     */
+    public function setDays(array $days): self
+    {
+        $this->days = $days;
+
+        return $this;
     }
 }

@@ -27,6 +27,9 @@ $project = $xero->projects()
     ->contact('contact-id')
     ->estimateMinutes(600)
     ->save();
+
+$projectId = $project->getProjectID();
+$projectTitle = $project->getTitle();
 ```
 
 ```php
@@ -57,6 +60,8 @@ $users = $xero->projects()
     ->page(1)
     ->perPage(100)
     ->get();
+
+$email = $users->first()?->getEmailAddress();
 ```
 
 ## Tasks
@@ -76,6 +81,8 @@ $task = $xero->projects()
     ->chargeType('TIME')
     ->rate(150)
     ->save();
+
+$taskId = $task->getTaskID();
 ```
 
 ## Time Entries
@@ -98,6 +105,8 @@ $entry = $xero->projects()
     ->date('2026-03-26T00:00:00Z')
     ->durationMinutes(120)
     ->save();
+
+$minutes = $entry->getDuration();
 ```
 
 ## Scope Notes

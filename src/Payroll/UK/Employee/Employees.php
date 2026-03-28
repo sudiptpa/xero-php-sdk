@@ -53,10 +53,7 @@ final class Employees implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
-            fn (array $employee): Employee => Employee::fromArray($employee, $this->client),
-            $payload['Employees'] ?? []
-        ));
+        $items = array_values(array_map(fn (array $employee): Employee => $this->mapEmployee($employee), $payload['Employees'] ?? []));
 
         return new ResourceCollection($items);
     }
@@ -88,7 +85,7 @@ final class Employees implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $employee = $payload['Employees'][0] ?? $payload['Employee'] ?? null;
 
-        return is_array($employee) ? Employee::fromArray($employee, $this->client) : null;
+        return is_array($employee) ? $this->mapEmployee($employee) : null;
     }
 
     public function create(): Payload
@@ -189,7 +186,7 @@ final class Employees implements PaginatesResults, DefinesScopes
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $leaveType): LeaveType => LeaveType::fromArray($leaveType),
+            fn (array $leaveType): LeaveType => $this->mapLeaveType($leaveType),
             $payload['LeaveTypes'] ?? []
         ));
 
@@ -204,5 +201,31 @@ final class Employees implements PaginatesResults, DefinesScopes
     public function createLeaveType(string $employeeId): LeaveTypePayload
     {
         return new LeaveTypePayload($this->client, $employeeId);
+    }
+
+    /**
+     * @param array<string, mixed> $employee
+     */
+    public function mapEmployee(array $employee): Employee
+    {
+        return (new Employee($this->client))
+            ->setEmployeeID($employee['EmployeeID'] ?? null)
+            ->setFirstName($employee['FirstName'] ?? null)
+            ->setLastName($employee['LastName'] ?? null)
+            ->setEmailAddress($employee['EmailAddress'] ?? null)
+            ->setStatus($employee['Status'] ?? null)
+            ;
+    }
+
+    /**
+     * @param array<string, mixed> $leaveType
+     */
+    public function mapLeaveType(array $leaveType): LeaveType
+    {
+        return (new LeaveType())
+            ->setLeaveTypeID($leaveType['LeaveTypeID'] ?? null)
+            ->setName($leaveType['Name'] ?? null)
+            ->setIsActive(isset($leaveType['IsActive']) ? (bool) $leaveType['IsActive'] : null)
+            ;
     }
 }

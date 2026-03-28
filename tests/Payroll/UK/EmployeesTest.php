@@ -139,6 +139,7 @@ final class EmployeesTest extends TestCase
         self::assertSame('Ada', $transport->requests()[0]->query['filter']);
         self::assertSame(2, $transport->requests()[0]->query['page']);
         self::assertInstanceOf(Employee::class, $employees->first());
+        self::assertSame('Ada', $employees->first()->getFirstName());
         self::assertSame('/payroll.xro/2.0/Employees/employee-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/2.0/Employees', $transport->requests()[2]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-2', $transport->requests()[3]->path);
@@ -153,8 +154,8 @@ final class EmployeesTest extends TestCase
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeaveTypes', $transport->requests()[10]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[11]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeaveTypes', $transport->requests()[12]->path);
-        self::assertSame('employee-2', $created->id);
-        self::assertSame('employee-2', $updated->id);
+        self::assertSame('employee-2', $created->getEmployeeID());
+        self::assertSame('employee-2', $updated->getEmployeeID());
         self::assertSame('Holiday', $leaveBalances['LeaveBalances'][0]['Name']);
         self::assertEquals(2.0, $statutoryLeaveBalance['StatutoryLeaveBalance']['Balance']);
         self::assertSame('leave-1', $leaves['Leave'][0]['LeaveID']);
@@ -162,7 +163,7 @@ final class EmployeesTest extends TestCase
         self::assertSame('Main bank account', $paymentMethod['PaymentMethod']['Name']);
         self::assertSame('2020-01-15', $employment['Employment']['StartDate']);
         self::assertInstanceOf(LeaveType::class, $leaveTypes->first());
-        self::assertSame('leave-type-1', $leaveTypes->first()->id);
+        self::assertSame('leave-type-1', $leaveTypes->first()->getLeaveTypeID());
         self::assertSame('leave-2', $createdLeave['EmployeeLeave']['LeaveID']);
         self::assertSame('leave-type-2', $createdLeaveType['EmployeeLeaveType']['LeaveTypeID']);
     }

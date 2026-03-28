@@ -87,6 +87,7 @@ final class Payload
         $payload = $response->json();
         $account = $payload['Accounts'][0] ?? [];
 
-        return Account::fromPayload(is_array($account) ? $account : [], $this->client);
+        return (new Accounts($this->client))
+            ->mapAccount(is_array($account) ? $account : []);
     }
 }

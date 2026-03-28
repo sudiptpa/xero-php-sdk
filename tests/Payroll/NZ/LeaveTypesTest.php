@@ -40,6 +40,6 @@ final class LeaveTypesTest extends TestCase
         self::assertSame(2, $transport->requests()[0]->query['page']);
         self::assertInstanceOf(LeaveType::class, $types->first());
         self::assertSame('/payroll.xro/2.0/LeaveTypes/leave-type-1', $transport->requests()[1]->path);
-        self::assertSame('leave-type-1', $type?->id);
+        self::assertSame('leave-type-1', $type?->getLeaveTypeID());
     }
 }

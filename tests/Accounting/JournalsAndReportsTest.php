@@ -57,8 +57,8 @@ final class JournalsAndReportsTest extends TestCase
         self::assertInstanceOf(Journal::class, $journals->first());
         self::assertSame('/api.xro/2.0/Journals/journal-1', $transport->requests()[1]->path);
         self::assertSame('/api.xro/2.0/Journals/1251', $transport->requests()[2]->path);
-        self::assertSame(1251, $journalByNumber?->journalNumber);
-        self::assertSame('journal-1', $journal?->id);
+        self::assertSame(1251, $journalByNumber?->getJournalNumber());
+        self::assertSame('journal-1', $journal?->getJournalID());
     }
 
     public function test_it_can_list_and_fetch_reports(): void
@@ -116,8 +116,8 @@ final class JournalsAndReportsTest extends TestCase
         self::assertSame('/api.xro/2.0/Reports/AgedReceivablesByContact', $transport->requests()[3]->path);
         self::assertSame('contact-1', $transport->requests()[3]->query['contactId']);
         self::assertSame('2026-03-25', $transport->requests()[3]->query['date']);
-        self::assertSame('Custom Report', $custom?->title);
-        self::assertSame('Profit and Loss', $profitAndLoss?->title);
-        self::assertSame('Aged Receivables By Contact', $agedReceivables?->title);
+        self::assertSame('Custom Report', $custom?->getTitle());
+        self::assertSame('Profit and Loss', $profitAndLoss?->getTitle());
+        self::assertSame('Aged Receivables By Contact', $agedReceivables?->getTitle());
     }
 }

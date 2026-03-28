@@ -106,6 +106,7 @@ final class Draft
         $payload = $response->json();
         $invoice = $payload['Invoices'][0] ?? [];
 
-        return Invoice::fromArray(is_array($invoice) ? $invoice : [], $this->client);
+        return (new Invoices($this->client))
+            ->mapInvoice(is_array($invoice) ? $invoice : []);
     }
 }

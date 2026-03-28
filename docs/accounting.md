@@ -137,6 +137,7 @@ $contact = $xero->accounting()
 
 ```php
 use Sujip\Xero\Accounting\Invoice\Invoice;
+use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Accounting\Invoice\LineItem;
 
 $invoice = $xero->accounting()
@@ -146,7 +147,10 @@ $invoice = $xero->accounting()
         (new Invoice())
             ->setType('ACCREC')
             ->setStatus('DRAFT')
-            ->setContactID('contact-id')
+            ->setContact(
+                (new Contact())
+                    ->setContactID('contact-id')
+            )
             ->setReference('PO-1001')
             ->addLineItem(
                 (new LineItem())
@@ -212,11 +216,15 @@ $history = $xero->accounting()
 $settings = $xero->accounting()
     ->invoiceReminders()
     ->settings();
+
+$enabled = $settings->getEnabled();
+$days = $settings->getDays();
 ```
 
 ## Payments
 
 ```php
+use Sujip\Xero\Accounting\Account\Account;
 use Sujip\Xero\Accounting\Payment\Payment;
 
 $payment = $xero->accounting()
@@ -225,7 +233,10 @@ $payment = $xero->accounting()
     ->using(
         (new Payment())
             ->setInvoiceID('invoice-id')
-            ->setAccountID('account-id')
+            ->setAccount(
+                (new Account())
+                    ->setAccountID('account-id')
+            )
             ->setDate('2026-03-25')
             ->setAmount(150)
             ->setReference('PAY-1001')
@@ -270,6 +281,14 @@ $binary = $xero->accounting()
     ->receipts()
     ->attachments('receipt-id')
     ->download('receipt.jpg', 'image/jpeg');
+```
+
+```php
+$receipt = $xero->accounting()
+    ->receipts()
+    ->find('receipt-id');
+
+$contactId = $receipt?->getContact()?->getContactID();
 ```
 
 ## Accounts
@@ -471,6 +490,10 @@ $employees = $xero->accounting()
     ->where('Status == :status', status: 'ACTIVE')
     ->orderBy('LastName')
     ->get();
+
+$firstEmployee = $employees->first();
+$employeeId = $firstEmployee?->getEmployeeID();
+$firstName = $firstEmployee?->getFirstName();
 ```
 
 ```php
@@ -798,6 +821,10 @@ $repeatingInvoice = $xero->accounting()
 $services = $xero->accounting()
     ->paymentServices()
     ->get();
+
+$firstService = $services->first();
+$serviceName = $firstService?->getPaymentServiceName();
+$payNowText = $firstService?->getPayNowText();
 ```
 
 ```php
@@ -817,6 +844,10 @@ $claims = $xero->accounting()
     ->expenseClaims()
     ->where('Status == :status', status: 'SUBMITTED')
     ->get();
+
+$firstClaim = $claims->first();
+$claimId = $firstClaim?->getExpenseClaimID();
+$status = $firstClaim?->getStatus();
 ```
 
 ```php
@@ -843,6 +874,9 @@ $journals = $xero->accounting()
 $journal = $xero->accounting()
     ->journals()
     ->number(1251);
+
+$journalId = $journal?->getJournalID();
+$journalNumber = $journal?->getJournalNumber();
 ```
 
 ## Reports
@@ -851,6 +885,10 @@ $journal = $xero->accounting()
 $reports = $xero->accounting()
     ->reports()
     ->list();
+
+$firstReport = $reports->first();
+$reportName = $firstReport?->getReportName();
+$reportType = $firstReport?->getReportType();
 ```
 
 ```php
@@ -860,6 +898,8 @@ $profitAndLoss = $xero->accounting()
         'fromDate' => new DateTimeImmutable('2026-01-01'),
         'toDate' => new DateTimeImmutable('2026-03-25'),
     ]);
+
+$title = $profitAndLoss?->getTitle();
 ```
 
 ## Scope Notes

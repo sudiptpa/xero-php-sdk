@@ -6,38 +6,36 @@ namespace Sujip\Xero\Webhooks;
 
 use Sujip\Xero\Support\ResourceCollection;
 
-final readonly class WebhookPayload
+final class WebhookPayload
 {
     /**
-     * @param ResourceCollection<WebhookEvent> $events
-     * @param array<string, mixed> $raw
+     * @var ResourceCollection<WebhookEvent>
      */
-    public function __construct(
-        public string $firstEventSequence,
-        public string $lastEventSequence,
-        public ResourceCollection $events,
-        public array $raw = []
-    ) {
-    }
+    private ResourceCollection $events;
 
     /**
-     * @param array<string, mixed> $payload
+     * @param ResourceCollection<WebhookEvent> $events
      */
-    public static function fromArray(array $payload): self
-    {
-        $events = array_values(array_map(
-            static fn (array $event): WebhookEvent => WebhookEvent::fromArray($event),
-            $payload['events'] ?? []
-        ));
-
-        return new self(
-            (string) ($payload['firstEventSequence'] ?? ''),
-            (string) ($payload['lastEventSequence'] ?? ''),
-            new ResourceCollection($events),
-            $payload
-        );
+    public function __construct(
+        private string $firstEventSequence = '',
+        private string $lastEventSequence = '',
+        ?ResourceCollection $events = null,
+    ) {
+        $this->events = $events ?? new ResourceCollection([]);
     }
 
+    public function getFirstEventSequence(): string { return $this->firstEventSequence; }
+    public function setFirstEventSequence(string $firstEventSequence): self { $this->firstEventSequence = $firstEventSequence; return $this; }
+    public function getLastEventSequence(): string { return $this->lastEventSequence; }
+    public function setLastEventSequence(string $lastEventSequence): self { $this->lastEventSequence = $lastEventSequence; return $this; }
+    /**
+     * @return ResourceCollection<WebhookEvent>
+     */
+    public function getEvents(): ResourceCollection { return $this->events; }
+    /**
+     * @param ResourceCollection<WebhookEvent> $events
+     */
+    public function setEvents(ResourceCollection $events): self { $this->events = $events; return $this; }
     public function hasEvents(): bool
     {
         return $this->events->count() > 0;
@@ -80,8 +78,8 @@ final readonly class WebhookPayload
         $categories = [];
 
         foreach ($this->events as $event) {
-            if ($event->eventCategory !== null) {
-                $categories[] = $event->eventCategory;
+            if ($event->getEventCategory() !== null) {
+                $categories[] = $event->getEventCategory();
             }
         }
 
@@ -96,8 +94,8 @@ final readonly class WebhookPayload
         $types = [];
 
         foreach ($this->events as $event) {
-            if ($event->eventType !== null) {
-                $types[] = $event->eventType;
+            if ($event->getEventType() !== null) {
+                $types[] = $event->getEventType();
             }
         }
 
@@ -144,8 +142,8 @@ final readonly class WebhookPayload
         $ids = [];
 
         foreach ($this->events as $event) {
-            if ($event->resourceId !== null) {
-                $ids[] = $event->resourceId;
+            if ($event->getResourceId() !== null) {
+                $ids[] = $event->getResourceId();
             }
         }
 

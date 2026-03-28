@@ -4,29 +4,48 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\PaymentService;
 
-final readonly class PaymentService
+final class PaymentService
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
-    public function __construct(
-        public ?string $paymentServiceName,
-        public ?string $paymentServiceUrl,
-        public ?string $payNowText,
-        public array $raw = []
-    ) {
+    private ?string $paymentServiceName = null;
+
+    private ?string $paymentServiceUrl = null;
+
+    private ?string $payNowText = null;
+
+    public function getPaymentServiceName(): ?string
+    {
+        return $this->paymentServiceName;
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
+    public function setPaymentServiceName(?string $paymentServiceName): self
     {
-        return new self(
-            $payload['PaymentServiceName'] ?? null,
-            $payload['PaymentServiceUrl'] ?? null,
-            $payload['PayNowText'] ?? null,
-            $payload
-        );
+        $this->paymentServiceName = $paymentServiceName;
+
+        return $this;
     }
+
+    public function getPaymentServiceUrl(): ?string
+    {
+        return $this->paymentServiceUrl;
+    }
+
+    public function setPaymentServiceUrl(?string $paymentServiceUrl): self
+    {
+        $this->paymentServiceUrl = $paymentServiceUrl;
+
+        return $this;
+    }
+
+    public function getPayNowText(): ?string
+    {
+        return $this->payNowText;
+    }
+
+    public function setPayNowText(?string $payNowText): self
+    {
+        $this->payNowText = $payNowText;
+
+        return $this;
+    }
+
 }

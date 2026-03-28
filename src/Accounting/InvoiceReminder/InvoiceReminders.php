@@ -32,6 +32,16 @@ final readonly class InvoiceReminders implements DefinesScopes
 
         $settings = $payload['InvoiceReminders'] ?? $payload['InvoiceReminderSettings'] ?? $payload;
 
-        return InvoiceReminderSettings::fromArray(is_array($settings) ? $settings : []);
+        return $this->mapInvoiceReminderSettings(is_array($settings) ? $settings : []);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapInvoiceReminderSettings(array $payload): InvoiceReminderSettings
+    {
+        return (new InvoiceReminderSettings())
+            ->setEnabled(isset($payload['Enabled']) ? (bool) $payload['Enabled'] : false)
+            ->setDays(array_values(array_filter($payload['Days'] ?? [], static fn (mixed $day): bool => is_int($day) || is_string($day))));
     }
 }

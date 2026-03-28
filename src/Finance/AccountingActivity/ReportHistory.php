@@ -4,29 +4,19 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Finance\AccountingActivity;
 
-final readonly class ReportHistory
+final class ReportHistory
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
     public function __construct(
-        public ?string $reportName,
-        public ?string $publishedDateUtc,
-        public ?string $publishedBy,
-        public array $raw = []
+        private ?string $reportName = null,
+        private ?string $publishedDateUTC = null,
+        private ?string $publishedBy = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            isset($payload['ReportName']) ? (string) $payload['ReportName'] : null,
-            isset($payload['PublishedDateUTC']) ? (string) $payload['PublishedDateUTC'] : null,
-            isset($payload['PublishedBy']) ? (string) $payload['PublishedBy'] : null,
-            $payload
-        );
-    }
+    public function getReportName(): ?string { return $this->reportName; }
+    public function setReportName(?string $reportName): self { $this->reportName = $reportName; return $this; }
+    public function getPublishedDateUTC(): ?string { return $this->publishedDateUTC; }
+    public function setPublishedDateUTC(?string $publishedDateUTC): self { $this->publishedDateUTC = $publishedDateUTC; return $this; }
+    public function getPublishedBy(): ?string { return $this->publishedBy; }
+    public function setPublishedBy(?string $publishedBy): self { $this->publishedBy = $publishedBy; return $this; }
 }

@@ -7,42 +7,72 @@ namespace Sujip\Xero\Accounting\RepeatingInvoice;
 use RuntimeException;
 use Sujip\Xero\Client;
 
-final readonly class RepeatingInvoice
+final class RepeatingInvoice
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
+    private ?string $repeatingInvoiceID = null;
+
+    private ?string $type = null;
+
+    private ?string $status = null;
+
+    private ?string $reference = null;
+
     public function __construct(
-        public ?string $id,
-        public ?string $type,
-        public ?string $status,
-        public ?string $reference,
-        public array $raw = [],
         private ?Client $client = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
+    public function getRepeatingInvoiceID(): ?string
     {
-        return new self(
-            $payload['RepeatingInvoiceID'] ?? null,
-            $payload['Type'] ?? null,
-            $payload['Status'] ?? null,
-            $payload['Reference'] ?? null,
-            $payload,
-            $client
-        );
+        return $this->repeatingInvoiceID;
+    }
+
+    public function setRepeatingInvoiceID(?string $repeatingInvoiceID): self
+    {
+        $this->repeatingInvoiceID = $repeatingInvoiceID;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    public function setReference(?string $reference): self
+    {
+        $this->reference = $reference;
+
+        return $this;
     }
 
     public function reference(string $reference): self
     {
-        $payload = $this->raw;
-        $payload['Reference'] = $reference;
-
-        return new self($this->id, $this->type, $this->status, $reference, $payload, $this->client);
+        return $this->setReference($reference);
     }
 
     public function save(): self
@@ -53,8 +83,8 @@ final readonly class RepeatingInvoice
 
         $payload = new Payload($this->client);
 
-        if ($this->id !== null) {
-            $payload = $payload->id($this->id);
+        if ($this->repeatingInvoiceID !== null) {
+            $payload = $payload->id($this->repeatingInvoiceID);
         }
 
         if ($this->type !== null) {

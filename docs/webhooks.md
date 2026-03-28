@@ -32,7 +32,7 @@ $verifier->assertValidHeaders($rawPayload, $headers);
 ```php
 $payload = $verifier->parse($rawPayload);
 
-foreach ($payload->events as $event) {
+foreach ($payload->getEvents() as $event) {
     // handle the event
 }
 ```
@@ -59,7 +59,7 @@ if ($payload->contains('invoice', 'create')) {
 }
 
 if ($first?->isCreate()) {
-    $resourceId = $first->resourceId;
+    $resourceId = $first->getResourceId();
     $path = $first->path();
     $resource = $first->resourceName();
 }

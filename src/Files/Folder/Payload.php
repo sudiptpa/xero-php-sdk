@@ -62,7 +62,11 @@ final class Payload
         $payload = $response->json();
         $folder = $payload['Items'][0] ?? [];
 
-        return Folder::fromArray(is_array($folder) ? $folder : [], $this->client);
+        if (! is_array($folder)) {
+            return new Folder($this->client);
+        }
+
+        return (new Folders($this->client))->mapFolder($folder);
     }
 
     /**

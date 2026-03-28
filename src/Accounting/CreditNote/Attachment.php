@@ -18,17 +18,4 @@ final readonly class Attachment
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            $payload['AttachmentID'] ?? null,
-            $payload['FileName'] ?? null,
-            $payload['MimeType'] ?? null,
-            isset($payload['IncludeOnline']) ? (bool) $payload['IncludeOnline'] : null,
-            $payload
-        );
-    }
 }

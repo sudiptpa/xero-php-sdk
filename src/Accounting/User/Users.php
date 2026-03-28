@@ -49,10 +49,23 @@ final class Users implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $user): User => User::fromPayload($user),
+            fn (array $user): User => $this->mapUser($user),
             $payload['Users'] ?? []
         ));
 
         return new ResourceCollection($items);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapUser(array $payload): User
+    {
+        return (new User())
+            ->setUserID(isset($payload['UserID']) ? (string) $payload['UserID'] : null)
+            ->setFirstName(isset($payload['FirstName']) ? (string) $payload['FirstName'] : null)
+            ->setLastName(isset($payload['LastName']) ? (string) $payload['LastName'] : null)
+            ->setEmailAddress(isset($payload['EmailAddress']) ? (string) $payload['EmailAddress'] : null)
+            ->setIsSubscriber(isset($payload['IsSubscriber']) ? (bool) $payload['IsSubscriber'] : null);
     }
 }

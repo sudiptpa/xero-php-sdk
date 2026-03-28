@@ -38,7 +38,7 @@ final class RepeatingInvoicesTest extends TestCase
         self::assertSame('/api.xro/2.0/RepeatingInvoices', $transport->requests()[0]->path);
         self::assertInstanceOf(RepeatingInvoice::class, $repeatingInvoices->first());
         self::assertSame('/api.xro/2.0/RepeatingInvoices/repeat-1', $transport->requests()[1]->path);
-        self::assertSame('repeat-1', $repeatingInvoice?->id);
+        self::assertSame('repeat-1', $repeatingInvoice?->getRepeatingInvoiceID());
     }
 
     public function test_it_can_create_and_update_repeating_invoices(): void
@@ -74,6 +74,6 @@ final class RepeatingInvoicesTest extends TestCase
         self::assertSame('contact-1', $transport->requests()[0]->json['RepeatingInvoices'][0]['Contact']['ContactID']);
         self::assertSame('/api.xro/2.0/RepeatingInvoices', $transport->requests()[1]->path);
         self::assertSame('repeat-1', $transport->requests()[1]->json['RepeatingInvoices'][0]['RepeatingInvoiceID']);
-        self::assertSame('RI-1002', $updated->reference);
+        self::assertSame('RI-1002', $updated->getReference());
     }
 }

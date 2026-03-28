@@ -19,12 +19,20 @@ Usage writes follow the documented subscription-item path, so you set the subscr
 $subscription = $xero->appStore()
     ->subscriptions()
     ->find('subscription-id');
+
+$subscriptionId = $subscription->getSubscriptionID();
+$planId = $subscription->getPlanID();
+$status = $subscription->getStatus();
+$items = $subscription->getItems();
 ```
 
 ## Usage Records
 
 ```php
 $usageRecords = $subscription?->usageRecords();
+
+$usageRecordId = $usageRecords->first()?->getUsageRecordID();
+$quantity = $usageRecords->first()?->getQuantity();
 ```
 
 ```php
@@ -34,6 +42,8 @@ $usage = $subscription?->recordUsage()
     ->startDate('2026-03-01')
     ->endDate('2026-03-31')
     ->save();
+
+$createdUsageId = $usage->getUsageRecordID();
 ```
 
 ```php
@@ -45,6 +55,8 @@ $updated = $xero->appStore()
     ->startDate('2026-03-01')
     ->endDate('2026-03-31')
     ->save();
+
+$updatedQuantity = $updated->getQuantity();
 ```
 
 ## Scope Notes

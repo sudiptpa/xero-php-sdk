@@ -4,31 +4,61 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Prepayment;
 
-final readonly class Prepayment
+final class Prepayment
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
-    public function __construct(
-        public ?string $id,
-        public ?string $type,
-        public ?string $status,
-        public int|float|null $remainingCredit = null,
-        public array $raw = []
-    ) {
+    private ?string $prepaymentID = null;
+
+    private ?string $type = null;
+
+    private ?string $status = null;
+
+    private int|float|null $remainingCredit = null;
+
+    public function getPrepaymentID(): ?string
+    {
+        return $this->prepaymentID;
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
+    public function setPrepaymentID(?string $prepaymentID): self
     {
-        return new self(
-            $payload['PrepaymentID'] ?? null,
-            $payload['Type'] ?? null,
-            $payload['Status'] ?? null,
-            $payload['RemainingCredit'] ?? null,
-            $payload
-        );
+        $this->prepaymentID = $prepaymentID;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getRemainingCredit(): int|float|null
+    {
+        return $this->remainingCredit;
+    }
+
+    public function setRemainingCredit(int|float|null $remainingCredit): self
+    {
+        $this->remainingCredit = $remainingCredit;
+
+        return $this;
     }
 }

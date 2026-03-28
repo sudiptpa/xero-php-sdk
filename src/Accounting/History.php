@@ -26,7 +26,12 @@ final readonly class History
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $history): HistoryRecord => HistoryRecord::fromArray($history),
+            static fn (array $history): HistoryRecord => new HistoryRecord(
+                isset($history['Details']) ? (string) $history['Details'] : null,
+                isset($history['DateUTC']) ? (string) $history['DateUTC'] : null,
+                isset($history['User']) ? (string) $history['User'] : null,
+                $history
+            ),
             $payload['HistoryRecords'] ?? []
         ));
 
@@ -47,6 +52,13 @@ final readonly class History
 
         $history = $payload['HistoryRecords'][0] ?? [];
 
-        return HistoryRecord::fromArray(is_array($history) ? $history : []);
+        $history = is_array($history) ? $history : [];
+
+        return new HistoryRecord(
+            isset($history['Details']) ? (string) $history['Details'] : null,
+            isset($history['DateUTC']) ? (string) $history['DateUTC'] : null,
+            isset($history['User']) ? (string) $history['User'] : null,
+            $history
+        );
     }
 }

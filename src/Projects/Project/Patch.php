@@ -58,6 +58,10 @@ final class Patch
         $payload = $response->json();
         $project = Projects::single($payload);
 
-        return Project::fromArray(is_array($project) ? $project : [], $this->client);
+        if (! is_array($project)) {
+            return new Project($this->client);
+        }
+
+        return (new Projects($this->client))->mapProject($project);
     }
 }

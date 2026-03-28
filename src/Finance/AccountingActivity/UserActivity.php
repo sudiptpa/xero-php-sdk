@@ -4,29 +4,19 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Finance\AccountingActivity;
 
-final readonly class UserActivity
+final class UserActivity
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
     public function __construct(
-        public ?string $userId,
-        public ?string $fullName,
-        public ?int $transactionCount,
-        public array $raw = []
+        private ?string $userId = null,
+        private ?string $fullName = null,
+        private ?int $transactionCount = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            isset($payload['UserId']) ? (string) $payload['UserId'] : null,
-            isset($payload['FullName']) ? (string) $payload['FullName'] : null,
-            isset($payload['TransactionCount']) ? (int) $payload['TransactionCount'] : null,
-            $payload
-        );
-    }
+    public function getUserId(): ?string { return $this->userId; }
+    public function setUserId(?string $userId): self { $this->userId = $userId; return $this; }
+    public function getFullName(): ?string { return $this->fullName; }
+    public function setFullName(?string $fullName): self { $this->fullName = $fullName; return $this; }
+    public function getTransactionCount(): ?int { return $this->transactionCount; }
+    public function setTransactionCount(?int $transactionCount): self { $this->transactionCount = $transactionCount; return $this; }
 }

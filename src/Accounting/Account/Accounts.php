@@ -53,7 +53,7 @@ final class Accounts implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $account): Account => Account::fromPayload($account, $this->client),
+            fn (array $account): Account => $this->mapAccount($account),
             $payload['Accounts'] ?? []
         ));
 
@@ -92,7 +92,7 @@ final class Accounts implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $account = $payload['Accounts'][0] ?? null;
 
-        return is_array($account) ? Account::fromPayload($account, $this->client) : null;
+        return is_array($account) ? $this->mapAccount($account) : null;
     }
 
     public function create(): Payload
@@ -103,5 +103,19 @@ final class Accounts implements PaginatesResults, DefinesScopes
     public function update(string $accountId): Payload
     {
         return (new Payload($this->client))->id($accountId);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapAccount(array $payload): Account
+    {
+        return (new Account($this->client))
+            ->setAccountID(isset($payload['AccountID']) ? (string) $payload['AccountID'] : null)
+            ->setCode(isset($payload['Code']) ? (string) $payload['Code'] : null)
+            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
+            ->setType(isset($payload['Type']) ? (string) $payload['Type'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
+            ->setDescription(isset($payload['Description']) ? (string) $payload['Description'] : null);
     }
 }

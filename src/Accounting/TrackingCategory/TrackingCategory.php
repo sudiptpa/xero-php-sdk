@@ -6,10 +6,9 @@ namespace Sujip\Xero\Accounting\TrackingCategory;
 
 use RuntimeException;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class TrackingCategory implements BuildsFromPayload, SerializesForRequest
+final class TrackingCategory implements SerializesForRequest
 {
     public function __construct(
         private ?Client $client = null
@@ -26,33 +25,6 @@ final class TrackingCategory implements BuildsFromPayload, SerializesForRequest
      * @var list<Option>
      */
     private array $options = [];
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?Client $client = null): static
-    {
-        $trackingCategory = (new self($client))
-            ->setTrackingCategoryID($payload['TrackingCategoryID'] ?? null)
-            ->setName($payload['Name'] ?? null)
-            ->setStatus($payload['Status'] ?? null);
-
-        foreach ($payload['Options'] ?? [] as $option) {
-            if (is_array($option)) {
-                $trackingCategory->addOption(Option::fromPayload($option));
-            }
-        }
-
-        return $trackingCategory;
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
-    }
 
     public function getTrackingCategoryID(): ?string
     {

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\PurchaseOrder;
 
 use Sujip\Xero\Accounting\History;
+use Sujip\Xero\Accounting\Contact\Contacts;
+use Sujip\Xero\Accounting\Invoice\Invoices;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
@@ -54,7 +56,7 @@ final class PurchaseOrders implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $purchaseOrder): PurchaseOrder => PurchaseOrder::fromPayload($purchaseOrder, $this->client),
+            fn (array $purchaseOrder): PurchaseOrder => $this->mapPurchaseOrder($purchaseOrder),
             $payload['PurchaseOrders'] ?? []
         ));
 
@@ -86,7 +88,7 @@ final class PurchaseOrders implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $purchaseOrder = $payload['PurchaseOrders'][0] ?? null;
 
-        return is_array($purchaseOrder) ? PurchaseOrder::fromPayload($purchaseOrder, $this->client) : null;
+        return is_array($purchaseOrder) ? $this->mapPurchaseOrder($purchaseOrder) : null;
     }
 
     public function create(): Payload
@@ -117,5 +119,29 @@ final class PurchaseOrders implements PaginatesResults, DefinesScopes
             ->send();
 
         return $response->body;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapPurchaseOrder(array $payload): PurchaseOrder
+    {
+        $purchaseOrder = (new PurchaseOrder($this->client))
+            ->setPurchaseOrderID(isset($payload['PurchaseOrderID']) ? (string) $payload['PurchaseOrderID'] : null)
+            ->setPurchaseOrderNumber(isset($payload['PurchaseOrderNumber']) ? (string) $payload['PurchaseOrderNumber'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
+            ->setReference(isset($payload['Reference']) ? (string) $payload['Reference'] : null);
+
+        if (is_array($payload['Contact'] ?? null)) {
+            $purchaseOrder->setContact((new Contacts($this->client))->mapContact($payload['Contact']));
+        }
+
+        foreach ($payload['LineItems'] ?? [] as $lineItem) {
+            if (is_array($lineItem)) {
+                $purchaseOrder->addLineItem((new Invoices($this->client))->mapLineItem($lineItem));
+            }
+        }
+
+        return $purchaseOrder;
     }
 }

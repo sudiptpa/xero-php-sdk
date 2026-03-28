@@ -9,52 +9,86 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Files\File\Files as FilesResource;
 use Sujip\Xero\Files\File\Upload;
 
-final readonly class Folder
+final class Folder
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
+    private ?string $id = null;
+
+    private ?string $name = null;
+
+    private int|string|null $fileCount = null;
+
+    private ?string $email = null;
+
+    private ?bool $isInbox = null;
+
     public function __construct(
-        public ?string $id,
-        public ?string $name,
-        public int|string|null $fileCount = null,
-        public ?string $email = null,
-        public ?bool $isInbox = null,
-        public array $raw = [],
         private ?Client $client = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
+    public function getId(): ?string
     {
-        return new self(
-            $payload['Id'] ?? null,
-            $payload['Name'] ?? null,
-            $payload['FileCount'] ?? null,
-            $payload['Email'] ?? null,
-            $payload['IsInbox'] ?? null,
-            $payload,
-            $client
-        );
+        return $this->id;
+    }
+
+    public function setId(?string $id): self
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getFileCount(): int|string|null
+    {
+        return $this->fileCount;
+    }
+
+    public function setFileCount(int|string|null $fileCount): self
+    {
+        $this->fileCount = $fileCount;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getIsInbox(): ?bool
+    {
+        return $this->isInbox;
+    }
+
+    public function setIsInbox(?bool $isInbox): self
+    {
+        $this->isInbox = $isInbox;
+
+        return $this;
     }
 
     public function name(string $name): self
     {
-        $payload = $this->raw;
-        $payload['Name'] = $name;
-
-        return new self(
-            $this->id,
-            $name,
-            $this->fileCount,
-            $this->email,
-            $this->isInbox,
-            $payload,
-            $this->client
-        );
+        return $this->setName($name);
     }
 
     public function save(): self

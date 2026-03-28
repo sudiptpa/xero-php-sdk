@@ -79,6 +79,7 @@ final class Payload
         $payload = $response->json();
         $repeatingInvoice = $payload['RepeatingInvoices'][0] ?? [];
 
-        return RepeatingInvoice::fromArray(is_array($repeatingInvoice) ? $repeatingInvoice : [], $this->client);
+        return (new RepeatingInvoices($this->client))
+            ->mapRepeatingInvoice(is_array($repeatingInvoice) ? $repeatingInvoice : []);
     }
 }

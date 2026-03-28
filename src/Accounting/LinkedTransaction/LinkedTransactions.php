@@ -84,7 +84,7 @@ final class LinkedTransactions implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $linkedTransaction): LinkedTransaction => LinkedTransaction::fromArray($linkedTransaction),
+            fn (array $linkedTransaction): LinkedTransaction => $this->mapLinkedTransaction($linkedTransaction),
             $payload['LinkedTransactions'] ?? []
         ));
 
@@ -94,5 +94,18 @@ final class LinkedTransactions implements DefinesScopes
     public function create(): Payload
     {
         return new Payload($this->client);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapLinkedTransaction(array $payload): LinkedTransaction
+    {
+        return (new LinkedTransaction())
+            ->setLinkedTransactionID(isset($payload['LinkedTransactionID']) ? (string) $payload['LinkedTransactionID'] : null)
+            ->setSourceTransactionID(isset($payload['SourceTransactionID']) ? (string) $payload['SourceTransactionID'] : null)
+            ->setTargetTransactionID(isset($payload['TargetTransactionID']) ? (string) $payload['TargetTransactionID'] : null)
+            ->setContactID(isset($payload['ContactID']) ? (string) $payload['ContactID'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null);
     }
 }

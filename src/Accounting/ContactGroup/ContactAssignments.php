@@ -29,7 +29,8 @@ final readonly class ContactAssignments
         $payload = $response->json();
         $contactGroup = $payload['ContactGroups'][0] ?? $payload['ContactGroup'] ?? [];
 
-        return ContactGroup::fromArray(is_array($contactGroup) ? $contactGroup : [], $this->client);
+        return (new ContactGroups($this->client))
+            ->mapContactGroup(is_array($contactGroup) ? $contactGroup : []);
     }
 
     public function remove(string $contactId): bool

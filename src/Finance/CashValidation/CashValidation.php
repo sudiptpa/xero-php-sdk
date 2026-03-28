@@ -36,6 +36,13 @@ final readonly class CashValidation implements DefinesScopes
 
         $result = $payload['CashValidation'] ?? $payload;
 
-        return CashValidationResult::fromArray(is_array($result) ? $result : []);
+        if (! is_array($result)) {
+            return new CashValidationResult();
+        }
+
+        return (new CashValidationResult())
+            ->setStatus(isset($result['Status']) ? (string) $result['Status'] : null)
+            ->setBalance(isset($result['Balance']) ? (float) $result['Balance'] : null)
+            ->setCurrency(isset($result['Currency']) ? (string) $result['Currency'] : null);
     }
 }

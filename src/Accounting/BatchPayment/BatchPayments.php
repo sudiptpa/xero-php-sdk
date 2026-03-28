@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\BatchPayment;
 
+use Sujip\Xero\Accounting\Account\Accounts;
 use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
@@ -54,7 +55,7 @@ final class BatchPayments implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $batchPayment): BatchPayment => BatchPayment::fromArray($batchPayment, $this->client),
+            fn (array $batchPayment): BatchPayment => $this->mapBatchPayment($batchPayment),
             $payload['BatchPayments'] ?? []
         ));
 
@@ -85,7 +86,7 @@ final class BatchPayments implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $batchPayment = $payload['BatchPayments'][0] ?? null;
 
-        return is_array($batchPayment) ? BatchPayment::fromArray($batchPayment, $this->client) : null;
+        return is_array($batchPayment) ? $this->mapBatchPayment($batchPayment) : null;
     }
 
     public function create(): Payload
@@ -96,5 +97,43 @@ final class BatchPayments implements PaginatesResults, DefinesScopes
     public function history(string $batchPaymentId): History
     {
         return new History($this->client, '/api.xro/2.0/BatchPayments/' . $batchPaymentId . '/History');
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapBatchPayment(array $payload): BatchPayment
+    {
+        $batchPayment = (new BatchPayment($this->client))
+            ->setBatchPaymentID(isset($payload['BatchPaymentID']) ? (string) $payload['BatchPaymentID'] : null)
+            ->setReference(isset($payload['Reference']) ? (string) $payload['Reference'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
+            ->setAmount(isset($payload['Amount']) && is_numeric($payload['Amount']) ? $payload['Amount'] + 0 : null);
+
+        if (is_array($payload['Account'] ?? null)) {
+            $batchPayment->setAccount((new Accounts($this->client))->mapAccount($payload['Account']));
+        }
+
+        foreach ($payload['Payments'] ?? [] as $payment) {
+            if (is_array($payment)) {
+                $batchPayment->addPayment($this->mapPaymentEntry($payment));
+            }
+        }
+
+        return $batchPayment;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapPaymentEntry(array $payload): PaymentEntry
+    {
+        return (new PaymentEntry())
+            ->setInvoiceID(
+                isset($payload['Invoice']['InvoiceID']) && is_string($payload['Invoice']['InvoiceID'])
+                    ? $payload['Invoice']['InvoiceID']
+                    : null
+            )
+            ->setAmount(isset($payload['Amount']) && is_numeric($payload['Amount']) ? $payload['Amount'] + 0 : null);
     }
 }

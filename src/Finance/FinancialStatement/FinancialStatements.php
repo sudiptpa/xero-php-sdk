@@ -94,7 +94,13 @@ final readonly class FinancialStatements implements DefinesScopes
 
         $statement = $payload['FinancialStatement'] ?? $payload['Report'] ?? $payload;
 
-        return Statement::fromArray($type, is_array($statement) ? $statement : []);
+        if (! is_array($statement)) {
+            return new Statement($type);
+        }
+
+        return (new Statement())
+            ->setType($type)
+            ->setRows(array_values($statement['Rows'] ?? $statement['rows'] ?? []));
     }
 
     /**
@@ -120,7 +126,7 @@ final readonly class FinancialStatements implements DefinesScopes
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $statement): ContactStatement => ContactStatement::fromArray($statement),
+            fn (array $statement): ContactStatement => $this->mapContactStatement($statement),
             $payload['Items'] ?? $payload['Contacts'] ?? []
         ));
 
@@ -143,5 +149,16 @@ final readonly class FinancialStatements implements DefinesScopes
         }
 
         return $query;
+    }
+
+    /**
+     * @param array<string, mixed> $statement
+     */
+    private function mapContactStatement(array $statement): ContactStatement
+    {
+        return (new ContactStatement())
+            ->setContactID(isset($statement['ContactID']) ? (string) $statement['ContactID'] : null)
+            ->setName(isset($statement['Name']) ? (string) $statement['Name'] : null)
+            ->setTotal(isset($statement['Total']) ? (float) $statement['Total'] : null);
     }
 }

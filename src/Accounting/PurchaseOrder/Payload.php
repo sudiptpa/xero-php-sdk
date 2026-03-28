@@ -80,6 +80,7 @@ final class Payload
         $payload = $response->json();
         $purchaseOrder = $payload['PurchaseOrders'][0] ?? [];
 
-        return PurchaseOrder::fromPayload(is_array($purchaseOrder) ? $purchaseOrder : [], $this->client);
+        return (new PurchaseOrders($this->client))
+            ->mapPurchaseOrder(is_array($purchaseOrder) ? $purchaseOrder : []);
     }
 }

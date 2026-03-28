@@ -62,10 +62,7 @@ final class Tasks implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_map(
-            fn (array $task): Task => Task::fromArray($task, $this->client, $this->projectId),
-            self::many($payload)
-        );
+        $items = array_map(fn (array $task): Task => $this->mapTask($task), self::many($payload));
 
         return new ResourceCollection($items);
     }
@@ -97,7 +94,7 @@ final class Tasks implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $task = self::single($payload);
 
-        return is_array($task) ? Task::fromArray($task, $this->client, $this->projectId) : null;
+        return is_array($task) ? $this->mapTask($task) : null;
     }
 
     public function create(): Payload
@@ -137,5 +134,18 @@ final class Tasks implements PaginatesResults, DefinesScopes
         $item = $payload['Task'] ?? $payload['task'] ?? self::many($payload)[0] ?? null;
 
         return is_array($item) ? $item : null;
+    }
+
+    /**
+     * @param array<string, mixed> $task
+     */
+    public function mapTask(array $task): Task
+    {
+        return (new Task($this->client))
+            ->setTaskID($task['TaskID'] ?? $task['TaskId'] ?? null)
+            ->setName($task['Name'] ?? null)
+            ->setChargeType($task['ChargeType'] ?? null)
+            ->setRate($task['Rate'] ?? null)
+            ->setProjectID($this->projectId);
     }
 }

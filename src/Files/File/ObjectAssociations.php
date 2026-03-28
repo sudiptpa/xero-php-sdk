@@ -73,7 +73,7 @@ final class ObjectAssociations implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $file): File => File::fromArray($file, $this->client),
+            fn (array $file): File => (new Files($this->client))->mapFile($file),
             $payload['Items'] ?? []
         ));
 

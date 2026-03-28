@@ -57,7 +57,7 @@ final class TrackingCategories implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $trackingCategory): TrackingCategory => TrackingCategory::fromPayload($trackingCategory, $this->client),
+            fn (array $trackingCategory): TrackingCategory => $this->mapTrackingCategory($trackingCategory),
             $payload['TrackingCategories'] ?? []
         ));
 
@@ -73,7 +73,7 @@ final class TrackingCategories implements DefinesScopes
         $payload = $response->json();
         $trackingCategory = $payload['TrackingCategories'][0] ?? null;
 
-        return is_array($trackingCategory) ? TrackingCategory::fromPayload($trackingCategory, $this->client) : null;
+        return is_array($trackingCategory) ? $this->mapTrackingCategory($trackingCategory) : null;
     }
 
     public function create(): Payload
@@ -84,5 +84,35 @@ final class TrackingCategories implements DefinesScopes
     public function update(string $trackingCategoryId): Payload
     {
         return (new Payload($this->client))->id($trackingCategoryId);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapTrackingCategory(array $payload): TrackingCategory
+    {
+        $trackingCategory = (new TrackingCategory($this->client))
+            ->setTrackingCategoryID(isset($payload['TrackingCategoryID']) ? (string) $payload['TrackingCategoryID'] : null)
+            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null);
+
+        foreach ($payload['Options'] ?? [] as $option) {
+            if (is_array($option)) {
+                $trackingCategory->addOption($this->mapOption($option));
+            }
+        }
+
+        return $trackingCategory;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapOption(array $payload): Option
+    {
+        return (new Option())
+            ->setTrackingOptionID(isset($payload['TrackingOptionID']) ? (string) $payload['TrackingOptionID'] : null)
+            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null);
     }
 }

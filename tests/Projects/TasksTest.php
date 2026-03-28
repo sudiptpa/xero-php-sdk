@@ -69,7 +69,7 @@ final class TasksTest extends TestCase
         self::assertSame('/projects.xro/2.0/Projects/project-1/Tasks/task-2', $transport->requests()[3]->path);
         self::assertSame('DELETE', $transport->requests()[4]->method);
         self::assertInstanceOf(Task::class, $tasks->first());
-        self::assertSame('Build and QA', $updated->name);
-        self::assertSame('task-1', $task?->id);
+        self::assertSame('Build and QA', $updated->getName());
+        self::assertSame('task-1', $task?->getTaskID());
     }
 }

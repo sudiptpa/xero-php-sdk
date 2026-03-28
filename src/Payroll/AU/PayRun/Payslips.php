@@ -36,7 +36,7 @@ final readonly class Payslips implements DefinesScopes
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $payslip): Payslip => Payslip::fromArray($payslip),
+            fn (array $payslip): Payslip => $this->mapPayslip($payslip),
             $payload['Payslips'] ?? []
         ));
 
@@ -52,6 +52,19 @@ final readonly class Payslips implements DefinesScopes
 
         $payslip = $payload['Payslips'][0] ?? $payload['Payslip'] ?? null;
 
-        return is_array($payslip) ? Payslip::fromArray($payslip) : null;
+        return is_array($payslip) ? $this->mapPayslip($payslip) : null;
+    }
+
+    /**
+     * @param array<string, mixed> $payslip
+     */
+    public function mapPayslip(array $payslip): Payslip
+    {
+        return (new Payslip())
+            ->setPayslipID($payslip['PayslipID'] ?? null)
+            ->setEmployeeID($payslip['EmployeeID'] ?? null)
+            ->setPaymentDate($payslip['PaymentDate'] ?? null)
+            ->setNetPay(isset($payslip['NetPay']) ? (string) $payslip['NetPay'] : null)
+            ;
     }
 }

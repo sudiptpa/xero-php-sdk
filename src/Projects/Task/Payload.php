@@ -85,6 +85,10 @@ final class Payload
         $payload = $response->json();
         $task = Tasks::single($payload);
 
-        return Task::fromArray(is_array($task) ? $task : [], $this->client, $this->projectId);
+        if (! is_array($task)) {
+            return (new Task($this->client))->setProjectID($this->projectId);
+        }
+
+        return (new Tasks($this->client, $this->projectId))->mapTask($task);
     }
 }

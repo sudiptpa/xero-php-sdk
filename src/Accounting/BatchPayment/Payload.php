@@ -4,24 +4,27 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\BatchPayment;
 
+use Sujip\Xero\Accounting\Account\Account;
 use Sujip\Xero\Client;
 
 final class Payload
 {
-    /**
-     * @var array<string, mixed>
-     */
-    private array $payload = [];
+    private BatchPayment $batchPayment;
 
     public function __construct(
         private readonly Client $client
     ) {
+        $this->batchPayment = new BatchPayment($client);
     }
 
     public function account(string $accountId): self
     {
         $clone = clone $this;
-        $clone->payload['Account'] = ['AccountID' => $accountId];
+        $clone->batchPayment = clone $this->batchPayment;
+        $clone->batchPayment->setAccount(
+            (new Account())
+                ->setAccountID($accountId)
+        );
 
         return $clone;
     }
@@ -29,7 +32,8 @@ final class Payload
     public function reference(string $reference): self
     {
         $clone = clone $this;
-        $clone->payload['Reference'] = $reference;
+        $clone->batchPayment = clone $this->batchPayment;
+        $clone->batchPayment->setReference($reference);
 
         return $clone;
     }
@@ -37,11 +41,20 @@ final class Payload
     public function payment(string $invoiceId, int|float $amount): self
     {
         $clone = clone $this;
-        $clone->payload['Payments'] ??= [];
-        $clone->payload['Payments'][] = [
-            'Invoice' => ['InvoiceID' => $invoiceId],
-            'Amount' => $amount,
-        ];
+        $clone->batchPayment = clone $this->batchPayment;
+        $clone->batchPayment->addPayment(
+            (new PaymentEntry())
+                ->setInvoiceID($invoiceId)
+                ->setAmount($amount)
+        );
+
+        return $clone;
+    }
+
+    public function using(BatchPayment $batchPayment): self
+    {
+        $clone = clone $this;
+        $clone->batchPayment = clone $batchPayment;
 
         return $clone;
     }
@@ -50,12 +63,13 @@ final class Payload
     {
         $response = $this->client
             ->post('/api.xro/2.0/BatchPayments')
-            ->withJson(['BatchPayments' => [$this->payload]])
+            ->withJson(['BatchPayments' => [$this->batchPayment->toRequest()]])
             ->send();
 
         $payload = $response->json();
         $batchPayment = $payload['BatchPayments'][0] ?? [];
 
-        return BatchPayment::fromArray(is_array($batchPayment) ? $batchPayment : []);
+        return (new BatchPayments($this->client))
+            ->mapBatchPayment(is_array($batchPayment) ? $batchPayment : []);
     }
 }

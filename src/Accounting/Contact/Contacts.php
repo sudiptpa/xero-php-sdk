@@ -69,7 +69,7 @@ final class Contacts implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $contact): Contact => Contact::fromPayload($contact, $this->client),
+            fn (array $contact): Contact => $this->mapContact($contact),
             $payload['Contacts'] ?? []
         ));
 
@@ -112,7 +112,7 @@ final class Contacts implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $contact = $payload['Contacts'][0] ?? null;
 
-        return is_array($contact) ? Contact::fromPayload($contact, $this->client) : null;
+        return is_array($contact) ? $this->mapContact($contact) : null;
     }
 
     public function create(): Payload
@@ -123,5 +123,59 @@ final class Contacts implements PaginatesResults, DefinesScopes
     public function update(string $contactId): Payload
     {
         return (new Payload($this->client))->id($contactId);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapContact(array $payload): Contact
+    {
+        $contact = (new Contact($this->client))
+            ->setContactID(isset($payload['ContactID']) ? (string) $payload['ContactID'] : null)
+            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
+            ->setFirstName(isset($payload['FirstName']) ? (string) $payload['FirstName'] : null)
+            ->setLastName(isset($payload['LastName']) ? (string) $payload['LastName'] : null)
+            ->setEmailAddress(isset($payload['EmailAddress']) ? (string) $payload['EmailAddress'] : null);
+
+        foreach ($payload['Addresses'] ?? [] as $address) {
+            if (is_array($address)) {
+                $contact->addAddress($this->mapAddress($address));
+            }
+        }
+
+        foreach ($payload['Phones'] ?? [] as $phone) {
+            if (is_array($phone)) {
+                $contact->addPhone($this->mapPhone($phone));
+            }
+        }
+
+        return $contact;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapAddress(array $payload): Address
+    {
+        return (new Address())
+            ->setAddressType(isset($payload['AddressType']) ? (string) $payload['AddressType'] : null)
+            ->setAddressLine1(isset($payload['AddressLine1']) ? (string) $payload['AddressLine1'] : null)
+            ->setAddressLine2(isset($payload['AddressLine2']) ? (string) $payload['AddressLine2'] : null)
+            ->setCity(isset($payload['City']) ? (string) $payload['City'] : null)
+            ->setRegion(isset($payload['Region']) ? (string) $payload['Region'] : null)
+            ->setPostalCode(isset($payload['PostalCode']) ? (string) $payload['PostalCode'] : null)
+            ->setCountry(isset($payload['Country']) ? (string) $payload['Country'] : null);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapPhone(array $payload): Phone
+    {
+        return (new Phone())
+            ->setPhoneType(isset($payload['PhoneType']) ? (string) $payload['PhoneType'] : null)
+            ->setPhoneNumber(isset($payload['PhoneNumber']) ? (string) $payload['PhoneNumber'] : null)
+            ->setPhoneAreaCode(isset($payload['PhoneAreaCode']) ? (string) $payload['PhoneAreaCode'] : null)
+            ->setPhoneCountryCode(isset($payload['PhoneCountryCode']) ? (string) $payload['PhoneCountryCode'] : null);
     }
 }

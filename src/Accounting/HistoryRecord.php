@@ -17,16 +17,4 @@ final readonly class HistoryRecord
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            isset($payload['Details']) ? (string) $payload['Details'] : null,
-            isset($payload['DateUTC']) ? (string) $payload['DateUTC'] : null,
-            isset($payload['User']) ? (string) $payload['User'] : null,
-            $payload
-        );
-    }
 }

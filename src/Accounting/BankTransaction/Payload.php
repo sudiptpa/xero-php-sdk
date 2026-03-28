@@ -101,6 +101,7 @@ final class Payload
         $payload = $response->json();
         $bankTransaction = $payload['BankTransactions'][0] ?? [];
 
-        return BankTransaction::fromPayload(is_array($bankTransaction) ? $bankTransaction : [], $this->client);
+        return (new BankTransactions($this->client))
+            ->mapBankTransaction(is_array($bankTransaction) ? $bankTransaction : []);
     }
 }

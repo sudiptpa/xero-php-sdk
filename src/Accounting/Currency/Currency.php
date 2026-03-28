@@ -6,10 +6,9 @@ namespace Sujip\Xero\Accounting\Currency;
 
 use RuntimeException;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class Currency implements BuildsFromPayload, SerializesForRequest
+final class Currency implements SerializesForRequest
 {
     public function __construct(
         private ?Client $client = null
@@ -21,25 +20,6 @@ final class Currency implements BuildsFromPayload, SerializesForRequest
     private ?string $description = null;
 
     private ?string $status = null;
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?Client $client = null): static
-    {
-        return (new self($client))
-            ->setCode($payload['Code'] ?? null)
-            ->setDescription($payload['Description'] ?? null)
-            ->setStatus($payload['Status'] ?? null);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
-    }
 
     public function getCode(): ?string
     {

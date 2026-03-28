@@ -96,6 +96,10 @@ final class Payload
         $payload = $response->json();
         $leaveApplication = $payload['LeaveApplications'][0] ?? $payload['LeaveApplication'] ?? [];
 
-        return LeaveApplication::fromArray(is_array($leaveApplication) ? $leaveApplication : [], $this->client);
+        if (! is_array($leaveApplication)) {
+            return new LeaveApplication($this->client);
+        }
+
+        return (new LeaveApplications($this->client))->mapLeaveApplication($leaveApplication);
     }
 }

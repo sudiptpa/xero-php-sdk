@@ -12,13 +12,46 @@ final readonly class Token
      * @param list<string> $scopes
      */
     public function __construct(
-        public string $accessToken,
-        public ?string $refreshToken = null,
-        public ?DateTimeImmutable $expiresAt = null,
-        public array $scopes = [],
-        public ?string $idToken = null,
-        public ?string $tokenType = 'Bearer'
+        private string $accessToken,
+        private ?string $refreshToken = null,
+        private ?DateTimeImmutable $expiresAt = null,
+        private array $scopes = [],
+        private ?string $idToken = null,
+        private ?string $tokenType = 'Bearer'
     ) {
+    }
+
+    public function getAccessToken(): string
+    {
+        return $this->accessToken;
+    }
+
+    public function getRefreshToken(): ?string
+    {
+        return $this->refreshToken;
+    }
+
+    public function getExpiresAt(): ?DateTimeImmutable
+    {
+        return $this->expiresAt;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getScopes(): array
+    {
+        return $this->scopes;
+    }
+
+    public function getIdToken(): ?string
+    {
+        return $this->idToken;
+    }
+
+    public function getTokenType(): ?string
+    {
+        return $this->tokenType;
     }
 
     public function hasRefreshToken(): bool

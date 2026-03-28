@@ -74,9 +74,9 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame(3, $transport->requests()[4]->query['page']);
         self::assertSame(25, $transport->requests()[4]->query['pageSize']);
         self::assertInstanceOf(PayrollCalendar::class, $calendars->first());
-        self::assertSame('calendar-1', $calendar?->id);
-        self::assertSame('calendar-2', $created->id);
-        self::assertSame('calendar-2', $updated->id);
+        self::assertSame('calendar-1', $calendar?->getPayrollCalendarID());
+        self::assertSame('calendar-2', $created->getPayrollCalendarID());
+        self::assertSame('calendar-2', $updated->getPayrollCalendarID());
         self::assertSame(3, $page->page);
     }
 
@@ -123,8 +123,8 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('superfund-key', $transport->requests()[2]->headers['Idempotency-Key']);
         self::assertSame('40022701955002', $transport->requests()[2]->json['USI']);
         self::assertInstanceOf(SuperFund::class, $funds->first());
-        self::assertSame('fund-1', $fund?->id);
-        self::assertSame('fund-2', $created->id);
+        self::assertSame('fund-1', $fund?->getSuperFundID());
+        self::assertSame('fund-2', $created->getSuperFundID());
     }
 
     public function test_it_can_load_super_fund_products(): void
@@ -150,6 +150,6 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('40022701955', $transport->requests()[0]->query['ABN']);
         self::assertSame('OSF0001AU', $transport->requests()[0]->query['USI']);
         self::assertInstanceOf(Product::class, $products->first());
-        self::assertSame('product-1', $products->first()->id);
+        self::assertSame('product-1', $products->first()->getSuperFundProductID());
     }
 }

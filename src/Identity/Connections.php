@@ -30,7 +30,7 @@ final readonly class Connections
         $rows = is_array($decoded) ? array_values($decoded) : [];
 
         $items = array_map(
-            fn (array $connection): Connection => Connection::fromArray($connection, $this->client),
+            fn (array $connection): Connection => $this->mapConnection($connection),
             $rows
         );
 
@@ -40,7 +40,7 @@ final readonly class Connections
     public function findByTenant(string $tenantId): ?Connection
     {
         foreach ($this->get() as $connection) {
-            if ($connection->tenantId === $tenantId) {
+            if ($connection->getTenantId() === $tenantId) {
                 return $connection;
             }
         }
@@ -56,5 +56,19 @@ final readonly class Connections
             ->send();
 
         return in_array($response->status, [200, 204], true);
+    }
+
+    /**
+     * @param array<string, mixed> $connection
+     */
+    public function mapConnection(array $connection): Connection
+    {
+        return (new Connection($this->client))
+            ->setId($connection['id'] ?? null)
+            ->setTenantId($connection['tenantId'] ?? null)
+            ->setTenantName($connection['tenantName'] ?? null)
+            ->setTenantType($connection['tenantType'] ?? null)
+            ->setCreatedDateUtc($connection['createdDateUtc'] ?? null)
+            ->setUpdatedDateUtc($connection['updatedDateUtc'] ?? null);
     }
 }

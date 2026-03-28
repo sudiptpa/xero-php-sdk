@@ -21,13 +21,26 @@ final class OpeningBalancesPayload
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public function using(array $payload): self
+    public function periodEndDate(string $periodEndDate): self
     {
         $clone = clone $this;
-        $clone->payload = $payload;
+        $clone->payload['PeriodEndDate'] = $periodEndDate;
+
+        return $clone;
+    }
+
+    public function daysPaid(int|float $daysPaid): self
+    {
+        $clone = clone $this;
+        $clone->payload['DaysPaid'] = $daysPaid;
+
+        return $clone;
+    }
+
+    public function grossEarnings(int|float $grossEarnings): self
+    {
+        $clone = clone $this;
+        $clone->payload['GrossEarnings'] = $grossEarnings;
 
         return $clone;
     }

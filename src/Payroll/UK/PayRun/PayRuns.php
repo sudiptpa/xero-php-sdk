@@ -54,7 +54,7 @@ final class PayRuns implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $payRun): PayRun => PayRun::fromArrayWithClient($payRun, $this->client),
+            fn (array $payRun): PayRun => $this->mapPayRun($payRun),
             $payload['PayRuns'] ?? []
         ));
 
@@ -88,7 +88,7 @@ final class PayRuns implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $payRun = $payload['PayRuns'][0] ?? $payload['PayRun'] ?? null;
 
-        return is_array($payRun) ? PayRun::fromArrayWithClient($payRun, $this->client) : null;
+        return is_array($payRun) ? $this->mapPayRun($payRun) : null;
     }
 
     public function create(): Payload
@@ -99,5 +99,18 @@ final class PayRuns implements PaginatesResults, DefinesScopes
     public function payslips(string $payRunId): Payslips
     {
         return new Payslips($this->client, $payRunId);
+    }
+
+    /**
+     * @param array<string, mixed> $payRun
+     */
+    public function mapPayRun(array $payRun): PayRun
+    {
+        return (new PayRun($this->client))
+            ->setPayRunID($payRun['PayRunID'] ?? null)
+            ->setPayrollCalendarID($payRun['PayrollCalendarID'] ?? null)
+            ->setPayRunStatus($payRun['PayRunStatus'] ?? $payRun['Status'] ?? null)
+            ->setPaymentDate($payRun['PaymentDate'] ?? null)
+            ;
     }
 }

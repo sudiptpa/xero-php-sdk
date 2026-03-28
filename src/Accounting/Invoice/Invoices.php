@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Invoice;
 
+use Sujip\Xero\Accounting\Contact\Contacts;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
@@ -63,7 +64,7 @@ final class Invoices implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $invoice): Invoice => Invoice::fromPayload($invoice, $this->client),
+            fn (array $invoice): Invoice => $this->mapInvoice($invoice),
             $payload['Invoices'] ?? []
         ));
 
@@ -104,7 +105,7 @@ final class Invoices implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $invoice = $payload['Invoices'][0] ?? null;
 
-        return is_array($invoice) ? Invoice::fromPayload($invoice, $this->client) : null;
+        return is_array($invoice) ? $this->mapInvoice($invoice) : null;
     }
 
     public function attachments(string $invoiceId): Attachments
@@ -125,5 +126,40 @@ final class Invoices implements PaginatesResults, DefinesScopes
             ->send();
 
         return $response->body;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapInvoice(array $payload): Invoice
+    {
+        $invoice = (new Invoice($this->client))
+            ->setInvoiceID(isset($payload['InvoiceID']) ? (string) $payload['InvoiceID'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
+            ->setReference(isset($payload['Reference']) ? (string) $payload['Reference'] : null)
+            ->setType(isset($payload['Type']) ? (string) $payload['Type'] : null);
+
+        if (is_array($payload['Contact'] ?? null)) {
+            $invoice->setContact((new Contacts($this->client))->mapContact($payload['Contact']));
+        }
+
+        foreach ($payload['LineItems'] ?? [] as $lineItem) {
+            if (is_array($lineItem)) {
+                $invoice->addLineItem($this->mapLineItem($lineItem));
+            }
+        }
+
+        return $invoice;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapLineItem(array $payload): LineItem
+    {
+        return (new LineItem())
+            ->setDescription(isset($payload['Description']) ? (string) $payload['Description'] : null)
+            ->setQuantity(isset($payload['Quantity']) && is_numeric($payload['Quantity']) ? $payload['Quantity'] + 0 : null)
+            ->setUnitAmount(isset($payload['UnitAmount']) && is_numeric($payload['UnitAmount']) ? $payload['UnitAmount'] + 0 : null);
     }
 }

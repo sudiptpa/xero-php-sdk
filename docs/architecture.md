@@ -4,7 +4,7 @@
 
 - PHP 8.2+
 - zero runtime dependencies
-- fluent, Laravel-inspired API
+- fluent API
 - one package for all supported Xero surfaces
 - strongly typed building blocks
 - docs-first endpoint coverage
@@ -29,7 +29,7 @@ The package should not feel like a generated SDK. It should feel clean, fluent, 
 - `Auth`: token handling, auth flows, connection strategies
 - `Accounting`, `Files`, `Projects`, `Assets`, `Finance`, `AppStore`
 - `Payroll\\AU`, `Payroll\\NZ`, `Payroll\\UK`
-- `Support`: collections, factories, serializers, helpers, value objects
+- `Support`: collections, helpers, and shared value objects
 - `Webhooks`: signature verification and event mapping
 
 ## Domain Pattern
@@ -45,8 +45,8 @@ This keeps the architecture distinct from older SDK patterns while still making 
 ## Architectural Rules
 
 - root client owns auth and tenant context
-- resource builders stay fluent and small
-- endpoint-specific builders compose a shared HTTP layer
+- resource flows stay fluent and small
+- endpoint-specific flows compose a shared HTTP layer
 - pagination and common query features live in shared support concerns
 - request objects are typed and explicit
 - tests validate request construction before broad endpoint rollout
@@ -82,8 +82,7 @@ This keeps the SDK close to the Xero docs while still feeling natural in PHP.
 ### Boundary Rules
 
 - response JSON is decoded once at the HTTP boundary
-- a `Factory` turns that payload into rich models
-- a `Serializer` turns rich models back into request payloads
+- request and response mapping stays inside the SDK
 - public models should not expose raw array access as the normal way to work
 
 ### Package Shape
@@ -92,8 +91,6 @@ The package is designed around:
 
 - rich models for reads and writes
 - explicit nested objects instead of nested arrays
-- `Factory` classes for response mapping
-- `Serializer` classes for request mapping
 - resources remain responsible for transport and endpoint paths
 
 The package should feel object-first in application code, not array-first.
@@ -118,7 +115,7 @@ The SDK now has the basic pieces needed for a serious integration:
 - tenant discovery through identity connections
 - webhook verification and payload parsing
 - scope metadata on the first Accounting resources
-- fluent query and create builders for contacts, invoices, payments, and accounts
+- fluent query and create flows for contacts, invoices, payments, and accounts
 - real Files coverage for uploads, folders, inbox, and associations
 - real Assets coverage for assets, asset types, and settings
 - real Projects coverage for projects, users, tasks, and time entries

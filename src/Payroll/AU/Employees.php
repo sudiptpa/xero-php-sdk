@@ -60,10 +60,7 @@ final class Employees implements PaginatesResults
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
-            fn (array $employee): Employee => Employee::fromArray($employee, $this->client),
-            $payload['Employees'] ?? []
-        ));
+        $items = array_values(array_map(fn (array $employee): Employee => $this->mapEmployee($employee), $payload['Employees'] ?? []));
 
         return new ResourceCollection($items);
     }
@@ -104,7 +101,7 @@ final class Employees implements PaginatesResults
         $payload = $response->json();
         $employee = $payload['Employees'][0] ?? $payload['Employee'] ?? null;
 
-        return is_array($employee) ? Employee::fromArray($employee, $this->client) : null;
+        return is_array($employee) ? $this->mapEmployee($employee) : null;
     }
 
     public function create(): Payload
@@ -126,5 +123,19 @@ final class Employees implements PaginatesResults
             ->get('/payroll.xro/1.0/Employees/' . $employeeId . '/LeaveBalances')
             ->send()
             ->json();
+    }
+
+    /**
+     * @param array<string, mixed> $employee
+     */
+    public function mapEmployee(array $employee): Employee
+    {
+        return (new Employee($this->client))
+            ->setEmployeeID($employee['EmployeeID'] ?? null)
+            ->setFirstName($employee['FirstName'] ?? null)
+            ->setLastName($employee['LastName'] ?? null)
+            ->setEmailAddress($employee['EmailAddress'] ?? null)
+            ->setStatus($employee['Status'] ?? null)
+            ;
     }
 }

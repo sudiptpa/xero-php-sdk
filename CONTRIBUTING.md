@@ -1,30 +1,203 @@
 # Contributing
 
-Thanks for taking the time to contribute.
+This file defines the package coding standard.
 
-This package is aiming for a few things at once:
+Use it for code, tests, docs, examples, and reviews.
 
-- modern PHP
-- a fluent public API
-- broad Xero coverage
-- docs that read like they were written by a maintainer
-- predictable release quality
+## Source Of Truth
 
-If you want to help, please keep those goals in mind.
+- use `developer.xero.com` as the primary source of truth
+- use official Xero field names and resource names
+- use generated references only for path details when needed
+- do not invent public API shapes that are not supported by the official docs
 
-## Ground Rules
+## PHP Standard
 
 - target `php:^8.2`
-- keep runtime dependencies at zero
-- prefer small, clear additions over clever abstractions
-- match the existing domain-first structure
-- keep public API naming calm and readable
-- add tests with every code change
-- update docs when the public API changes
+- use `declare(strict_types=1);`
+- use typed properties, parameters, and return values
+- use modern PHP features when they improve clarity
+- do not add features only for style
 
-## Project Shape
+Rules:
 
-The package is organized by API family first:
+- use `readonly` for stable value objects only
+- do not use `readonly` for rich models with setters
+- keep nullability explicit
+- use constructor promotion when it improves readability
+
+## Framework Standard
+
+- the package must stay framework-agnostic
+- follow a fluent API design similar to Laravel without using framework contracts
+- do not introduce hard dependencies on Laravel components
+- do not assume service containers, facades, helpers, or service providers
+- do not require wrappers for Laravel, Symfony, or other frameworks
+- package code must work well in plain PHP first
+- framework users should be able to adopt the package directly
+- prefer package-native abstractions over framework-coupled abstractions
+
+## Public API Standard
+
+- public API must be fluent, readable, and predictable
+- public API must stay close to Xero docs naming
+- public API must prefer rich models over arrays
+- public API can follow a fluent Laravel-like shape without using framework contracts
+
+### Naming
+
+- keep Xero field identity
+- convert names into normal PHP method style
+- prefer `getContactID()` / `setContactID(...)`
+- prefer `getEmailAddress()` / `setEmailAddress(...)`
+- prefer `getLineItems()` / `setLineItems(...)` / `addLineItem(...)`
+
+Avoid renamed synonyms like:
+
+- `id()`
+- `email()`
+- `items()`
+
+### Rich Models
+
+Rich models are the public data shape.
+
+Use rich models for:
+
+- returned resources
+- create and update inputs
+- nested Xero structures like contacts, line items, phones, addresses, tracking options, and similar documented objects
+
+Rich models must:
+
+- keep private state
+- expose getters and setters
+- stay close to Xero docs naming
+
+Rich models must not:
+
+- expose public raw properties
+- expose array access as normal usage
+- expose public `fromArray()` or `fromPayload()` methods
+
+### Arrays
+
+Arrays are allowed only inside SDK internals.
+
+Allowed:
+
+- HTTP response decoding
+- internal request payload building
+- documented edge endpoints where no good rich-model write shape exists yet
+
+Not allowed as the normal public shape:
+
+- array-driven public APIs
+- docs that promote raw payload arrays first
+- model classes that behave like array wrappers
+
+### Resources
+
+Resources are responsible for:
+
+- endpoint paths
+- query options
+- pagination
+- request orchestration
+- internal mapping between transport data and rich models
+
+Resources should stay:
+
+- small
+- fluent
+- easy to read
+
+Avoid:
+
+- giant service objects
+- DSL-heavy APIs
+- abstractions that hide normal Xero behavior
+- framework-specific contracts or helpers in the public API
+
+## Internal Architecture
+
+- keep internal code simple
+- keep mapping code inside the SDK
+- keep mapping code close to the relevant resource or payload class
+- keep nested object construction inside the SDK
+
+Do not make these part of the package standard:
+
+- public `Factory` classes
+- public `Serializer` classes
+- public mapping helpers that introduce framework-style contracts
+
+## Coverage Standard
+
+When adding support:
+
+1. check the official Xero docs
+2. implement the feature in package style
+3. add or update tests
+4. update the docs
+
+Do not leave docs claiming support that the code does not have.
+
+## Tests And Verification
+
+Default checks:
+
+```bash
+composer test
+composer stan
+```
+
+Rules:
+
+- code changes need tests unless already covered
+- docs-only changes do not require rerunning tests, but say so clearly
+- do not say a batch is clean without running relevant checks
+- start with focused checks when the change is local
+- run broader checks when the batch stabilizes
+
+## Docs Standard
+
+Docs must be:
+
+- direct
+- practical
+- short where possible
+- clear about what exists today
+
+Docs rules:
+
+- show real API examples only
+- prefer short examples
+- keep wording simple
+- explain scope requirements when useful
+- keep wording product-facing, not process-facing
+
+Avoid overusing words like:
+
+- `builder`
+- `factory`
+- `serializer`
+- `slice`
+- `parity`
+
+Use simpler words when possible.
+
+## Style Rules
+
+- prefer ASCII unless the file already uses Unicode meaningfully
+- keep comments short and useful
+- prefer clear code over clever code
+- keep methods and files easy to read
+- preserve the domain-first structure
+
+## Package Shape
+
+Primary package areas:
 
 - `src/Accounting`
 - `src/Files`
@@ -36,64 +209,15 @@ The package is organized by API family first:
 - `src/Auth`
 - `src/Webhooks`
 
-Inside a family, prefer nested resource folders where that makes the public API and internal structure clearer.
+Prefer nested resource folders when they make the public API clearer.
 
-## Local Setup
+## Checklist
 
-```bash
-composer install
-```
+Before marking work done, check:
 
-## Checks
-
-Run the main checks before opening a pull request:
-
-```bash
-composer test
-composer stan
-composer coverage
-```
-
-If you only changed docs, say that clearly in the pull request.
-
-## Coding Notes
-
-- use strict types
-- use typed rich models and explicit request objects
-- keep model naming close to the Xero docs field names
-- prefer `getContactID()` / `setContactID(...)` style over invented synonyms
-- use `Factory` classes for response mapping
-- use `Serializer` classes for request mapping
-- avoid raw array access in public model APIs
-- avoid turning models into heavy active-record objects
-- keep transport and persistence concerns in the resource layer
-- only add comments where they save real reading time
-
-## Docs Style
-
-Please keep docs direct and plain.
-
-Avoid:
-
-- filler marketing language
-- generic AI-sounding introductions
-- padded explanations that do not help package users
-
-Prefer:
-
-- short examples
-- practical caveats
-- exact scope notes where relevant
-- clear wording about what is supported and what is not
-
-## Pull Requests
-
-Good pull requests usually include:
-
-- a short problem statement
-- the change itself
-- tests
-- docs updates if the API changed
-- any relevant Xero docs links
-
-If the change is based on a specific Xero endpoint or guide, link it in the pull request so the reasoning is easy to review.
+- official Xero docs were used
+- public API follows package naming rules
+- rich models are used where appropriate
+- arrays are not the public default
+- tests were updated or checked
+- docs were updated if the API changed

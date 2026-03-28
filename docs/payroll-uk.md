@@ -24,6 +24,8 @@ $employees = $xero->payroll()
     ->filter('Ada')
     ->page(1)
     ->get();
+
+$employeeId = $employees->first()?->getEmployeeID();
 ```
 
 ```php
@@ -45,6 +47,8 @@ $statutory = $employee->statutoryLeaveBalance('sick', '2026-03-27');
 $leaves = $employee->leaves();
 
 $leaveTypes = $employee->leaveTypes();
+
+$leaveTypeId = $leaveTypes->first()?->getLeaveTypeID();
 
 $employment = $employee->employment();
 
@@ -73,6 +77,8 @@ $calendars = $xero->payroll()
     ->uk()
     ->payRunCalendars()
     ->get();
+
+$calendarName = $calendars->first()?->getName();
 ```
 
 ## Pay Runs
@@ -83,6 +89,8 @@ $payRuns = $xero->payroll()
     ->payRuns()
     ->status('DRAFT')
     ->get();
+
+$payRunId = $payRuns->first()?->getPayRunID();
 ```
 
 ```php
@@ -100,6 +108,8 @@ $payslips = $xero->payroll()
     ->payRuns()
     ->payslips('payrun-id')
     ->get();
+
+$netPay = $payslips->first()?->getNetPay();
 ```
 
 ## Timesheets
@@ -110,6 +120,8 @@ $timesheets = $xero->payroll()
     ->timesheets()
     ->status('DRAFT')
     ->get();
+
+$timesheetStatus = $timesheets->first()?->getStatus();
 ```
 
 ```php
@@ -136,6 +148,8 @@ $trackingCategories = $xero->payroll()
     ->uk()
     ->settings()
     ->trackingCategories();
+
+$trackingCategoryName = $trackingCategories->first()?->getName();
 ```
 
 ```php
@@ -143,6 +157,8 @@ $summary = $xero->payroll()
     ->uk()
     ->settings()
     ->statutoryLeaveSummary('employee-id');
+
+$employeeId = $summary->getEmployeeID();
 ```
 
 ```php
@@ -153,6 +169,8 @@ $reimbursement = $xero->payroll()
     ->name('Meals')
     ->accountCode('400')
     ->save();
+
+$reimbursementId = $reimbursement->getReimbursementID();
 ```
 
 ## Scope Notes

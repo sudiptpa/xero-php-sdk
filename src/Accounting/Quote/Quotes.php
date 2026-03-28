@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Quote;
 
+use Sujip\Xero\Accounting\Contact\Contacts;
+use Sujip\Xero\Accounting\Invoice\Invoices;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
@@ -53,7 +55,7 @@ final class Quotes implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $quote): Quote => Quote::fromArray($quote, $this->client),
+            fn (array $quote): Quote => $this->mapQuote($quote),
             $payload['Quotes'] ?? []
         ));
 
@@ -85,7 +87,7 @@ final class Quotes implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $quote = $payload['Quotes'][0] ?? null;
 
-        return is_array($quote) ? Quote::fromArray($quote, $this->client) : null;
+        return is_array($quote) ? $this->mapQuote($quote) : null;
     }
 
     public function create(): Payload
@@ -106,5 +108,29 @@ final class Quotes implements PaginatesResults, DefinesScopes
             ->send();
 
         return $response->body;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapQuote(array $payload): Quote
+    {
+        $quote = (new Quote($this->client))
+            ->setQuoteID(isset($payload['QuoteID']) ? (string) $payload['QuoteID'] : null)
+            ->setQuoteNumber(isset($payload['QuoteNumber']) ? (string) $payload['QuoteNumber'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
+            ->setTitle(isset($payload['Title']) ? (string) $payload['Title'] : null);
+
+        if (is_array($payload['Contact'] ?? null)) {
+            $quote->setContact((new Contacts($this->client))->mapContact($payload['Contact']));
+        }
+
+        foreach ($payload['LineItems'] ?? [] as $lineItem) {
+            if (is_array($lineItem)) {
+                $quote->addLineItem((new Invoices($this->client))->mapLineItem($lineItem));
+            }
+        }
+
+        return $quote;
     }
 }

@@ -37,6 +37,14 @@ final class Upload
         $payload = $response->json();
         $attachment = $payload['Attachments'][0] ?? [];
 
-        return Attachment::fromArray(is_array($attachment) ? $attachment : []);
+        $attachment = is_array($attachment) ? $attachment : [];
+
+        return new Attachment(
+            $attachment['AttachmentID'] ?? null,
+            $attachment['FileName'] ?? null,
+            $attachment['MimeType'] ?? null,
+            isset($attachment['IncludeOnline']) ? (bool) $attachment['IncludeOnline'] : null,
+            $attachment
+        );
     }
 }

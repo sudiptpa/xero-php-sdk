@@ -41,7 +41,7 @@ final class PayrollCalendars implements PaginatesResults, DefinesScopes
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $calendar): PayrollCalendar => PayrollCalendar::fromArray($calendar),
+            fn (array $calendar): PayrollCalendar => $this->mapPayrollCalendar($calendar),
             $payload['PayrollCalendars'] ?? []
         ));
 
@@ -75,7 +75,7 @@ final class PayrollCalendars implements PaginatesResults, DefinesScopes
 
         $calendar = $payload['PayrollCalendars'][0] ?? $payload['PayrollCalendar'] ?? null;
 
-        return is_array($calendar) ? PayrollCalendar::fromArray($calendar) : null;
+        return is_array($calendar) ? $this->mapPayrollCalendar($calendar) : null;
     }
 
     public function create(): Payload
@@ -86,5 +86,19 @@ final class PayrollCalendars implements PaginatesResults, DefinesScopes
     public function update(string $payrollCalendarId): Payload
     {
         return new Payload($this->client, $payrollCalendarId);
+    }
+
+    /**
+     * @param array<string, mixed> $calendar
+     */
+    public function mapPayrollCalendar(array $calendar): PayrollCalendar
+    {
+        return (new PayrollCalendar())
+            ->setPayrollCalendarID($calendar['PayrollCalendarID'] ?? null)
+            ->setName($calendar['Name'] ?? null)
+            ->setCalendarType($calendar['CalendarType'] ?? null)
+            ->setStartDate($calendar['StartDate'] ?? null)
+            ->setPaymentDate($calendar['PaymentDate'] ?? null)
+            ;
     }
 }

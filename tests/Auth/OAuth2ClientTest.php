@@ -32,8 +32,8 @@ final class OAuth2ClientTest extends TestCase
         self::assertSame('https://identity.xero.com/connect/token', $request->path);
         self::assertStringContainsString('grant_type=authorization_code', (string) $request->body);
         self::assertStringContainsString('code_verifier=verifier-123', (string) $request->body);
-        self::assertSame('access-token', $token->accessToken);
-        self::assertSame('refresh-token', $token->refreshToken);
+        self::assertSame('access-token', $token->getAccessToken());
+        self::assertSame('refresh-token', $token->getRefreshToken());
     }
 
     public function test_it_refreshes_an_access_token(): void
@@ -55,7 +55,7 @@ final class OAuth2ClientTest extends TestCase
 
         self::assertStringContainsString('grant_type=refresh_token', (string) $request->body);
         self::assertStringContainsString('refresh_token=refresh-token', (string) $request->body);
-        self::assertSame('new-access-token', $token->accessToken);
+        self::assertSame('new-access-token', $token->getAccessToken());
     }
 
     public function test_it_can_request_a_custom_connection_token(): void
@@ -76,7 +76,7 @@ final class OAuth2ClientTest extends TestCase
 
         self::assertStringContainsString('grant_type=client_credentials', (string) $request->body);
         self::assertStringContainsString('scope=finance.statements.read', (string) $request->body);
-        self::assertSame('custom-connection-token', $token->accessToken);
+        self::assertSame('custom-connection-token', $token->getAccessToken());
     }
 
 }

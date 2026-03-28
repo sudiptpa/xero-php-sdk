@@ -54,7 +54,7 @@ final class Items implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $item): Item => Item::fromPayload($item, $this->client),
+            fn (array $item): Item => $this->mapItem($item),
             $payload['Items'] ?? []
         ));
 
@@ -94,7 +94,7 @@ final class Items implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $item = $payload['Items'][0] ?? null;
 
-        return is_array($item) ? Item::fromPayload($item, $this->client) : null;
+        return is_array($item) ? $this->mapItem($item) : null;
     }
 
     public function create(): Payload
@@ -110,5 +110,17 @@ final class Items implements PaginatesResults, DefinesScopes
     public function history(string $itemId): History
     {
         return new History($this->client, '/api.xro/2.0/Items/' . $itemId . '/History');
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapItem(array $payload): Item
+    {
+        return (new Item($this->client))
+            ->setItemID(isset($payload['ItemID']) ? (string) $payload['ItemID'] : null)
+            ->setCode(isset($payload['Code']) ? (string) $payload['Code'] : null)
+            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
+            ->setDescription(isset($payload['Description']) ? (string) $payload['Description'] : null);
     }
 }

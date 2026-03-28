@@ -16,18 +16,6 @@ final class Phone implements SerializesForRequest
 
     private ?string $phoneCountryCode = null;
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload): self
-    {
-        return (new self())
-            ->setPhoneType($payload['PhoneType'] ?? null)
-            ->setPhoneNumber($payload['PhoneNumber'] ?? null)
-            ->setPhoneAreaCode($payload['PhoneAreaCode'] ?? null)
-            ->setPhoneCountryCode($payload['PhoneCountryCode'] ?? null);
-    }
-
     public function getPhoneType(): ?string
     {
         return $this->phoneType;

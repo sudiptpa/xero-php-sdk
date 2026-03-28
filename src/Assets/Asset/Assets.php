@@ -91,10 +91,7 @@ final class Assets implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
-            static fn (array $asset): Asset => Asset::fromArray($asset),
-            $payload['Items'] ?? []
-        ));
+        $items = array_values(array_map(fn (array $asset): Asset => $this->mapAsset($asset), $payload['Items'] ?? []));
 
         return new ResourceCollection($items);
     }
@@ -131,7 +128,7 @@ final class Assets implements DefinesScopes
         $payload = $response->json();
         $asset = $payload['Items'][0] ?? null;
 
-        return is_array($asset) ? Asset::fromArray($asset) : null;
+        return is_array($asset) ? $this->mapAsset($asset) : null;
     }
 
     public function create(): Payload
@@ -171,5 +168,20 @@ final class Assets implements DefinesScopes
         }
 
         return $query;
+    }
+
+    /**
+     * @param array<string, mixed> $asset
+     */
+    public function mapAsset(array $asset): Asset
+    {
+        $assetType = $asset['AssetType'] ?? null;
+
+        return (new Asset())
+            ->setAssetId($asset['AssetId'] ?? $asset['Id'] ?? null)
+            ->setAssetName($asset['AssetName'] ?? $asset['Name'] ?? null)
+            ->setAssetNumber($asset['AssetNumber'] ?? null)
+            ->setStatus($asset['Status'] ?? null)
+            ->setAssetTypeId(is_array($assetType) ? ($assetType['AssetTypeId'] ?? null) : ($asset['AssetTypeId'] ?? null));
     }
 }

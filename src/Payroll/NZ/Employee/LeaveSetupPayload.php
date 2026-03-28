@@ -21,13 +21,18 @@ final class LeaveSetupPayload
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public function using(array $payload): self
+    public function leaveType(string $leaveTypeId): self
     {
         $clone = clone $this;
-        $clone->payload = $payload;
+        $clone->payload['LeaveTypeID'] = $leaveTypeId;
+
+        return $clone;
+    }
+
+    public function scheduleOfAccrual(string $scheduleOfAccrual): self
+    {
+        $clone = clone $this;
+        $clone->payload['ScheduleOfAccrual'] = $scheduleOfAccrual;
 
         return $clone;
     }

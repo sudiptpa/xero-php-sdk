@@ -100,7 +100,7 @@ final class FilesTest extends TestCase
         self::assertSame('application/pdf', $request->headers['Content-Type']);
         self::assertSame('upload-key', $request->headers['Idempotency-Key']);
         self::assertSame('binary-data', $request->body);
-        self::assertSame('folder-1', $file->folderId);
+        self::assertSame('folder-1', $file->getFolderId());
     }
 
     public function test_loaded_file_can_be_changed_and_saved_fluently(): void
@@ -133,7 +133,7 @@ final class FilesTest extends TestCase
         self::assertSame('/files.xro/1.0/Files/file-1', $request->path);
         self::assertSame('contract-v2.pdf', $request->json['Name']);
         self::assertSame('folder-2', $request->json['FolderId']);
-        self::assertSame('contract-v2.pdf', $saved?->name);
+        self::assertSame('contract-v2.pdf', $saved?->getName());
     }
 
     public function test_it_can_list_and_create_file_associations(): void
@@ -165,7 +165,7 @@ final class FilesTest extends TestCase
         self::assertInstanceOf(Association::class, $associations->first());
         self::assertSame('/files.xro/1.0/Files/file-1/Associations', $transport->requests()[1]->path);
         self::assertSame('invoice-2', $transport->requests()[1]->json['ObjectId']);
-        self::assertSame('Invoice', $created->objectType);
+        self::assertSame('Invoice', $created->getObjectType());
     }
 
     public function test_it_can_list_files_associated_with_an_object_and_delete_an_association(): void
@@ -220,7 +220,7 @@ final class FilesTest extends TestCase
 
         self::assertSame('/files.xro/1.0/Associations/Count', $transport->requests()[0]->path);
         self::assertSame('invoice-1,invoice-2', $transport->requests()[0]->query['ObjectIds']);
-        self::assertSame(3, $counts->first()?->count);
+        self::assertSame(3, $counts->first()?->getCount());
     }
 
     public function test_loaded_file_can_be_deleted(): void

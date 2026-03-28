@@ -78,6 +78,7 @@ final class Payload
         $decoded = $response->json();
         $taxRate = $decoded['TaxRates'][0] ?? [];
 
-        return TaxRate::fromPayload(is_array($taxRate) ? $taxRate : [], $this->client);
+        return (new TaxRates($this->client))
+            ->mapTaxRate(is_array($taxRate) ? $taxRate : []);
     }
 }

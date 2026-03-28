@@ -38,7 +38,7 @@ final class Associations implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $association): Association => Association::fromArray($association),
+            fn (array $association): Association => $this->mapAssociation($association),
             $payload['Items'] ?? []
         ));
 
@@ -59,7 +59,7 @@ final class Associations implements DefinesScopes
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $count): AssociationCount => AssociationCount::fromArray($count),
+            fn (array $count): AssociationCount => $this->mapAssociationCount($count),
             $payload['Items'] ?? []
         ));
 
@@ -81,5 +81,26 @@ final class Associations implements DefinesScopes
             ->send();
 
         return $response->status === 204;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapAssociation(array $payload): Association
+    {
+        return (new Association())
+            ->setObjectId(isset($payload['ObjectId']) ? (string) $payload['ObjectId'] : null)
+            ->setObjectType(isset($payload['ObjectType']) ? (string) $payload['ObjectType'] : null)
+            ->setObjectGroup(isset($payload['ObjectGroup']) ? (string) $payload['ObjectGroup'] : null);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapAssociationCount(array $payload): AssociationCount
+    {
+        return (new AssociationCount())
+            ->setObjectId(isset($payload['ObjectId']) ? (string) $payload['ObjectId'] : null)
+            ->setCount(isset($payload['Count']) ? (int) $payload['Count'] : null);
     }
 }

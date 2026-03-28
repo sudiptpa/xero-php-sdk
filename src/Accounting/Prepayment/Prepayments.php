@@ -53,7 +53,7 @@ final class Prepayments implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $prepayment): Prepayment => Prepayment::fromArray($prepayment),
+            fn (array $prepayment): Prepayment => $this->mapPrepayment($prepayment),
             $payload['Prepayments'] ?? []
         ));
 
@@ -84,6 +84,18 @@ final class Prepayments implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $prepayment = $payload['Prepayments'][0] ?? null;
 
-        return is_array($prepayment) ? Prepayment::fromArray($prepayment) : null;
+        return is_array($prepayment) ? $this->mapPrepayment($prepayment) : null;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapPrepayment(array $payload): Prepayment
+    {
+        return (new Prepayment())
+            ->setPrepaymentID(isset($payload['PrepaymentID']) ? (string) $payload['PrepaymentID'] : null)
+            ->setType(isset($payload['Type']) ? (string) $payload['Type'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
+            ->setRemainingCredit(isset($payload['RemainingCredit']) && is_numeric($payload['RemainingCredit']) ? $payload['RemainingCredit'] + 0 : null);
     }
 }

@@ -4,29 +4,11 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\BankTransaction;
 
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class BankAccount implements BuildsFromPayload, SerializesForRequest
+final class BankAccount implements SerializesForRequest
 {
     private ?string $accountID = null;
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?\Sujip\Xero\Client $client = null): static
-    {
-        return (new self())
-            ->setAccountID($payload['AccountID'] ?? null);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?\Sujip\Xero\Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
-    }
 
     public function getAccountID(): ?string
     {

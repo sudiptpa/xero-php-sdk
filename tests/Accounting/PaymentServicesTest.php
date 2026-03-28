@@ -59,6 +59,6 @@ final class PaymentServicesTest extends TestCase
 
         self::assertSame('/api.xro/2.0/PaymentServices', $transport->requests()[0]->path);
         self::assertSame('service-key', $transport->requests()[0]->headers['Idempotency-Key']);
-        self::assertSame('Stripe', $service->paymentServiceName);
+        self::assertSame('Stripe', $service->getPaymentServiceName());
     }
 }

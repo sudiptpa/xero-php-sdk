@@ -63,6 +63,6 @@ final class Payload
         $payload = $response->json();
         $currency = $payload['Currencies'][0] ?? $payload['Currency'] ?? [];
 
-        return Currency::fromPayload(is_array($currency) ? $currency : [], $this->client);
+        return (new Currencies($this->client))->mapCurrency(is_array($currency) ? $currency : []);
     }
 }

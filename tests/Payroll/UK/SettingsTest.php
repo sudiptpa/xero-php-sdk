@@ -7,6 +7,9 @@ namespace Sujip\Xero\Tests\Payroll\UK;
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Payroll\UK\Settings\Reimbursement;
+use Sujip\Xero\Payroll\UK\Settings\StatutoryLeaveSummary;
+use Sujip\Xero\Payroll\UK\Settings\TrackingCategory;
 use Sujip\Xero\Xero;
 
 final class SettingsTest extends TestCase
@@ -68,10 +71,13 @@ final class SettingsTest extends TestCase
         self::assertSame('/payroll.xro/2.0/StatutoryLeaves/Summary/employee-1', $transport->requests()[3]->path);
         self::assertSame('/payroll.xro/2.0/Reimbursements', $transport->requests()[4]->path);
         self::assertSame('reimbursement-key', $transport->requests()[4]->headers['Idempotency-Key']);
-        self::assertSame('Department', $trackingCategories['TrackingCategories'][0]['Name']);
-        self::assertSame('Travel', $reimbursements['Reimbursements'][0]['Name']);
-        self::assertSame('reimbursement-1', $reimbursement['Reimbursement']['ReimbursementID']);
-        self::assertSame('employee-1', $summary['StatutoryLeaveSummary']['EmployeeID']);
-        self::assertSame('reimbursement-2', $created['Reimbursement']['ReimbursementID']);
+        self::assertInstanceOf(TrackingCategory::class, $trackingCategories->first());
+        self::assertSame('Department', $trackingCategories->first()->getName());
+        self::assertInstanceOf(Reimbursement::class, $reimbursements->first());
+        self::assertSame('Travel', $reimbursements->first()->getName());
+        self::assertSame('reimbursement-1', $reimbursement?->getReimbursementID());
+        self::assertInstanceOf(StatutoryLeaveSummary::class, $summary);
+        self::assertSame('employee-1', $summary->getEmployeeID());
+        self::assertSame('reimbursement-2', $created->getReimbursementID());
     }
 }

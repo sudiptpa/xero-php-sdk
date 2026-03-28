@@ -7,6 +7,8 @@ namespace Sujip\Xero\Tests\Payroll\NZ;
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Payroll\NZ\Settings\PayrollSettings;
+use Sujip\Xero\Payroll\NZ\Settings\StatutoryDeduction;
 use Sujip\Xero\Xero;
 
 final class SettingsTest extends TestCase
@@ -48,8 +50,10 @@ final class SettingsTest extends TestCase
         self::assertSame('/payroll.xro/2.0/StatutoryDeductions', $transport->requests()[1]->path);
         self::assertSame(2, $transport->requests()[1]->query['page']);
         self::assertSame('/payroll.xro/2.0/StatutoryDeductions/deduction-1', $transport->requests()[2]->path);
-        self::assertSame([], $settings['Settings']['Accounts']);
-        self::assertSame('KiwiSaver', $deductions['StatutoryDeductions'][0]['Name']);
-        self::assertSame('deduction-1', $deduction['StatutoryDeduction']['StatutoryDeductionID']);
+        self::assertInstanceOf(PayrollSettings::class, $settings);
+        self::assertSame([], $settings->getAccounts());
+        self::assertInstanceOf(StatutoryDeduction::class, $deductions->first());
+        self::assertSame('KiwiSaver', $deductions->first()->getName());
+        self::assertSame('deduction-1', $deduction?->getStatutoryDeductionID());
     }
 }

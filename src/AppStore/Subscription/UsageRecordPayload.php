@@ -76,7 +76,7 @@ final class UsageRecordPayload
             ->send()
             ->json();
 
-        return UsageRecord::fromArray($payload);
+        return (new Subscriptions($this->client))->mapUsageRecord($payload);
     }
 
     private function path(): string

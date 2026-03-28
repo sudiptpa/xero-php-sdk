@@ -7,72 +7,138 @@ namespace Sujip\Xero\Projects\TimeEntry;
 use RuntimeException;
 use Sujip\Xero\Client;
 
-final readonly class TimeEntry
+final class TimeEntry
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
+    private ?string $timeEntryID = null;
+
+    private ?string $taskID = null;
+
+    private ?string $userID = null;
+
+    private ?string $dateUTC = null;
+
+    private ?string $status = null;
+
+    private int|float|null $duration = null;
+
+    private ?string $projectID = null;
+
     public function __construct(
-        public ?string $id,
-        public ?string $taskId,
-        public ?string $userId,
-        public ?string $dateUtc,
-        public ?string $status,
-        public int|float|null $duration,
-        public array $raw = [],
-        private ?Client $client = null,
-        public ?string $projectId = null
+        private ?Client $client = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null, ?string $projectId = null): self
+    public function getTimeEntryID(): ?string
     {
-        return new self(
-            $payload['TimeEntryID'] ?? $payload['TimeEntryId'] ?? null,
-            $payload['TaskID'] ?? $payload['TaskId'] ?? null,
-            $payload['UserID'] ?? $payload['UserId'] ?? null,
-            $payload['DateUTC'] ?? $payload['DateUtc'] ?? null,
-            $payload['Status'] ?? null,
-            $payload['Duration'] ?? null,
-            $payload,
-            $client,
-            $projectId ?? $payload['ProjectID'] ?? $payload['ProjectId'] ?? null
-        );
+        return $this->timeEntryID;
+    }
+
+    public function setTimeEntryID(?string $timeEntryID): self
+    {
+        $this->timeEntryID = $timeEntryID;
+
+        return $this;
+    }
+
+    public function getTaskID(): ?string
+    {
+        return $this->taskID;
+    }
+
+    public function setTaskID(?string $taskID): self
+    {
+        $this->taskID = $taskID;
+
+        return $this;
+    }
+
+    public function getUserID(): ?string
+    {
+        return $this->userID;
+    }
+
+    public function setUserID(?string $userID): self
+    {
+        $this->userID = $userID;
+
+        return $this;
+    }
+
+    public function getDateUTC(): ?string
+    {
+        return $this->dateUTC;
+    }
+
+    public function setDateUTC(?string $dateUTC): self
+    {
+        $this->dateUTC = $dateUTC;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status === null ? null : strtoupper($status);
+
+        return $this;
+    }
+
+    public function getDuration(): int|float|null
+    {
+        return $this->duration;
+    }
+
+    public function setDuration(int|float|null $duration): self
+    {
+        $this->duration = $duration;
+
+        return $this;
+    }
+
+    public function getProjectID(): ?string
+    {
+        return $this->projectID;
+    }
+
+    public function setProjectID(?string $projectID): self
+    {
+        $this->projectID = $projectID;
+
+        return $this;
     }
 
     public function durationMinutes(int $minutes): self
     {
-        $payload = $this->raw;
-        $payload['Duration'] = $minutes;
-
-        return new self($this->id, $this->taskId, $this->userId, $this->dateUtc, $this->status, $minutes, $payload, $this->client, $this->projectId);
+        return $this->setDuration($minutes);
     }
 
     public function save(): self
     {
-        if ($this->client === null || $this->projectId === null) {
+        if ($this->client === null || $this->projectID === null) {
             throw new RuntimeException('Cannot save a time entry without a bound client context and project id.');
         }
 
-        $payload = new Payload($this->client, $this->projectId);
+        $payload = new Payload($this->client, $this->projectID);
 
-        if ($this->id !== null) {
-            $payload = $payload->id($this->id);
+        if ($this->timeEntryID !== null) {
+            $payload = $payload->id($this->timeEntryID);
         }
 
-        if ($this->taskId !== null) {
-            $payload = $payload->task($this->taskId);
+        if ($this->taskID !== null) {
+            $payload = $payload->task($this->taskID);
         }
 
-        if ($this->userId !== null) {
-            $payload = $payload->user($this->userId);
+        if ($this->userID !== null) {
+            $payload = $payload->user($this->userID);
         }
 
-        if ($this->dateUtc !== null) {
-            $payload = $payload->date($this->dateUtc);
+        if ($this->dateUTC !== null) {
+            $payload = $payload->date($this->dateUTC);
         }
 
         if ($this->duration !== null) {
@@ -84,10 +150,10 @@ final readonly class TimeEntry
 
     public function delete(): void
     {
-        if ($this->client === null || $this->projectId === null || $this->id === null) {
+        if ($this->client === null || $this->projectID === null || $this->timeEntryID === null) {
             throw new RuntimeException('Cannot delete a time entry without a bound client context, project id, and time entry id.');
         }
 
-        (new TimeEntries($this->client, $this->projectId))->delete($this->id);
+        (new TimeEntries($this->client, $this->projectID))->delete($this->timeEntryID);
     }
 }

@@ -4,29 +4,27 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\UK\Employee;
 
-final readonly class LeaveType
+final class LeaveType
 {
     /**
-     * @param array<string, mixed> $raw
      */
     public function __construct(
-        public ?string $id,
-        public ?string $name,
-        public ?bool $isActive,
-        public array $raw = []
+        private ?string $leaveTypeID = null,
+        private ?string $name = null,
+        private ?bool $isActive = null,
     ) {
     }
 
+    public function getLeaveTypeID(): ?string { return $this->leaveTypeID; }
+    public function setLeaveTypeID(?string $leaveTypeID): self { $this->leaveTypeID = $leaveTypeID; return $this; }
+    public function getName(): ?string { return $this->name; }
+    public function setName(?string $name): self { $this->name = $name; return $this; }
+    public function getIsActive(): ?bool { return $this->isActive; }
+    public function setIsActive(?bool $isActive): self { $this->isActive = $isActive; return $this; }
     /**
-     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
      */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            $payload['LeaveTypeID'] ?? null,
-            $payload['Name'] ?? null,
-            isset($payload['IsActive']) ? (bool) $payload['IsActive'] : null,
-            $payload
-        );
-    }
+    /**
+     * @param array<string, mixed> $raw
+     */
 }

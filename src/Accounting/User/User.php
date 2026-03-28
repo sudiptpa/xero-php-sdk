@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\User;
 
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
-
-final class User implements BuildsFromPayload
+final class User
 {
     private ?string $userID = null;
 
@@ -17,27 +15,6 @@ final class User implements BuildsFromPayload
     private ?string $emailAddress = null;
 
     private ?bool $isSubscriber = null;
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?\Sujip\Xero\Client $client = null): static
-    {
-        return (new self())
-            ->setUserID($payload['UserID'] ?? null)
-            ->setFirstName($payload['FirstName'] ?? null)
-            ->setLastName($payload['LastName'] ?? null)
-            ->setEmailAddress($payload['EmailAddress'] ?? null)
-            ->setIsSubscriber($payload['IsSubscriber'] ?? null);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return self::fromPayload($payload);
-    }
 
     public function getUserID(): ?string
     {

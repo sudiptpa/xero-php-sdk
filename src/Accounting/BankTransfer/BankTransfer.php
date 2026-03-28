@@ -7,68 +7,91 @@ namespace Sujip\Xero\Accounting\BankTransfer;
 use RuntimeException;
 use Sujip\Xero\Client;
 
-final readonly class BankTransfer
+final class BankTransfer
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
+    private ?string $bankTransferID = null;
+
+    private ?string $fromBankAccountID = null;
+
+    private ?string $toBankAccountID = null;
+
+    private int|float|null $amount = null;
+
+    private ?string $reference = null;
+
     public function __construct(
-        public ?string $id,
-        public ?string $fromBankAccountId,
-        public ?string $toBankAccountId,
-        public int|float|null $amount,
-        public ?string $reference = null,
-        public array $raw = [],
         private ?Client $client = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
+    public function getBankTransferID(): ?string
     {
-        return new self(
-            $payload['BankTransferID'] ?? null,
-            $payload['FromBankAccount']['AccountID'] ?? null,
-            $payload['ToBankAccount']['AccountID'] ?? null,
-            $payload['Amount'] ?? null,
-            $payload['Reference'] ?? null,
-            $payload,
-            $client
-        );
+        return $this->bankTransferID;
+    }
+
+    public function setBankTransferID(?string $bankTransferID): self
+    {
+        $this->bankTransferID = $bankTransferID;
+
+        return $this;
+    }
+
+    public function getFromBankAccountID(): ?string
+    {
+        return $this->fromBankAccountID;
+    }
+
+    public function setFromBankAccountID(?string $fromBankAccountID): self
+    {
+        $this->fromBankAccountID = $fromBankAccountID;
+
+        return $this;
+    }
+
+    public function getToBankAccountID(): ?string
+    {
+        return $this->toBankAccountID;
+    }
+
+    public function setToBankAccountID(?string $toBankAccountID): self
+    {
+        $this->toBankAccountID = $toBankAccountID;
+
+        return $this;
+    }
+
+    public function getAmount(): int|float|null
+    {
+        return $this->amount;
+    }
+
+    public function setAmount(int|float|null $amount): self
+    {
+        $this->amount = $amount;
+
+        return $this;
+    }
+
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    public function setReference(?string $reference): self
+    {
+        $this->reference = $reference;
+
+        return $this;
     }
 
     public function amount(int|float $amount): self
     {
-        $payload = $this->raw;
-        $payload['Amount'] = $amount;
-
-        return new self(
-            $this->id,
-            $this->fromBankAccountId,
-            $this->toBankAccountId,
-            $amount,
-            $this->reference,
-            $payload,
-            $this->client
-        );
+        return $this->setAmount($amount);
     }
 
     public function reference(string $reference): self
     {
-        $payload = $this->raw;
-        $payload['Reference'] = $reference;
-
-        return new self(
-            $this->id,
-            $this->fromBankAccountId,
-            $this->toBankAccountId,
-            $this->amount,
-            $reference,
-            $payload,
-            $this->client
-        );
+        return $this->setReference($reference);
     }
 
     public function save(): self
@@ -79,12 +102,12 @@ final readonly class BankTransfer
 
         $payload = new Payload($this->client);
 
-        if ($this->fromBankAccountId !== null) {
-            $payload = $payload->fromBankAccount($this->fromBankAccountId);
+        if ($this->fromBankAccountID !== null) {
+            $payload = $payload->fromBankAccount($this->fromBankAccountID);
         }
 
-        if ($this->toBankAccountId !== null) {
-            $payload = $payload->toBankAccount($this->toBankAccountId);
+        if ($this->toBankAccountID !== null) {
+            $payload = $payload->toBankAccount($this->toBankAccountID);
         }
 
         if ($this->amount !== null) {

@@ -7,60 +7,96 @@ namespace Sujip\Xero\Accounting\Employee;
 use RuntimeException;
 use Sujip\Xero\Client;
 
-final readonly class Employee
+final class Employee
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
+    private ?string $employeeID = null;
+
+    private ?string $firstName = null;
+
+    private ?string $lastName = null;
+
+    private ?string $status = null;
+
+    private ?string $emailAddress = null;
+
     public function __construct(
-        public ?string $id,
-        public ?string $firstName,
-        public ?string $lastName,
-        public ?string $status,
-        public ?string $emailAddress,
-        public array $raw = [],
         private ?Client $client = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
+    public function getEmployeeID(): ?string
     {
-        return new self(
-            $payload['EmployeeID'] ?? null,
-            $payload['FirstName'] ?? null,
-            $payload['LastName'] ?? null,
-            $payload['Status'] ?? null,
-            $payload['EmailAddress'] ?? null,
-            $payload,
-            $client
-        );
+        return $this->employeeID;
+    }
+
+    public function setEmployeeID(?string $employeeID): self
+    {
+        $this->employeeID = $employeeID;
+
+        return $this;
+    }
+
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(?string $firstName): self
+    {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(?string $lastName): self
+    {
+        $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getEmailAddress(): ?string
+    {
+        return $this->emailAddress;
+    }
+
+    public function setEmailAddress(?string $emailAddress): self
+    {
+        $this->emailAddress = $emailAddress;
+
+        return $this;
     }
 
     public function firstName(string $firstName): self
     {
-        $payload = $this->raw;
-        $payload['FirstName'] = $firstName;
-
-        return new self($this->id, $firstName, $this->lastName, $this->status, $this->emailAddress, $payload, $this->client);
+        return $this->setFirstName($firstName);
     }
 
     public function lastName(string $lastName): self
     {
-        $payload = $this->raw;
-        $payload['LastName'] = $lastName;
-
-        return new self($this->id, $this->firstName, $lastName, $this->status, $this->emailAddress, $payload, $this->client);
+        return $this->setLastName($lastName);
     }
 
     public function email(string $emailAddress): self
     {
-        $payload = $this->raw;
-        $payload['EmailAddress'] = $emailAddress;
-
-        return new self($this->id, $this->firstName, $this->lastName, $this->status, $emailAddress, $payload, $this->client);
+        return $this->setEmailAddress($emailAddress);
     }
 
     public function save(): self
@@ -71,8 +107,8 @@ final readonly class Employee
 
         $payload = new Payload($this->client);
 
-        if ($this->id !== null) {
-            $payload = $payload->id($this->id);
+        if ($this->employeeID !== null) {
+            $payload = $payload->id($this->employeeID);
         }
 
         if ($this->firstName !== null) {

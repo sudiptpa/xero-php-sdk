@@ -7,10 +7,9 @@ namespace Sujip\Xero\Accounting\Item;
 use RuntimeException;
 use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class Item implements BuildsFromPayload, SerializesForRequest
+final class Item implements SerializesForRequest
 {
     public function __construct(
         private ?Client $client = null
@@ -24,26 +23,6 @@ final class Item implements BuildsFromPayload, SerializesForRequest
     private ?string $name = null;
 
     private ?string $description = null;
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?Client $client = null): static
-    {
-        return (new self($client))
-            ->setItemID($payload['ItemID'] ?? null)
-            ->setCode($payload['Code'] ?? null)
-            ->setName($payload['Name'] ?? null)
-            ->setDescription($payload['Description'] ?? null);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
-    }
 
     public function getItemID(): ?string
     {
