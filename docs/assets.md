@@ -1,8 +1,7 @@
 # Assets
+Fixed assets, asset types, and settings.
 
-The Assets API is smaller than Accounting, but it still needs to feel like a real part of the package.
-
-Current coverage:
+Coverage:
 
 - fixed assets
 - asset types
@@ -91,5 +90,3 @@ Implemented Assets resources use:
 Use `assets.read` for asset, asset-type, and settings reads.
 
 Use `assets` for create flows and asset-changing actions.
-
-If the app only reports on assets, `assets.read` is enough.

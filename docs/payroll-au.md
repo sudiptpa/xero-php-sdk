@@ -1,8 +1,7 @@
 # Payroll AU
+AU payroll resources and helpers.
 
-Payroll AU has its own rules and query style. The package keeps that explicit instead of pretending it is the same as Accounting.
-
-Current coverage:
+Coverage:
 
 - payroll calendars
 - employees

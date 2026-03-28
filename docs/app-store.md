@@ -1,8 +1,7 @@
 # App Store
+Subscriptions and usage records.
 
-The App Store API is small, but the path shapes are different enough that it deserves its own docs.
-
-Current coverage:
+Coverage:
 
 - fetching subscriptions
 - listing usage records
@@ -10,8 +9,6 @@ Current coverage:
 - updating usage records
 
 These requests are app-level rather than tenant-scoped, so the SDK does not send the Xero tenant header.
-
-Usage writes follow the documented subscription-item path, so you set the subscription item explicitly before saving.
 
 ## Subscription Lookup
 

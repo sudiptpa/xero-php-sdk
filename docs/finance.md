@@ -1,10 +1,9 @@
 # Finance
-
-Finance is read-heavy and fairly narrow. The package keeps it explicit.
+Read-only finance statements and analysis endpoints.
 
 Important note: Xero’s changelog says the Accounting Activities API is being decommissioned effective April 6, 2026. The SDK still exposes that surface for compatibility, but new integrations should treat it as legacy.
 
-Current coverage:
+Coverage:
 
 - accounting activities
   - account usage

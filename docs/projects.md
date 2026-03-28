@@ -1,8 +1,7 @@
 # Projects
+Projects, users, tasks, and time entries.
 
-Projects should feel like part of the same SDK, not a side module with different rules.
-
-Current coverage:
+Coverage:
 
 - projects
 - project users
@@ -45,8 +44,6 @@ $closed = $xero->projects()
     ->close()
     ->save();
 ```
-
-Loaded projects keep the same fluent style:
 
 ```php
 $reopened = $project?->close()->reopen();

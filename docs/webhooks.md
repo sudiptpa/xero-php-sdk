@@ -1,13 +1,10 @@
 # Webhooks
-
-Webhook handling should be clear and reliable.
+Verify signatures and parse events.
 
 The package does two things:
 
 - verify the `x-xero-signature` header
 - parse the payload into typed event objects
-
-That is enough for most apps. The SDK does not try to become a queue system or a framework adapter.
 
 ## Verify A Request
 

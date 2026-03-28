@@ -1,6 +1,21 @@
 # Xero PHP SDK
 
-A fluent Xero SDK for PHP 8.2+ with no runtime dependencies.
+[![PHP 8.2+](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+[![Tests](https://img.shields.io/badge/tests-PHPUnit%20%2B%20PHPStan-0A7EA4)](docs/release-checklist.md)
+[![Framework Agnostic](https://img.shields.io/badge/framework-agnostic-111827)](https://github.com/sudiptpa/xero-php-sdk)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+A fluent, framework-agnostic Xero SDK for PHP 8.2+ with rich models, a fluent API, and no runtime dependencies.
+
+- Rich models for reads and writes
+- Fluent request flows across Xero families
+- Aligned to the official Xero docs
+
+## Why This Package
+
+- Build Xero integrations with rich models instead of raw payload arrays.
+- Use one consistent API across Accounting, Files, Assets, Projects, Payroll, Finance, App Store, Identity, and Webhooks.
+- Keep integration code readable in plain PHP or inside any framework.
 
 ## Installation
 
@@ -8,11 +23,64 @@ A fluent Xero SDK for PHP 8.2+ with no runtime dependencies.
 composer require sujip/xero-php-sdk
 ```
 
-Requirements:
+Runtime Notes:
 
 - PHP 8.2+
-- `ext-json`
+- `ext-json` for JSON request and response handling
 - `ext-curl` for the built-in native transport
+
+If `ext-curl` is installed, `Xero::withAccessToken(...)` uses the built-in native transport by default.
+
+If `ext-curl` is not installed, requests throw a transport exception when sent. In that case, supply your own transport such as a Guzzle-based transport.
+
+## Custom Transport
+
+If you want to use a custom transport, pass it explicitly.
+
+### Guzzle Example
+
+```php
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Exception\GuzzleException;
+use Sujip\Xero\Exceptions\TransportException;
+use Sujip\Xero\Http\Request;
+use Sujip\Xero\Http\Response;
+use Sujip\Xero\Http\Transport;
+use Sujip\Xero\Xero;
+
+final class GuzzleTransport implements Transport
+{
+    public function __construct(
+        private readonly GuzzleClient $client = new GuzzleClient()
+    ) {
+    }
+
+    public function send(Request $request): Response
+    {
+        try {
+            $response = $this->client->request($request->method, $request->url(), [
+                'headers' => $request->headers,
+                'json' => $request->json,
+                'body' => $request->body,
+            ]);
+        } catch (GuzzleException $exception) {
+            throw new TransportException($exception->getMessage(), previous: $exception);
+        }
+
+        return new Response(
+            $response->getStatusCode(),
+            array_map(
+                static fn (array $values): string => $values[0] ?? '',
+                $response->getHeaders()
+            ),
+            (string) $response->getBody(),
+        );
+    }
+}
+
+$xero = Xero::withAccessToken('token', new GuzzleTransport())
+    ->tenant('tenant-id');
+```
 
 ## Quick Start
 
@@ -350,9 +418,6 @@ See [Auth](docs/auth.md) for PKCE, refresh, tenant selection, and custom connect
 - [Finance](docs/finance.md)
 - [App Store](docs/app-store.md)
 - [Webhooks](docs/webhooks.md)
-- [Package Status](docs/package-status.md)
-- [Implementation Status](docs/implementation-status.md) — includes the Xero docs overview table
-- [Roadmap](docs/roadmap.md)
 - [Release Checklist](docs/release-checklist.md)
 
 ## Contributing
