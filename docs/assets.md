@@ -35,6 +35,9 @@ $asset = $xero->assets()
 
 ```php
 $asset = $xero->assets()->find('asset-id');
+
+$status = $asset?->getStatus();
+$assetTypeId = $asset?->getAssetTypeId();
 ```
 
 ```php
@@ -49,6 +52,8 @@ $page = $xero->assets()
 $types = $xero->assets()
     ->assetTypes()
     ->get();
+
+$typeName = $types->first()?->getAssetTypeName();
 ```
 
 ```php
@@ -72,6 +77,8 @@ $type = $xero->assets()
 
 ```php
 $settings = $xero->assets()->settings();
+
+$enabled = $settings?->getDepreciationCalculationEnabled();
 ```
 
 ## Scope Notes

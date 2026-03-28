@@ -53,17 +53,6 @@ final class LeavePayload
         return $clone;
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public function using(array $payload): self
-    {
-        $clone = clone $this;
-        $clone->payload = $payload;
-
-        return $clone;
-    }
-
     public function idempotencyKey(string $key): self
     {
         $clone = clone $this;

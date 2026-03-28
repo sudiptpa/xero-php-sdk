@@ -77,10 +77,7 @@ final class Files implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
-            fn (array $file): File => File::fromPayload($file, $this->client),
-            $payload['Items'] ?? []
-        ));
+        $items = array_values(array_map(fn (array $file): File => $this->mapFile($file), $payload['Items'] ?? []));
 
         return new ResourceCollection($items);
     }
@@ -117,7 +114,7 @@ final class Files implements DefinesScopes
         $payload = $response->json();
         $file = $payload['Items'][0] ?? null;
 
-        return is_array($file) ? File::fromPayload($file, $this->client) : null;
+        return is_array($file) ? $this->mapFile($file) : null;
     }
 
     public function content(string $fileId): string
@@ -195,5 +192,23 @@ final class Files implements DefinesScopes
         }
 
         return self::BASE_PATH . '/Files';
+    }
+
+    /**
+     * @param array<string, mixed> $file
+     */
+    public function mapFile(array $file): File
+    {
+        $folder = $file['FolderId'] ?? null;
+
+        return (new File($this->client))
+            ->setId($file['Id'] ?? null)
+            ->setName($file['Name'] ?? null)
+            ->setMimeType($file['MimeType'] ?? null)
+            ->setSize($file['Size'] ?? null)
+            ->setFolderId(is_array($folder) ? ($folder['Id'] ?? null) : (is_string($folder) ? $folder : null))
+            ->setCreatedDateUTC($file['CreatedDateUTC'] ?? null)
+            ->setUpdatedDateUTC($file['UpdatedDateUTC'] ?? null)
+            ->setUser(is_string($file['User'] ?? null) ? $file['User'] : null);
     }
 }

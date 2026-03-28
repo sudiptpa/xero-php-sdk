@@ -111,10 +111,7 @@ final class TimeEntries implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_map(
-            fn (array $timeEntry): TimeEntry => TimeEntry::fromArray($timeEntry, $this->client, $this->projectId),
-            self::many($payload)
-        );
+        $items = array_map(fn (array $timeEntry): TimeEntry => $this->mapTimeEntry($timeEntry), self::many($payload));
 
         return new ResourceCollection($items);
     }
@@ -146,7 +143,7 @@ final class TimeEntries implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $timeEntry = self::single($payload);
 
-        return is_array($timeEntry) ? TimeEntry::fromArray($timeEntry, $this->client, $this->projectId) : null;
+        return is_array($timeEntry) ? $this->mapTimeEntry($timeEntry) : null;
     }
 
     public function create(): Payload
@@ -186,5 +183,20 @@ final class TimeEntries implements PaginatesResults, DefinesScopes
         $item = $payload['TimeEntry'] ?? $payload['timeEntry'] ?? self::many($payload)[0] ?? null;
 
         return is_array($item) ? $item : null;
+    }
+
+    /**
+     * @param array<string, mixed> $timeEntry
+     */
+    public function mapTimeEntry(array $timeEntry): TimeEntry
+    {
+        return (new TimeEntry($this->client))
+            ->setTimeEntryID($timeEntry['TimeEntryID'] ?? $timeEntry['TimeEntryId'] ?? null)
+            ->setTaskID($timeEntry['TaskID'] ?? $timeEntry['TaskId'] ?? null)
+            ->setUserID($timeEntry['UserID'] ?? $timeEntry['UserId'] ?? null)
+            ->setDateUTC($timeEntry['DateUTC'] ?? $timeEntry['DateUtc'] ?? null)
+            ->setStatus($timeEntry['Status'] ?? null)
+            ->setDuration($timeEntry['Duration'] ?? null)
+            ->setProjectID($this->projectId);
     }
 }

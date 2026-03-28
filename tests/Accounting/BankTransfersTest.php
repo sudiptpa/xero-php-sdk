@@ -56,6 +56,6 @@ final class BankTransfersTest extends TestCase
         self::assertSame('/api.xro/2.0/BankTransfers/transfer-1', $transport->requests()[1]->path);
         self::assertSame('/api.xro/2.0/BankTransfers', $transport->requests()[2]->path);
         self::assertSame('bank-a', $transport->requests()[2]->json['BankTransfers'][0]['FromBankAccount']['AccountID']);
-        self::assertSame('Sweep', $created->reference);
+        self::assertSame('Sweep', $created->getReference());
     }
 }

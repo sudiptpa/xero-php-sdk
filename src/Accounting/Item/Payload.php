@@ -83,6 +83,6 @@ final class Payload
         $payload = $response->json();
         $item = $payload['Items'][0] ?? [];
 
-        return Item::fromPayload(is_array($item) ? $item : [], $this->client);
+        return (new Items($this->client))->mapItem(is_array($item) ? $item : []);
     }
 }

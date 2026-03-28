@@ -178,57 +178,41 @@ final class EmployeesTest extends TestCase
         $workingPatterns = $employee?->workingPatterns();
         $workingPattern = $employee?->workingPattern('pattern-1');
         $leaveSetup = $employee?->leaveSetup()
-            ->using([
-                'LeaveTypeID' => 'leave-type-1',
-                'ScheduleOfAccrual' => 'ON_ANNIVERSARY_DATE',
-            ])
+            ->leaveType('leave-type-1')
+            ->scheduleOfAccrual('ON_ANNIVERSARY_DATE')
             ->idempotencyKey('leave-setup-key')
             ->save();
         $openingBalances = $employee?->openingBalances()
-            ->using([
-                'PeriodEndDate' => '2026-03-31',
-                'DaysPaid' => 5,
-                'GrossEarnings' => 1730.77,
-            ])
+            ->periodEndDate('2026-03-31')
+            ->daysPaid(5)
+            ->grossEarnings(1730.77)
             ->idempotencyKey('opening-balances-key')
             ->save();
         $employment = $employee?->employment();
         $salaryAndWages = $employee?->salaryAndWages(page: 2);
         $salaryAndWage = $employee?->salaryAndWage('wage-1');
         $createdEmployment = $employee?->createEmployment()
-            ->using([
-                'StartDate' => '2026-04-01',
-                'PayrollCalendarID' => 'calendar-1',
-            ])
+            ->startDate('2026-04-01')
+            ->payrollCalendar('calendar-1')
             ->idempotencyKey('employment-key')
             ->save();
         $createdLeave = $employee?->createLeave()
-            ->using([
-                'LeaveTypeID' => 'leave-type-1',
-                'StartDate' => '2026-04-10',
-                'EndDate' => '2026-04-11',
-            ])
+            ->leaveType('leave-type-1')
+            ->startDate('2026-04-10')
+            ->endDate('2026-04-11')
             ->idempotencyKey('leave-key')
             ->save();
         $createdPaymentMethod = $employee?->createPaymentMethod()
-            ->using([
-                'BankAccount' => [
-                    'AccountNumber' => '98-7654-1234567-00',
-                ],
-            ])
+            ->bankAccountNumber('98-7654-1234567-00')
             ->idempotencyKey('payment-method-key')
             ->save();
         $createdSalaryAndWage = $employee?->createSalaryAndWage()
-            ->using([
-                'PaymentType' => 'HOURLY',
-                'EarningsRateID' => 'earning-rate-1',
-            ])
+            ->paymentType('HOURLY')
+            ->earningsRate('earning-rate-1')
             ->idempotencyKey('salary-key')
             ->save();
         $createdWorkingPattern = $employee?->createWorkingPattern()
-            ->using([
-                'EffectiveFrom' => '2026-04-01',
-            ])
+            ->effectiveFrom('2026-04-01')
             ->idempotencyKey('working-pattern-key')
             ->save();
 
@@ -236,6 +220,7 @@ final class EmployeesTest extends TestCase
         self::assertSame('Ada', $transport->requests()[0]->query['filter']);
         self::assertSame(2, $transport->requests()[0]->query['page']);
         self::assertInstanceOf(Employee::class, $employees->first());
+        self::assertSame('Ada', $employees->first()->getFirstName());
         self::assertSame('/payroll.xro/2.0/Employees/employee-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/2.0/Employees', $transport->requests()[2]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-2', $transport->requests()[3]->path);
@@ -268,10 +253,10 @@ final class EmployeesTest extends TestCase
         self::assertSame('payment-method-key', $transport->requests()[20]->headers['Idempotency-Key']);
         self::assertSame('salary-key', $transport->requests()[21]->headers['Idempotency-Key']);
         self::assertSame('working-pattern-key', $transport->requests()[22]->headers['Idempotency-Key']);
-        self::assertSame('employee-1', $employee?->id);
-        self::assertSame('employee-2', $created->id);
-        self::assertSame('employee-2', $updated->id);
-        self::assertSame('Annual Leave', $leaveTypes?->first()?->name);
+        self::assertSame('employee-1', $employee?->getEmployeeID());
+        self::assertSame('employee-2', $created->getEmployeeID());
+        self::assertSame('employee-2', $updated->getEmployeeID());
+        self::assertSame('Annual Leave', $leaveTypes?->first()?->getName());
         self::assertSame('2026-01-01', $leavePeriods['LeavePeriods'][0]['StartDate']);
         self::assertEquals(24.5, $leaveBalances['LeaveBalances'][0]['Balance']);
         self::assertSame('leave-1', $leaves['Leave'][0]['LeaveID']);

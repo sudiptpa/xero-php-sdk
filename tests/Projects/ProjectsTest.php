@@ -96,9 +96,9 @@ final class ProjectsTest extends TestCase
         self::assertSame('CLOSED', $transport->requests()[4]->json['State']);
         self::assertSame('PATCH', $transport->requests()[5]->method);
         self::assertSame('INPROGRESS', $transport->requests()[5]->json['State']);
-        self::assertSame('Mobile app v2', $updated->title);
-        self::assertSame('CLOSED', $closed->state);
-        self::assertSame('INPROGRESS', $reopened->state);
-        self::assertSame('project-1', $project?->id);
+        self::assertSame('Mobile app v2', $updated->getTitle());
+        self::assertSame('CLOSED', $closed->getState());
+        self::assertSame('INPROGRESS', $reopened->getState());
+        self::assertSame('project-1', $project?->getProjectID());
     }
 }

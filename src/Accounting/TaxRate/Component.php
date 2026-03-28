@@ -4,32 +4,13 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\TaxRate;
 
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class Component implements BuildsFromPayload, SerializesForRequest
+final class Component implements SerializesForRequest
 {
     private ?string $name = null;
 
     private int|float|null $rate = null;
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?\Sujip\Xero\Client $client = null): static
-    {
-        return (new self())
-            ->setName($payload['Name'] ?? null)
-            ->setRate($payload['Rate'] ?? null);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?\Sujip\Xero\Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
-    }
 
     public function getName(): ?string
     {

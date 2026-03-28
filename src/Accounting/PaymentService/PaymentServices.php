@@ -35,7 +35,7 @@ final class PaymentServices implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $paymentService): PaymentService => PaymentService::fromArray($paymentService),
+            fn (array $paymentService): PaymentService => $this->mapPaymentService($paymentService),
             $payload['PaymentServices'] ?? []
         ));
 
@@ -45,5 +45,17 @@ final class PaymentServices implements DefinesScopes
     public function create(): Payload
     {
         return new Payload($this->client);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapPaymentService(array $payload): PaymentService
+    {
+        return (new PaymentService())
+            ->setPaymentServiceName(isset($payload['PaymentServiceName']) ? (string) $payload['PaymentServiceName'] : null)
+            ->setPaymentServiceUrl(isset($payload['PaymentServiceUrl']) ? (string) $payload['PaymentServiceUrl'] : null)
+            ->setPayNowText(isset($payload['PayNowText']) ? (string) $payload['PayNowText'] : null)
+            ;
     }
 }

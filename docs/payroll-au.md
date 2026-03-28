@@ -26,6 +26,8 @@ $calendars = $xero->payroll()
     ->au()
     ->payrollCalendars()
     ->get();
+
+$firstCalendarName = $calendars->first()?->getName();
 ```
 
 ```php
@@ -57,6 +59,9 @@ $employee = $xero->payroll()
     ->au()
     ->employees()
     ->find('employee-id');
+
+$employeeId = $employee?->getEmployeeID();
+$firstName = $employee?->getFirstName();
 ```
 
 ```php
@@ -89,6 +94,8 @@ $leaveApplications = $xero->payroll()
     ->leaveApplications()
     ->where('Status=="REQUESTED"')
     ->get();
+
+$status = $leaveApplications->first()?->getStatus();
 ```
 
 ```php
@@ -112,6 +119,8 @@ $payItems = $xero->payroll()
     ->payItems()
     ->page(1)
     ->get();
+
+$earningsRates = $payItems->first()?->getEarningsRates();
 ```
 
 ## Pay Runs
@@ -122,6 +131,9 @@ $payRuns = $xero->payroll()
     ->payRuns()
     ->where('Status=="DRAFT"')
     ->get();
+
+$payRunId = $payRuns->first()?->getPayRunID();
+$payRunStatus = $payRuns->first()?->getPayRunStatus();
 ```
 
 ```php
@@ -139,6 +151,8 @@ $payslips = $xero->payroll()
     ->payRuns()
     ->payslips('payrun-id')
     ->get();
+
+$netPay = $payslips->first()?->getNetPay();
 ```
 
 ## Timesheets
@@ -149,6 +163,9 @@ $timesheets = $xero->payroll()
     ->timesheets()
     ->where('Status=="DRAFT"')
     ->get();
+
+$timesheetId = $timesheets->first()?->getTimesheetID();
+$timesheetStatus = $timesheets->first()?->getStatus();
 ```
 
 ```php
@@ -179,6 +196,8 @@ $superFunds = $xero->payroll()
     ->au()
     ->superFunds()
     ->get();
+
+$fundName = $superFunds->first()?->getName();
 ```
 
 ```php
@@ -200,6 +219,8 @@ $products = $xero->payroll()
     ->abn('40022701955')
     ->usi('OSF0001AU')
     ->get();
+
+$productId = $products->first()?->getSuperFundProductID();
 ```
 
 ## Scope Notes

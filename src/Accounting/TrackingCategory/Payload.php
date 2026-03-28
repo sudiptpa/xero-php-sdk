@@ -80,6 +80,7 @@ final class Payload
         $payload = $response->json();
         $trackingCategory = $payload['TrackingCategories'][0] ?? $payload['TrackingCategory'] ?? [];
 
-        return TrackingCategory::fromArray(is_array($trackingCategory) ? $trackingCategory : [], $this->client);
+        return (new TrackingCategories($this->client))
+            ->mapTrackingCategory(is_array($trackingCategory) ? $trackingCategory : []);
     }
 }

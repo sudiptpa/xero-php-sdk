@@ -69,6 +69,7 @@ final class Payload
         $payload = $response->json();
         $contactGroup = $payload['ContactGroups'][0] ?? $payload['ContactGroup'] ?? [];
 
-        return ContactGroup::fromArray(is_array($contactGroup) ? $contactGroup : [], $this->client);
+        return (new ContactGroups($this->client))
+            ->mapContactGroup(is_array($contactGroup) ? $contactGroup : []);
     }
 }

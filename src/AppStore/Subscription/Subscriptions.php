@@ -32,7 +32,7 @@ final readonly class Subscriptions implements DefinesScopes
             ->send()
             ->json();
 
-        return Subscription::fromArray($payload, $this->client);
+        return $this->mapSubscription($payload);
     }
 
     /**
@@ -47,7 +47,7 @@ final readonly class Subscriptions implements DefinesScopes
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $usageRecord): UsageRecord => UsageRecord::fromArray($usageRecord),
+            fn (array $usageRecord): UsageRecord => $this->mapUsageRecord($usageRecord),
             $payload['items'] ?? $payload['usageRecords'] ?? []
         ));
 
@@ -62,5 +62,31 @@ final readonly class Subscriptions implements DefinesScopes
     public function updateUsage(string $subscriptionId, string $usageRecordId): UsageRecordPayload
     {
         return (new UsageRecordPayload($this->client, $subscriptionId))->id($usageRecordId);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapSubscription(array $payload): Subscription
+    {
+        return (new Subscription($this->client))
+            ->setSubscriptionID(isset($payload['id']) ? (string) $payload['id'] : (isset($payload['SubscriptionID']) ? (string) $payload['SubscriptionID'] : null))
+            ->setPlanID(isset($payload['planId']) ? (string) $payload['planId'] : (isset($payload['PlanID']) ? (string) $payload['PlanID'] : null))
+            ->setStatus(isset($payload['status']) ? (string) $payload['status'] : (isset($payload['Status']) ? (string) $payload['Status'] : null))
+            ->setCurrentPeriodEnd(isset($payload['currentPeriodEnd']) ? (string) $payload['currentPeriodEnd'] : null)
+            ->setItems(array_values(array_filter($payload['items'] ?? $payload['Items'] ?? [], 'is_array')));
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapUsageRecord(array $payload): UsageRecord
+    {
+        return (new UsageRecord())
+            ->setUsageRecordID(isset($payload['id']) ? (string) $payload['id'] : null)
+            ->setSubscriptionItemID(isset($payload['subscriptionItemId']) ? (string) $payload['subscriptionItemId'] : null)
+            ->setQuantity(isset($payload['quantity']) ? (float) $payload['quantity'] : null)
+            ->setStartDate(isset($payload['startDate']) ? (string) $payload['startDate'] : null)
+            ->setEndDate(isset($payload['endDate']) ? (string) $payload['endDate'] : null);
     }
 }

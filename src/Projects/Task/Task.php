@@ -7,64 +7,103 @@ namespace Sujip\Xero\Projects\Task;
 use RuntimeException;
 use Sujip\Xero\Client;
 
-final readonly class Task
+final class Task
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
+    private ?string $taskID = null;
+
+    private ?string $name = null;
+
+    private ?string $chargeType = null;
+
+    private int|float|null $rate = null;
+
+    private ?string $projectID = null;
+
     public function __construct(
-        public ?string $id,
-        public ?string $name,
-        public ?string $chargeType,
-        public int|float|null $rate,
-        public ?string $projectId,
-        public array $raw = [],
         private ?Client $client = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null, ?string $projectId = null): self
+    public function getTaskID(): ?string
     {
-        return new self(
-            $payload['TaskID'] ?? $payload['TaskId'] ?? null,
-            $payload['Name'] ?? null,
-            $payload['ChargeType'] ?? null,
-            $payload['Rate'] ?? null,
-            $projectId ?? $payload['ProjectID'] ?? $payload['ProjectId'] ?? null,
-            $payload,
-            $client
-        );
+        return $this->taskID;
+    }
+
+    public function setTaskID(?string $taskID): self
+    {
+        $this->taskID = $taskID;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getChargeType(): ?string
+    {
+        return $this->chargeType;
+    }
+
+    public function setChargeType(?string $chargeType): self
+    {
+        $this->chargeType = $chargeType === null ? null : strtoupper($chargeType);
+
+        return $this;
+    }
+
+    public function getRate(): int|float|null
+    {
+        return $this->rate;
+    }
+
+    public function setRate(int|float|null $rate): self
+    {
+        $this->rate = $rate;
+
+        return $this;
+    }
+
+    public function getProjectID(): ?string
+    {
+        return $this->projectID;
+    }
+
+    public function setProjectID(?string $projectID): self
+    {
+        $this->projectID = $projectID;
+
+        return $this;
     }
 
     public function name(string $name): self
     {
-        $payload = $this->raw;
-        $payload['Name'] = $name;
-
-        return new self($this->id, $name, $this->chargeType, $this->rate, $this->projectId, $payload, $this->client);
+        return $this->setName($name);
     }
 
     public function rate(int|float $rate): self
     {
-        $payload = $this->raw;
-        $payload['Rate'] = $rate;
-
-        return new self($this->id, $this->name, $this->chargeType, $rate, $this->projectId, $payload, $this->client);
+        return $this->setRate($rate);
     }
 
     public function save(): self
     {
-        if ($this->client === null || $this->projectId === null) {
+        if ($this->client === null || $this->projectID === null) {
             throw new RuntimeException('Cannot save a task without a bound client context and project id.');
         }
 
-        $payload = new Payload($this->client, $this->projectId);
+        $payload = new Payload($this->client, $this->projectID);
 
-        if ($this->id !== null) {
-            $payload = $payload->id($this->id);
+        if ($this->taskID !== null) {
+            $payload = $payload->id($this->taskID);
         }
 
         if ($this->name !== null) {
@@ -84,10 +123,10 @@ final readonly class Task
 
     public function delete(): void
     {
-        if ($this->client === null || $this->projectId === null || $this->id === null) {
+        if ($this->client === null || $this->projectID === null || $this->taskID === null) {
             throw new RuntimeException('Cannot delete a task without a bound client context, project id, and task id.');
         }
 
-        (new Tasks($this->client, $this->projectId))->delete($this->id);
+        (new Tasks($this->client, $this->projectID))->delete($this->taskID);
     }
 }

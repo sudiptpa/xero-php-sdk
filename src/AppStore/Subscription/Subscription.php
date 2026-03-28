@@ -8,57 +8,55 @@ use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\ResourceCollection;
 
-final readonly class Subscription
+final class Subscription
 {
     /**
-     * @param array<string, mixed> $raw
      * @param list<array<string, mixed>> $items
      */
     public function __construct(
-        public ?string $id,
-        public ?string $planId,
-        public ?string $status,
-        public ?string $currentPeriodEnd,
-        public array $items = [],
-        public array $raw = [],
-        private ?Client $client = null
+        private ?Client $client = null,
+        private ?string $subscriptionID = null,
+        private ?string $planID = null,
+        private ?string $status = null,
+        private ?string $currentPeriodEnd = null,
+        private array $items = [],
     ) {
     }
 
+    public function getSubscriptionID(): ?string { return $this->subscriptionID; }
+    public function setSubscriptionID(?string $subscriptionID): self { $this->subscriptionID = $subscriptionID; return $this; }
+    public function getPlanID(): ?string { return $this->planID; }
+    public function setPlanID(?string $planID): self { $this->planID = $planID; return $this; }
+    public function getStatus(): ?string { return $this->status; }
+    public function setStatus(?string $status): self { $this->status = $status; return $this; }
+    public function getCurrentPeriodEnd(): ?string { return $this->currentPeriodEnd; }
+    public function setCurrentPeriodEnd(?string $currentPeriodEnd): self { $this->currentPeriodEnd = $currentPeriodEnd; return $this; }
     /**
-     * @param array<string, mixed> $payload
+     * @return list<array<string, mixed>>
      */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return new self(
-            isset($payload['id']) ? (string) $payload['id'] : (isset($payload['SubscriptionID']) ? (string) $payload['SubscriptionID'] : null),
-            isset($payload['planId']) ? (string) $payload['planId'] : (isset($payload['PlanID']) ? (string) $payload['PlanID'] : null),
-            isset($payload['status']) ? (string) $payload['status'] : (isset($payload['Status']) ? (string) $payload['Status'] : null),
-            isset($payload['currentPeriodEnd']) ? (string) $payload['currentPeriodEnd'] : null,
-            array_values(array_filter($payload['items'] ?? $payload['Items'] ?? [], 'is_array')),
-            $payload,
-            $client
-        );
-    }
-
+    public function getItems(): array { return $this->items; }
+    /**
+     * @param list<array<string, mixed>> $items
+     */
+    public function setItems(array $items): self { $this->items = $items; return $this; }
     /**
      * @return ResourceCollection<UsageRecord>
      */
     public function usageRecords(): ResourceCollection
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->subscriptionID === null) {
             throw new RuntimeException('Cannot load usage records without a bound client context and subscription id.');
         }
 
-        return (new Subscriptions($this->client))->usageRecords($this->id);
+        return (new Subscriptions($this->client))->usageRecords($this->subscriptionID);
     }
 
     public function recordUsage(): UsageRecordPayload
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->subscriptionID === null) {
             throw new RuntimeException('Cannot record usage without a bound client context and subscription id.');
         }
 
-        return (new Subscriptions($this->client))->recordUsage($this->id);
+        return (new Subscriptions($this->client))->recordUsage($this->subscriptionID);
     }
 }

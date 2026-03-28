@@ -80,6 +80,7 @@ final class Payload
         $payload = $response->json();
         $quote = $payload['Quotes'][0] ?? [];
 
-        return Quote::fromPayload(is_array($quote) ? $quote : [], $this->client);
+        return (new Quotes($this->client))
+            ->mapQuote(is_array($quote) ? $quote : []);
     }
 }

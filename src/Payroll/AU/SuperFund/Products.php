@@ -57,10 +57,23 @@ final class Products implements DefinesScopes
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $product): Product => Product::fromArray($product),
+            fn (array $product): Product => $this->mapProduct($product),
             $payload['SuperFundProducts'] ?? []
         ));
 
         return new ResourceCollection($items);
+    }
+
+    /**
+     * @param array<string, mixed> $product
+     */
+    public function mapProduct(array $product): Product
+    {
+        return (new Product())
+            ->setSuperFundProductID($product['SuperFundProductID'] ?? null)
+            ->setName($product['Name'] ?? null)
+            ->setUSI($product['USI'] ?? null)
+            ->setABN($product['ABN'] ?? null)
+            ;
     }
 }

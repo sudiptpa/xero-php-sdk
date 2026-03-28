@@ -24,7 +24,7 @@ The package is not ready to call fully covered until the open items in the statu
 Every completed resource should have:
 
 - a fluent public API
-- typed models and payloads
+- rich models
 - tests
 - scope metadata
 - human-written docs

@@ -71,7 +71,7 @@ final class LeaveApplications implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $leaveApplication): LeaveApplication => LeaveApplication::fromArray($leaveApplication, $this->client),
+            fn (array $leaveApplication): LeaveApplication => $this->mapLeaveApplication($leaveApplication),
             $payload['LeaveApplications'] ?? []
         ));
 
@@ -105,7 +105,7 @@ final class LeaveApplications implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $leaveApplication = $payload['LeaveApplications'][0] ?? $payload['LeaveApplication'] ?? null;
 
-        return is_array($leaveApplication) ? LeaveApplication::fromArray($leaveApplication, $this->client) : null;
+        return is_array($leaveApplication) ? $this->mapLeaveApplication($leaveApplication) : null;
     }
 
     public function create(): Payload
@@ -127,7 +127,7 @@ final class LeaveApplications implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $leaveApplication = $payload['LeaveApplications'][0] ?? $payload['LeaveApplication'] ?? [];
 
-        return LeaveApplication::fromArray(is_array($leaveApplication) ? $leaveApplication : [], $this->client);
+        return is_array($leaveApplication) ? $this->mapLeaveApplication($leaveApplication) : new LeaveApplication($this->client);
     }
 
     public function reject(string $leaveApplicationId): LeaveApplication
@@ -139,6 +139,22 @@ final class LeaveApplications implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $leaveApplication = $payload['LeaveApplications'][0] ?? $payload['LeaveApplication'] ?? [];
 
-        return LeaveApplication::fromArray(is_array($leaveApplication) ? $leaveApplication : [], $this->client);
+        return is_array($leaveApplication) ? $this->mapLeaveApplication($leaveApplication) : new LeaveApplication($this->client);
+    }
+
+    /**
+     * @param array<string, mixed> $leaveApplication
+     */
+    public function mapLeaveApplication(array $leaveApplication): LeaveApplication
+    {
+        return (new LeaveApplication($this->client))
+            ->setLeaveApplicationID($leaveApplication['LeaveApplicationID'] ?? null)
+            ->setEmployeeID($leaveApplication['EmployeeID'] ?? null)
+            ->setLeaveTypeID($leaveApplication['LeaveTypeID'] ?? null)
+            ->setTitle($leaveApplication['Title'] ?? null)
+            ->setStartDate($leaveApplication['StartDate'] ?? null)
+            ->setEndDate($leaveApplication['EndDate'] ?? null)
+            ->setStatus($leaveApplication['Status'] ?? null)
+            ;
     }
 }

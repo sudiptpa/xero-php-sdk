@@ -65,7 +65,7 @@ final class ExpenseClaimsTest extends TestCase
         self::assertSame('employee-1', $transport->requests()[2]->json['ExpenseClaims'][0]['Employee']['EmployeeID']);
         self::assertSame('/api.xro/2.0/ExpenseClaims', $transport->requests()[3]->path);
         self::assertSame('expense-2', $transport->requests()[3]->json['ExpenseClaims'][0]['ExpenseClaimID']);
-        self::assertSame('SUBMITTED', $updated->status);
-        self::assertSame('expense-1', $claim?->id);
+        self::assertSame('SUBMITTED', $updated->getStatus());
+        self::assertSame('expense-1', $claim?->getExpenseClaimID());
     }
 }

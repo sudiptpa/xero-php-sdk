@@ -52,17 +52,6 @@ final class Payload
         return $clone;
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public function using(array $payload): self
-    {
-        $clone = clone $this;
-        $clone->attributes = $payload;
-
-        return $clone;
-    }
-
     public function idempotencyKey(string $key): self
     {
         $clone = clone $this;
@@ -83,6 +72,10 @@ final class Payload
         /** @var array<string, mixed>|null $fund */
         $fund = $payload['SuperFunds'][0] ?? $payload['SuperFund'] ?? null;
 
-        return SuperFund::fromArray(is_array($fund) ? $fund : []);
+        if (! is_array($fund)) {
+            return new SuperFund();
+        }
+
+        return (new SuperFunds($this->client))->mapSuperFund($fund);
     }
 }

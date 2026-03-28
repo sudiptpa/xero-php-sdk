@@ -14,17 +14,6 @@ final class LineItem implements SerializesForRequest
 
     private int|float|null $unitAmount = null;
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload): self
-    {
-        return (new self())
-            ->setDescription($payload['Description'] ?? null)
-            ->setQuantity($payload['Quantity'] ?? null)
-            ->setUnitAmount($payload['UnitAmount'] ?? null);
-    }
-
     public function getDescription(): ?string
     {
         return $this->description;

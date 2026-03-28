@@ -4,31 +4,30 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\NZ\PayRunCalendar;
 
-final readonly class PayRunCalendar
+final class PayRunCalendar
 {
     /**
-     * @param array<string, mixed> $raw
      */
     public function __construct(
-        public ?string $id,
-        public ?string $name,
-        public ?string $calendarType,
-        public ?string $periodStartDate,
-        public array $raw = []
+        private ?string $payrollCalendarID = null,
+        private ?string $name = null,
+        private ?string $calendarType = null,
+        private ?string $periodStartDate = null,
     ) {
     }
 
+    public function getPayrollCalendarID(): ?string { return $this->payrollCalendarID; }
+    public function setPayrollCalendarID(?string $payrollCalendarID): self { $this->payrollCalendarID = $payrollCalendarID; return $this; }
+    public function getName(): ?string { return $this->name; }
+    public function setName(?string $name): self { $this->name = $name; return $this; }
+    public function getCalendarType(): ?string { return $this->calendarType; }
+    public function setCalendarType(?string $calendarType): self { $this->calendarType = $calendarType; return $this; }
+    public function getPeriodStartDate(): ?string { return $this->periodStartDate; }
+    public function setPeriodStartDate(?string $periodStartDate): self { $this->periodStartDate = $periodStartDate; return $this; }
     /**
-     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
      */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            $payload['PayrollCalendarID'] ?? null,
-            $payload['Name'] ?? null,
-            $payload['CalendarType'] ?? null,
-            $payload['PeriodStartDate'] ?? null,
-            $payload
-        );
-    }
+    /**
+     * @param array<string, mixed> $raw
+     */
 }

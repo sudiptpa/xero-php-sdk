@@ -76,8 +76,8 @@ final class TimesheetsTest extends TestCase
         self::assertSame('/payroll.xro/1.0/Timesheets/timesheet-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/1.0/Timesheets', $transport->requests()[2]->path);
         self::assertSame('/payroll.xro/1.0/Timesheets/timesheet-2', $transport->requests()[3]->path);
-        self::assertSame('timesheet-1', $timesheet?->id);
-        self::assertSame('timesheet-2', $created->id);
-        self::assertSame('APPROVED', $updated->status);
+        self::assertSame('timesheet-1', $timesheet?->getTimesheetID());
+        self::assertSame('timesheet-2', $created->getTimesheetID());
+        self::assertSame('APPROVED', $updated->getStatus());
     }
 }

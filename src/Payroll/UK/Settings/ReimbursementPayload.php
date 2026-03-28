@@ -36,17 +36,6 @@ final class ReimbursementPayload
         return $clone;
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public function using(array $payload): self
-    {
-        $clone = clone $this;
-        $clone->payload = $payload;
-
-        return $clone;
-    }
-
     public function idempotencyKey(string $key): self
     {
         $clone = clone $this;
@@ -55,16 +44,22 @@ final class ReimbursementPayload
         return $clone;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function save(): array
+    public function save(): Reimbursement
     {
-        return $this->client
+        $payload = $this->client
             ->post('/payroll.xro/2.0/Reimbursements')
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
             ->withJson($this->payload)
             ->send()
             ->json();
+
+        /** @var array<string, mixed>|null $reimbursement */
+        $reimbursement = $payload['Reimbursements'][0] ?? $payload['Reimbursement'] ?? null;
+
+        if (! is_array($reimbursement)) {
+            return new Reimbursement();
+        }
+
+        return (new Settings($this->client))->mapReimbursement($reimbursement);
     }
 }

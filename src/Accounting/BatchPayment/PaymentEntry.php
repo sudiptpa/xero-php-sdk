@@ -4,32 +4,13 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\BatchPayment;
 
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class PaymentEntry implements BuildsFromPayload, SerializesForRequest
+final class PaymentEntry implements SerializesForRequest
 {
     private ?string $invoiceID = null;
 
     private int|float|null $amount = null;
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?\Sujip\Xero\Client $client = null): static
-    {
-        return (new self())
-            ->setInvoiceID($payload['Invoice']['InvoiceID'] ?? null)
-            ->setAmount($payload['Amount'] ?? null);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?\Sujip\Xero\Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
-    }
 
     public function getInvoiceID(): ?string
     {

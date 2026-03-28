@@ -35,7 +35,7 @@ final class Organisations implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $organisation): Organisation => Organisation::fromPayload($organisation),
+            fn (array $organisation): Organisation => $this->mapOrganisation($organisation),
             $payload['Organisations'] ?? []
         ));
 
@@ -45,5 +45,17 @@ final class Organisations implements DefinesScopes
     public function current(): ?Organisation
     {
         return $this->get()->first();
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapOrganisation(array $payload): Organisation
+    {
+        return (new Organisation())
+            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
+            ->setLegalName(isset($payload['LegalName']) ? (string) $payload['LegalName'] : null)
+            ->setShortCode(isset($payload['ShortCode']) ? (string) $payload['ShortCode'] : null)
+            ->setCountryCode(isset($payload['CountryCode']) ? (string) $payload['CountryCode'] : null);
     }
 }

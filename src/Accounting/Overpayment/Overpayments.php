@@ -53,7 +53,7 @@ final class Overpayments implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $overpayment): Overpayment => Overpayment::fromPayload($overpayment),
+            fn (array $overpayment): Overpayment => $this->mapOverpayment($overpayment),
             $payload['Overpayments'] ?? []
         ));
 
@@ -84,6 +84,18 @@ final class Overpayments implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $overpayment = $payload['Overpayments'][0] ?? null;
 
-        return is_array($overpayment) ? Overpayment::fromPayload($overpayment) : null;
+        return is_array($overpayment) ? $this->mapOverpayment($overpayment) : null;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapOverpayment(array $payload): Overpayment
+    {
+        return (new Overpayment())
+            ->setOverpaymentID(isset($payload['OverpaymentID']) ? (string) $payload['OverpaymentID'] : null)
+            ->setType(isset($payload['Type']) ? (string) $payload['Type'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
+            ->setRemainingCredit(isset($payload['RemainingCredit']) && is_numeric($payload['RemainingCredit']) ? $payload['RemainingCredit'] + 0 : null);
     }
 }

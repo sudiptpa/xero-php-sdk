@@ -41,7 +41,7 @@ final class PayRunCalendars implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $calendar): PayRunCalendar => PayRunCalendar::fromArray($calendar),
+            fn (array $calendar): PayRunCalendar => $this->mapPayRunCalendar($calendar),
             $payload['PayrollCalendars'] ?? $payload['PayRunCalendars'] ?? []
         ));
 
@@ -75,6 +75,19 @@ final class PayRunCalendars implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $calendar = $payload['PayrollCalendars'][0] ?? $payload['PayRunCalendars'][0] ?? $payload['PayrollCalendar'] ?? $payload['PayRunCalendar'] ?? null;
 
-        return is_array($calendar) ? PayRunCalendar::fromArray($calendar) : null;
+        return is_array($calendar) ? $this->mapPayRunCalendar($calendar) : null;
+    }
+
+    /**
+     * @param array<string, mixed> $calendar
+     */
+    public function mapPayRunCalendar(array $calendar): PayRunCalendar
+    {
+        return (new PayRunCalendar())
+            ->setPayrollCalendarID($calendar['PayrollCalendarID'] ?? null)
+            ->setName($calendar['Name'] ?? null)
+            ->setCalendarType($calendar['CalendarType'] ?? null)
+            ->setPeriodStartDate($calendar['PeriodStartDate'] ?? null)
+            ;
     }
 }

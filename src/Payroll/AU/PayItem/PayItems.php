@@ -72,7 +72,7 @@ final class PayItems implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $payItems = $payload['PayItems'] ?? [];
         $items = array_values(array_map(
-            static fn (array $payItem): PayItem => PayItem::fromArray($payItem),
+            fn (array $payItem): PayItem => $this->mapPayItem($payItem),
             $payItems === [] ? [$payload] : $payItems
         ));
 
@@ -95,5 +95,19 @@ final class PayItems implements PaginatesResults, DefinesScopes
         }
 
         return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/1.0/PayItems']);
+    }
+
+    /**
+     * @param array<string, mixed> $payItem
+     */
+    public function mapPayItem(array $payItem): PayItem
+    {
+        return (new PayItem())
+            ->setEarningsRates(array_values($payItem['EarningsRates'] ?? []))
+            ->setDeductionTypes(array_values($payItem['DeductionTypes'] ?? []))
+            ->setLeaveTypes(array_values($payItem['LeaveTypes'] ?? []))
+            ->setReimbursementTypes(array_values($payItem['ReimbursementTypes'] ?? []))
+            ->setSuperannuationTypes(array_values($payItem['SuperannuationTypes'] ?? []))
+            ;
     }
 }

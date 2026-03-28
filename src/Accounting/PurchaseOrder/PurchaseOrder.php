@@ -9,10 +9,9 @@ use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Accounting\Invoice\LineItem;
 use RuntimeException;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class PurchaseOrder implements BuildsFromPayload, SerializesForRequest
+final class PurchaseOrder implements SerializesForRequest
 {
     public function __construct(
         private ?Client $client = null
@@ -33,39 +32,6 @@ final class PurchaseOrder implements BuildsFromPayload, SerializesForRequest
      * @var list<LineItem>
      */
     private array $lineItems = [];
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?Client $client = null): static
-    {
-        $purchaseOrder = (new self($client))
-            ->setPurchaseOrderID($payload['PurchaseOrderID'] ?? null)
-            ->setPurchaseOrderNumber($payload['PurchaseOrderNumber'] ?? null)
-            ->setStatus($payload['Status'] ?? null)
-            ->setReference($payload['Reference'] ?? null);
-
-        $contact = $payload['Contact'] ?? null;
-        if (is_array($contact)) {
-            $purchaseOrder->setContact(Contact::fromPayload($contact));
-        }
-
-        foreach ($payload['LineItems'] ?? [] as $lineItem) {
-            if (is_array($lineItem)) {
-                $purchaseOrder->addLineItem(LineItem::fromPayload($lineItem));
-            }
-        }
-
-        return $purchaseOrder;
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
-    }
 
     public function getPurchaseOrderID(): ?string
     {

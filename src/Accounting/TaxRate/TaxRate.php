@@ -6,10 +6,9 @@ namespace Sujip\Xero\Accounting\TaxRate;
 
 use RuntimeException;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class TaxRate implements BuildsFromPayload, SerializesForRequest
+final class TaxRate implements SerializesForRequest
 {
     public function __construct(
         private ?Client $client = null
@@ -26,33 +25,6 @@ final class TaxRate implements BuildsFromPayload, SerializesForRequest
      * @var list<Component>
      */
     private array $taxComponents = [];
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?Client $client = null): static
-    {
-        $taxRate = (new self($client))
-            ->setName($payload['Name'] ?? null)
-            ->setTaxType($payload['TaxType'] ?? null)
-            ->setStatus($payload['Status'] ?? null);
-
-        foreach ($payload['TaxComponents'] ?? [] as $component) {
-            if (is_array($component)) {
-                $taxRate->addTaxComponent(Component::fromPayload($component));
-            }
-        }
-
-        return $taxRate;
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
-    }
 
     public function getName(): ?string
     {

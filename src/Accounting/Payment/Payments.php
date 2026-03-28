@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Payment;
 
+use Sujip\Xero\Accounting\Account\Accounts;
 use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
@@ -54,7 +55,7 @@ final class Payments implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $payment): Payment => Payment::fromPayload($payment, $this->client),
+            fn (array $payment): Payment => $this->mapPayment($payment),
             $payload['Payments'] ?? []
         ));
 
@@ -93,7 +94,7 @@ final class Payments implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $payment = $payload['Payments'][0] ?? null;
 
-        return is_array($payment) ? Payment::fromPayload($payment, $this->client) : null;
+        return is_array($payment) ? $this->mapPayment($payment) : null;
     }
 
     public function create(): Payload
@@ -109,5 +110,27 @@ final class Payments implements PaginatesResults, DefinesScopes
     public function history(string $paymentId): History
     {
         return new History($this->client, '/api.xro/2.0/Payments/' . $paymentId . '/History');
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapPayment(array $payload): Payment
+    {
+        return (new Payment($this->client))
+            ->setPaymentID(isset($payload['PaymentID']) ? (string) $payload['PaymentID'] : null)
+            ->setAmount(isset($payload['Amount']) ? (float) $payload['Amount'] : null)
+            ->setDate(isset($payload['Date']) ? (string) $payload['Date'] : null)
+            ->setReference(isset($payload['Reference']) ? (string) $payload['Reference'] : null)
+            ->setInvoiceID(
+                isset($payload['Invoice']['InvoiceID']) && is_string($payload['Invoice']['InvoiceID'])
+                    ? $payload['Invoice']['InvoiceID']
+                    : null
+            )
+            ->setAccount(
+                is_array($payload['Account'] ?? null)
+                    ? (new Accounts($this->client))->mapAccount($payload['Account'])
+                    : null
+            );
     }
 }

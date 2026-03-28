@@ -26,7 +26,13 @@ final readonly class Attachments
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $attachment): Attachment => Attachment::fromArray($attachment),
+            static fn (array $attachment): Attachment => new Attachment(
+                $attachment['AttachmentID'] ?? null,
+                $attachment['FileName'] ?? null,
+                $attachment['MimeType'] ?? null,
+                isset($attachment['IncludeOnline']) ? (bool) $attachment['IncludeOnline'] : null,
+                $attachment
+            ),
             $payload['Attachments'] ?? []
         ));
 

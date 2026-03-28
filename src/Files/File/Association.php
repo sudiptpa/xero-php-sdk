@@ -4,29 +4,48 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Files\File;
 
-final readonly class Association
+final class Association
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
-    public function __construct(
-        public ?string $objectId,
-        public ?string $objectType,
-        public ?string $objectGroup,
-        public array $raw = []
-    ) {
+    private ?string $objectId = null;
+
+    private ?string $objectType = null;
+
+    private ?string $objectGroup = null;
+
+    public function getObjectId(): ?string
+    {
+        return $this->objectId;
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
+    public function setObjectId(?string $objectId): self
     {
-        return new self(
-            $payload['ObjectId'] ?? null,
-            $payload['ObjectType'] ?? null,
-            $payload['ObjectGroup'] ?? null,
-            $payload
-        );
+        $this->objectId = $objectId;
+
+        return $this;
     }
+
+    public function getObjectType(): ?string
+    {
+        return $this->objectType;
+    }
+
+    public function setObjectType(?string $objectType): self
+    {
+        $this->objectType = $objectType;
+
+        return $this;
+    }
+
+    public function getObjectGroup(): ?string
+    {
+        return $this->objectGroup;
+    }
+
+    public function setObjectGroup(?string $objectGroup): self
+    {
+        $this->objectGroup = $objectGroup;
+
+        return $this;
+    }
+
 }

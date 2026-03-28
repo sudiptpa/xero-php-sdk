@@ -38,7 +38,7 @@ final class ConnectionsTest extends TestCase
         self::assertSame('/connections', $request->path);
         self::assertArrayNotHasKey('Xero-Tenant-Id', $request->headers);
         self::assertInstanceOf(Connection::class, $connections->first());
-        self::assertSame('tenant-1', $connections->first()->tenantId);
+        self::assertSame('tenant-1', $connections->first()->getTenantId());
     }
 
     public function test_it_can_find_a_connection_by_tenant(): void
@@ -63,8 +63,8 @@ final class ConnectionsTest extends TestCase
             ->connections()
             ->findByTenant('tenant-2');
 
-        self::assertSame('connection-2', $connection->id);
-        self::assertSame('Beta Pty Ltd', $connection->tenantName);
+        self::assertSame('connection-2', $connection->getId());
+        self::assertSame('Beta Pty Ltd', $connection->getTenantName());
     }
 
     public function test_it_can_disconnect_a_connection_without_sending_a_tenant_header(): void

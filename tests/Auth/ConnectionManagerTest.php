@@ -34,8 +34,8 @@ final class ConnectionManagerTest extends TestCase
 
         $token = $manager->exchange('code-123', 'pkce-verifier');
 
-        self::assertSame('access-token', $token->accessToken);
-        self::assertSame('access-token', $repository->get('default')?->accessToken);
+        self::assertSame('access-token', $token->getAccessToken());
+        self::assertSame('access-token', $repository->get('default')?->getAccessToken());
         self::assertStringContainsString('code_verifier=pkce-verifier', (string) $transport->requests()[0]->body);
     }
 
@@ -61,8 +61,8 @@ final class ConnectionManagerTest extends TestCase
 
         $token = $manager->refresh();
 
-        self::assertSame('new-access-token', $token->accessToken);
-        self::assertSame('new-refresh-token', $repository->get('default')?->refreshToken);
+        self::assertSame('new-access-token', $token->getAccessToken());
+        self::assertSame('new-refresh-token', $repository->get('default')?->getRefreshToken());
     }
 
     public function test_it_can_connect_a_tenant_from_stored_token(): void
@@ -88,8 +88,8 @@ final class ConnectionManagerTest extends TestCase
 
         $connected = $manager->connectTenant('tenant-1');
 
-        self::assertSame('tenant-1', $connected->connection->tenantId);
-        self::assertSame('tenant-1', $connected->client->context()->tenantId);
+        self::assertSame('tenant-1', $connected->getConnection()->getTenantId());
+        self::assertSame('tenant-1', $connected->getClient()->context()->tenantId);
     }
 
     public function test_it_can_exchange_and_connect_a_tenant_in_one_step(): void
@@ -122,8 +122,8 @@ final class ConnectionManagerTest extends TestCase
 
         $connected = $manager->exchangeAndConnect('code-123', 'tenant-1', 'pkce-verifier');
 
-        self::assertSame('tenant-1', $connected->connection->tenantId);
-        self::assertSame('tenant-1', $connected->client->context()->tenantId);
+        self::assertSame('tenant-1', $connected->getConnection()->getTenantId());
+        self::assertSame('tenant-1', $connected->getClient()->context()->tenantId);
     }
 
     public function test_it_can_create_a_custom_connection_client(): void
@@ -145,7 +145,7 @@ final class ConnectionManagerTest extends TestCase
 
         $client = $manager->customConnection(['finance.statements.read']);
 
-        self::assertSame('custom-token', $repository->get('default')?->accessToken);
+        self::assertSame('custom-token', $repository->get('default')?->getAccessToken());
         self::assertSame('custom-token', $client->context()->accessToken);
     }
 

@@ -50,8 +50,8 @@ final class PayRunsTest extends TestCase
         self::assertInstanceOf(PayRun::class, $runs->first());
         self::assertSame('/payroll.xro/2.0/PayRuns/payrun-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/2.0/PayRuns', $transport->requests()[2]->path);
-        self::assertSame('payrun-1', $run?->id);
-        self::assertSame('payrun-2', $created->id);
+        self::assertSame('payrun-1', $run?->getPayRunID());
+        self::assertSame('payrun-2', $created->getPayRunID());
     }
 
     public function test_it_can_load_payrun_payslips(): void
@@ -98,7 +98,7 @@ final class PayRunsTest extends TestCase
         self::assertSame('/payroll.xro/2.0/PayRuns/payrun-1/Payslips/payslip-1', $transport->requests()[2]->path);
         self::assertSame('/payroll.xro/2.0/PayRuns/payrun-1/Payslips', $transport->requests()[3]->path);
         self::assertInstanceOf(Payslip::class, $payslips->first());
-        self::assertSame('payslip-1', $payslip?->id);
-        self::assertSame('payslip-1', $modelPayslips?->first()?->id);
+        self::assertSame('payslip-1', $payslip?->getPayslipID());
+        self::assertSame('payslip-1', $modelPayslips?->first()?->getPayslipID());
     }
 }

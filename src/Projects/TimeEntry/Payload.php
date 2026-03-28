@@ -96,6 +96,10 @@ final class Payload
         $payload = $response->json();
         $timeEntry = TimeEntries::single($payload);
 
-        return TimeEntry::fromArray(is_array($timeEntry) ? $timeEntry : [], $this->client, $this->projectId);
+        if (! is_array($timeEntry)) {
+            return (new TimeEntry($this->client))->setProjectID($this->projectId);
+        }
+
+        return (new TimeEntries($this->client, $this->projectId))->mapTimeEntry($timeEntry);
     }
 }

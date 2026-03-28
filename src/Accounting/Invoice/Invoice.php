@@ -7,10 +7,9 @@ namespace Sujip\Xero\Accounting\Invoice;
 use RuntimeException;
 use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class Invoice implements BuildsFromPayload, SerializesForRequest
+final class Invoice implements SerializesForRequest
 {
     private ?string $invoiceID = null;
 
@@ -30,39 +29,6 @@ final class Invoice implements BuildsFromPayload, SerializesForRequest
     public function __construct(
         private ?Client $client = null
     ) {
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?Client $client = null): static
-    {
-        $invoice = (new self($client))
-            ->setInvoiceID($payload['InvoiceID'] ?? null)
-            ->setStatus($payload['Status'] ?? null)
-            ->setReference($payload['Reference'] ?? null)
-            ->setType($payload['Type'] ?? null);
-
-        $contact = $payload['Contact'] ?? null;
-        if (is_array($contact)) {
-            $invoice->setContact(Contact::fromPayload($contact));
-        }
-
-        foreach ($payload['LineItems'] ?? [] as $lineItem) {
-            if (is_array($lineItem)) {
-                $invoice->addLineItem(LineItem::fromPayload($lineItem));
-            }
-        }
-
-        return $invoice;
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
     }
 
     public function getInvoiceID(): ?string

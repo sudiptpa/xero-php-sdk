@@ -60,6 +60,7 @@ final class AssociationPayload
         $payload = $response->json();
         $association = $payload['Items'][0] ?? [];
 
-        return Association::fromArray(is_array($association) ? $association : []);
+        return (new Associations($this->client, $this->fileId))
+            ->mapAssociation(is_array($association) ? $association : []);
     }
 }

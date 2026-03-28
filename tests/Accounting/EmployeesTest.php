@@ -76,7 +76,7 @@ final class EmployeesTest extends TestCase
         self::assertSame('/api.xro/2.0/Employees', $transport->requests()[2]->path);
         self::assertSame('/api.xro/2.0/Employees', $transport->requests()[3]->path);
         self::assertSame('employee-2', $transport->requests()[3]->json['Employees'][0]['EmployeeID']);
-        self::assertSame('maria@example.test', $updated->emailAddress);
-        self::assertSame('employee-1', $employee?->id);
+        self::assertSame('maria@example.test', $updated->getEmailAddress());
+        self::assertSame('employee-1', $employee?->getEmployeeID());
     }
 }

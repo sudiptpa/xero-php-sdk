@@ -55,7 +55,7 @@ final class Journals implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $journal): Journal => Journal::fromArray($journal),
+            fn (array $journal): Journal => $this->mapJournal($journal),
             $payload['Journals'] ?? []
         ));
 
@@ -71,7 +71,7 @@ final class Journals implements DefinesScopes
         $payload = $response->json();
         $journal = $payload['Journals'][0] ?? null;
 
-        return is_array($journal) ? Journal::fromArray($journal) : null;
+        return is_array($journal) ? $this->mapJournal($journal) : null;
     }
 
     public function number(int $journalNumber): ?Journal
@@ -83,6 +83,19 @@ final class Journals implements DefinesScopes
         $payload = $response->json();
         $journal = $payload['Journals'][0] ?? null;
 
-        return is_array($journal) ? Journal::fromArray($journal) : null;
+        return is_array($journal) ? $this->mapJournal($journal) : null;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapJournal(array $payload): Journal
+    {
+        return (new Journal())
+            ->setJournalID(isset($payload['JournalID']) ? (string) $payload['JournalID'] : null)
+            ->setJournalNumber(isset($payload['JournalNumber']) ? (int) $payload['JournalNumber'] : null)
+            ->setSourceType(isset($payload['SourceType']) ? (string) $payload['SourceType'] : null)
+            ->setSourceID(isset($payload['SourceID']) ? (string) $payload['SourceID'] : null)
+            ;
     }
 }

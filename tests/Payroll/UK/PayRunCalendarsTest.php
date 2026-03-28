@@ -39,6 +39,6 @@ final class PayRunCalendarsTest extends TestCase
         self::assertSame(2, $transport->requests()[0]->query['page']);
         self::assertInstanceOf(PayRunCalendar::class, $calendars->first());
         self::assertSame('/payroll.xro/2.0/PayRunCalendars/calendar-1', $transport->requests()[1]->path);
-        self::assertSame('calendar-1', $calendar?->id);
+        self::assertSame('calendar-1', $calendar?->getPayrollCalendarID());
     }
 }

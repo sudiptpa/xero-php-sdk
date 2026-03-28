@@ -6,6 +6,7 @@ namespace Sujip\Xero\Payroll\NZ\Settings;
 
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
 final readonly class Settings implements DefinesScopes
@@ -23,39 +24,75 @@ final readonly class Settings implements DefinesScopes
         );
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function get(): array
+    public function get(): PayrollSettings
     {
-        return $this->client
+        $payload = $this->client
             ->get('/payroll.xro/2.0/Settings')
             ->send()
             ->json();
+
+        /** @var array<string, mixed>|null $settings */
+        $settings = $payload['Settings'] ?? null;
+
+        if (! is_array($settings)) {
+            return new PayrollSettings();
+        }
+
+        return $this->mapSettings($settings);
     }
 
     /**
-     * @return array<string, mixed>
+     * @return ResourceCollection<StatutoryDeduction>
      */
-    public function statutoryDeductions(?int $page = null): array
+    public function statutoryDeductions(?int $page = null): ResourceCollection
     {
-        return $this->client
+        $payload = $this->client
             ->get('/payroll.xro/2.0/StatutoryDeductions')
             ->withQuery(array_filter([
                 'page' => $page,
             ], static fn (mixed $value): bool => $value !== null))
             ->send()
             ->json();
+
+        $items = array_values(array_map(
+            fn (array $deduction): StatutoryDeduction => $this->mapStatutoryDeduction($deduction),
+            $payload['StatutoryDeductions'] ?? []
+        ));
+
+        return new ResourceCollection($items);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function statutoryDeduction(string $id): array
+    public function statutoryDeduction(string $id): ?StatutoryDeduction
     {
-        return $this->client
+        $payload = $this->client
             ->get('/payroll.xro/2.0/StatutoryDeductions/' . $id)
             ->send()
             ->json();
+
+        $deduction = $payload['StatutoryDeductions'][0] ?? $payload['StatutoryDeduction'] ?? null;
+
+        return is_array($deduction) ? $this->mapStatutoryDeduction($deduction) : null;
+    }
+
+    /**
+     * @param array<string, mixed> $settings
+     */
+    public function mapSettings(array $settings): PayrollSettings
+    {
+        return (new PayrollSettings())
+            ->setAccounts(array_values($settings['Accounts'] ?? []))
+            ->setTrackingCategories(array_values($settings['TrackingCategories'] ?? []))
+            ;
+    }
+
+    /**
+     * @param array<string, mixed> $deduction
+     */
+    public function mapStatutoryDeduction(array $deduction): StatutoryDeduction
+    {
+        return (new StatutoryDeduction())
+            ->setStatutoryDeductionID($deduction['StatutoryDeductionID'] ?? null)
+            ->setName($deduction['Name'] ?? null)
+            ;
     }
 }

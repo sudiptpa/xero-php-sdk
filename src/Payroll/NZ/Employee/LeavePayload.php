@@ -21,13 +21,34 @@ final class LeavePayload
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public function using(array $payload): self
+    public function leaveType(string $leaveTypeId): self
     {
         $clone = clone $this;
-        $clone->payload = $payload;
+        $clone->payload['LeaveTypeID'] = $leaveTypeId;
+
+        return $clone;
+    }
+
+    public function startDate(string $startDate): self
+    {
+        $clone = clone $this;
+        $clone->payload['StartDate'] = $startDate;
+
+        return $clone;
+    }
+
+    public function endDate(string $endDate): self
+    {
+        $clone = clone $this;
+        $clone->payload['EndDate'] = $endDate;
+
+        return $clone;
+    }
+
+    public function title(string $title): self
+    {
+        $clone = clone $this;
+        $clone->payload['Title'] = $title;
 
         return $clone;
     }

@@ -4,31 +4,62 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Journal;
 
-final readonly class Journal
+final class Journal
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
-    public function __construct(
-        public ?string $id,
-        public ?int $journalNumber,
-        public ?string $sourceType,
-        public ?string $sourceId,
-        public array $raw = []
-    ) {
+    private ?string $journalID = null;
+
+    private ?int $journalNumber = null;
+
+    private ?string $sourceType = null;
+
+    private ?string $sourceID = null;
+
+    public function getJournalID(): ?string
+    {
+        return $this->journalID;
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
+    public function setJournalID(?string $journalID): self
     {
-        return new self(
-            $payload['JournalID'] ?? null,
-            isset($payload['JournalNumber']) ? (int) $payload['JournalNumber'] : null,
-            $payload['SourceType'] ?? null,
-            $payload['SourceID'] ?? null,
-            $payload
-        );
+        $this->journalID = $journalID;
+
+        return $this;
     }
+
+    public function getJournalNumber(): ?int
+    {
+        return $this->journalNumber;
+    }
+
+    public function setJournalNumber(?int $journalNumber): self
+    {
+        $this->journalNumber = $journalNumber;
+
+        return $this;
+    }
+
+    public function getSourceType(): ?string
+    {
+        return $this->sourceType;
+    }
+
+    public function setSourceType(?string $sourceType): self
+    {
+        $this->sourceType = $sourceType;
+
+        return $this;
+    }
+
+    public function getSourceID(): ?string
+    {
+        return $this->sourceID;
+    }
+
+    public function setSourceID(?string $sourceID): self
+    {
+        $this->sourceID = $sourceID;
+
+        return $this;
+    }
+
 }

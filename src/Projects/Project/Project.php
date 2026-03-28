@@ -9,61 +9,96 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Projects\Task\Tasks;
 use Sujip\Xero\Projects\TimeEntry\TimeEntries;
 
-final readonly class Project
+final class Project
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
+    private ?string $projectID = null;
+
+    private ?string $title = null;
+
+    private ?string $state = null;
+
+    private ?string $contactID = null;
+
+    private ?string $deadlineUTC = null;
+
     public function __construct(
-        public ?string $id,
-        public ?string $title,
-        public ?string $state,
-        public ?string $contactId,
-        public ?string $deadlineUtc,
-        public array $raw = [],
         private ?Client $client = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
+    public function getProjectID(): ?string
     {
-        return new self(
-            $payload['ProjectID'] ?? $payload['ProjectId'] ?? null,
-            $payload['Title'] ?? null,
-            $payload['State'] ?? null,
-            $payload['Contact']['ContactID'] ?? $payload['ContactID'] ?? null,
-            $payload['DeadlineUTC'] ?? $payload['DeadlineUtc'] ?? null,
-            $payload,
-            $client
-        );
+        return $this->projectID;
+    }
+
+    public function setProjectID(?string $projectID): self
+    {
+        $this->projectID = $projectID;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): self
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function getState(): ?string
+    {
+        return $this->state;
+    }
+
+    public function setState(?string $state): self
+    {
+        $this->state = $state === null ? null : strtoupper($state);
+
+        return $this;
+    }
+
+    public function getContactID(): ?string
+    {
+        return $this->contactID;
+    }
+
+    public function setContactID(?string $contactID): self
+    {
+        $this->contactID = $contactID;
+
+        return $this;
+    }
+
+    public function getDeadlineUTC(): ?string
+    {
+        return $this->deadlineUTC;
+    }
+
+    public function setDeadlineUTC(?string $deadlineUTC): self
+    {
+        $this->deadlineUTC = $deadlineUTC;
+
+        return $this;
     }
 
     public function title(string $title): self
     {
-        $payload = $this->raw;
-        $payload['Title'] = $title;
-
-        return new self($this->id, $title, $this->state, $this->contactId, $this->deadlineUtc, $payload, $this->client);
+        return $this->setTitle($title);
     }
 
     public function state(string $state): self
     {
-        $state = strtoupper($state);
-        $payload = $this->raw;
-        $payload['State'] = $state;
-
-        return new self($this->id, $this->title, $state, $this->contactId, $this->deadlineUtc, $payload, $this->client);
+        return $this->setState($state);
     }
 
     public function deadline(string $deadlineUtc): self
     {
-        $payload = $this->raw;
-        $payload['DeadlineUTC'] = $deadlineUtc;
-
-        return new self($this->id, $this->title, $this->state, $this->contactId, $deadlineUtc, $payload, $this->client);
+        return $this->setDeadlineUTC($deadlineUtc);
     }
 
     public function save(): self
@@ -74,24 +109,24 @@ final readonly class Project
 
         $payload = new Payload($this->client);
 
-        if ($this->id !== null) {
-            $payload = $payload->id($this->id);
+        if ($this->projectID !== null) {
+            $payload = $payload->id($this->projectID);
         }
 
         if ($this->title !== null) {
             $payload = $payload->title($this->title);
         }
 
-        if ($this->contactId !== null) {
-            $payload = $payload->contact($this->contactId);
+        if ($this->contactID !== null) {
+            $payload = $payload->contact($this->contactID);
         }
 
         if ($this->state !== null) {
             $payload = $payload->state($this->state);
         }
 
-        if ($this->deadlineUtc !== null) {
-            $payload = $payload->deadline($this->deadlineUtc);
+        if ($this->deadlineUTC !== null) {
+            $payload = $payload->deadline($this->deadlineUTC);
         }
 
         return $payload->save();
@@ -99,37 +134,37 @@ final readonly class Project
 
     public function tasks(): Tasks
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->projectID === null) {
             throw new RuntimeException('Cannot access project tasks without a bound client context and project id.');
         }
 
-        return new Tasks($this->client, $this->id);
+        return new Tasks($this->client, $this->projectID);
     }
 
     public function timeEntries(): TimeEntries
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->projectID === null) {
             throw new RuntimeException('Cannot access project time entries without a bound client context and project id.');
         }
 
-        return new TimeEntries($this->client, $this->id);
+        return new TimeEntries($this->client, $this->projectID);
     }
 
     public function close(): self
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->projectID === null) {
             throw new RuntimeException('Cannot close a project without a bound client context and project id.');
         }
 
-        return (new Projects($this->client))->patch($this->id)->close()->save();
+        return (new Projects($this->client))->patch($this->projectID)->close()->save();
     }
 
     public function reopen(): self
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->projectID === null) {
             throw new RuntimeException('Cannot reopen a project without a bound client context and project id.');
         }
 
-        return (new Projects($this->client))->patch($this->id)->reopen()->save();
+        return (new Projects($this->client))->patch($this->projectID)->reopen()->save();
     }
 }

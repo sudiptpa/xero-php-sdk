@@ -21,13 +21,10 @@ final class PaymentMethodPayload
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public function using(array $payload): self
+    public function bankAccountNumber(string $accountNumber): self
     {
         $clone = clone $this;
-        $clone->payload = $payload;
+        $clone->payload['BankAccount']['AccountNumber'] = $accountNumber;
 
         return $clone;
     }

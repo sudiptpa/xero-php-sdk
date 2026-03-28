@@ -54,7 +54,7 @@ final class PayRuns implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $payRun): PayRun => PayRun::fromArray($payRun),
+            fn (array $payRun): PayRun => $this->mapPayRun($payRun),
             $payload['PayRuns'] ?? []
         ));
 
@@ -88,11 +88,24 @@ final class PayRuns implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $payRun = $payload['PayRuns'][0] ?? $payload['PayRun'] ?? null;
 
-        return is_array($payRun) ? PayRun::fromArray($payRun) : null;
+        return is_array($payRun) ? $this->mapPayRun($payRun) : null;
     }
 
     public function create(): Payload
     {
         return new Payload($this->client);
+    }
+
+    /**
+     * @param array<string, mixed> $payRun
+     */
+    public function mapPayRun(array $payRun): PayRun
+    {
+        return (new PayRun())
+            ->setPayRunID($payRun['PayRunID'] ?? null)
+            ->setPayrollCalendarID($payRun['PayrollCalendarID'] ?? null)
+            ->setPayRunStatus($payRun['PayRunStatus'] ?? $payRun['Status'] ?? null)
+            ->setPaymentDate($payRun['PaymentDate'] ?? null)
+            ;
     }
 }

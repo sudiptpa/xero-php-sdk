@@ -68,7 +68,11 @@ final class Upload
         $payload = $response->json();
         $file = $payload['Items'][0] ?? [];
 
-        return File::fromArray(is_array($file) ? $file : [], $this->client);
+        if (! is_array($file)) {
+            return new File($this->client);
+        }
+
+        return (new Files($this->client))->mapFile($file);
     }
 
     /**

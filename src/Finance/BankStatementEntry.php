@@ -4,29 +4,19 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Finance;
 
-final readonly class BankStatementEntry
+final class BankStatementEntry
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
     public function __construct(
-        public ?string $accountId,
-        public ?string $accountName,
-        public ?float $statementBalance,
-        public array $raw = []
+        private ?string $accountID = null,
+        private ?string $accountName = null,
+        private ?float $statementBalance = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            isset($payload['AccountID']) ? (string) $payload['AccountID'] : null,
-            isset($payload['AccountName']) ? (string) $payload['AccountName'] : null,
-            isset($payload['StatementBalance']) ? (float) $payload['StatementBalance'] : null,
-            $payload
-        );
-    }
+    public function getAccountID(): ?string { return $this->accountID; }
+    public function setAccountID(?string $accountID): self { $this->accountID = $accountID; return $this; }
+    public function getAccountName(): ?string { return $this->accountName; }
+    public function setAccountName(?string $accountName): self { $this->accountName = $accountName; return $this; }
+    public function getStatementBalance(): ?float { return $this->statementBalance; }
+    public function setStatementBalance(?float $statementBalance): self { $this->statementBalance = $statementBalance; return $this; }
 }

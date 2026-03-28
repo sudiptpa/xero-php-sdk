@@ -49,7 +49,7 @@ final class Employees implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $employee): Employee => Employee::fromArray($employee, $this->client),
+            fn (array $employee): Employee => $this->mapEmployee($employee),
             $payload['Employees'] ?? []
         ));
 
@@ -65,7 +65,7 @@ final class Employees implements DefinesScopes
         $payload = $response->json();
         $employee = $payload['Employees'][0] ?? null;
 
-        return is_array($employee) ? Employee::fromArray($employee, $this->client) : null;
+        return is_array($employee) ? $this->mapEmployee($employee) : null;
     }
 
     public function create(): Payload
@@ -76,5 +76,19 @@ final class Employees implements DefinesScopes
     public function update(string $employeeId): Payload
     {
         return (new Payload($this->client))->id($employeeId);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapEmployee(array $payload): Employee
+    {
+        return (new Employee($this->client))
+            ->setEmployeeID(isset($payload['EmployeeID']) ? (string) $payload['EmployeeID'] : null)
+            ->setFirstName(isset($payload['FirstName']) ? (string) $payload['FirstName'] : null)
+            ->setLastName(isset($payload['LastName']) ? (string) $payload['LastName'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
+            ->setEmailAddress(isset($payload['EmailAddress']) ? (string) $payload['EmailAddress'] : null)
+            ;
     }
 }

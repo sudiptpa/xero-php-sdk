@@ -4,7 +4,7 @@
 
 - PHP 8.2+
 - zero runtime dependencies
-- fluent, Laravel-inspired API
+- fluent API
 - one package for all supported Xero surfaces
 - strongly typed building blocks
 - docs-first endpoint coverage
@@ -45,8 +45,8 @@ This keeps the architecture distinct from older SDK patterns while still making 
 ## Architectural Rules
 
 - root client owns auth and tenant context
-- resource builders stay fluent and small
-- endpoint-specific builders compose a shared HTTP layer
+- resource flows stay fluent and small
+- endpoint-specific flows compose a shared HTTP layer
 - pagination and common query features live in shared support concerns
 - request objects are typed and explicit
 - tests validate request construction before broad endpoint rollout
@@ -115,7 +115,7 @@ The SDK now has the basic pieces needed for a serious integration:
 - tenant discovery through identity connections
 - webhook verification and payload parsing
 - scope metadata on the first Accounting resources
-- fluent query and create builders for contacts, invoices, payments, and accounts
+- fluent query and create flows for contacts, invoices, payments, and accounts
 - real Files coverage for uploads, folders, inbox, and associations
 - real Assets coverage for assets, asset types, and settings
 - real Projects coverage for projects, users, tasks, and time entries

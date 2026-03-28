@@ -88,6 +88,10 @@ final class Payload
         $payload = $response->json();
         $timesheet = $payload['Timesheets'][0] ?? $payload['Timesheet'] ?? [];
 
-        return Timesheet::fromArray(is_array($timesheet) ? $timesheet : [], $this->client);
+        if (! is_array($timesheet)) {
+            return new Timesheet($this->client);
+        }
+
+        return (new Timesheets($this->client))->mapTimesheet($timesheet);
     }
 }

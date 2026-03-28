@@ -49,7 +49,7 @@ final class TaxRates implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $taxRate): TaxRate => TaxRate::fromPayload($taxRate, $this->client),
+            fn (array $taxRate): TaxRate => $this->mapTaxRate($taxRate),
             $payload['TaxRates'] ?? []
         ));
 
@@ -65,7 +65,7 @@ final class TaxRates implements DefinesScopes
         $payload = $response->json();
         $taxRate = $payload['TaxRates'][0] ?? null;
 
-        return is_array($taxRate) ? TaxRate::fromPayload($taxRate, $this->client) : null;
+        return is_array($taxRate) ? $this->mapTaxRate($taxRate) : null;
     }
 
     public function create(): Payload
@@ -76,5 +76,34 @@ final class TaxRates implements DefinesScopes
     public function update(string $taxType): Payload
     {
         return (new Payload($this->client))->taxType($taxType);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapTaxRate(array $payload): TaxRate
+    {
+        $taxRate = (new TaxRate($this->client))
+            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
+            ->setTaxType(isset($payload['TaxType']) ? (string) $payload['TaxType'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null);
+
+        foreach ($payload['TaxComponents'] ?? [] as $component) {
+            if (is_array($component)) {
+                $taxRate->addTaxComponent($this->mapComponent($component));
+            }
+        }
+
+        return $taxRate;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapComponent(array $payload): Component
+    {
+        return (new Component())
+            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
+            ->setRate(isset($payload['Rate']) && is_numeric($payload['Rate']) ? $payload['Rate'] + 0 : null);
     }
 }

@@ -4,31 +4,30 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\AU\PayRun;
 
-final readonly class Payslip
+final class Payslip
 {
     /**
-     * @param array<string, mixed> $raw
      */
     public function __construct(
-        public ?string $id,
-        public ?string $employeeId,
-        public ?string $paymentDate,
-        public ?string $netPay,
-        public array $raw = []
+        private ?string $payslipID = null,
+        private ?string $employeeID = null,
+        private ?string $paymentDate = null,
+        private ?string $netPay = null,
     ) {
     }
 
+    public function getPayslipID(): ?string { return $this->payslipID; }
+    public function setPayslipID(?string $payslipID): self { $this->payslipID = $payslipID; return $this; }
+    public function getEmployeeID(): ?string { return $this->employeeID; }
+    public function setEmployeeID(?string $employeeID): self { $this->employeeID = $employeeID; return $this; }
+    public function getPaymentDate(): ?string { return $this->paymentDate; }
+    public function setPaymentDate(?string $paymentDate): self { $this->paymentDate = $paymentDate; return $this; }
+    public function getNetPay(): ?string { return $this->netPay; }
+    public function setNetPay(?string $netPay): self { $this->netPay = $netPay; return $this; }
     /**
-     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
      */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            $payload['PayslipID'] ?? null,
-            $payload['EmployeeID'] ?? null,
-            $payload['PaymentDate'] ?? null,
-            isset($payload['NetPay']) ? (string) $payload['NetPay'] : null,
-            $payload
-        );
-    }
+    /**
+     * @param array<string, mixed> $raw
+     */
 }

@@ -144,7 +144,11 @@ final class Payload
         $payload = $response->json();
         $type = $payload['Items'][0] ?? [];
 
-        return Type::fromArray(is_array($type) ? $type : []);
+        if (! is_array($type)) {
+            return new Type();
+        }
+
+        return (new Types($this->client))->mapType($type);
     }
 
     /**

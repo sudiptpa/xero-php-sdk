@@ -22,21 +22,6 @@ final class Address implements SerializesForRequest
 
     private ?string $country = null;
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload): self
-    {
-        return (new self())
-            ->setAddressType($payload['AddressType'] ?? null)
-            ->setAddressLine1($payload['AddressLine1'] ?? null)
-            ->setAddressLine2($payload['AddressLine2'] ?? null)
-            ->setCity($payload['City'] ?? null)
-            ->setRegion($payload['Region'] ?? null)
-            ->setPostalCode($payload['PostalCode'] ?? null)
-            ->setCountry($payload['Country'] ?? null);
-    }
-
     public function getAddressType(): ?string
     {
         return $this->addressType;

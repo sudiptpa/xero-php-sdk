@@ -65,6 +65,10 @@ final class Payload
         /** @var array<string, mixed>|null $calendar */
         $calendar = $payload['PayrollCalendars'][0] ?? $payload['PayrollCalendar'] ?? null;
 
-        return PayrollCalendar::fromArray(is_array($calendar) ? $calendar : []);
+        if (! is_array($calendar)) {
+            return new PayrollCalendar();
+        }
+
+        return (new PayrollCalendars($this->client))->mapPayrollCalendar($calendar);
     }
 }

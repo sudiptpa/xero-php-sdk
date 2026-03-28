@@ -47,10 +47,7 @@ final class Folders implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
-            fn (array $folder): Folder => Folder::fromPayload($folder, $this->client),
-            $payload['Items'] ?? []
-        ));
+        $items = array_values(array_map(fn (array $folder): Folder => $this->mapFolder($folder), $payload['Items'] ?? []));
 
         return new ResourceCollection($items);
     }
@@ -64,7 +61,7 @@ final class Folders implements DefinesScopes
         $payload = $response->json();
         $folder = $payload['Items'][0] ?? null;
 
-        return is_array($folder) ? Folder::fromPayload($folder, $this->client) : null;
+        return is_array($folder) ? $this->mapFolder($folder) : null;
     }
 
     public function inbox(): ?Folder
@@ -76,7 +73,7 @@ final class Folders implements DefinesScopes
         $payload = $response->json();
         $folder = $payload['Items'][0] ?? null;
 
-        return is_array($folder) ? Folder::fromPayload($folder, $this->client) : null;
+        return is_array($folder) ? $this->mapFolder($folder) : null;
     }
 
     public function create(): Payload
@@ -96,5 +93,18 @@ final class Folders implements DefinesScopes
             ->send();
 
         return $response->status === 204;
+    }
+
+    /**
+     * @param array<string, mixed> $folder
+     */
+    public function mapFolder(array $folder): Folder
+    {
+        return (new Folder($this->client))
+            ->setId($folder['Id'] ?? null)
+            ->setName($folder['Name'] ?? null)
+            ->setFileCount($folder['FileCount'] ?? null)
+            ->setEmail($folder['Email'] ?? null)
+            ->setIsInbox($folder['IsInbox'] ?? null);
     }
 }

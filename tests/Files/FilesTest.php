@@ -165,7 +165,7 @@ final class FilesTest extends TestCase
         self::assertInstanceOf(Association::class, $associations->first());
         self::assertSame('/files.xro/1.0/Files/file-1/Associations', $transport->requests()[1]->path);
         self::assertSame('invoice-2', $transport->requests()[1]->json['ObjectId']);
-        self::assertSame('Invoice', $created->objectType);
+        self::assertSame('Invoice', $created->getObjectType());
     }
 
     public function test_it_can_list_files_associated_with_an_object_and_delete_an_association(): void
@@ -220,7 +220,7 @@ final class FilesTest extends TestCase
 
         self::assertSame('/files.xro/1.0/Associations/Count', $transport->requests()[0]->path);
         self::assertSame('invoice-1,invoice-2', $transport->requests()[0]->query['ObjectIds']);
-        self::assertSame(3, $counts->first()?->count);
+        self::assertSame(3, $counts->first()?->getCount());
     }
 
     public function test_loaded_file_can_be_deleted(): void

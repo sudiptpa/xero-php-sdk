@@ -36,10 +36,7 @@ final class Types implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
-            fn (array $type): Type => Type::fromArray($type),
-            $payload['Items'] ?? []
-        ));
+        $items = array_values(array_map(fn (array $type): Type => $this->mapType($type), $payload['Items'] ?? []));
 
         return new ResourceCollection($items);
     }
@@ -47,5 +44,18 @@ final class Types implements DefinesScopes
     public function create(): Payload
     {
         return new Payload($this->client);
+    }
+
+    /**
+     * @param array<string, mixed> $type
+     */
+    public function mapType(array $type): Type
+    {
+        return (new Type())
+            ->setAssetTypeId($type['AssetTypeId'] ?? null)
+            ->setAssetTypeName($type['AssetTypeName'] ?? null)
+            ->setFixedAssetAccountId($type['FixedAssetAccountId'] ?? null)
+            ->setDepreciationExpenseAccountId($type['DepreciationExpenseAccountId'] ?? null)
+            ->setAccumulatedDepreciationAccountId($type['AccumulatedDepreciationAccountId'] ?? null);
     }
 }

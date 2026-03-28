@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Overpayment;
 
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
-
-final class Overpayment implements BuildsFromPayload
+final class Overpayment
 {
     private ?string $overpaymentID = null;
 
@@ -15,26 +13,6 @@ final class Overpayment implements BuildsFromPayload
     private ?string $status = null;
 
     private int|float|null $remainingCredit = null;
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?\Sujip\Xero\Client $client = null): static
-    {
-        return (new self())
-            ->setOverpaymentID($payload['OverpaymentID'] ?? null)
-            ->setType($payload['Type'] ?? null)
-            ->setStatus($payload['Status'] ?? null)
-            ->setRemainingCredit($payload['RemainingCredit'] ?? null);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return self::fromPayload($payload);
-    }
 
     public function getOverpaymentID(): ?string
     {

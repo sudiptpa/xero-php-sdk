@@ -2,6 +2,8 @@
 
 Payroll NZ has its own shape, especially around leave and pay-run setup.
 
+Most reads now come back as rich models, and the main employee-side write helpers now use explicit fluent methods too.
+
 Current coverage:
 
 - employees
@@ -25,6 +27,8 @@ $employees = $xero->payroll()
     ->filter('Ada')
     ->page(1)
     ->get();
+
+$employeeName = $employees->first()?->getFirstName();
 ```
 
 ```php
@@ -40,6 +44,8 @@ $employee = $xero->payroll()
 
 ```php
 $leaveTypes = $employee->leaveTypes();
+
+$leaveTypeName = $leaveTypes->first()?->getName();
 
 $leavePeriods = $employee->leavePeriods('2026-01-01', '2026-03-31');
 
@@ -62,56 +68,40 @@ $salaryAndWage = $employee->salaryAndWage('salary-id');
 
 ```php
 $employment = $employee->createEmployment()
-    ->using([
-        'StartDate' => '2026-04-01',
-        'PayrollCalendarID' => 'calendar-id',
-    ])
+    ->startDate('2026-04-01')
+    ->payrollCalendar('calendar-id')
     ->save();
 
 $leave = $employee->createLeave()
-    ->using([
-        'LeaveTypeID' => 'leave-type-id',
-        'StartDate' => '2026-04-10',
-        'EndDate' => '2026-04-11',
-    ])
+    ->leaveType('leave-type-id')
+    ->startDate('2026-04-10')
+    ->endDate('2026-04-11')
     ->save();
 
 $paymentMethod = $employee->createPaymentMethod()
-    ->using([
-        'BankAccount' => [
-            'AccountNumber' => '12-1234-1234567-00',
-        ],
-    ])
+    ->bankAccountNumber('12-1234-1234567-00')
     ->save();
 
 $salaryAndWage = $employee->createSalaryAndWage()
-    ->using([
-        'PaymentType' => 'HOURLY',
-        'EarningsRateID' => 'earning-rate-id',
-    ])
+    ->paymentType('HOURLY')
+    ->earningsRate('earning-rate-id')
     ->save();
 
 $workingPattern = $employee->createWorkingPattern()
-    ->using([
-        'EffectiveFrom' => '2026-04-01',
-    ])
+    ->effectiveFrom('2026-04-01')
     ->save();
 ```
 
 ```php
 $leaveSetup = $employee->leaveSetup()
-    ->using([
-        'LeaveTypeID' => 'leave-type-id',
-        'ScheduleOfAccrual' => 'ON_ANNIVERSARY_DATE',
-    ])
+    ->leaveType('leave-type-id')
+    ->scheduleOfAccrual('ON_ANNIVERSARY_DATE')
     ->save();
 
 $openingBalances = $employee->openingBalances()
-    ->using([
-        'PeriodEndDate' => '2026-03-31',
-        'DaysPaid' => 5,
-        'GrossEarnings' => 1730.77,
-    ])
+    ->periodEndDate('2026-03-31')
+    ->daysPaid(5)
+    ->grossEarnings(1730.77)
     ->save();
 ```
 
@@ -123,6 +113,8 @@ $leaveTypes = $xero->payroll()
     ->leaveTypes()
     ->activeOnly()
     ->get();
+
+$leaveTypeId = $leaveTypes->first()?->getLeaveTypeID();
 ```
 
 ## Pay Run Calendars
@@ -132,6 +124,8 @@ $calendars = $xero->payroll()
     ->nz()
     ->payRunCalendars()
     ->get();
+
+$calendarName = $calendars->first()?->getName();
 ```
 
 ## Pay Runs
@@ -142,6 +136,8 @@ $payRuns = $xero->payroll()
     ->payRuns()
     ->status('DRAFT')
     ->get();
+
+$payRunId = $payRuns->first()?->getPayRunID();
 ```
 
 ```php
@@ -161,6 +157,8 @@ $timesheets = $xero->payroll()
     ->timesheets()
     ->status('DRAFT')
     ->get();
+
+$timesheetId = $timesheets->first()?->getTimesheetID();
 ```
 
 ```php
@@ -187,6 +185,8 @@ $settings = $xero->payroll()
     ->nz()
     ->settings()
     ->get();
+
+$accounts = $settings->getAccounts();
 ```
 
 ```php
@@ -194,6 +194,8 @@ $deductions = $xero->payroll()
     ->nz()
     ->settings()
     ->statutoryDeductions();
+
+$deductionName = $deductions->first()?->getName();
 ```
 
 ## Scope Notes

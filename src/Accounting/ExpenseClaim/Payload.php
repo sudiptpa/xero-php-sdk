@@ -78,6 +78,7 @@ final class Payload
         $payload = $response->json();
         $expenseClaim = $payload['ExpenseClaims'][0] ?? [];
 
-        return ExpenseClaim::fromArray(is_array($expenseClaim) ? $expenseClaim : [], $this->client);
+        return (new ExpenseClaims($this->client))
+            ->mapExpenseClaim(is_array($expenseClaim) ? $expenseClaim : []);
     }
 }

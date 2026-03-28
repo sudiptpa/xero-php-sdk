@@ -49,7 +49,7 @@ final class BankTransfers implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $bankTransfer): BankTransfer => BankTransfer::fromArray($bankTransfer, $this->client),
+            fn (array $bankTransfer): BankTransfer => $this->mapBankTransfer($bankTransfer),
             $payload['BankTransfers'] ?? []
         ));
 
@@ -65,11 +65,33 @@ final class BankTransfers implements DefinesScopes
         $payload = $response->json();
         $bankTransfer = $payload['BankTransfers'][0] ?? null;
 
-        return is_array($bankTransfer) ? BankTransfer::fromArray($bankTransfer, $this->client) : null;
+        return is_array($bankTransfer) ? $this->mapBankTransfer($bankTransfer) : null;
     }
 
     public function create(): Payload
     {
         return new Payload($this->client);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapBankTransfer(array $payload): BankTransfer
+    {
+        return (new BankTransfer($this->client))
+            ->setBankTransferID(isset($payload['BankTransferID']) ? (string) $payload['BankTransferID'] : null)
+            ->setFromBankAccountID(
+                isset($payload['FromBankAccount']['AccountID']) && is_string($payload['FromBankAccount']['AccountID'])
+                    ? $payload['FromBankAccount']['AccountID']
+                    : null
+            )
+            ->setToBankAccountID(
+                isset($payload['ToBankAccount']['AccountID']) && is_string($payload['ToBankAccount']['AccountID'])
+                    ? $payload['ToBankAccount']['AccountID']
+                    : null
+            )
+            ->setAmount(isset($payload['Amount']) && is_numeric($payload['Amount']) ? $payload['Amount'] + 0 : null)
+            ->setReference(isset($payload['Reference']) ? (string) $payload['Reference'] : null)
+            ;
     }
 }

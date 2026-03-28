@@ -83,7 +83,7 @@ final class TimeEntriesTest extends TestCase
         self::assertSame('/projects.xro/2.0/Projects/project-1/Time/time-2', $transport->requests()[3]->path);
         self::assertSame('DELETE', $transport->requests()[4]->method);
         self::assertInstanceOf(TimeEntry::class, $entries->first());
-        self::assertSame(150, $updated->duration);
-        self::assertSame('time-1', $entry?->id);
+        self::assertSame(150, $updated->getDuration());
+        self::assertSame('time-1', $entry?->getTimeEntryID());
     }
 }

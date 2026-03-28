@@ -89,6 +89,7 @@ final class Payload
         $payload = $response->json();
         $creditNote = $payload['CreditNotes'][0] ?? [];
 
-        return CreditNote::fromPayload(is_array($creditNote) ? $creditNote : [], $this->client);
+        return (new CreditNotes($this->client))
+            ->mapCreditNote(is_array($creditNote) ? $creditNote : []);
     }
 }

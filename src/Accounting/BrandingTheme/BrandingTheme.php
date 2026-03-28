@@ -4,34 +4,13 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\BrandingTheme;
 
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
-
-final class BrandingTheme implements BuildsFromPayload
+final class BrandingTheme
 {
     private ?string $brandingThemeID = null;
 
     private ?string $name = null;
 
     private ?string $sortOrder = null;
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?\Sujip\Xero\Client $client = null): static
-    {
-        return (new self())
-            ->setBrandingThemeID($payload['BrandingThemeID'] ?? null)
-            ->setName($payload['Name'] ?? null)
-            ->setSortOrder(isset($payload['SortOrder']) ? (string) $payload['SortOrder'] : null);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return self::fromPayload($payload);
-    }
 
     public function getBrandingThemeID(): ?string
     {

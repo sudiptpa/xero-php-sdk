@@ -8,10 +8,9 @@ use Sujip\Xero\Accounting\History;
 use RuntimeException;
 use Sujip\Xero\Accounting\Account\Account;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class Payment implements BuildsFromPayload, SerializesForRequest
+final class Payment implements SerializesForRequest
 {
     private ?string $paymentID = null;
 
@@ -28,32 +27,6 @@ final class Payment implements BuildsFromPayload, SerializesForRequest
     public function __construct(
         private ?Client $client = null
     ) {
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?Client $client = null): static
-    {
-        return (new self($client))
-            ->setPaymentID($payload['PaymentID'] ?? null)
-            ->setAmount(isset($payload['Amount']) ? (float) $payload['Amount'] : null)
-            ->setDate($payload['Date'] ?? null)
-            ->setReference($payload['Reference'] ?? null)
-            ->setInvoiceID($payload['Invoice']['InvoiceID'] ?? null)
-            ->setAccount(
-                is_array($payload['Account'] ?? null)
-                    ? Account::fromPayload($payload['Account'])
-                    : null
-            );
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
     }
 
     public function getPaymentID(): ?string

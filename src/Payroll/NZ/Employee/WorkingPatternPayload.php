@@ -21,13 +21,10 @@ final class WorkingPatternPayload
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public function using(array $payload): self
+    public function effectiveFrom(string $effectiveFrom): self
     {
         $clone = clone $this;
-        $clone->payload = $payload;
+        $clone->payload['EffectiveFrom'] = $effectiveFrom;
 
         return $clone;
     }

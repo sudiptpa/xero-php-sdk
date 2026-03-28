@@ -32,6 +32,6 @@ final class CashValidationTest extends TestCase
         self::assertSame('/finance.xro/1.0/CashValidation', $transport->requests()[0]->path);
         self::assertSame('2026-03-31', $transport->requests()[0]->query['balanceDate']);
         self::assertInstanceOf(CashValidationResult::class, $result);
-        self::assertSame('OK', $result->status);
+        self::assertSame('OK', $result->getStatus());
     }
 }

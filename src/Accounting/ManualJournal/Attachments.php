@@ -26,7 +26,11 @@ final readonly class Attachments
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $attachment): Attachment => Attachment::fromArray($attachment),
+            static fn (array $attachment): Attachment => new Attachment(
+                isset($attachment['FileName']) ? (string) $attachment['FileName'] : null,
+                isset($attachment['Url']) ? (string) $attachment['Url'] : null,
+                $attachment
+            ),
             $payload['Attachments'] ?? []
         ));
 

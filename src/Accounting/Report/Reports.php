@@ -36,7 +36,7 @@ final class Reports implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $report): Report => Report::fromArray($report),
+            fn (array $report): Report => $this->mapReport($report),
             $payload['Reports'] ?? []
         ));
 
@@ -133,7 +133,7 @@ final class Reports implements DefinesScopes
         $payload = $response->json();
         $report = $payload['Reports'][0] ?? null;
 
-        return is_array($report) ? Report::fromArray($report) : null;
+        return is_array($report) ? $this->mapReport($report) : null;
     }
 
     /**
@@ -163,5 +163,24 @@ final class Reports implements DefinesScopes
         }
 
         return $normalized;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapReport(array $payload): Report
+    {
+        $title = null;
+
+        if (isset($payload['ReportTitles'][0]) && is_string($payload['ReportTitles'][0])) {
+            $title = $payload['ReportTitles'][0];
+        }
+
+        return (new Report())
+            ->setReportID(isset($payload['ReportID']) ? (string) $payload['ReportID'] : null)
+            ->setReportName(isset($payload['ReportName']) ? (string) $payload['ReportName'] : null)
+            ->setReportType(isset($payload['ReportType']) ? (string) $payload['ReportType'] : null)
+            ->setTitle($title)
+            ;
     }
 }

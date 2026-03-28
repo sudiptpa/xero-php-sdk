@@ -82,10 +82,10 @@ final class EmployeesTest extends TestCase
         self::assertSame('/payroll.xro/1.0/Employees/employee-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/1.0/Employees', $transport->requests()[2]->path);
         self::assertSame('/payroll.xro/1.0/Employees/employee-2', $transport->requests()[3]->path);
-        self::assertSame('Jane', $employees->first()->firstName);
-        self::assertSame('employee-1', $employee?->id);
-        self::assertSame('employee-2', $created->id);
-        self::assertSame('employee-2', $updated->id);
+        self::assertSame('Jane', $employees->first()->getFirstName());
+        self::assertSame('employee-1', $employee?->getEmployeeID());
+        self::assertSame('employee-2', $created->getEmployeeID());
+        self::assertSame('employee-2', $updated->getEmployeeID());
     }
 
     public function test_it_can_load_payroll_au_employee_leave_balances(): void
@@ -128,7 +128,7 @@ final class EmployeesTest extends TestCase
         self::assertSame('/payroll.xro/1.0/LeaveApplications', $transport->requests()[2]->path);
         self::assertEquals(18.25, $leaveBalances['LeaveBalances'][0]['Balance']);
         self::assertInstanceOf(LeaveApplication::class, $leaveApplication);
-        self::assertSame('employee-1', $leaveApplication->raw['EmployeeID']);
+        self::assertSame('employee-1', $leaveApplication->getEmployeeID());
     }
 
     public function test_it_can_paginate_payroll_au_employees(): void

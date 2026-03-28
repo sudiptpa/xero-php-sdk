@@ -35,7 +35,7 @@ final readonly class SuperFunds implements DefinesScopes
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $fund): SuperFund => SuperFund::fromArray($fund),
+            fn (array $fund): SuperFund => $this->mapSuperFund($fund),
             $payload['SuperFunds'] ?? []
         ));
 
@@ -51,11 +51,23 @@ final readonly class SuperFunds implements DefinesScopes
 
         $fund = $payload['SuperFunds'][0] ?? $payload['SuperFund'] ?? null;
 
-        return is_array($fund) ? SuperFund::fromArray($fund) : null;
+        return is_array($fund) ? $this->mapSuperFund($fund) : null;
     }
 
     public function create(): Payload
     {
         return new Payload($this->client);
+    }
+
+    /**
+     * @param array<string, mixed> $fund
+     */
+    public function mapSuperFund(array $fund): SuperFund
+    {
+        return (new SuperFund())
+            ->setSuperFundID($fund['SuperFundID'] ?? null)
+            ->setName($fund['Name'] ?? null)
+            ->setType($fund['Type'] ?? null)
+            ;
     }
 }

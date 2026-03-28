@@ -85,6 +85,7 @@ final class Payload
         $payload = $response->json();
         $employee = $payload['Employees'][0] ?? [];
 
-        return Employee::fromArray(is_array($employee) ? $employee : [], $this->client);
+        return (new Employees($this->client))
+            ->mapEmployee(is_array($employee) ? $employee : []);
     }
 }

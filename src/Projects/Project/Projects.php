@@ -69,10 +69,7 @@ final class Projects implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_map(
-            fn (array $project): Project => Project::fromArray($project, $this->client),
-            self::many($payload)
-        );
+        $items = array_map(fn (array $project): Project => $this->mapProject($project), self::many($payload));
 
         return new ResourceCollection($items);
     }
@@ -104,7 +101,7 @@ final class Projects implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $project = self::single($payload);
 
-        return is_array($project) ? Project::fromArray($project, $this->client) : null;
+        return is_array($project) ? $this->mapProject($project) : null;
     }
 
     public function create(): Payload
@@ -142,5 +139,18 @@ final class Projects implements PaginatesResults, DefinesScopes
         $item = $payload['Project'] ?? $payload['project'] ?? self::many($payload)[0] ?? null;
 
         return is_array($item) ? $item : null;
+    }
+
+    /**
+     * @param array<string, mixed> $project
+     */
+    public function mapProject(array $project): Project
+    {
+        return (new Project($this->client))
+            ->setProjectID($project['ProjectID'] ?? $project['ProjectId'] ?? null)
+            ->setTitle($project['Title'] ?? null)
+            ->setState($project['State'] ?? null)
+            ->setContactID($project['Contact']['ContactID'] ?? $project['ContactID'] ?? null)
+            ->setDeadlineUTC($project['DeadlineUTC'] ?? $project['DeadlineUtc'] ?? null);
     }
 }

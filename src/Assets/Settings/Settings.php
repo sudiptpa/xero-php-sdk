@@ -6,19 +6,15 @@ namespace Sujip\Xero\Assets\Settings;
 
 use Sujip\Xero\Client;
 
-final readonly class Settings
+final class Settings
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
-    public function __construct(
-        public bool|null $depreciationCalculationEnabled,
-        public ?string $defaultGainOnDisposalAccountId = null,
-        public ?string $defaultLossOnDisposalAccountId = null,
-        public ?string $defaultCapitalGainOnDisposalAccountId = null,
-        public array $raw = []
-    ) {
-    }
+    private ?bool $depreciationCalculationEnabled = null;
+
+    private ?string $defaultGainOnDisposalAccountId = null;
+
+    private ?string $defaultLossOnDisposalAccountId = null;
+
+    private ?string $defaultCapitalGainOnDisposalAccountId = null;
 
     public static function fetch(Client $client): ?self
     {
@@ -29,20 +25,62 @@ final readonly class Settings
         $payload = $response->json();
         $settings = $payload['Items'][0] ?? null;
 
-        return is_array($settings) ? self::fromArray($settings) : null;
+        if (! is_array($settings)) {
+            return null;
+        }
+
+        return (new self())
+            ->setDepreciationCalculationEnabled($settings['DepreciationCalculationEnabled'] ?? null)
+            ->setDefaultGainOnDisposalAccountId($settings['DefaultGainOnDisposalAccountId'] ?? null)
+            ->setDefaultLossOnDisposalAccountId($settings['DefaultLossOnDisposalAccountId'] ?? null)
+            ->setDefaultCapitalGainOnDisposalAccountId($settings['DefaultCapitalGainOnDisposalAccountId'] ?? null);
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
+    public function getDepreciationCalculationEnabled(): ?bool
     {
-        return new self(
-            $payload['DepreciationCalculationEnabled'] ?? null,
-            $payload['DefaultGainOnDisposalAccountId'] ?? null,
-            $payload['DefaultLossOnDisposalAccountId'] ?? null,
-            $payload['DefaultCapitalGainOnDisposalAccountId'] ?? null,
-            $payload
-        );
+        return $this->depreciationCalculationEnabled;
+    }
+
+    public function setDepreciationCalculationEnabled(?bool $depreciationCalculationEnabled): self
+    {
+        $this->depreciationCalculationEnabled = $depreciationCalculationEnabled;
+
+        return $this;
+    }
+
+    public function getDefaultGainOnDisposalAccountId(): ?string
+    {
+        return $this->defaultGainOnDisposalAccountId;
+    }
+
+    public function setDefaultGainOnDisposalAccountId(?string $defaultGainOnDisposalAccountId): self
+    {
+        $this->defaultGainOnDisposalAccountId = $defaultGainOnDisposalAccountId;
+
+        return $this;
+    }
+
+    public function getDefaultLossOnDisposalAccountId(): ?string
+    {
+        return $this->defaultLossOnDisposalAccountId;
+    }
+
+    public function setDefaultLossOnDisposalAccountId(?string $defaultLossOnDisposalAccountId): self
+    {
+        $this->defaultLossOnDisposalAccountId = $defaultLossOnDisposalAccountId;
+
+        return $this;
+    }
+
+    public function getDefaultCapitalGainOnDisposalAccountId(): ?string
+    {
+        return $this->defaultCapitalGainOnDisposalAccountId;
+    }
+
+    public function setDefaultCapitalGainOnDisposalAccountId(?string $defaultCapitalGainOnDisposalAccountId): self
+    {
+        $this->defaultCapitalGainOnDisposalAccountId = $defaultCapitalGainOnDisposalAccountId;
+
+        return $this;
     }
 }

@@ -8,10 +8,9 @@ use RuntimeException;
 use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class Quote implements BuildsFromPayload, SerializesForRequest
+final class Quote implements SerializesForRequest
 {
     public function __construct(
         private ?Client $client = null
@@ -32,39 +31,6 @@ final class Quote implements BuildsFromPayload, SerializesForRequest
      * @var list<LineItem>
      */
     private array $lineItems = [];
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?Client $client = null): static
-    {
-        $quote = (new self($client))
-            ->setQuoteID($payload['QuoteID'] ?? null)
-            ->setQuoteNumber($payload['QuoteNumber'] ?? null)
-            ->setStatus($payload['Status'] ?? null)
-            ->setTitle($payload['Title'] ?? null);
-
-        $contact = $payload['Contact'] ?? null;
-        if (is_array($contact)) {
-            $quote->setContact(Contact::fromPayload($contact));
-        }
-
-        foreach ($payload['LineItems'] ?? [] as $lineItem) {
-            if (is_array($lineItem)) {
-                $quote->addLineItem(LineItem::fromPayload($lineItem));
-            }
-        }
-
-        return $quote;
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
-    }
 
     public function getQuoteID(): ?string
     {

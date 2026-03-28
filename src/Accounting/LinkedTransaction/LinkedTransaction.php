@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\LinkedTransaction;
 
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class LinkedTransaction implements BuildsFromPayload, SerializesForRequest
+final class LinkedTransaction implements SerializesForRequest
 {
     private ?string $linkedTransactionID = null;
 
@@ -18,27 +17,6 @@ final class LinkedTransaction implements BuildsFromPayload, SerializesForRequest
     private ?string $contactID = null;
 
     private ?string $status = null;
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?\Sujip\Xero\Client $client = null): static
-    {
-        return (new self())
-            ->setLinkedTransactionID($payload['LinkedTransactionID'] ?? null)
-            ->setSourceTransactionID($payload['SourceTransactionID'] ?? null)
-            ->setTargetTransactionID($payload['TargetTransactionID'] ?? null)
-            ->setContactID($payload['ContactID'] ?? null)
-            ->setStatus($payload['Status'] ?? null);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return self::fromPayload($payload);
-    }
 
     public function getLinkedTransactionID(): ?string
     {

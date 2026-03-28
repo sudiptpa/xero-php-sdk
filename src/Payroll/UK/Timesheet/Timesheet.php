@@ -7,36 +7,78 @@ namespace Sujip\Xero\Payroll\UK\Timesheet;
 use RuntimeException;
 use Sujip\Xero\Client;
 
-final readonly class Timesheet
+final class Timesheet
 {
     /**
-     * @param array<string, mixed> $raw
      */
     public function __construct(
-        public ?string $id,
-        public ?string $employeeId,
-        public ?string $startDate,
-        public ?string $endDate,
-        public ?string $status,
-        public array $raw = [],
-        private ?Client $client = null
+        private ?Client $client = null,
+        private ?string $timesheetID = null,
+        private ?string $employeeID = null,
+        private ?string $startDate = null,
+        private ?string $endDate = null,
+        private ?string $status = null,
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
+    public function getTimesheetID(): ?string
     {
-        return new self(
-            $payload['TimesheetID'] ?? null,
-            $payload['EmployeeID'] ?? null,
-            $payload['StartDate'] ?? null,
-            $payload['EndDate'] ?? null,
-            $payload['Status'] ?? null,
-            $payload,
-            $client
-        );
+        return $this->timesheetID;
+    }
+
+    public function setTimesheetID(?string $timesheetID): self
+    {
+        $this->timesheetID = $timesheetID;
+
+        return $this;
+    }
+
+    public function getEmployeeID(): ?string
+    {
+        return $this->employeeID;
+    }
+
+    public function setEmployeeID(?string $employeeID): self
+    {
+        $this->employeeID = $employeeID;
+
+        return $this;
+    }
+
+    public function getStartDate(): ?string
+    {
+        return $this->startDate;
+    }
+
+    public function setStartDate(?string $startDate): self
+    {
+        $this->startDate = $startDate;
+
+        return $this;
+    }
+
+    public function getEndDate(): ?string
+    {
+        return $this->endDate;
+    }
+
+    public function setEndDate(?string $endDate): self
+    {
+        $this->endDate = $endDate;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
     }
 
     public function save(): self
@@ -47,12 +89,12 @@ final readonly class Timesheet
 
         $payload = new Payload($this->client);
 
-        if ($this->id !== null) {
-            $payload = $payload->id($this->id);
+        if ($this->timesheetID !== null) {
+            $payload = $payload->id($this->timesheetID);
         }
 
-        if ($this->employeeId !== null) {
-            $payload = $payload->employee($this->employeeId);
+        if ($this->employeeID !== null) {
+            $payload = $payload->employee($this->employeeID);
         }
 
         if ($this->startDate !== null) {
@@ -72,19 +114,19 @@ final readonly class Timesheet
 
     public function approve(): self
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->timesheetID === null) {
             throw new RuntimeException('Cannot approve a timesheet without a bound client context and timesheet id.');
         }
 
-        return (new Timesheets($this->client))->approve($this->id);
+        return (new Timesheets($this->client))->approve($this->timesheetID);
     }
 
     public function revert(): self
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->timesheetID === null) {
             throw new RuntimeException('Cannot revert a timesheet without a bound client context and timesheet id.');
         }
 
-        return (new Timesheets($this->client))->revert($this->id);
+        return (new Timesheets($this->client))->revert($this->timesheetID);
     }
 }

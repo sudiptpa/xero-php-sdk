@@ -54,7 +54,7 @@ final class LeaveTypes implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            static fn (array $leaveType): LeaveType => LeaveType::fromArray($leaveType),
+            fn (array $leaveType): LeaveType => $this->mapLeaveType($leaveType),
             $payload['LeaveTypes'] ?? []
         ));
 
@@ -88,6 +88,18 @@ final class LeaveTypes implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $leaveType = $payload['LeaveTypes'][0] ?? $payload['LeaveType'] ?? null;
 
-        return is_array($leaveType) ? LeaveType::fromArray($leaveType) : null;
+        return is_array($leaveType) ? $this->mapLeaveType($leaveType) : null;
+    }
+
+    /**
+     * @param array<string, mixed> $leaveType
+     */
+    public function mapLeaveType(array $leaveType): LeaveType
+    {
+        return (new LeaveType())
+            ->setLeaveTypeID($leaveType['LeaveTypeID'] ?? null)
+            ->setName($leaveType['Name'] ?? null)
+            ->setIsActive(isset($leaveType['IsActive']) ? (bool) $leaveType['IsActive'] : null)
+            ;
     }
 }

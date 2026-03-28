@@ -7,40 +7,31 @@ namespace Sujip\Xero\Identity;
 use RuntimeException;
 use Sujip\Xero\Client;
 
-final readonly class Connection
+final class Connection
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
     public function __construct(
-        public ?string $id,
-        public ?string $tenantId,
-        public ?string $tenantName,
-        public ?string $tenantType,
-        public ?string $createdDateUtc,
-        public ?string $updatedDateUtc,
-        public array $raw = [],
-        private ?Client $client = null
+        private ?Client $client = null,
+        private ?string $id = null,
+        private ?string $tenantId = null,
+        private ?string $tenantName = null,
+        private ?string $tenantType = null,
+        private ?string $createdDateUtc = null,
+        private ?string $updatedDateUtc = null,
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return new self(
-            $payload['id'] ?? null,
-            $payload['tenantId'] ?? null,
-            $payload['tenantName'] ?? null,
-            $payload['tenantType'] ?? null,
-            $payload['createdDateUtc'] ?? null,
-            $payload['updatedDateUtc'] ?? null,
-            $payload,
-            $client
-        );
-    }
-
+    public function getId(): ?string { return $this->id; }
+    public function setId(?string $id): self { $this->id = $id; return $this; }
+    public function getTenantId(): ?string { return $this->tenantId; }
+    public function setTenantId(?string $tenantId): self { $this->tenantId = $tenantId; return $this; }
+    public function getTenantName(): ?string { return $this->tenantName; }
+    public function setTenantName(?string $tenantName): self { $this->tenantName = $tenantName; return $this; }
+    public function getTenantType(): ?string { return $this->tenantType; }
+    public function setTenantType(?string $tenantType): self { $this->tenantType = $tenantType; return $this; }
+    public function getCreatedDateUtc(): ?string { return $this->createdDateUtc; }
+    public function setCreatedDateUtc(?string $createdDateUtc): self { $this->createdDateUtc = $createdDateUtc; return $this; }
+    public function getUpdatedDateUtc(): ?string { return $this->updatedDateUtc; }
+    public function setUpdatedDateUtc(?string $updatedDateUtc): self { $this->updatedDateUtc = $updatedDateUtc; return $this; }
     public function disconnect(): bool
     {
         if ($this->client === null || $this->id === null) {

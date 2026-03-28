@@ -47,10 +47,21 @@ final readonly class BankStatementAccounting implements DefinesScopes
             ->json();
 
         $items = array_values(array_map(
-            static fn (array $entry): BankStatementEntry => BankStatementEntry::fromArray($entry),
+            fn (array $entry): BankStatementEntry => $this->mapBankStatementEntry($entry),
             $payload['Items'] ?? $payload['BankStatementAccounting'] ?? []
         ));
 
         return new ResourceCollection($items);
+    }
+
+    /**
+     * @param array<string, mixed> $entry
+     */
+    public function mapBankStatementEntry(array $entry): BankStatementEntry
+    {
+        return (new BankStatementEntry())
+            ->setAccountID(isset($entry['AccountID']) ? (string) $entry['AccountID'] : null)
+            ->setAccountName(isset($entry['AccountName']) ? (string) $entry['AccountName'] : null)
+            ->setStatementBalance(isset($entry['StatementBalance']) ? (float) $entry['StatementBalance'] : null);
     }
 }

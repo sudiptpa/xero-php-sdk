@@ -23,7 +23,7 @@ final class Xero
 
     public static function withToken(Token $token, ?Transport $transport = null): Client
     {
-        return self::withAccessToken($token->accessToken, $transport);
+        return self::withAccessToken($token->getAccessToken(), $transport);
     }
 
     /**

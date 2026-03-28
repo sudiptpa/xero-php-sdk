@@ -216,6 +216,9 @@ $history = $xero->accounting()
 $settings = $xero->accounting()
     ->invoiceReminders()
     ->settings();
+
+$enabled = $settings->getEnabled();
+$days = $settings->getDays();
 ```
 
 ## Payments
@@ -487,6 +490,10 @@ $employees = $xero->accounting()
     ->where('Status == :status', status: 'ACTIVE')
     ->orderBy('LastName')
     ->get();
+
+$firstEmployee = $employees->first();
+$employeeId = $firstEmployee?->getEmployeeID();
+$firstName = $firstEmployee?->getFirstName();
 ```
 
 ```php
@@ -814,6 +821,10 @@ $repeatingInvoice = $xero->accounting()
 $services = $xero->accounting()
     ->paymentServices()
     ->get();
+
+$firstService = $services->first();
+$serviceName = $firstService?->getPaymentServiceName();
+$payNowText = $firstService?->getPayNowText();
 ```
 
 ```php
@@ -833,6 +844,10 @@ $claims = $xero->accounting()
     ->expenseClaims()
     ->where('Status == :status', status: 'SUBMITTED')
     ->get();
+
+$firstClaim = $claims->first();
+$claimId = $firstClaim?->getExpenseClaimID();
+$status = $firstClaim?->getStatus();
 ```
 
 ```php
@@ -859,6 +874,9 @@ $journals = $xero->accounting()
 $journal = $xero->accounting()
     ->journals()
     ->number(1251);
+
+$journalId = $journal?->getJournalID();
+$journalNumber = $journal?->getJournalNumber();
 ```
 
 ## Reports
@@ -867,6 +885,10 @@ $journal = $xero->accounting()
 $reports = $xero->accounting()
     ->reports()
     ->list();
+
+$firstReport = $reports->first();
+$reportName = $firstReport?->getReportName();
+$reportType = $firstReport?->getReportType();
 ```
 
 ```php
@@ -876,6 +898,8 @@ $profitAndLoss = $xero->accounting()
         'fromDate' => new DateTimeImmutable('2026-01-01'),
         'toDate' => new DateTimeImmutable('2026-03-25'),
     ]);
+
+$title = $profitAndLoss?->getTitle();
 ```
 
 ## Scope Notes

@@ -96,8 +96,8 @@ final class LeaveApplicationsTest extends TestCase
         self::assertSame('/payroll.xro/1.0/LeaveApplications/leave-2', $transport->requests()[3]->path);
         self::assertSame('/payroll.xro/1.0/LeaveApplications/leave-2/approve', $transport->requests()[4]->path);
         self::assertSame('/payroll.xro/1.0/LeaveApplications/leave-2/reject', $transport->requests()[5]->path);
-        self::assertSame('leave-2', $updated->id);
-        self::assertSame('REJECTED', $rejected->status);
-        self::assertSame('leave-1', $application?->id);
+        self::assertSame('leave-2', $updated->getLeaveApplicationID());
+        self::assertSame('REJECTED', $rejected->getStatus());
+        self::assertSame('leave-1', $application?->getLeaveApplicationID());
     }
 }

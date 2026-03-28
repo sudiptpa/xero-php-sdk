@@ -67,7 +67,7 @@ final class SubscriptionsTest extends TestCase
             ->save();
 
         self::assertInstanceOf(Subscription::class, $subscription);
-        self::assertSame('item-1', $subscription->items[0]['id']);
+        self::assertSame('item-1', $subscription->getItems()[0]['id']);
         self::assertSame('/subscriptions/subscription-1', $transport->requests()[0]->path);
         self::assertFalse($transport->requests()[0]->includeTenantHeader);
         self::assertSame('/subscriptions/subscription-1/usage-records', $transport->requests()[1]->path);
@@ -75,7 +75,7 @@ final class SubscriptionsTest extends TestCase
         self::assertSame('/subscriptions/subscription-1/items/item-1/usage-records', $transport->requests()[2]->path);
         self::assertSame('/subscriptions/subscription-1/items/item-1/usage-records/usage-2', $transport->requests()[3]->path);
         self::assertInstanceOf(UsageRecord::class, $usageRecords->first());
-        self::assertSame('usage-2', $recorded->id);
-        self::assertSame(15.0, $updated->quantity);
+        self::assertSame('usage-2', $recorded->getUsageRecordID());
+        self::assertSame(15.0, $updated->getQuantity());
     }
 }

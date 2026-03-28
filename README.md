@@ -11,7 +11,7 @@ The package already includes:
 - zero runtime dependencies
 - multi-tenant context handling
 - transport abstraction
-- rich typed models
+- rich models
 - production-ready test and static-analysis coverage
 
 ## Installation
@@ -25,17 +25,6 @@ Requirements:
 - PHP 8.2+
 - `ext-json`
 - `ext-curl` for the built-in native transport
-
-## Mac Setup
-
-If you are moving your development environment from Linux to a MacBook Pro on Apple Silicon, use the repository setup guide:
-
-- [`docs/macbook-pro-m5-setup.md`](/var/www/html/packages/xero-php-sdk/docs/macbook-pro-m5-setup.md)
-
-The repo also includes:
-
-- [`Brewfile.mac`](/var/www/html/packages/xero-php-sdk/Brewfile.mac)
-- [`scripts/macos/bootstrap.sh`](/var/www/html/packages/xero-php-sdk/scripts/macos/bootstrap.sh)
 
 ## Quick Start
 
@@ -186,12 +175,16 @@ $file = $xero->files()
     ->mimeType('application/pdf')
     ->toFolder('folder-id')
     ->save();
+
+$fileName = $file->getName();
 ```
 
 ```php
 $folder = $xero->files()
     ->folders()
     ->inbox();
+
+$isInbox = $folder?->getIsInbox();
 ```
 
 ```php
@@ -206,6 +199,8 @@ $assets = $xero->assets()
     ->orderBy('AssetName')
     ->filterBy('MacBook')
     ->get();
+
+$assetName = $assets->first()?->getAssetName();
 ```
 
 ```php
@@ -215,6 +210,8 @@ $project = $xero->projects()
     ->contact('contact-id')
     ->estimateMinutes(600)
     ->save();
+
+$projectId = $project->getProjectID();
 ```
 
 ```php
@@ -299,11 +296,11 @@ The package is meant to feel clean in real application code:
 
 - fluent API instead of generated client sprawl
 - domain-first structure that is easy to maintain
-- typed models for reads and focused builders for writes
+- rich models for reads and requests
 - framework-neutral integration points
 - strong testing culture and coverage discipline
 - excellent documentation and migration guidance
-- community-friendly open source foundations
+- open source foundations
 
 ## Granular Scopes
 
@@ -375,7 +372,7 @@ PKCE and custom connections are first-class too. See [Auth](docs/auth.md) for th
 - `Sujip\\Xero\\Xero` root entrypoint
 - `Sujip\\Xero\\Client` fluent tenant-aware client
 - lightweight HTTP transport contracts
-- Laravel-style pending request pipeline
+- fluent pending request pipeline
 - native transport for production use
 - OAuth2 token objects and authorization URL helpers
 - OAuth2 client for code exchange and token refresh
@@ -383,48 +380,43 @@ PKCE and custom connections are first-class too. See [Auth](docs/auth.md) for th
 - identity connections support for tenant discovery
 - webhook signature verification and payload parsing
 - auth lifecycle helper for connect, store, refresh, and tenant selection
-- accounting contacts query builder
-- accounting contact create builder
-- accounting contact update builder
-- accounting invoices draft builder
-- accounting invoices query builder
+- accounting contacts query and write flows
+- accounting invoices draft and query flows
 - invoice attachment and history helpers
-- accounting payments query and create builders
-- accounting payment update builder
-- accounting accounts query and create builders
-- accounting account update builder
-- files query builder
+- accounting payments query and write flows
+- accounting accounts query and write flows
+- files query flows
 - file content download helper
 - file delete helper
-- file upload builder
+- file upload flow
 - file association helpers
 - object-side file association lookup
-- folders query, create, and delete builders
+- folders query, create, and delete flows
 - folder inbox helper
-- assets query builder
+- assets query flows
 - assets search and pagination helpers
-- asset create builder
-- asset types query and create builders
+- asset create flow
+- asset types query and create flows
 - asset settings helper
-- projects query, create, and update builders
-- project users query builder
+- projects query, create, and update flows
+- project users query flow
 - project task query, create, update, and delete helpers
 - project time entry query, create, update, and delete helpers
-- payroll AU employees query builder
+- payroll AU employees query flow
 - payroll AU leave applications query, create, update, approve, and reject helpers
-- payroll AU pay items query builder
-- payroll AU pay runs query, create, and update builders
-- payroll AU timesheets query, create, and update builders
+- payroll AU pay items query flow
+- payroll AU pay runs query, create, and update flows
+- payroll AU timesheets query, create, and update flows
 - payroll AU settings helper
-- payroll NZ employees query, create, and update builders
-- payroll NZ leave types query builder
-- payroll NZ pay run calendars query builder
-- payroll NZ pay runs query and create builders
+- payroll NZ employees query, create, and update flows
+- payroll NZ leave types query flow
+- payroll NZ pay run calendars query flow
+- payroll NZ pay runs query and create flows
 - payroll NZ timesheets query, create, update, approve, revert, and delete helpers
 - payroll NZ settings helper
 - payroll UK employees query, create, update, and leave balance helpers
-- payroll UK pay run calendars query builder
-- payroll UK pay runs query and create builders
+- payroll UK pay run calendars query flow
+- payroll UK pay runs query and create flows
 - payroll UK timesheets query, create, update, approve, and revert helpers
 - finance accounting activities reader
 - finance cash validation reader

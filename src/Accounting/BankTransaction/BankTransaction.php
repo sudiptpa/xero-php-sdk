@@ -9,10 +9,9 @@ use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class BankTransaction implements BuildsFromPayload, SerializesForRequest
+final class BankTransaction implements SerializesForRequest
 {
     public function __construct(
         private ?Client $client = null
@@ -37,45 +36,6 @@ final class BankTransaction implements BuildsFromPayload, SerializesForRequest
      * @var list<LineItem>
      */
     private array $lineItems = [];
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?Client $client = null): static
-    {
-        $transaction = (new self($client))
-            ->setBankTransactionID($payload['BankTransactionID'] ?? null)
-            ->setType($payload['Type'] ?? null)
-            ->setStatus($payload['Status'] ?? null)
-            ->setReference($payload['Reference'] ?? null)
-            ->setTotal($payload['Total'] ?? null);
-
-        $contact = $payload['Contact'] ?? null;
-        if (is_array($contact)) {
-            $transaction->setContact(Contact::fromPayload($contact));
-        }
-
-        $bankAccount = $payload['BankAccount'] ?? null;
-        if (is_array($bankAccount)) {
-            $transaction->setBankAccount(BankAccount::fromPayload($bankAccount));
-        }
-
-        foreach ($payload['LineItems'] ?? [] as $lineItem) {
-            if (is_array($lineItem)) {
-                $transaction->addLineItem(LineItem::fromPayload($lineItem));
-            }
-        }
-
-        return $transaction;
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
-    }
 
     public function getBankTransactionID(): ?string
     {

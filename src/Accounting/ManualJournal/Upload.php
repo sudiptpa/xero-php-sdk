@@ -35,6 +35,12 @@ final readonly class Upload
         $payload = $request->send()->json();
         $attachment = $payload['Attachments'][0] ?? [];
 
-        return Attachment::fromArray(is_array($attachment) ? $attachment : []);
+        $attachment = is_array($attachment) ? $attachment : [];
+
+        return new Attachment(
+            isset($attachment['FileName']) ? (string) $attachment['FileName'] : null,
+            isset($attachment['Url']) ? (string) $attachment['Url'] : null,
+            $attachment
+        );
     }
 }

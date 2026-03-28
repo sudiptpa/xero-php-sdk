@@ -61,6 +61,6 @@ final class Payload
         $payload = $response->json();
         $linkedTransaction = $payload['LinkedTransactions'][0] ?? $payload['LinkedTransaction'] ?? [];
 
-        return LinkedTransaction::fromPayload(is_array($linkedTransaction) ? $linkedTransaction : []);
+        return (new LinkedTransactions($this->client))->mapLinkedTransaction(is_array($linkedTransaction) ? $linkedTransaction : []);
     }
 }

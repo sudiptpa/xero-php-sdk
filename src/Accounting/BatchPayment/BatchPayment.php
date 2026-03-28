@@ -8,10 +8,9 @@ use Sujip\Xero\Accounting\Account\Account;
 use Sujip\Xero\Accounting\History;
 use RuntimeException;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class BatchPayment implements BuildsFromPayload, SerializesForRequest
+final class BatchPayment implements SerializesForRequest
 {
     public function __construct(
         private ?Client $client = null
@@ -32,39 +31,6 @@ final class BatchPayment implements BuildsFromPayload, SerializesForRequest
      * @var list<PaymentEntry>
      */
     private array $payments = [];
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?Client $client = null): static
-    {
-        $batchPayment = (new self($client))
-            ->setBatchPaymentID($payload['BatchPaymentID'] ?? null)
-            ->setReference($payload['Reference'] ?? null)
-            ->setStatus($payload['Status'] ?? null)
-            ->setAmount($payload['Amount'] ?? null);
-
-        $account = $payload['Account'] ?? null;
-        if (is_array($account)) {
-            $batchPayment->setAccount(Account::fromPayload($account, $client));
-        }
-
-        foreach ($payload['Payments'] ?? [] as $payment) {
-            if (is_array($payment)) {
-                $batchPayment->addPayment(PaymentEntry::fromPayload($payment));
-            }
-        }
-
-        return $batchPayment;
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
-    }
 
     public function getBatchPaymentID(): ?string
     {

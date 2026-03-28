@@ -68,7 +68,7 @@ final class AssetsTest extends TestCase
         self::assertSame(3, $paginated->page);
         self::assertSame(10, $paginated->perPage);
         self::assertSame('/assets.xro/1.0/Assets/asset-1', $transport->requests()[2]->path);
-        self::assertSame('REGISTERED', $asset?->status);
+        self::assertSame('REGISTERED', $asset?->getStatus());
     }
 
     public function test_it_can_create_an_asset(): void
@@ -106,7 +106,7 @@ final class AssetsTest extends TestCase
         self::assertSame('MacBook Pro', $request->json['AssetName']);
         self::assertSame('DRAFT', $request->json['Status']);
         self::assertSame('asset-key', $request->headers['Idempotency-Key']);
-        self::assertSame('type-1', $asset->assetTypeId);
+        self::assertSame('type-1', $asset->getAssetTypeId());
     }
 
     public function test_it_can_list_asset_types_from_both_entrypoints_and_create_asset_types(): void
@@ -158,7 +158,7 @@ final class AssetsTest extends TestCase
         self::assertSame('/assets.xro/1.0/AssetTypes', $transport->requests()[2]->path);
         self::assertSame('Office Equipment', $transport->requests()[2]->json['AssetTypeName']);
         self::assertSame('type-key', $transport->requests()[2]->headers['Idempotency-Key']);
-        self::assertSame('Office Equipment', $created->name);
+        self::assertSame('Office Equipment', $created->getAssetTypeName());
     }
 
     public function test_it_can_fetch_asset_settings(): void
@@ -180,6 +180,6 @@ final class AssetsTest extends TestCase
 
         self::assertSame('/assets.xro/1.0/Settings', $transport->requests()[0]->path);
         self::assertInstanceOf(Settings::class, $settings);
-        self::assertTrue((bool) $settings->depreciationCalculationEnabled);
+        self::assertTrue((bool) $settings->getDepreciationCalculationEnabled());
     }
 }

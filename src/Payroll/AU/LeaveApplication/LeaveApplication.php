@@ -7,58 +7,41 @@ namespace Sujip\Xero\Payroll\AU\LeaveApplication;
 use RuntimeException;
 use Sujip\Xero\Client;
 
-final readonly class LeaveApplication
+final class LeaveApplication
 {
     /**
-     * @param array<string, mixed> $raw
      */
     public function __construct(
-        public ?string $id,
-        public ?string $employeeId,
-        public ?string $leaveTypeId,
-        public ?string $title,
-        public ?string $startDate,
-        public ?string $endDate,
-        public ?string $status,
-        public array $raw = [],
-        private ?Client $client = null
+        private ?Client $client = null,
+        private ?string $leaveApplicationID = null,
+        private ?string $employeeID = null,
+        private ?string $leaveTypeID = null,
+        private ?string $title = null,
+        private ?string $startDate = null,
+        private ?string $endDate = null,
+        private ?string $status = null,
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return new self(
-            $payload['LeaveApplicationID'] ?? null,
-            $payload['EmployeeID'] ?? null,
-            $payload['LeaveTypeID'] ?? null,
-            $payload['Title'] ?? null,
-            $payload['StartDate'] ?? null,
-            $payload['EndDate'] ?? null,
-            $payload['Status'] ?? null,
-            $payload,
-            $client
-        );
-    }
-
+    public function getLeaveApplicationID(): ?string { return $this->leaveApplicationID; }
+    public function setLeaveApplicationID(?string $leaveApplicationID): self { $this->leaveApplicationID = $leaveApplicationID; return $this; }
+    public function getEmployeeID(): ?string { return $this->employeeID; }
+    public function setEmployeeID(?string $employeeID): self { $this->employeeID = $employeeID; return $this; }
+    public function getLeaveTypeID(): ?string { return $this->leaveTypeID; }
+    public function setLeaveTypeID(?string $leaveTypeID): self { $this->leaveTypeID = $leaveTypeID; return $this; }
+    public function getTitle(): ?string { return $this->title; }
+    public function setTitle(?string $title): self { $this->title = $title; return $this; }
+    public function getStartDate(): ?string { return $this->startDate; }
+    public function setStartDate(?string $startDate): self { $this->startDate = $startDate; return $this; }
+    public function getEndDate(): ?string { return $this->endDate; }
+    public function setEndDate(?string $endDate): self { $this->endDate = $endDate; return $this; }
+    public function getStatus(): ?string { return $this->status; }
+    public function setStatus(?string $status): self { $this->status = $status; return $this; }
     public function status(string $status): self
     {
-        $payload = $this->raw;
-        $payload['Status'] = strtoupper($status);
+        $this->status = strtoupper($status);
 
-        return new self(
-            $this->id,
-            $this->employeeId,
-            $this->leaveTypeId,
-            $this->title,
-            $this->startDate,
-            $this->endDate,
-            strtoupper($status),
-            $payload,
-            $this->client
-        );
+        return $this;
     }
 
     public function save(): self
@@ -69,16 +52,16 @@ final readonly class LeaveApplication
 
         $payload = new Payload($this->client);
 
-        if ($this->id !== null) {
-            $payload = $payload->id($this->id);
+        if ($this->leaveApplicationID !== null) {
+            $payload = $payload->id($this->leaveApplicationID);
         }
 
-        if ($this->employeeId !== null) {
-            $payload = $payload->employee($this->employeeId);
+        if ($this->employeeID !== null) {
+            $payload = $payload->employee($this->employeeID);
         }
 
-        if ($this->leaveTypeId !== null) {
-            $payload = $payload->leaveType($this->leaveTypeId);
+        if ($this->leaveTypeID !== null) {
+            $payload = $payload->leaveType($this->leaveTypeID);
         }
 
         if ($this->title !== null) {
@@ -98,19 +81,19 @@ final readonly class LeaveApplication
 
     public function approve(): self
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->leaveApplicationID === null) {
             throw new RuntimeException('Cannot approve a leave application without a bound client context and leave application id.');
         }
 
-        return (new LeaveApplications($this->client))->approve($this->id);
+        return (new LeaveApplications($this->client))->approve($this->leaveApplicationID);
     }
 
     public function reject(): self
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->leaveApplicationID === null) {
             throw new RuntimeException('Cannot reject a leave application without a bound client context and leave application id.');
         }
 
-        return (new LeaveApplications($this->client))->reject($this->id);
+        return (new LeaveApplications($this->client))->reject($this->leaveApplicationID);
     }
 }

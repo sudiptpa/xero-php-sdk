@@ -21,13 +21,18 @@ final class EmploymentPayload
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public function using(array $payload): self
+    public function startDate(string $startDate): self
     {
         $clone = clone $this;
-        $clone->payload = $payload;
+        $clone->payload['StartDate'] = $startDate;
+
+        return $clone;
+    }
+
+    public function payrollCalendar(string $payrollCalendarId): self
+    {
+        $clone = clone $this;
+        $clone->payload['PayrollCalendarID'] = $payrollCalendarId;
 
         return $clone;
     }

@@ -6,10 +6,9 @@ namespace Sujip\Xero\Accounting\Contact;
 
 use RuntimeException;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class Contact implements BuildsFromPayload, SerializesForRequest
+final class Contact implements SerializesForRequest
 {
     private ?string $contactID = null;
 
@@ -34,41 +33,6 @@ final class Contact implements BuildsFromPayload, SerializesForRequest
     public function __construct(
         private ?Client $client = null
     ) {
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?Client $client = null): static
-    {
-        $contact = (new self($client))
-            ->setContactID($payload['ContactID'] ?? null)
-            ->setName($payload['Name'] ?? null)
-            ->setFirstName($payload['FirstName'] ?? null)
-            ->setLastName($payload['LastName'] ?? null)
-            ->setEmailAddress($payload['EmailAddress'] ?? null);
-
-        foreach ($payload['Addresses'] ?? [] as $address) {
-            if (is_array($address)) {
-                $contact->addAddress(Address::fromPayload($address));
-            }
-        }
-
-        foreach ($payload['Phones'] ?? [] as $phone) {
-            if (is_array($phone)) {
-                $contact->addPhone(Phone::fromPayload($phone));
-            }
-        }
-
-        return $contact;
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
     }
 
     public function getContactID(): ?string

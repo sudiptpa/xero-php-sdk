@@ -4,29 +4,19 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Finance\AccountingActivity;
 
-final readonly class LockHistory
+final class LockHistory
 {
-    /**
-     * @param array<string, mixed> $raw
-     */
     public function __construct(
-        public ?string $lockDate,
-        public ?string $lockType,
-        public ?string $changedDateUtc,
-        public array $raw = []
+        private ?string $lockDate = null,
+        private ?string $lockType = null,
+        private ?string $changedDateUTC = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            isset($payload['LockDate']) ? (string) $payload['LockDate'] : null,
-            isset($payload['LockType']) ? (string) $payload['LockType'] : null,
-            isset($payload['ChangedDateUTC']) ? (string) $payload['ChangedDateUTC'] : null,
-            $payload
-        );
-    }
+    public function getLockDate(): ?string { return $this->lockDate; }
+    public function setLockDate(?string $lockDate): self { $this->lockDate = $lockDate; return $this; }
+    public function getLockType(): ?string { return $this->lockType; }
+    public function setLockType(?string $lockType): self { $this->lockType = $lockType; return $this; }
+    public function getChangedDateUTC(): ?string { return $this->changedDateUTC; }
+    public function setChangedDateUTC(?string $changedDateUTC): self { $this->changedDateUTC = $changedDateUTC; return $this; }
 }

@@ -6,9 +6,8 @@ namespace Sujip\Xero\Files\File;
 
 use RuntimeException;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 
-final class File implements BuildsFromPayload
+final class File
 {
     private ?string $id = null;
 
@@ -26,41 +25,9 @@ final class File implements BuildsFromPayload
 
     private ?string $user = null;
 
-    /**
-     * @var array<string, mixed>
-     */
-    private array $raw = [];
-
     public function __construct(
         private ?Client $client = null
     ) {
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?Client $client = null): static
-    {
-        $folder = $payload['FolderId'] ?? null;
-
-        return (new self($client))
-            ->setId($payload['Id'] ?? null)
-            ->setName($payload['Name'] ?? null)
-            ->setMimeType($payload['MimeType'] ?? null)
-            ->setSize($payload['Size'] ?? null)
-            ->setFolderId(is_array($folder) ? ($folder['Id'] ?? null) : (is_string($folder) ? $folder : null))
-            ->setCreatedDateUTC($payload['CreatedDateUTC'] ?? null)
-            ->setUpdatedDateUTC($payload['UpdatedDateUTC'] ?? null)
-            ->setUser(is_string($payload['User'] ?? null) ? $payload['User'] : null)
-            ->setRaw($payload);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
     }
 
     public function getId(): ?string
@@ -155,24 +122,6 @@ final class File implements BuildsFromPayload
     public function setUser(?string $user): self
     {
         $this->user = $user;
-
-        return $this;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function getRaw(): array
-    {
-        return $this->raw;
-    }
-
-    /**
-     * @param array<string, mixed> $raw
-     */
-    public function setRaw(array $raw): self
-    {
-        $this->raw = $raw;
 
         return $this;
     }

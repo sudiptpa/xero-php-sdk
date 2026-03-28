@@ -112,6 +112,7 @@ final class Payload
         $payload = $response->json();
         $contact = $payload['Contacts'][0] ?? [];
 
-        return Contact::fromArray(is_array($contact) ? $contact : [], $this->client);
+        return (new Contacts($this->client))
+            ->mapContact(is_array($contact) ? $contact : []);
     }
 }

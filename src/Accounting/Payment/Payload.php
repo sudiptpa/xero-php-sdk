@@ -101,6 +101,7 @@ final class Payload
         $payload = $response->json();
         $payment = $payload['Payments'][0] ?? [];
 
-        return Payment::fromArray(is_array($payment) ? $payment : [], $this->client);
+        return (new Payments($this->client))
+            ->mapPayment(is_array($payment) ? $payment : []);
     }
 }

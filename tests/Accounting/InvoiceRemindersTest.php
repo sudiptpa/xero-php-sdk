@@ -28,7 +28,7 @@ final class InvoiceRemindersTest extends TestCase
 
         self::assertSame('/api.xro/2.0/InvoiceReminders/Settings', $transport->requests()[0]->path);
         self::assertInstanceOf(InvoiceReminderSettings::class, $settings);
-        self::assertTrue($settings->enabled);
-        self::assertSame([7, 14], $settings->raw['Days']);
+        self::assertTrue($settings->getEnabled());
+        self::assertSame([7, 14], $settings->getDays());
     }
 }

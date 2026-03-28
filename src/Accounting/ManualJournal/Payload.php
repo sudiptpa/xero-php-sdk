@@ -66,6 +66,6 @@ final class Payload
         $payload = $response->json();
         $manualJournal = $payload['ManualJournals'][0] ?? [];
 
-        return ManualJournal::fromPayload(is_array($manualJournal) ? $manualJournal : [], $this->client);
+        return (new ManualJournals($this->client))->mapManualJournal(is_array($manualJournal) ? $manualJournal : []);
     }
 }

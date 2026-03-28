@@ -54,7 +54,7 @@ final class ManualJournals implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $manualJournal): ManualJournal => ManualJournal::fromArray($manualJournal, $this->client),
+            fn (array $manualJournal): ManualJournal => $this->mapManualJournal($manualJournal),
             $payload['ManualJournals'] ?? []
         ));
 
@@ -85,7 +85,7 @@ final class ManualJournals implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $manualJournal = $payload['ManualJournals'][0] ?? null;
 
-        return is_array($manualJournal) ? ManualJournal::fromArray($manualJournal, $this->client) : null;
+        return is_array($manualJournal) ? $this->mapManualJournal($manualJournal) : null;
     }
 
     public function create(): Payload
@@ -106,5 +106,35 @@ final class ManualJournals implements PaginatesResults, DefinesScopes
     public function history(string $manualJournalId): History
     {
         return new History($this->client, '/api.xro/2.0/ManualJournals/' . $manualJournalId . '/History');
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapManualJournal(array $payload): ManualJournal
+    {
+        $manualJournal = (new ManualJournal($this->client))
+            ->setManualJournalID(isset($payload['ManualJournalID']) ? (string) $payload['ManualJournalID'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
+            ->setNarration(isset($payload['Narration']) ? (string) $payload['Narration'] : null);
+
+        foreach ($payload['JournalLines'] ?? [] as $journalLine) {
+            if (is_array($journalLine)) {
+                $manualJournal->addJournalLine($this->mapJournalLine($journalLine));
+            }
+        }
+
+        return $manualJournal;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapJournalLine(array $payload): JournalLine
+    {
+        return (new JournalLine())
+            ->setLineAmount(isset($payload['LineAmount']) && is_numeric($payload['LineAmount']) ? $payload['LineAmount'] + 0 : null)
+            ->setAccountCode(isset($payload['AccountCode']) ? (string) $payload['AccountCode'] : null)
+            ->setIsDebit(isset($payload['IsDebit']) ? (bool) $payload['IsDebit'] : null);
     }
 }

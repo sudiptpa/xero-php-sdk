@@ -6,6 +6,7 @@ namespace Sujip\Xero\Payroll\UK\Settings;
 
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
 final readonly class Settings implements DefinesScopes
@@ -24,36 +25,51 @@ final readonly class Settings implements DefinesScopes
     }
 
     /**
-     * @return array<string, mixed>
+     * @return ResourceCollection<TrackingCategory>
      */
-    public function trackingCategories(): array
+    public function trackingCategories(): ResourceCollection
     {
-        return $this->client
+        $payload = $this->client
             ->get('/payroll.xro/2.0/Settings/trackingCategories')
             ->send()
             ->json();
+
+        $items = array_values(array_map(
+            fn (array $trackingCategory): TrackingCategory => $this->mapTrackingCategory($trackingCategory),
+            $payload['TrackingCategories'] ?? []
+        ));
+
+        return new ResourceCollection($items);
     }
 
     /**
-     * @return array<string, mixed>
+     * @return ResourceCollection<Reimbursement>
      */
-    public function reimbursements(): array
+    public function reimbursements(): ResourceCollection
     {
-        return $this->client
+        $payload = $this->client
             ->get('/payroll.xro/2.0/Reimbursements')
             ->send()
             ->json();
+
+        $items = array_values(array_map(
+            fn (array $reimbursement): Reimbursement => $this->mapReimbursement($reimbursement),
+            $payload['Reimbursements'] ?? []
+        ));
+
+        return new ResourceCollection($items);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function reimbursement(string $reimbursementId): array
+    public function reimbursement(string $reimbursementId): ?Reimbursement
     {
-        return $this->client
+        $payload = $this->client
             ->get('/payroll.xro/2.0/Reimbursements/' . $reimbursementId)
             ->send()
             ->json();
+
+        $reimbursement = $payload['Reimbursements'][0] ?? $payload['Reimbursement'] ?? null;
+
+        return is_array($reimbursement) ? $this->mapReimbursement($reimbursement) : null;
     }
 
     public function createReimbursement(): ReimbursementPayload
@@ -61,14 +77,54 @@ final readonly class Settings implements DefinesScopes
         return new ReimbursementPayload($this->client);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function statutoryLeaveSummary(string $employeeId): array
+    public function statutoryLeaveSummary(string $employeeId): StatutoryLeaveSummary
     {
-        return $this->client
+        $payload = $this->client
             ->get('/payroll.xro/2.0/StatutoryLeaves/Summary/' . $employeeId)
             ->send()
             ->json();
+
+        /** @var array<string, mixed>|null $summary */
+        $summary = $payload['StatutoryLeaveSummary'] ?? null;
+
+        if (! is_array($summary)) {
+            return new StatutoryLeaveSummary();
+        }
+
+        return $this->mapStatutoryLeaveSummary($summary);
+    }
+
+    /**
+     * @param array<string, mixed> $trackingCategory
+     */
+    public function mapTrackingCategory(array $trackingCategory): TrackingCategory
+    {
+        return (new TrackingCategory())
+            ->setTrackingCategoryID($trackingCategory['TrackingCategoryID'] ?? null)
+            ->setName($trackingCategory['Name'] ?? null)
+            ;
+    }
+
+    /**
+     * @param array<string, mixed> $reimbursement
+     */
+    public function mapReimbursement(array $reimbursement): Reimbursement
+    {
+        return (new Reimbursement())
+            ->setReimbursementID($reimbursement['ReimbursementID'] ?? null)
+            ->setName($reimbursement['Name'] ?? null)
+            ->setAccountCode($reimbursement['AccountCode'] ?? null)
+            ;
+    }
+
+    /**
+     * @param array<string, mixed> $summary
+     */
+    public function mapStatutoryLeaveSummary(array $summary): StatutoryLeaveSummary
+    {
+        return (new StatutoryLeaveSummary())
+            ->setEmployeeID($summary['EmployeeID'] ?? null)
+            ->setUnits($summary['Units'] ?? null)
+            ;
     }
 }

@@ -8,9 +8,8 @@ use Sujip\Xero\Accounting\History;
 use RuntimeException;
 use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 
-final class Receipt implements BuildsFromPayload
+final class Receipt
 {
     private ?string $receiptID = null;
 
@@ -25,31 +24,6 @@ final class Receipt implements BuildsFromPayload
     public function __construct(
         private ?Client $client = null
     ) {
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?Client $client = null): static
-    {
-        return (new self($client))
-            ->setReceiptID($payload['ReceiptID'] ?? null)
-            ->setReceiptNumber($payload['ReceiptNumber'] ?? null)
-            ->setStatus($payload['Status'] ?? null)
-            ->setTotal($payload['Total'] ?? null)
-            ->setContact(
-                is_array($payload['Contact'] ?? null)
-                    ? Contact::fromPayload($payload['Contact'])
-                    : null
-            );
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
     }
 
     public function getReceiptID(): ?string

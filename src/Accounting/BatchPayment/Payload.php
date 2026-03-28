@@ -69,6 +69,7 @@ final class Payload
         $payload = $response->json();
         $batchPayment = $payload['BatchPayments'][0] ?? [];
 
-        return BatchPayment::fromPayload(is_array($batchPayment) ? $batchPayment : [], $this->client);
+        return (new BatchPayments($this->client))
+            ->mapBatchPayment(is_array($batchPayment) ? $batchPayment : []);
     }
 }

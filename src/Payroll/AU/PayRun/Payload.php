@@ -64,6 +64,10 @@ final class Payload
         $payload = $response->json();
         $payRun = $payload['PayRuns'][0] ?? $payload['PayRun'] ?? [];
 
-        return PayRun::fromArray(is_array($payRun) ? $payRun : [], $this->client);
+        if (! is_array($payRun)) {
+            return new PayRun($this->client);
+        }
+
+        return (new PayRuns($this->client))->mapPayRun($payRun);
     }
 }

@@ -7,53 +7,102 @@ namespace Sujip\Xero\Accounting\ExpenseClaim;
 use RuntimeException;
 use Sujip\Xero\Client;
 
-final readonly class ExpenseClaim
+final class ExpenseClaim
 {
+    private ?string $expenseClaimID = null;
+
+    private ?string $status = null;
+
+    private ?string $employeeID = null;
+
     /**
-     * @param list<string> $receiptIds
-     * @param array<string, mixed> $raw
+     * @var list<string>
      */
+    private array $receiptIDs = [];
+
+    private int|float|null $total = null;
+
     public function __construct(
-        public ?string $id,
-        public ?string $status,
-        public ?string $employeeId,
-        public array $receiptIds = [],
-        public int|float|null $total = null,
-        public array $raw = [],
         private ?Client $client = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
+    public function getExpenseClaimID(): ?string
     {
-        $receiptIds = [];
+        return $this->expenseClaimID;
+    }
 
-        foreach (($payload['Receipts'] ?? []) as $receipt) {
-            if (is_array($receipt) && isset($receipt['ReceiptID']) && is_string($receipt['ReceiptID'])) {
-                $receiptIds[] = $receipt['ReceiptID'];
-            }
-        }
+    public function setExpenseClaimID(?string $expenseClaimID): self
+    {
+        $this->expenseClaimID = $expenseClaimID;
 
-        return new self(
-            $payload['ExpenseClaimID'] ?? null,
-            $payload['Status'] ?? null,
-            $payload['User']['UserID'] ?? $payload['Employee']['EmployeeID'] ?? null,
-            $receiptIds,
-            $payload['Total'] ?? null,
-            $payload,
-            $client
-        );
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getEmployeeID(): ?string
+    {
+        return $this->employeeID;
+    }
+
+    public function setEmployeeID(?string $employeeID): self
+    {
+        $this->employeeID = $employeeID;
+
+        return $this;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getReceiptIDs(): array
+    {
+        return $this->receiptIDs;
+    }
+
+    /**
+     * @param list<string> $receiptIDs
+     */
+    public function setReceiptIDs(array $receiptIDs): self
+    {
+        $this->receiptIDs = $receiptIDs;
+
+        return $this;
+    }
+
+    public function addReceiptID(string $receiptID): self
+    {
+        $this->receiptIDs[] = $receiptID;
+
+        return $this;
+    }
+
+    public function getTotal(): int|float|null
+    {
+        return $this->total;
+    }
+
+    public function setTotal(int|float|null $total): self
+    {
+        $this->total = $total;
+
+        return $this;
     }
 
     public function status(string $status): self
     {
-        $payload = $this->raw;
-        $payload['Status'] = $status;
-
-        return new self($this->id, $status, $this->employeeId, $this->receiptIds, $this->total, $payload, $this->client);
+        return $this->setStatus($status);
     }
 
     public function save(): self
@@ -64,20 +113,20 @@ final readonly class ExpenseClaim
 
         $payload = new Payload($this->client);
 
-        if ($this->id !== null) {
-            $payload = $payload->id($this->id);
+        if ($this->expenseClaimID !== null) {
+            $payload = $payload->id($this->expenseClaimID);
         }
 
         if ($this->status !== null) {
             $payload = $payload->status($this->status);
         }
 
-        if ($this->employeeId !== null) {
-            $payload = $payload->employee($this->employeeId);
+        if ($this->employeeID !== null) {
+            $payload = $payload->employee($this->employeeID);
         }
 
-        foreach ($this->receiptIds as $receiptId) {
-            $payload = $payload->receipt($receiptId);
+        foreach ($this->receiptIDs as $receiptID) {
+            $payload = $payload->receipt($receiptID);
         }
 
         return $payload->save();

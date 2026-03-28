@@ -43,7 +43,7 @@ final class ProjectUsers implements PaginatesResults, DefinesScopes
         $items = $payload['Users'] ?? $payload['ProjectUsers'] ?? $payload['Items'] ?? [];
 
         return new ResourceCollection(array_map(
-            static fn (array $user): ProjectUser => ProjectUser::fromArray($user),
+            fn (array $user): ProjectUser => $this->mapProjectUser($user),
             array_values(array_filter($items, 'is_array'))
         ));
     }
@@ -64,5 +64,16 @@ final class ProjectUsers implements PaginatesResults, DefinesScopes
         }
 
         return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/projects.xro/2.0/ProjectsUsers']);
+    }
+
+    /**
+     * @param array<string, mixed> $user
+     */
+    public function mapProjectUser(array $user): ProjectUser
+    {
+        return (new ProjectUser())
+            ->setUserID($user['UserID'] ?? $user['UserId'] ?? null)
+            ->setName($user['Name'] ?? null)
+            ->setEmailAddress($user['Email'] ?? $user['EmailAddress'] ?? null);
     }
 }

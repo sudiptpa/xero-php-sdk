@@ -4,35 +4,15 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\ManualJournal;
 
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class JournalLine implements BuildsFromPayload, SerializesForRequest
+final class JournalLine implements SerializesForRequest
 {
     private int|float|null $lineAmount = null;
 
     private ?string $accountCode = null;
 
     private ?bool $isDebit = null;
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?\Sujip\Xero\Client $client = null): static
-    {
-        return (new self())
-            ->setLineAmount($payload['LineAmount'] ?? null)
-            ->setAccountCode($payload['AccountCode'] ?? null)
-            ->setIsDebit($payload['IsDebit'] ?? null);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?\Sujip\Xero\Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
-    }
 
     public function getLineAmount(): int|float|null
     {

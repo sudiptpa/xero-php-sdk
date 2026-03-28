@@ -8,9 +8,8 @@ use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Files\File\Files as FilesResource;
 use Sujip\Xero\Files\File\Upload;
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 
-final class Folder implements BuildsFromPayload
+final class Folder
 {
     private ?string $id = null;
 
@@ -22,36 +21,9 @@ final class Folder implements BuildsFromPayload
 
     private ?bool $isInbox = null;
 
-    /**
-     * @var array<string, mixed>
-     */
-    private array $raw = [];
-
     public function __construct(
         private ?Client $client = null
     ) {
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?Client $client = null): static
-    {
-        return (new self($client))
-            ->setId($payload['Id'] ?? null)
-            ->setName($payload['Name'] ?? null)
-            ->setFileCount($payload['FileCount'] ?? null)
-            ->setEmail($payload['Email'] ?? null)
-            ->setIsInbox($payload['IsInbox'] ?? null)
-            ->setRaw($payload);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
     }
 
     public function getId(): ?string
@@ -110,24 +82,6 @@ final class Folder implements BuildsFromPayload
     public function setIsInbox(?bool $isInbox): self
     {
         $this->isInbox = $isInbox;
-
-        return $this;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function getRaw(): array
-    {
-        return $this->raw;
-    }
-
-    /**
-     * @param array<string, mixed> $raw
-     */
-    public function setRaw(array $raw): self
-    {
-        $this->raw = $raw;
 
         return $this;
     }

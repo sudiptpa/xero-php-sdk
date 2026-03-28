@@ -4,35 +4,15 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\TrackingCategory;
 
-use Sujip\Xero\Support\Contracts\BuildsFromPayload;
 use Sujip\Xero\Support\Contracts\SerializesForRequest;
 
-final class Option implements BuildsFromPayload, SerializesForRequest
+final class Option implements SerializesForRequest
 {
     private ?string $trackingOptionID = null;
 
     private ?string $name = null;
 
     private ?string $status = null;
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromPayload(array $payload, ?\Sujip\Xero\Client $client = null): static
-    {
-        return (new self())
-            ->setTrackingOptionID($payload['TrackingOptionID'] ?? null)
-            ->setName($payload['Name'] ?? null)
-            ->setStatus($payload['Status'] ?? null);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?\Sujip\Xero\Client $client = null): self
-    {
-        return self::fromPayload($payload, $client);
-    }
 
     public function getTrackingOptionID(): ?string
     {

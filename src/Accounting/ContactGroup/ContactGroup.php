@@ -7,51 +7,88 @@ namespace Sujip\Xero\Accounting\ContactGroup;
 use RuntimeException;
 use Sujip\Xero\Client;
 
-final readonly class ContactGroup
+final class ContactGroup
 {
+    private ?string $contactGroupID = null;
+
+    private ?string $name = null;
+
+    private ?string $status = null;
+
     /**
-     * @param list<string> $contactIds
-     * @param array<string, mixed> $raw
+     * @var list<string>
      */
+    private array $contactIDs = [];
+
     public function __construct(
-        public ?string $id,
-        public ?string $name,
-        public ?string $status,
-        public array $contactIds = [],
-        public array $raw = [],
         private ?Client $client = null
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload, ?Client $client = null): self
+    public function getContactGroupID(): ?string
     {
-        $contacts = [];
+        return $this->contactGroupID;
+    }
 
-        foreach (($payload['Contacts'] ?? []) as $contact) {
-            if (is_array($contact) && isset($contact['ContactID']) && is_string($contact['ContactID'])) {
-                $contacts[] = $contact['ContactID'];
-            }
-        }
+    public function setContactGroupID(?string $contactGroupID): self
+    {
+        $this->contactGroupID = $contactGroupID;
 
-        return new self(
-            $payload['ContactGroupID'] ?? null,
-            $payload['Name'] ?? null,
-            $payload['Status'] ?? null,
-            $contacts,
-            $payload,
-            $client
-        );
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getContactIDs(): array
+    {
+        return $this->contactIDs;
+    }
+
+    /**
+     * @param list<string> $contactIDs
+     */
+    public function setContactIDs(array $contactIDs): self
+    {
+        $this->contactIDs = $contactIDs;
+
+        return $this;
+    }
+
+    public function addContactID(string $contactID): self
+    {
+        $this->contactIDs[] = $contactID;
+
+        return $this;
     }
 
     public function name(string $name): self
     {
-        $payload = $this->raw;
-        $payload['Name'] = $name;
-
-        return new self($this->id, $name, $this->status, $this->contactIds, $payload, $this->client);
+        return $this->setName($name);
     }
 
     public function save(): self
@@ -62,16 +99,16 @@ final readonly class ContactGroup
 
         $payload = new Payload($this->client);
 
-        if ($this->id !== null) {
-            $payload = $payload->id($this->id);
+        if ($this->contactGroupID !== null) {
+            $payload = $payload->id($this->contactGroupID);
         }
 
         if ($this->name !== null) {
             $payload = $payload->name($this->name);
         }
 
-        foreach ($this->contactIds as $contactId) {
-            $payload = $payload->contact($contactId);
+        foreach ($this->contactIDs as $contactID) {
+            $payload = $payload->contact($contactID);
         }
 
         return $payload->save();
@@ -79,11 +116,11 @@ final readonly class ContactGroup
 
     public function contacts(): ContactAssignments
     {
-        if ($this->client === null || $this->id === null) {
+        if ($this->client === null || $this->contactGroupID === null) {
             throw new RuntimeException('Cannot manage contact group members without a bound client context and group ID.');
         }
 
-        return new ContactAssignments($this->client, $this->id);
+        return new ContactAssignments($this->client, $this->contactGroupID);
     }
 
     public function attachContacts(string ...$contactIds): self

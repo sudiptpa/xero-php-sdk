@@ -41,7 +41,7 @@ final class ConnectionManager
             throw new \RuntimeException('The stored token does not have a refresh token.');
         }
 
-        $refreshed = $this->oauth2->refreshAccessToken((string) $token->refreshToken);
+        $refreshed = $this->oauth2->refreshAccessToken((string) $token->getRefreshToken());
         $this->tokens->put($this->tokenKey, $refreshed);
 
         return $refreshed;

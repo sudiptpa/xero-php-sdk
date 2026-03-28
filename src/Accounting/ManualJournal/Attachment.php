@@ -16,15 +16,4 @@ final readonly class Attachment
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public static function fromArray(array $payload): self
-    {
-        return new self(
-            isset($payload['FileName']) ? (string) $payload['FileName'] : null,
-            isset($payload['Url']) ? (string) $payload['Url'] : null,
-            $payload
-        );
-    }
 }

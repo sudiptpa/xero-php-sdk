@@ -125,7 +125,11 @@ final class Payload
         $payload = $response->json();
         $asset = $payload['Items'][0] ?? [];
 
-        return Asset::fromArray(is_array($asset) ? $asset : []);
+        if (! is_array($asset)) {
+            return new Asset();
+        }
+
+        return (new Assets($this->client))->mapAsset($asset);
     }
 
     /**

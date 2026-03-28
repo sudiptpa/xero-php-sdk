@@ -49,7 +49,7 @@ final class RepeatingInvoices implements DefinesScopes
 
         $payload = $response->json();
         $items = array_values(array_map(
-            fn (array $repeatingInvoice): RepeatingInvoice => RepeatingInvoice::fromArray($repeatingInvoice, $this->client),
+            fn (array $repeatingInvoice): RepeatingInvoice => $this->mapRepeatingInvoice($repeatingInvoice),
             $payload['RepeatingInvoices'] ?? []
         ));
 
@@ -65,7 +65,7 @@ final class RepeatingInvoices implements DefinesScopes
         $payload = $response->json();
         $repeatingInvoice = $payload['RepeatingInvoices'][0] ?? null;
 
-        return is_array($repeatingInvoice) ? RepeatingInvoice::fromArray($repeatingInvoice, $this->client) : null;
+        return is_array($repeatingInvoice) ? $this->mapRepeatingInvoice($repeatingInvoice) : null;
     }
 
     public function create(): Payload
@@ -76,5 +76,18 @@ final class RepeatingInvoices implements DefinesScopes
     public function update(string $repeatingInvoiceId): Payload
     {
         return (new Payload($this->client))->id($repeatingInvoiceId);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function mapRepeatingInvoice(array $payload): RepeatingInvoice
+    {
+        return (new RepeatingInvoice($this->client))
+            ->setRepeatingInvoiceID(isset($payload['RepeatingInvoiceID']) ? (string) $payload['RepeatingInvoiceID'] : null)
+            ->setType(isset($payload['Type']) ? (string) $payload['Type'] : null)
+            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
+            ->setReference(isset($payload['Reference']) ? (string) $payload['Reference'] : null)
+            ;
     }
 }

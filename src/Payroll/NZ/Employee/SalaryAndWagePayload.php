@@ -21,13 +21,18 @@ final class SalaryAndWagePayload
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public function using(array $payload): self
+    public function paymentType(string $paymentType): self
     {
         $clone = clone $this;
-        $clone->payload = $payload;
+        $clone->payload['PaymentType'] = $paymentType;
+
+        return $clone;
+    }
+
+    public function earningsRate(string $earningsRateId): self
+    {
+        $clone = clone $this;
+        $clone->payload['EarningsRateID'] = $earningsRateId;
 
         return $clone;
     }
