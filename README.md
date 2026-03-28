@@ -2,18 +2,6 @@
 
 A fluent Xero SDK for PHP 8.2+ with no runtime dependencies.
 
-## Status
-
-The package already includes:
-
-- domain-first architecture
-- fluent client design
-- zero runtime dependencies
-- multi-tenant context handling
-- transport abstraction
-- rich models
-- production-ready test and static-analysis coverage
-
 ## Installation
 
 ```bash
@@ -75,7 +63,7 @@ If you already know the tenant id, `exchangeAndConnect()` is the shorter path:
 $connected = $manager->exchangeAndConnect($code, 'tenant-id');
 ```
 
-## API Style
+## Usage
 
 ```php
 use Sujip\Xero\Xero;
@@ -290,55 +278,21 @@ $verifier->assertValid($rawPayload, $signatureHeader);
 $webhook = $verifier->parse($rawPayload);
 ```
 
-## Why This Package
-
-The package is meant to feel clean in real application code:
-
-- fluent API instead of generated client sprawl
-- domain-first structure that is easy to maintain
-- rich models for reads and requests
-- framework-neutral integration points
-- strong testing culture and coverage discipline
-- excellent documentation and migration guidance
-- open source foundations
-
 ## Granular Scopes
-
-Xero's scope model is changing, so the docs need to stay clear about what each integration actually needs.
 
 - Apps created on or after 2 March 2026 use granular scopes
 - Apps created before 2 March 2026 can begin requesting granular scopes from April 2026
 - Existing apps have until September 2027 to complete migration from broad scopes
 
-Practical rule:
-
-- ask only for the scopes the integration actually uses
-- use granular scopes for new apps
-- keep broad scopes only where an older app still needs migration time
-- Calling an endpoint without the required granular scope can return a `401` with insufficient scope details
-
-The package already carries scope metadata on implemented resources. The goal is straightforward: if an endpoint needs a scope, it should be obvious in both the code and the docs.
-
-In practice:
-
-- read-only flows should request read scopes where Xero provides them
-- create, update, delete, and action endpoints should request the matching write scopes
-- new apps should be designed around granular scopes first
+- Ask only for the scopes the integration actually uses.
+- Prefer `.read` scopes for read-only jobs.
+- Expect `401` insufficient-scope responses if an app is missing a required scope.
 
 ## Identity And Tenants
-
-Xero has two different ideas that are easy to blur together:
-
-- a user connection
-- a tenant-scoped API request
-
-The package treats them separately.
 
 Use `identity()->connections()` to discover which tenants a token can access. Use `tenant(...)` when you make tenant-scoped API calls such as Accounting, Files, Projects, Assets, Finance, and Payroll requests.
 
 ## Auth Flow
-
-The package now has a small auth lifecycle helper for the normal Xero flow:
 
 ```php
 use Sujip\Xero\Auth\InMemoryTokenRepository;
@@ -365,66 +319,21 @@ $connected = $manager->connectTenant('tenant-id');
 $xero = $connected->client;
 ```
 
-PKCE and custom connections are first-class too. See [Auth](docs/auth.md) for those flows.
+See [Auth](docs/auth.md) for PKCE, refresh, tenant selection, and custom connection flows.
 
-## Current Foundation
+## Supported APIs
 
-- `Sujip\\Xero\\Xero` root entrypoint
-- `Sujip\\Xero\\Client` fluent tenant-aware client
-- lightweight HTTP transport contracts
-- fluent pending request pipeline
-- native transport for production use
-- OAuth2 token objects and authorization URL helpers
-- OAuth2 client for code exchange and token refresh
-- response error mapping for auth, validation, rate limits, and insufficient scope
-- identity connections support for tenant discovery
-- webhook signature verification and payload parsing
-- auth lifecycle helper for connect, store, refresh, and tenant selection
-- accounting contacts query and write flows
-- accounting invoices draft and query flows
-- invoice attachment and history helpers
-- accounting payments query and write flows
-- accounting accounts query and write flows
-- files query flows
-- file content download helper
-- file delete helper
-- file upload flow
-- file association helpers
-- object-side file association lookup
-- folders query, create, and delete flows
-- folder inbox helper
-- assets query flows
-- assets search and pagination helpers
-- asset create flow
-- asset types query and create flows
-- asset settings helper
-- projects query, create, and update flows
-- project users query flow
-- project task query, create, update, and delete helpers
-- project time entry query, create, update, and delete helpers
-- payroll AU employees query flow
-- payroll AU leave applications query, create, update, approve, and reject helpers
-- payroll AU pay items query flow
-- payroll AU pay runs query, create, and update flows
-- payroll AU timesheets query, create, and update flows
-- payroll AU settings helper
-- payroll NZ employees query, create, and update flows
-- payroll NZ leave types query flow
-- payroll NZ pay run calendars query flow
-- payroll NZ pay runs query and create flows
-- payroll NZ timesheets query, create, update, approve, revert, and delete helpers
-- payroll NZ settings helper
-- payroll UK employees query, create, update, and leave balance helpers
-- payroll UK pay run calendars query flow
-- payroll UK pay runs query and create flows
-- payroll UK timesheets query, create, update, approve, and revert helpers
-- finance accounting activities reader
-- finance cash validation reader
-- finance financial statements readers for balance sheet, cashflow, profit and loss, trial balance, contact expenses, and contact revenue
-- app store subscription lookup
-- app store usage record listing, creation, and update helpers
-- shared pagination primitives
-- fake transport for fast test coverage
+- Accounting
+- Files
+- Assets
+- Projects
+- Payroll AU
+- Payroll NZ
+- Payroll UK
+- Finance
+- App Store
+- Identity
+- Webhooks
 
 ## Documentation
 

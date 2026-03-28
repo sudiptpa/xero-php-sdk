@@ -1,8 +1,5 @@
 # Accounting
-
-Accounting is where the package needs to feel calm and predictable.
-
-The package now covers the main Accounting surface and a lot of the helper paths that make real integrations less awkward:
+The package covers the main Accounting surface and the helper paths commonly used in production integrations:
 
 - contacts
 - invoices
@@ -64,13 +61,9 @@ If you want the full current Accounting API picture, use the Accounting coverage
 
 ## Scope Notes
 
-The Accounting surface is split across a few practical scope families:
-
 - `accounting.contacts.read` and `accounting.contacts` for contacts
 - `accounting.settings.read` and `accounting.settings` for settings-style resources like accounts, items, tax rates, tracking categories, branding themes, organisations, and users
 - `accounting.transactions.read` and `accounting.transactions` for invoices, payments, credit notes, bank transactions, manual journals, purchase orders, quotes, receipts, repeating invoices, and similar workflow resources
-
-If a job is read-only, prefer the `.read` scopes. Only ask for the write scope when the app actually creates, updates, uploads, or records history.
 
 ## Contacts
 

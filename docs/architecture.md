@@ -1,27 +1,12 @@
 # Architecture
 
-## Goals
-
-- PHP 8.2+
-- zero runtime dependencies
-- fluent API
-- one package for all supported Xero surfaces
-- strongly typed building blocks
-- docs-first endpoint coverage
-- production-grade package ergonomics
-- clear contributor-friendly structure
-
-## Public API Style
-
-The SDK is meant to feel like a Xero-native request layer:
+## Public API
 
 ```php
 $xero->accounting()->contacts()->where(...)->page(1)->get();
 $xero->accounting()->invoices()->create()->using(new Invoice())->save();
 $xero->payroll()->au()->employees()->get();
 ```
-
-The package should not feel like a generated SDK. It should feel clean, fluent, and easy to use in real apps.
 
 ## Internal Layers
 
@@ -32,15 +17,11 @@ The package should not feel like a generated SDK. It should feel clean, fluent, 
 - `Support`: collections, helpers, and shared value objects
 - `Webhooks`: signature verification and event mapping
 
-## Domain Pattern
-
-The package is organized by Xero capability first, then by regional variation where needed.
+## Package Shape
 
 - domain first: `Accounting`, `Files`, `Projects`, `Payroll`
 - country second: `Payroll\\AU`, `Payroll\\NZ`, `Payroll\\UK`
 - shared regional infrastructure lives under `Payroll\\Shared`
-
-This keeps the architecture distinct from older SDK patterns while still making country-specific APIs explicit and easy to discover.
 
 ## Architectural Rules
 
@@ -54,10 +35,6 @@ This keeps the architecture distinct from older SDK patterns while still making 
 
 ## Model Standard
 
-The package uses a richer model layer that stays close to the Xero docs.
-
-The rule is simple:
-
 - Xero field names stay the source of truth
 - PHP code uses the same names in camelCase
 - rich models are the public face of the package
@@ -69,80 +46,33 @@ Examples:
 - `EmailAddress` becomes `getEmailAddress()` and `setEmailAddress(...)`
 - `LineItems` becomes `getLineItems()`, `setLineItems(...)`, and `addLineItem(...)`
 
-This keeps the SDK close to the Xero docs while still feeling natural in PHP.
-
-### Read And Write Rules
-
 - getters should follow the Xero field name exactly in PHP method form
 - setters should use the same field name with a `set...` prefix
 - nested objects should also follow Xero naming
 - collections should keep the Xero plural names
 - append methods like `addLineItem(...)` are preferred for list-style fields
 
-### Boundary Rules
+## Boundary Rules
 
 - response JSON is decoded once at the HTTP boundary
 - request and response mapping stays inside the SDK
 - public models should not expose raw array access as the normal way to work
 
-### Package Shape
-
-The package is designed around:
-
-- rich models for reads and writes
-- explicit nested objects instead of nested arrays
-- resources remain responsible for transport and endpoint paths
-
-The package should feel object-first in application code, not array-first.
-
 ## Granular Scopes
-
-Xero's granular scopes are now an architectural requirement, not just a docs detail.
 
 - Apps created on or after 2 March 2026 use granular scopes by default
 - Apps created before 2 March 2026 can request granular scopes starting in April 2026
 - Existing apps have until September 2027 to migrate from broad scopes
 - Missing granular scopes can result in a `401` insufficient-scope response and map to a dedicated SDK exception
 
-## Current Direction
-
-The SDK now has the basic pieces needed for a serious integration:
-
-- a native transport for real requests
-- a small OAuth client for code exchange, refresh, and client credentials
-- an auth lifecycle helper for stored tokens and tenant selection
-- typed exceptions for common Xero failure modes
-- tenant discovery through identity connections
-- webhook verification and payload parsing
-- scope metadata on the first Accounting resources
-- fluent query and create flows for contacts, invoices, payments, and accounts
-- real Files coverage for uploads, folders, inbox, and associations
-- real Assets coverage for assets, asset types, and settings
-- real Projects coverage for projects, users, tasks, and time entries
-- real Payroll AU coverage for employees, leave applications, pay items, pay runs, timesheets, and settings
-- real Payroll NZ coverage for employees, leave types, pay run calendars, pay runs, timesheets, and settings
-- real Payroll UK coverage for employees, leave balances, pay run calendars, pay runs, and timesheets
-- real Finance coverage for accounting activities, cash validation, and financial statements
-- real App Store coverage for subscriptions and usage records
-
-The package has a solid structure instead of one-off endpoint classes.
-
 ## Tenant Handling
-
-Identity connections are not the same thing as tenant-scoped API calls.
 
 - `identity()->connections()` works without sending a tenant header
 - Accounting, Files, Projects, Assets, and Payroll requests send the tenant header when a tenant is set
 - tenant discovery is part of the normal auth flow in the docs
 
-This separation matters because it shapes how apps connect the first time and how they recover when a tenant connection changes.
-
 ## Webhooks
-
-Webhook support should be clear and reliable:
 
 - verify the `x-xero-signature` header
 - parse the payload into typed events
 - fail loudly on invalid signatures
-
-This keeps webhook support small, readable, and framework-neutral.
