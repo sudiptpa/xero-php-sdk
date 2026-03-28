@@ -11,11 +11,13 @@ A fluent, framework-agnostic Xero SDK for PHP 8.2 to 8.5 with rich models, a flu
 - Fluent request flows across Xero families
 - Aligned to the official Xero docs
 
-## Why This Package
+## Why We Built It
 
 - Build Xero integrations with rich models instead of raw payload arrays.
 - Use one consistent API across Accounting, Files, Assets, Projects, Payroll, Finance, App Store, Identity, and Webhooks.
 - Keep integration code readable in plain PHP or inside any framework.
+
+This package is built for developers who want a modern Xero PHP SDK with a clear API for accounting, payroll, OAuth2, files, webhooks, and tenant-aware integrations.
 
 ## Installation
 
