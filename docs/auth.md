@@ -39,8 +39,10 @@ $token = $connections->exchange($code);
 $availableTenants = $connections->connections();
 $connected = $connections->connectTenant($availableTenants[0]->getTenantId());
 
-$xero = $connected->getClient();
+$xero = $connected->tenant();
 ```
+
+Use `tenant()` for the fluent tenant-scoped path. `getClient()` is also available if you prefer a more explicit accessor.
 
 At that point you can make a normal API call:
 

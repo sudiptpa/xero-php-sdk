@@ -1,11 +1,11 @@
 # Xero PHP SDK
 
-[![PHP 8.2+](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+[![PHP 8.2-8.5](https://img.shields.io/badge/PHP-8.2--8.5-777BB4?logo=php&logoColor=white)](https://www.php.net/)
 [![Tests](https://img.shields.io/badge/tests-PHPUnit%20%2B%20PHPStan-0A7EA4)](docs/release-checklist.md)
 [![Framework Agnostic](https://img.shields.io/badge/framework-agnostic-111827)](https://github.com/sudiptpa/xero-php-sdk)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A fluent, framework-agnostic Xero SDK for PHP 8.2+ with rich models, a fluent API, and no runtime dependencies.
+A fluent, framework-agnostic Xero SDK for PHP 8.2 to 8.5 with rich models, a fluent API, and no runtime dependencies.
 
 - Rich models for reads and writes
 - Fluent request flows across Xero families
@@ -25,7 +25,7 @@ composer require sujip/xero-php-sdk
 
 Runtime Notes:
 
-- PHP 8.2+
+- PHP 8.2 to 8.5
 - `ext-json` for JSON request and response handling
 - `ext-curl` for the built-in native transport
 
@@ -118,12 +118,14 @@ $tenants = $manager->connections();
 
 $connected = $manager->connectTenant($tenants[0]->tenantId);
 
-$contacts = $connected->client
+$contacts = $connected->tenant()
     ->accounting()
     ->contacts()
     ->page(1)
     ->get();
 ```
+
+Use `tenant()` for the fluent tenant-scoped path. `getClient()` is also available if you prefer a more explicit accessor.
 
 If you already know the tenant id, `exchangeAndConnect()` is the shorter path:
 
@@ -384,7 +386,7 @@ After callback:
 $manager->exchange($code);
 $connected = $manager->connectTenant('tenant-id');
 
-$xero = $connected->client;
+$xero = $connected->tenant();
 ```
 
 See [Auth](docs/auth.md) for PKCE, refresh, tenant selection, and custom connection flows.

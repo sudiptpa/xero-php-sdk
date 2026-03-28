@@ -26,6 +26,11 @@ final class ConnectedAccount
         return $this->connection;
     }
 
+    public function tenant(): Client
+    {
+        return $this->client;
+    }
+
     public function getClient(): Client
     {
         return $this->client;

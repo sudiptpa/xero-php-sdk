@@ -13,7 +13,7 @@ Use it for code, tests, docs, examples, and reviews.
 
 ## PHP Standard
 
-- target `php:^8.2`
+- target `php:>=8.2 <8.6`
 - use `declare(strict_types=1);`
 - use typed properties, parameters, and return values
 - use modern PHP features when they improve clarity

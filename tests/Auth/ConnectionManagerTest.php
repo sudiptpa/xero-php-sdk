@@ -89,7 +89,7 @@ final class ConnectionManagerTest extends TestCase
         $connected = $manager->connectTenant('tenant-1');
 
         self::assertSame('tenant-1', $connected->getConnection()->getTenantId());
-        self::assertSame('tenant-1', $connected->getClient()->context()->tenantId);
+        self::assertSame('tenant-1', $connected->tenant()->context()->tenantId);
     }
 
     public function test_it_can_exchange_and_connect_a_tenant_in_one_step(): void
@@ -123,7 +123,7 @@ final class ConnectionManagerTest extends TestCase
         $connected = $manager->exchangeAndConnect('code-123', 'tenant-1', 'pkce-verifier');
 
         self::assertSame('tenant-1', $connected->getConnection()->getTenantId());
-        self::assertSame('tenant-1', $connected->getClient()->context()->tenantId);
+        self::assertSame('tenant-1', $connected->tenant()->context()->tenantId);
     }
 
     public function test_it_can_create_a_custom_connection_client(): void
