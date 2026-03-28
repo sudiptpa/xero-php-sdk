@@ -118,12 +118,14 @@ $tenants = $manager->connections();
 
 $connected = $manager->connectTenant($tenants[0]->tenantId);
 
-$contacts = $connected->client
+$contacts = $connected->tenant()
     ->accounting()
     ->contacts()
     ->page(1)
     ->get();
 ```
+
+Use `tenant()` for the fluent tenant-scoped path. `getClient()` is also available if you prefer a more explicit accessor.
 
 If you already know the tenant id, `exchangeAndConnect()` is the shorter path:
 
@@ -384,7 +386,7 @@ After callback:
 $manager->exchange($code);
 $connected = $manager->connectTenant('tenant-id');
 
-$xero = $connected->client;
+$xero = $connected->tenant();
 ```
 
 See [Auth](docs/auth.md) for PKCE, refresh, tenant selection, and custom connection flows.
