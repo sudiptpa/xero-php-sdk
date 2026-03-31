@@ -27,4 +27,3 @@ Every completed resource should have:
 - rich models
 - tests
 - scope metadata
-- human-written docs
