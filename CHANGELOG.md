@@ -15,7 +15,7 @@ The format is intentionally simple and human-maintained.
 - built-in native transport with custom transport support
 - full PHPUnit and PHPStan verification baseline
 
-### Added
+### Included
 
 - fluent SDK foundation under `Sujip\\Xero`
 - OAuth2 authorization URL, token exchange, token refresh, PKCE, custom connections, tenant discovery, disconnect flows, and webhook verification
@@ -30,7 +30,7 @@ The format is intentionally simple and human-maintained.
 - `App Store` coverage including subscriptions and usage records
 - package docs covering auth, accounting, files, assets, projects, payroll, finance, app store, webhooks, architecture, status, and release guidance
 
-### Changed
+### Package Design
 
 - public API moved to a richer model-first style instead of array-driven payload handling
 - visible model-layer raw access was removed from the main package areas
@@ -44,7 +44,7 @@ The format is intentionally simple and human-maintained.
 - docs were shortened and refocused around usage, examples, transport setup, scope guidance, and release readiness
 - CI now enforces the supported PHP window across `8.2`, `8.3`, `8.4`, and `8.5`
 
-### Notes
+### Release Notes
 
 - granular scopes are treated as a first-class concern in both code and docs
 - apps created on or after `2026-03-02` should use granular scopes as the normal path

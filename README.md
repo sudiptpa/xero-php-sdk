@@ -425,7 +425,6 @@ See [Auth](docs/auth.md) for PKCE, refresh, tenant selection, and custom connect
 - [Finance](docs/finance.md)
 - [App Store](docs/app-store.md)
 - [Webhooks](docs/webhooks.md)
-- [Release Checklist](docs/release-checklist.md)
 
 ## Contributing
 
@@ -433,4 +432,3 @@ If you want to help, start with:
 
 - [Contributing](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)
-- [Release Checklist](docs/release-checklist.md)
