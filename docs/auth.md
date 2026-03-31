@@ -120,7 +120,7 @@ $connections->disconnectTenant('tenant-id');
 - `accounting.transactions.read` is for invoices, payments, credit notes, and similar transaction reads
 - `accounting.transactions` is for transaction writes
 - payroll, files, assets, finance, and app-store flows should each keep their own scope list small
-- apps created on or after 2 March 2026 should use granular scopes as the normal path
+- apps created on or after 2 March 2026 should use granular scopes
 - apps created before 2 March 2026 can begin requesting granular scopes from April 2026
 - existing apps have until September 2027 to move off broad scopes
 - stop building new integrations around broad scopes when granular scopes are available for the app you are shipping

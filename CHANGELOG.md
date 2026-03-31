@@ -2,18 +2,16 @@
 
 All notable changes to this package should be documented here.
 
-The format is intentionally simple and human-maintained.
-
 ## 1.0.0 - 2026-03-31
 
 ### Release Highlights
 
 - first public release of `Xero PHP SDK`
-- fluent, framework-agnostic SDK design for PHP `8.2` to `8.5`
+- fluent, framework-agnostic SDK for PHP `8.2` to `8.5`
 - rich model public API across the main Xero families
 - official-docs-aligned coverage across Accounting, Files, Assets, Projects, Payroll AU, Payroll NZ, Payroll UK, Finance, App Store, Auth / Identity, and Webhooks
 - built-in native transport with custom transport support
-- full PHPUnit and PHPStan verification baseline
+- full PHPUnit and PHPStan coverage
 
 ### Included
 
@@ -41,13 +39,13 @@ The format is intentionally simple and human-maintained.
 - package extension handling is capability-based:
   - `ext-json` and `ext-curl` are no longer hard Composer requirements
   - runtime exceptions explain when `json` or native curl transport support is required
-- docs were shortened and refocused around usage, examples, transport setup, scope guidance, and release readiness
+- docs were tightened around usage, examples, transport setup, and scope guidance
 - CI now enforces the supported PHP window across `8.2`, `8.3`, `8.4`, and `8.5`
 
 ### Release Notes
 
-- granular scopes are treated as a first-class concern in both code and docs
-- apps created on or after `2026-03-02` should use granular scopes as the normal path
+- granular scopes are covered in both code and docs
+- apps created on or after `2026-03-02` should use granular scopes
 - existing apps have until `September 2027` to move off broad scopes
 - `Finance > Accounting Activities` is still supported for compatibility, but Xero has scheduled it for decommissioning on `2026-04-06`
 - `Accounting > Employees` remains documented in the package with a deprecation note because Xero has scheduled it for removal on `2026-04-28`
