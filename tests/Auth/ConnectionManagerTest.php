@@ -36,6 +36,7 @@ final class ConnectionManagerTest extends TestCase
 
         self::assertSame('access-token', $token->getAccessToken());
         self::assertSame('access-token', $repository->get('default')?->getAccessToken());
+        self::assertNotNull($repository->get('default')?->getRefreshTokenExpiresAt());
         self::assertStringContainsString('code_verifier=pkce-verifier', (string) $transport->requests()[0]->body);
     }
 
@@ -63,6 +64,7 @@ final class ConnectionManagerTest extends TestCase
 
         self::assertSame('new-access-token', $token->getAccessToken());
         self::assertSame('new-refresh-token', $repository->get('default')?->getRefreshToken());
+        self::assertNotNull($repository->get('default')?->getRefreshTokenExpiresAt());
     }
 
     public function test_it_can_connect_a_tenant_from_stored_token(): void

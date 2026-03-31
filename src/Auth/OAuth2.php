@@ -50,11 +50,18 @@ final class OAuth2
     public static function tokenFromArray(array $payload): Token
     {
         $expiresAt = null;
+        $refreshTokenExpiresAt = null;
+        $now = new DateTimeImmutable();
 
         if (isset($payload['expires_in']) && is_numeric($payload['expires_in'])) {
-            $expiresAt = (new DateTimeImmutable())->add(
+            $expiresAt = $now->add(
                 new DateInterval('PT' . (int) $payload['expires_in'] . 'S')
             );
+        }
+
+        if (isset($payload['refresh_token']) && is_string($payload['refresh_token']) && $payload['refresh_token'] !== '') {
+            // Xero refresh tokens expire after 60 days of non-use.
+            $refreshTokenExpiresAt = $now->add(new DateInterval('P60D'));
         }
 
         $scopes = [];
@@ -67,6 +74,7 @@ final class OAuth2
             (string) ($payload['access_token'] ?? ''),
             isset($payload['refresh_token']) ? (string) $payload['refresh_token'] : null,
             $expiresAt,
+            $refreshTokenExpiresAt,
             $scopes,
             isset($payload['id_token']) ? (string) $payload['id_token'] : null,
             isset($payload['token_type']) ? (string) $payload['token_type'] : 'Bearer'
