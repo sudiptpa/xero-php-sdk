@@ -1,7 +1,10 @@
 # Xero PHP SDK
 
 [![PHP 8.2-8.5](https://img.shields.io/badge/PHP-8.2--8.5-777BB4?logo=php&logoColor=white)](https://www.php.net/)
-[![Tests](https://img.shields.io/badge/tests-PHPUnit%20%2B%20PHPStan-0A7EA4)](docs/release-checklist.md)
+[![Tests](https://github.com/sudiptpa/xero-php-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/sudiptpa/xero-php-sdk/actions/workflows/ci.yml)
+[![Latest Version](https://img.shields.io/packagist/v/sujip/xero-php-sdk.svg)](https://packagist.org/packages/sujip/xero-php-sdk)
+[![Total Downloads](https://img.shields.io/packagist/dt/sujip/xero-php-sdk.svg)](https://packagist.org/packages/sujip/xero-php-sdk)
+[![Release](https://img.shields.io/github/v/release/sudiptpa/xero-php-sdk)](https://github.com/sudiptpa/xero-php-sdk/releases)
 [![Framework Agnostic](https://img.shields.io/badge/framework-agnostic-111827)](https://github.com/sudiptpa/xero-php-sdk)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
