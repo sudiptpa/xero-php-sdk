@@ -1,7 +1,7 @@
 # Finance
 Read-only finance statements and analysis endpoints.
 
-Important note: Xero’s changelog says the Accounting Activities API is being decommissioned effective April 6, 2026. The SDK still exposes that surface for compatibility, but new integrations should treat it as legacy.
+Important note: Xero’s changelog says the Accounting Activities API is being decommissioned effective April 6, 2026. The SDK still exposes that surface for compatibility, but new integrations should stop building on it now and existing integrations should plan to move off it before April 6, 2026.
 
 Coverage:
 

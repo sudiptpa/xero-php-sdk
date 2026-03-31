@@ -15,6 +15,7 @@ final readonly class Token
         private string $accessToken,
         private ?string $refreshToken = null,
         private ?DateTimeImmutable $expiresAt = null,
+        private ?DateTimeImmutable $refreshTokenExpiresAt = null,
         private array $scopes = [],
         private ?string $idToken = null,
         private ?string $tokenType = 'Bearer'
@@ -34,6 +35,11 @@ final readonly class Token
     public function getExpiresAt(): ?DateTimeImmutable
     {
         return $this->expiresAt;
+    }
+
+    public function getRefreshTokenExpiresAt(): ?DateTimeImmutable
+    {
+        return $this->refreshTokenExpiresAt;
     }
 
     /**
@@ -66,5 +72,14 @@ final readonly class Token
         }
 
         return $this->expiresAt <= ($now ?? new DateTimeImmutable());
+    }
+
+    public function isRefreshTokenExpired(?DateTimeImmutable $now = null): bool
+    {
+        if ($this->refreshTokenExpiresAt === null) {
+            return false;
+        }
+
+        return $this->refreshTokenExpiresAt <= ($now ?? new DateTimeImmutable());
     }
 }

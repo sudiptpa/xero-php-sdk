@@ -34,6 +34,7 @@ final class OAuth2ClientTest extends TestCase
         self::assertStringContainsString('code_verifier=verifier-123', (string) $request->body);
         self::assertSame('access-token', $token->getAccessToken());
         self::assertSame('refresh-token', $token->getRefreshToken());
+        self::assertNotNull($token->getRefreshTokenExpiresAt());
     }
 
     public function test_it_refreshes_an_access_token(): void
@@ -56,6 +57,7 @@ final class OAuth2ClientTest extends TestCase
         self::assertStringContainsString('grant_type=refresh_token', (string) $request->body);
         self::assertStringContainsString('refresh_token=refresh-token', (string) $request->body);
         self::assertSame('new-access-token', $token->getAccessToken());
+        self::assertNotNull($token->getRefreshTokenExpiresAt());
     }
 
     public function test_it_can_request_a_custom_connection_token(): void

@@ -79,9 +79,16 @@ $freshToken = $connections->refresh();
 
 $accessToken = $freshToken->getAccessToken();
 $refreshToken = $freshToken->getRefreshToken();
+$accessTokenExpiresAt = $freshToken->getExpiresAt();
+$refreshTokenExpiresAt = $freshToken->getRefreshTokenExpiresAt();
 ```
 
 The in-memory repository is only for tests and examples. Real apps should store tokens somewhere persistent.
+
+The token model tracks both:
+
+- access token expiry through `getExpiresAt()`
+- refresh token expiry through `getRefreshTokenExpiresAt()`
 
 ## Custom Connections
 
@@ -113,5 +120,8 @@ $connections->disconnectTenant('tenant-id');
 - `accounting.transactions.read` is for invoices, payments, credit notes, and similar transaction reads
 - `accounting.transactions` is for transaction writes
 - payroll, files, assets, finance, and app-store flows should each keep their own scope list small
-- new apps created on or after 2 March 2026 should expect granular scopes to be the normal path
+- apps created on or after 2 March 2026 should use granular scopes as the normal path
+- apps created before 2 March 2026 can begin requesting granular scopes from April 2026
+- existing apps have until September 2027 to move off broad scopes
+- stop building new integrations around broad scopes when granular scopes are available for the app you are shipping
 - custom connections should request only the scopes that the fixed integration actually needs
