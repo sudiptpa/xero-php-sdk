@@ -1,5 +1,5 @@
 {
-    "name": "sujip/xero-php-sdk",
+    "name": "sudiptpa/xero-php-sdk",
     "description": "A fluent, framework-agnostic Xero PHP SDK for PHP 8.2 to 8.5 with rich models and a clean API.",
     "type": "library",
     "license": "MIT",

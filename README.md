@@ -2,8 +2,8 @@
 
 [![PHP 8.2-8.5](https://img.shields.io/badge/PHP-8.2--8.5-777BB4?logo=php&logoColor=white)](https://www.php.net/)
 [![Tests](https://github.com/sudiptpa/xero-php-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/sudiptpa/xero-php-sdk/actions/workflows/ci.yml)
-[![Latest Version](https://img.shields.io/packagist/v/sujip/xero-php-sdk.svg)](https://packagist.org/packages/sujip/xero-php-sdk)
-[![Total Downloads](https://img.shields.io/packagist/dt/sujip/xero-php-sdk.svg)](https://packagist.org/packages/sujip/xero-php-sdk)
+[![Latest Version](https://img.shields.io/packagist/v/sudiptpa/xero-php-sdk.svg)](https://packagist.org/packages/sudiptpa/xero-php-sdk)
+[![Total Downloads](https://img.shields.io/packagist/dt/sudiptpa/xero-php-sdk.svg)](https://packagist.org/packages/sudiptpa/xero-php-sdk)
 [![Release](https://img.shields.io/github/v/release/sudiptpa/xero-php-sdk)](https://github.com/sudiptpa/xero-php-sdk/releases)
 [![Framework Agnostic](https://img.shields.io/badge/framework-agnostic-111827)](https://github.com/sudiptpa/xero-php-sdk)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -25,7 +25,7 @@ This package is built for developers who want a modern Xero PHP SDK with a clear
 ## Installation
 
 ```bash
-composer require sujip/xero-php-sdk
+composer require sudiptpa/xero-php-sdk
 ```
 
 Runtime Notes:
