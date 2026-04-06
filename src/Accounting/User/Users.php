@@ -61,11 +61,6 @@ final class Users implements DefinesScopes
      */
     public function mapUser(array $payload): User
     {
-        return (new User())
-            ->setUserID(isset($payload['UserID']) ? (string) $payload['UserID'] : null)
-            ->setFirstName(isset($payload['FirstName']) ? (string) $payload['FirstName'] : null)
-            ->setLastName(isset($payload['LastName']) ? (string) $payload['LastName'] : null)
-            ->setEmailAddress(isset($payload['EmailAddress']) ? (string) $payload['EmailAddress'] : null)
-            ->setIsSubscriber(isset($payload['IsSubscriber']) ? (bool) $payload['IsSubscriber'] : null);
+        return (new User())->fill($payload);
     }
 }

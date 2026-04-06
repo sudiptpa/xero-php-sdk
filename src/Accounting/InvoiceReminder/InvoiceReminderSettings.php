@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\InvoiceReminder;
 
-final class InvoiceReminderSettings
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class InvoiceReminderSettings extends Model
 {
     private bool $enabled = false;
 
@@ -41,5 +44,25 @@ final class InvoiceReminderSettings
         $this->days = $days;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'Enabled' => Field::boolean(),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        return $this->setDays(array_values(array_filter(
+            $payload['Days'] ?? [],
+            static fn (mixed $day): bool => is_int($day) || is_string($day)
+        )));
     }
 }

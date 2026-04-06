@@ -9,7 +9,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -117,9 +117,9 @@ final class TimeEntries implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<TimeEntry>
+     * @return PaginatedCollection<TimeEntry>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -131,7 +131,7 @@ final class TimeEntries implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/projects.xro/2.0/Projects/' . $this->projectId . '/Time']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/projects.xro/2.0/Projects/' . $this->projectId . '/Time']);
     }
 
     public function find(string $timeEntryId): ?TimeEntry
@@ -191,12 +191,7 @@ final class TimeEntries implements PaginatesResults, DefinesScopes
     public function mapTimeEntry(array $timeEntry): TimeEntry
     {
         return (new TimeEntry($this->client))
-            ->setTimeEntryID($timeEntry['TimeEntryID'] ?? $timeEntry['TimeEntryId'] ?? null)
-            ->setTaskID($timeEntry['TaskID'] ?? $timeEntry['TaskId'] ?? null)
-            ->setUserID($timeEntry['UserID'] ?? $timeEntry['UserId'] ?? null)
-            ->setDateUTC($timeEntry['DateUTC'] ?? $timeEntry['DateUtc'] ?? null)
-            ->setStatus($timeEntry['Status'] ?? null)
-            ->setDuration($timeEntry['Duration'] ?? null)
+            ->fill($timeEntry)
             ->setProjectID($this->projectId);
     }
 }

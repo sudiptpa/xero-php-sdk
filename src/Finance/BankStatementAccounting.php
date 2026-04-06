@@ -59,9 +59,6 @@ final readonly class BankStatementAccounting implements DefinesScopes
      */
     public function mapBankStatementEntry(array $entry): BankStatementEntry
     {
-        return (new BankStatementEntry())
-            ->setAccountID(isset($entry['AccountID']) ? (string) $entry['AccountID'] : null)
-            ->setAccountName(isset($entry['AccountName']) ? (string) $entry['AccountName'] : null)
-            ->setStatementBalance(isset($entry['StatementBalance']) ? (float) $entry['StatementBalance'] : null);
+        return (new BankStatementEntry())->fill($entry);
     }
 }

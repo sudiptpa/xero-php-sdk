@@ -6,8 +6,10 @@ namespace Sujip\Xero\Accounting\RepeatingInvoice;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class RepeatingInvoice
+final class RepeatingInvoice extends Model
 {
     private ?string $repeatingInvoiceID = null;
 
@@ -68,6 +70,19 @@ final class RepeatingInvoice
         $this->reference = $reference;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'RepeatingInvoiceID' => Field::string(),
+            'Type' => Field::string(),
+            'Status' => Field::string(),
+            'Reference' => Field::string(),
+        ];
     }
 
     public function reference(string $reference): self

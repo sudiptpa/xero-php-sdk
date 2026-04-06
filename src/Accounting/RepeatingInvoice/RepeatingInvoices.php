@@ -83,11 +83,6 @@ final class RepeatingInvoices implements DefinesScopes
      */
     public function mapRepeatingInvoice(array $payload): RepeatingInvoice
     {
-        return (new RepeatingInvoice($this->client))
-            ->setRepeatingInvoiceID(isset($payload['RepeatingInvoiceID']) ? (string) $payload['RepeatingInvoiceID'] : null)
-            ->setType(isset($payload['Type']) ? (string) $payload['Type'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
-            ->setReference(isset($payload['Reference']) ? (string) $payload['Reference'] : null)
-            ;
+        return (new RepeatingInvoice($this->client))->fill($payload);
     }
 }

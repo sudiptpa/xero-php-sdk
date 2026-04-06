@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\BankTransaction;
 
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class BankAccount implements SerializesForRequest
+final class BankAccount extends Model implements SerializesRequest
 {
     private ?string $accountID = null;
 
@@ -20,6 +22,16 @@ final class BankAccount implements SerializesForRequest
         $this->accountID = $accountID;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'AccountID' => Field::string(),
+        ];
     }
 
     /**

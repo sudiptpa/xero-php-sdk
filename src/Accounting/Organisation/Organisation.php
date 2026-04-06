@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Organisation;
 
-final class Organisation
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class Organisation extends Model
 {
     private ?string $name = null;
 
@@ -60,5 +63,18 @@ final class Organisation
         $this->countryCode = $countryCode;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'Name' => Field::string(),
+            'LegalName' => Field::string(),
+            'ShortCode' => Field::string(),
+            'CountryCode' => Field::string(),
+        ];
     }
 }

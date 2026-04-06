@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\AU\SuperFund;
 
-final class Product
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class Product extends Model
 {
     /**
      */
@@ -24,10 +27,17 @@ final class Product
     public function setUSI(?string $uSI): self { $this->uSI = $uSI; return $this; }
     public function getABN(): ?string { return $this->aBN; }
     public function setABN(?string $aBN): self { $this->aBN = $aBN; return $this; }
+
     /**
-     * @return array<string, mixed>
+     * @return array<string, Field>
      */
-    /**
-     * @param array<string, mixed> $raw
-     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'SuperFundProductID' => Field::string()->using('setSuperFundProductID'),
+            'Name' => Field::string()->using('setName'),
+            'USI' => Field::string()->using('setUSI'),
+            'ABN' => Field::string()->using('setABN'),
+        ];
+    }
 }

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Assets\Type;
 
-final class Type
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class Type extends Model
 {
     private ?string $assetTypeId = null;
 
@@ -74,5 +77,19 @@ final class Type
         $this->accumulatedDepreciationAccountId = $accumulatedDepreciationAccountId;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'AssetTypeId' => Field::string(),
+            'AssetTypeName' => Field::string(),
+            'FixedAssetAccountId' => Field::string(),
+            'DepreciationExpenseAccountId' => Field::string(),
+            'AccumulatedDepreciationAccountId' => Field::string(),
+        ];
     }
 }

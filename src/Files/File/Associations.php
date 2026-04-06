@@ -88,10 +88,7 @@ final class Associations implements DefinesScopes
      */
     public function mapAssociation(array $payload): Association
     {
-        return (new Association())
-            ->setObjectId(isset($payload['ObjectId']) ? (string) $payload['ObjectId'] : null)
-            ->setObjectType(isset($payload['ObjectType']) ? (string) $payload['ObjectType'] : null)
-            ->setObjectGroup(isset($payload['ObjectGroup']) ? (string) $payload['ObjectGroup'] : null);
+        return (new Association())->fill($payload);
     }
 
     /**
@@ -99,8 +96,6 @@ final class Associations implements DefinesScopes
      */
     public function mapAssociationCount(array $payload): AssociationCount
     {
-        return (new AssociationCount())
-            ->setObjectId(isset($payload['ObjectId']) ? (string) $payload['ObjectId'] : null)
-            ->setCount(isset($payload['Count']) ? (int) $payload['Count'] : null);
+        return (new AssociationCount())->fill($payload);
     }
 }

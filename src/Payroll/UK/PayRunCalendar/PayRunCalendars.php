@@ -8,7 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -49,9 +49,9 @@ final class PayRunCalendars implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<PayRunCalendar>
+     * @return PaginatedCollection<PayRunCalendar>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -63,7 +63,7 @@ final class PayRunCalendars implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/2.0/PayRunCalendars']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/2.0/PayRunCalendars']);
     }
 
     public function find(string $payRunCalendarId): ?PayRunCalendar
@@ -83,11 +83,6 @@ final class PayRunCalendars implements PaginatesResults, DefinesScopes
      */
     public function mapPayRunCalendar(array $calendar): PayRunCalendar
     {
-        return (new PayRunCalendar())
-            ->setPayrollCalendarID($calendar['PayrollCalendarID'] ?? null)
-            ->setName($calendar['Name'] ?? null)
-            ->setCalendarType($calendar['CalendarType'] ?? null)
-            ->setPeriodStartDate($calendar['PeriodStartDate'] ?? null)
-            ;
+        return (new PayRunCalendar())->fill($calendar);
     }
 }

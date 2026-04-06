@@ -16,7 +16,7 @@ trait BuildsQueries
     public function modifiedSince(DateTimeInterface $date): static
     {
         $clone = clone $this;
-        $clone->query['If-Modified-Since'] = $date->format(DateTimeInterface::RFC7231);
+        $clone->query['If-Modified-Since'] = gmdate('D, d M Y H:i:s', $date->getTimestamp()) . ' GMT';
 
         return $clone;
     }

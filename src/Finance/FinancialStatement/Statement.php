@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Finance\FinancialStatement;
 
-final class Statement
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class Statement extends Model
 {
     /**
      * @param list<array<string, mixed>> $rows
@@ -25,4 +28,21 @@ final class Statement
      * @param list<array<string, mixed>> $rows
      */
     public function setRows(array $rows): self { $this->rows = $rows; return $this; }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'Type' => Field::string(),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        return $this->setRows(array_values(array_filter($payload['Rows'] ?? $payload['rows'] ?? [], 'is_array')));
+    }
 }

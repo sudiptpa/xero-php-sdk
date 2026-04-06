@@ -51,11 +51,6 @@ final class Types implements DefinesScopes
      */
     public function mapType(array $type): Type
     {
-        return (new Type())
-            ->setAssetTypeId($type['AssetTypeId'] ?? null)
-            ->setAssetTypeName($type['AssetTypeName'] ?? null)
-            ->setFixedAssetAccountId($type['FixedAssetAccountId'] ?? null)
-            ->setDepreciationExpenseAccountId($type['DepreciationExpenseAccountId'] ?? null)
-            ->setAccumulatedDepreciationAccountId($type['AccumulatedDepreciationAccountId'] ?? null);
+        return (new Type())->fill($type);
     }
 }

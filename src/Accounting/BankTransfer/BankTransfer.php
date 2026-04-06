@@ -6,8 +6,10 @@ namespace Sujip\Xero\Accounting\BankTransfer;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class BankTransfer
+final class BankTransfer extends Model
 {
     private ?string $bankTransferID = null;
 
@@ -80,6 +82,36 @@ final class BankTransfer
     public function setReference(?string $reference): self
     {
         $this->reference = $reference;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'BankTransferID' => Field::string(),
+            'Amount' => Field::number(),
+            'Reference' => Field::string(),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        $this->setFromBankAccountID(
+            isset($payload['FromBankAccount']['AccountID']) && is_string($payload['FromBankAccount']['AccountID'])
+                ? $payload['FromBankAccount']['AccountID']
+                : null
+        );
+        $this->setToBankAccountID(
+            isset($payload['ToBankAccount']['AccountID']) && is_string($payload['ToBankAccount']['AccountID'])
+                ? $payload['ToBankAccount']['AccountID']
+                : null
+        );
 
         return $this;
     }

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\TaxRate;
 
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class Component implements SerializesForRequest
+final class Component extends Model implements SerializesRequest
 {
     private ?string $name = null;
 
@@ -34,6 +36,17 @@ final class Component implements SerializesForRequest
         $this->rate = $rate;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'Name' => Field::string(),
+            'Rate' => Field::number(),
+        ];
     }
 
     /**

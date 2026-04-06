@@ -10,7 +10,7 @@ use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -61,9 +61,9 @@ final class Accounts implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<Account>
+     * @return PaginatedCollection<Account>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -75,7 +75,7 @@ final class Accounts implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult(
+        return new PaginatedCollection(
             $builder->get(),
             $builder->currentPage(),
             $builder->currentPerPage(),
@@ -110,12 +110,6 @@ final class Accounts implements PaginatesResults, DefinesScopes
      */
     public function mapAccount(array $payload): Account
     {
-        return (new Account($this->client))
-            ->setAccountID(isset($payload['AccountID']) ? (string) $payload['AccountID'] : null)
-            ->setCode(isset($payload['Code']) ? (string) $payload['Code'] : null)
-            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
-            ->setType(isset($payload['Type']) ? (string) $payload['Type'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
-            ->setDescription(isset($payload['Description']) ? (string) $payload['Description'] : null);
+        return (new Account($this->client))->fill($payload);
     }
 }

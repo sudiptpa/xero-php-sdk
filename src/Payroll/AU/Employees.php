@@ -7,7 +7,7 @@ namespace Sujip\Xero\Payroll\AU;
 use DateTimeInterface;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\Concerns\HasPagination;
 
@@ -66,9 +66,9 @@ final class Employees implements PaginatesResults
     }
 
     /**
-     * @return PaginatedResult<Employee>
+     * @return PaginatedCollection<Employee>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -82,7 +82,7 @@ final class Employees implements PaginatesResults
 
         $items = $builder->get();
 
-        return new PaginatedResult(
+        return new PaginatedCollection(
             $items,
             $builder->currentPage(),
             $builder->currentPerPage(),
@@ -130,12 +130,6 @@ final class Employees implements PaginatesResults
      */
     public function mapEmployee(array $employee): Employee
     {
-        return (new Employee($this->client))
-            ->setEmployeeID($employee['EmployeeID'] ?? null)
-            ->setFirstName($employee['FirstName'] ?? null)
-            ->setLastName($employee['LastName'] ?? null)
-            ->setEmailAddress($employee['EmailAddress'] ?? null)
-            ->setStatus($employee['Status'] ?? null)
-            ;
+        return (new Employee($this->client))->fill($employee);
     }
 }

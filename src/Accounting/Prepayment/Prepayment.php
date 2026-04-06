@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Prepayment;
 
-final class Prepayment
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class Prepayment extends Model
 {
     private ?string $prepaymentID = null;
 
@@ -60,5 +63,18 @@ final class Prepayment
         $this->remainingCredit = $remainingCredit;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'PrepaymentID' => Field::string(),
+            'Type' => Field::string(),
+            'Status' => Field::string(),
+            'RemainingCredit' => Field::number(),
+        ];
     }
 }

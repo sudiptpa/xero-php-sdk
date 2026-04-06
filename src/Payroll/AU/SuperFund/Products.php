@@ -69,11 +69,6 @@ final class Products implements DefinesScopes
      */
     public function mapProduct(array $product): Product
     {
-        return (new Product())
-            ->setSuperFundProductID($product['SuperFundProductID'] ?? null)
-            ->setName($product['Name'] ?? null)
-            ->setUSI($product['USI'] ?? null)
-            ->setABN($product['ABN'] ?? null)
-            ;
+        return (new Product())->fill($product);
     }
 }

@@ -88,19 +88,6 @@ final class ContactGroups implements DefinesScopes
      */
     public function mapContactGroup(array $payload): ContactGroup
     {
-        $contacts = [];
-
-        foreach (($payload['Contacts'] ?? []) as $contact) {
-            if (is_array($contact) && isset($contact['ContactID']) && is_string($contact['ContactID'])) {
-                $contacts[] = $contact['ContactID'];
-            }
-        }
-
-        return (new ContactGroup($this->client))
-            ->setContactGroupID(isset($payload['ContactGroupID']) ? (string) $payload['ContactGroupID'] : null)
-            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
-            ->setContactIDs($contacts)
-            ;
+        return (new ContactGroup($this->client))->fill($payload);
     }
 }

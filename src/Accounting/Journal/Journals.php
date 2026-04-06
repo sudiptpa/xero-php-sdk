@@ -91,11 +91,6 @@ final class Journals implements DefinesScopes
      */
     public function mapJournal(array $payload): Journal
     {
-        return (new Journal())
-            ->setJournalID(isset($payload['JournalID']) ? (string) $payload['JournalID'] : null)
-            ->setJournalNumber(isset($payload['JournalNumber']) ? (int) $payload['JournalNumber'] : null)
-            ->setSourceType(isset($payload['SourceType']) ? (string) $payload['SourceType'] : null)
-            ->setSourceID(isset($payload['SourceID']) ? (string) $payload['SourceID'] : null)
-            ;
+        return (new Journal())->fill($payload);
     }
 }

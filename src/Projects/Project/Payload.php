@@ -34,7 +34,7 @@ final class Payload
     public function title(string $title): self
     {
         $clone = clone $this;
-        $clone->payload['Title'] = $title;
+        $clone->payload['name'] = $title;
 
         return $clone;
     }
@@ -42,23 +42,15 @@ final class Payload
     public function contact(string $contactId): self
     {
         $clone = clone $this;
-        $clone->payload['ContactID'] = $contactId;
+        $clone->payload['contactId'] = $contactId;
 
         return $clone;
     }
 
-    public function state(string $state): self
+    public function estimateAmount(int|float $amount): self
     {
         $clone = clone $this;
-        $clone->payload['State'] = strtoupper($state);
-
-        return $clone;
-    }
-
-    public function estimateMinutes(int $minutes): self
-    {
-        $clone = clone $this;
-        $clone->payload['EstimateMinutes'] = $minutes;
+        $clone->payload['estimateAmount'] = $amount;
 
         return $clone;
     }
@@ -66,17 +58,9 @@ final class Payload
     public function deadline(DateTimeInterface|string $deadlineUtc): self
     {
         $clone = clone $this;
-        $clone->payload['DeadlineUTC'] = $deadlineUtc instanceof DateTimeInterface
+        $clone->payload['deadlineUtc'] = $deadlineUtc instanceof DateTimeInterface
             ? $deadlineUtc->format(DateTimeInterface::ATOM)
             : $deadlineUtc;
-
-        return $clone;
-    }
-
-    public function notes(string $notes): self
-    {
-        $clone = clone $this;
-        $clone->payload['Notes'] = $notes;
 
         return $clone;
     }

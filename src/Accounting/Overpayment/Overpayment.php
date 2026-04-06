@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Overpayment;
 
-final class Overpayment
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class Overpayment extends Model
 {
     private ?string $overpaymentID = null;
 
@@ -60,5 +63,18 @@ final class Overpayment
         $this->remainingCredit = $remainingCredit;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'OverpaymentID' => Field::string(),
+            'Type' => Field::string(),
+            'Status' => Field::string(),
+            'RemainingCredit' => Field::number(),
+        ];
     }
 }

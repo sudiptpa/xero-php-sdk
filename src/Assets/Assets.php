@@ -13,7 +13,7 @@ use Sujip\Xero\Assets\Type\Type;
 use Sujip\Xero\Assets\Type\Types;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -81,9 +81,9 @@ final class Assets implements DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<Asset>
+     * @return PaginatedCollection<Asset>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         return $this->assets->paginate($page, $perPage);
     }

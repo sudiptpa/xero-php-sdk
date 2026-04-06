@@ -170,17 +170,6 @@ final class Reports implements DefinesScopes
      */
     public function mapReport(array $payload): Report
     {
-        $title = null;
-
-        if (isset($payload['ReportTitles'][0]) && is_string($payload['ReportTitles'][0])) {
-            $title = $payload['ReportTitles'][0];
-        }
-
-        return (new Report())
-            ->setReportID(isset($payload['ReportID']) ? (string) $payload['ReportID'] : null)
-            ->setReportName(isset($payload['ReportName']) ? (string) $payload['ReportName'] : null)
-            ->setReportType(isset($payload['ReportType']) ? (string) $payload['ReportType'] : null)
-            ->setTitle($title)
-            ;
+        return (new Report())->fill($payload);
     }
 }

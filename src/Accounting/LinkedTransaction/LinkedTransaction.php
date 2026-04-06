@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\LinkedTransaction;
 
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class LinkedTransaction implements SerializesForRequest
+final class LinkedTransaction extends Model implements SerializesRequest
 {
     private ?string $linkedTransactionID = null;
 
@@ -76,6 +78,20 @@ final class LinkedTransaction implements SerializesForRequest
         $this->status = $status;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'LinkedTransactionID' => Field::string(),
+            'SourceTransactionID' => Field::string(),
+            'TargetTransactionID' => Field::string(),
+            'ContactID' => Field::string(),
+            'Status' => Field::string(),
+        ];
     }
 
     /**

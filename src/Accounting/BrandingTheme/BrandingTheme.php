@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\BrandingTheme;
 
-final class BrandingTheme
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class BrandingTheme extends Model
 {
     private ?string $brandingThemeID = null;
 
@@ -46,5 +49,17 @@ final class BrandingTheme
         $this->sortOrder = $sortOrder;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'BrandingThemeID' => Field::string(),
+            'Name' => Field::string(),
+            'SortOrder' => Field::string(),
+        ];
     }
 }

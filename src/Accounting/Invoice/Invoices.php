@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Invoice;
 
-use Sujip\Xero\Accounting\Contact\Contacts;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -72,9 +71,9 @@ final class Invoices implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<Invoice>
+     * @return PaginatedCollection<Invoice>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -86,7 +85,7 @@ final class Invoices implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult(
+        return new PaginatedCollection(
             $builder->get(),
             $builder->currentPage(),
             $builder->currentPerPage(),
@@ -133,23 +132,7 @@ final class Invoices implements PaginatesResults, DefinesScopes
      */
     public function mapInvoice(array $payload): Invoice
     {
-        $invoice = (new Invoice($this->client))
-            ->setInvoiceID(isset($payload['InvoiceID']) ? (string) $payload['InvoiceID'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
-            ->setReference(isset($payload['Reference']) ? (string) $payload['Reference'] : null)
-            ->setType(isset($payload['Type']) ? (string) $payload['Type'] : null);
-
-        if (is_array($payload['Contact'] ?? null)) {
-            $invoice->setContact((new Contacts($this->client))->mapContact($payload['Contact']));
-        }
-
-        foreach ($payload['LineItems'] ?? [] as $lineItem) {
-            if (is_array($lineItem)) {
-                $invoice->addLineItem($this->mapLineItem($lineItem));
-            }
-        }
-
-        return $invoice;
+        return (new Invoice($this->client))->fill($payload);
     }
 
     /**
@@ -157,9 +140,6 @@ final class Invoices implements PaginatesResults, DefinesScopes
      */
     public function mapLineItem(array $payload): LineItem
     {
-        return (new LineItem())
-            ->setDescription(isset($payload['Description']) ? (string) $payload['Description'] : null)
-            ->setQuantity(isset($payload['Quantity']) && is_numeric($payload['Quantity']) ? $payload['Quantity'] + 0 : null)
-            ->setUnitAmount(isset($payload['UnitAmount']) && is_numeric($payload['UnitAmount']) ? $payload['UnitAmount'] + 0 : null);
+        return (new LineItem())->fill($payload);
     }
 }

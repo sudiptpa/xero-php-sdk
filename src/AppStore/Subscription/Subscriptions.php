@@ -69,12 +69,7 @@ final readonly class Subscriptions implements DefinesScopes
      */
     public function mapSubscription(array $payload): Subscription
     {
-        return (new Subscription($this->client))
-            ->setSubscriptionID(isset($payload['id']) ? (string) $payload['id'] : (isset($payload['SubscriptionID']) ? (string) $payload['SubscriptionID'] : null))
-            ->setPlanID(isset($payload['planId']) ? (string) $payload['planId'] : (isset($payload['PlanID']) ? (string) $payload['PlanID'] : null))
-            ->setStatus(isset($payload['status']) ? (string) $payload['status'] : (isset($payload['Status']) ? (string) $payload['Status'] : null))
-            ->setCurrentPeriodEnd(isset($payload['currentPeriodEnd']) ? (string) $payload['currentPeriodEnd'] : null)
-            ->setItems(array_values(array_filter($payload['items'] ?? $payload['Items'] ?? [], 'is_array')));
+        return (new Subscription($this->client))->fill($payload);
     }
 
     /**
@@ -82,11 +77,6 @@ final readonly class Subscriptions implements DefinesScopes
      */
     public function mapUsageRecord(array $payload): UsageRecord
     {
-        return (new UsageRecord())
-            ->setUsageRecordID(isset($payload['id']) ? (string) $payload['id'] : null)
-            ->setSubscriptionItemID(isset($payload['subscriptionItemId']) ? (string) $payload['subscriptionItemId'] : null)
-            ->setQuantity(isset($payload['quantity']) ? (float) $payload['quantity'] : null)
-            ->setStartDate(isset($payload['startDate']) ? (string) $payload['startDate'] : null)
-            ->setEndDate(isset($payload['endDate']) ? (string) $payload['endDate'] : null);
+        return (new UsageRecord())->fill($payload);
     }
 }

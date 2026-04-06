@@ -44,6 +44,7 @@ final class WebhookVerifierTest extends TestCase
         $payload = json_encode([
             'firstEventSequence' => 1,
             'lastEventSequence' => 2,
+            'entropy' => 'random-entropy',
             'events' => [
                 [
                     'resourceUrl' => 'https://api.xero.com/api.xro/2.0/Invoices/invoice-1',
@@ -51,6 +52,8 @@ final class WebhookVerifierTest extends TestCase
                     'eventCategory' => 'INVOICE',
                     'eventType' => 'CREATE',
                     'eventDateUtc' => '2026-03-25T00:00:00',
+                    'tenantId' => 'tenant-1',
+                    'tenantType' => 'ORGANISATION',
                 ],
                 [
                     'resourceUrl' => 'https://api.xero.com/api.xro/2.0/Contacts/contact-1',
@@ -58,6 +61,8 @@ final class WebhookVerifierTest extends TestCase
                     'eventCategory' => 'CONTACT',
                     'eventType' => 'UPDATE',
                     'eventDateUtc' => '2026-03-25T00:05:00',
+                    'tenantId' => 'tenant-1',
+                    'tenantType' => 'ORGANISATION',
                 ],
             ],
         ], JSON_THROW_ON_ERROR);
@@ -65,10 +70,18 @@ final class WebhookVerifierTest extends TestCase
         $webhook = Xero::webhookVerifier('webhook-key')->parse($payload);
 
         self::assertInstanceOf(WebhookPayload::class, $webhook);
-        self::assertSame('1', $webhook->getFirstEventSequence());
+        self::assertSame(1, $webhook->getFirstEventSequence());
+        self::assertSame(2, $webhook->getLastEventSequence());
+        self::assertSame('random-entropy', $webhook->getEntropy());
         self::assertTrue($webhook->hasEvents());
-        self::assertSame('invoice-1', $webhook->first()?->getResourceId());
-        self::assertSame('contact-1', $webhook->last()?->getResourceId());
+        $firstEvent = $webhook->first();
+        self::assertInstanceOf(\Sujip\Xero\Webhooks\WebhookEvent::class, $firstEvent);
+        self::assertSame('invoice-1', $firstEvent->getResourceId());
+        self::assertSame('tenant-1', $firstEvent->getTenantId());
+        self::assertSame('ORGANISATION', $firstEvent->getTenantType());
+        $lastEvent = $webhook->last();
+        self::assertInstanceOf(\Sujip\Xero\Webhooks\WebhookEvent::class, $lastEvent);
+        self::assertSame('contact-1', $lastEvent->getResourceId());
         self::assertSame(['INVOICE', 'CONTACT'], $webhook->categories());
         self::assertSame(['CREATE', 'UPDATE'], $webhook->eventTypes());
         self::assertSame(2, $webhook->count());

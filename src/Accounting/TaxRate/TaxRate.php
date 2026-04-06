@@ -6,9 +6,11 @@ namespace Sujip\Xero\Accounting\TaxRate;
 
 use RuntimeException;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class TaxRate implements SerializesForRequest
+final class TaxRate extends Model implements SerializesRequest
 {
     public function __construct(
         private ?Client $client = null
@@ -85,6 +87,19 @@ final class TaxRate implements SerializesForRequest
         $this->taxComponents[] = $component;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'Name' => Field::string(),
+            'TaxType' => Field::string(),
+            'Status' => Field::string(),
+            'TaxComponents' => Field::many(Component::class),
+        ];
     }
 
     /**

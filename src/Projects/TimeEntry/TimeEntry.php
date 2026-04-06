@@ -6,8 +6,10 @@ namespace Sujip\Xero\Projects\TimeEntry;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class TimeEntry
+final class TimeEntry extends Model
 {
     private ?string $timeEntryID = null;
 
@@ -22,6 +24,10 @@ final class TimeEntry
     private int|float|null $duration = null;
 
     private ?string $projectID = null;
+
+    private ?string $dateEnteredUTC = null;
+
+    private ?string $description = null;
 
     public function __construct(
         private ?Client $client = null
@@ -110,6 +116,62 @@ final class TimeEntry
         $this->projectID = $projectID;
 
         return $this;
+    }
+
+    public function getDateEnteredUTC(): ?string
+    {
+        return $this->dateEnteredUTC;
+    }
+
+    public function setDateEnteredUTC(?string $dateEnteredUTC): self
+    {
+        $this->dateEnteredUTC = $dateEnteredUTC;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'TimeEntryID' => Field::string()->using('setTimeEntryID'),
+            'TimeEntryId' => Field::string()->using('setTimeEntryID'),
+            'timeEntryId' => Field::string()->using('setTimeEntryID'),
+            'TaskID' => Field::string()->using('setTaskID'),
+            'TaskId' => Field::string()->using('setTaskID'),
+            'taskId' => Field::string()->using('setTaskID'),
+            'UserID' => Field::string()->using('setUserID'),
+            'UserId' => Field::string()->using('setUserID'),
+            'userId' => Field::string()->using('setUserID'),
+            'DateUTC' => Field::string()->using('setDateUTC'),
+            'DateUtc' => Field::string()->using('setDateUTC'),
+            'dateUtc' => Field::string()->using('setDateUTC'),
+            'DateEnteredUtc' => Field::string()->using('setDateEnteredUTC'),
+            'dateEnteredUtc' => Field::string()->using('setDateEnteredUTC'),
+            'Status' => Field::string(),
+            'status' => Field::string()->using('setStatus'),
+            'Duration' => Field::number(),
+            'duration' => Field::number()->using('setDuration'),
+            'ProjectID' => Field::string()->using('setProjectID'),
+            'ProjectId' => Field::string()->using('setProjectID'),
+            'projectId' => Field::string()->using('setProjectID'),
+            'Description' => Field::string()->using('setDescription'),
+            'description' => Field::string()->using('setDescription'),
+        ];
     }
 
     public function durationMinutes(int $minutes): self

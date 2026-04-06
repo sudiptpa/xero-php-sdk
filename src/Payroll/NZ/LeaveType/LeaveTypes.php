@@ -8,7 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -62,9 +62,9 @@ final class LeaveTypes implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<LeaveType>
+     * @return PaginatedCollection<LeaveType>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -76,7 +76,7 @@ final class LeaveTypes implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/2.0/LeaveTypes']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/2.0/LeaveTypes']);
     }
 
     public function find(string $leaveTypeId): ?LeaveType
@@ -96,10 +96,6 @@ final class LeaveTypes implements PaginatesResults, DefinesScopes
      */
     public function mapLeaveType(array $leaveType): LeaveType
     {
-        return (new LeaveType())
-            ->setLeaveTypeID($leaveType['LeaveTypeID'] ?? null)
-            ->setName($leaveType['Name'] ?? null)
-            ->setIsActive(isset($leaveType['IsActive']) ? (bool) $leaveType['IsActive'] : null)
-            ;
+        return (new LeaveType())->fill($leaveType);
     }
 }

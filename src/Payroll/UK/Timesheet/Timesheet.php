@@ -6,20 +6,20 @@ namespace Sujip\Xero\Payroll\UK\Timesheet;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class Timesheet
+final class Timesheet extends Model
 {
-    /**
-     */
+    private ?string $timesheetID = null;
+    private ?string $employeeID = null;
+    private ?string $startDate = null;
+    private ?string $endDate = null;
+    private ?string $status = null;
+
     public function __construct(
-        private ?Client $client = null,
-        private ?string $timesheetID = null,
-        private ?string $employeeID = null,
-        private ?string $startDate = null,
-        private ?string $endDate = null,
-        private ?string $status = null,
-    ) {
-    }
+        private ?Client $client = null
+    ) {}
 
     public function getTimesheetID(): ?string
     {
@@ -79,6 +79,20 @@ final class Timesheet
         $this->status = $status;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'TimesheetID' => Field::string()->using('setTimesheetID'),
+            'EmployeeID' => Field::string()->using('setEmployeeID'),
+            'StartDate' => Field::string()->using('setStartDate'),
+            'EndDate' => Field::string()->using('setEndDate'),
+            'Status' => Field::string()->using('setStatus'),
+        ];
     }
 
     public function save(): self

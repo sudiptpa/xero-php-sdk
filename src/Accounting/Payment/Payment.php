@@ -8,9 +8,11 @@ use Sujip\Xero\Accounting\History;
 use RuntimeException;
 use Sujip\Xero\Accounting\Account\Account;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class Payment implements SerializesForRequest
+final class Payment extends Model implements SerializesRequest
 {
     private ?string $paymentID = null;
 
@@ -113,6 +115,35 @@ final class Payment implements SerializesForRequest
         $this->account = $account;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'PaymentID' => Field::string(),
+            'Amount' => Field::number(),
+            'Date' => Field::string(),
+            'Reference' => Field::string(),
+            'Account' => Field::object(Account::class),
+            'Invoice' => Field::object(InvoiceReference::class)->using('applyInvoiceReference'),
+        ];
+    }
+
+    public function applyInvoiceReference(?InvoiceReference $reference): self
+    {
+        return $this->setInvoiceID($reference?->getInvoiceID());
+    }
+
+    protected function newDefinitionInstance(string $class): object
+    {
+        if ($class === Account::class) {
+            return new Account($this->client);
+        }
+
+        return parent::newDefinitionInstance($class);
     }
 
     /**

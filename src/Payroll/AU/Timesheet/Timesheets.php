@@ -9,7 +9,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -79,9 +79,9 @@ final class Timesheets implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<Timesheet>
+     * @return PaginatedCollection<Timesheet>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -93,7 +93,7 @@ final class Timesheets implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/1.0/Timesheets']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/1.0/Timesheets']);
     }
 
     public function find(string $timesheetId): ?Timesheet
@@ -123,12 +123,6 @@ final class Timesheets implements PaginatesResults, DefinesScopes
      */
     public function mapTimesheet(array $timesheet): Timesheet
     {
-        return (new Timesheet($this->client))
-            ->setTimesheetID($timesheet['TimesheetID'] ?? null)
-            ->setEmployeeID($timesheet['EmployeeID'] ?? null)
-            ->setStartDate($timesheet['StartDate'] ?? null)
-            ->setEndDate($timesheet['EndDate'] ?? null)
-            ->setStatus($timesheet['Status'] ?? null)
-            ;
+        return (new Timesheet($this->client))->fill($timesheet);
     }
 }

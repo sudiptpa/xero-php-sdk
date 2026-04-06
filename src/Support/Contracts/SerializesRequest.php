@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Support\Contracts;
 
-interface SerializesForRequest
+interface SerializesRequest
 {
     /**
      * @return array<string, mixed>

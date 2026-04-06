@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Receipt;
 
 use Sujip\Xero\Accounting\History;
-use Sujip\Xero\Accounting\Contact\Contacts;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
@@ -85,15 +84,6 @@ final class Receipts implements DefinesScopes
      */
     public function mapReceipt(array $payload): Receipt
     {
-        return (new Receipt($this->client))
-            ->setReceiptID(isset($payload['ReceiptID']) ? (string) $payload['ReceiptID'] : null)
-            ->setReceiptNumber(isset($payload['ReceiptNumber']) ? (string) $payload['ReceiptNumber'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
-            ->setTotal(isset($payload['Total']) && is_numeric($payload['Total']) ? $payload['Total'] + 0 : null)
-            ->setContact(
-                is_array($payload['Contact'] ?? null)
-                    ? (new Contacts($this->client))->mapContact($payload['Contact'])
-                    : null
-            );
+        return (new Receipt($this->client))->fill($payload);
     }
 }

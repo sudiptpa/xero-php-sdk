@@ -60,11 +60,6 @@ final readonly class Payslips implements DefinesScopes
      */
     public function mapPayslip(array $payslip): Payslip
     {
-        return (new Payslip())
-            ->setPayslipID($payslip['PayslipID'] ?? null)
-            ->setEmployeeID($payslip['EmployeeID'] ?? null)
-            ->setPaymentDate($payslip['PaymentDate'] ?? null)
-            ->setNetPay(isset($payslip['NetPay']) ? (string) $payslip['NetPay'] : null)
-            ;
+        return (new Payslip())->fill($payslip);
     }
 }

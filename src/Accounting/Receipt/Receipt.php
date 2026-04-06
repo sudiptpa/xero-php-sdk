@@ -8,8 +8,10 @@ use Sujip\Xero\Accounting\History;
 use RuntimeException;
 use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class Receipt
+final class Receipt extends Model
 {
     private ?string $receiptID = null;
 
@@ -98,6 +100,29 @@ final class Receipt
         $this->contact = $contact;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'ReceiptID' => Field::string(),
+            'ReceiptNumber' => Field::string(),
+            'Status' => Field::string(),
+            'Total' => Field::number(),
+            'Contact' => Field::object(Contact::class),
+        ];
+    }
+
+    protected function newDefinitionInstance(string $class): object
+    {
+        if ($class === Contact::class) {
+            return new Contact($this->client);
+        }
+
+        return parent::newDefinitionInstance($class);
     }
 
     public function attachments(): Attachments

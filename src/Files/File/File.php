@@ -6,8 +6,10 @@ namespace Sujip\Xero\Files\File;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class File
+final class File extends Model
 {
     private ?string $id = null;
 
@@ -124,6 +126,33 @@ final class File
         $this->user = $user;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'Id' => Field::string(),
+            'Name' => Field::string(),
+            'MimeType' => Field::string(),
+            'Size' => Field::number(),
+            'CreatedDateUTC' => Field::string(),
+            'UpdatedDateUTC' => Field::string(),
+            'User' => Field::string(),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        $folder = $payload['FolderId'] ?? null;
+
+        return $this->setFolderId(
+            is_array($folder) ? (($folder['Id'] ?? null) !== null ? (string) $folder['Id'] : null) : (is_scalar($folder) ? (string) $folder : null)
+        );
     }
 
     public function rename(string $name): self

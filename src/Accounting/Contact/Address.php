@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Contact;
 
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class Address implements SerializesForRequest
+final class Address extends Model implements SerializesRequest
 {
     private ?string $addressType = null;
 
@@ -104,6 +106,22 @@ final class Address implements SerializesForRequest
         $this->country = $country;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'AddressType' => Field::string(),
+            'AddressLine1' => Field::string(),
+            'AddressLine2' => Field::string(),
+            'City' => Field::string(),
+            'Region' => Field::string(),
+            'PostalCode' => Field::string(),
+            'Country' => Field::string(),
+        ];
     }
 
     /**

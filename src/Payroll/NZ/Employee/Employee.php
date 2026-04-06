@@ -7,8 +7,10 @@ namespace Sujip\Xero\Payroll\NZ\Employee;
 use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\ResourceCollection;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class Employee
+final class Employee extends Model
 {
     private ?string $employeeID = null;
     private ?string $firstName = null;
@@ -32,6 +34,21 @@ final class Employee
     public function setEmailAddress(?string $emailAddress): self { $this->emailAddress = $emailAddress; return $this; }
     public function getStatus(): ?string { return $this->status; }
     public function setStatus(?string $status): self { $this->status = $status; return $this; }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'EmployeeID' => Field::string()->using('setEmployeeID'),
+            'FirstName' => Field::string()->using('setFirstName'),
+            'LastName' => Field::string()->using('setLastName'),
+            'EmailAddress' => Field::string()->using('setEmailAddress'),
+            'Status' => Field::string()->using('setStatus'),
+        ];
+    }
+
     public function save(): self
     {
         if ($this->client === null) {

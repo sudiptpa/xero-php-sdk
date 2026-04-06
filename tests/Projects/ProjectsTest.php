@@ -17,18 +17,19 @@ final class ProjectsTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Projects' => [[
-                'ProjectID' => 'project-1',
-                'Title' => 'Website rebuild',
-                'State' => 'INPROGRESS',
-                'Contact' => ['ContactID' => 'contact-1'],
+            'items' => [[
+                'projectId' => 'project-1',
+                'name' => 'Website rebuild',
+                'status' => 'INPROGRESS',
+                'contactId' => 'contact-1',
+                'deadlineUtc' => '2026-04-30T00:00:00Z',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Project' => [
-                'ProjectID' => 'project-1',
-                'Title' => 'Website rebuild',
-                'State' => 'INPROGRESS',
+            'project' => [
+                'projectId' => 'project-1',
+                'name' => 'Website rebuild',
+                'status' => 'INPROGRESS',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -89,16 +90,20 @@ final class ProjectsTest extends TestCase
         self::assertInstanceOf(Project::class, $projects->first());
         self::assertSame('/projects.xro/2.0/Projects/project-1', $transport->requests()[1]->path);
         self::assertSame('/projects.xro/2.0/Projects', $transport->requests()[2]->path);
-        self::assertSame('Mobile app', $transport->requests()[2]->json['Title']);
+        self::assertSame('Mobile app', $transport->requests()[2]->json['name']);
         self::assertSame('/projects.xro/2.0/Projects/project-2', $transport->requests()[3]->path);
         self::assertSame('PATCH', $transport->requests()[4]->method);
         self::assertSame('/projects.xro/2.0/Projects/project-2', $transport->requests()[4]->path);
-        self::assertSame('CLOSED', $transport->requests()[4]->json['State']);
+        self::assertSame('CLOSED', $transport->requests()[4]->json['status']);
         self::assertSame('PATCH', $transport->requests()[5]->method);
-        self::assertSame('INPROGRESS', $transport->requests()[5]->json['State']);
+        self::assertSame('INPROGRESS', $transport->requests()[5]->json['status']);
         self::assertSame('Mobile app v2', $updated->getTitle());
         self::assertSame('CLOSED', $closed->getState());
         self::assertSame('INPROGRESS', $reopened->getState());
         self::assertSame('project-1', $project?->getProjectID());
+        $firstProject = $projects->first();
+        self::assertInstanceOf(Project::class, $firstProject);
+        self::assertSame('contact-1', $firstProject->getContactID());
+        self::assertSame('2026-04-30T00:00:00Z', $firstProject->getDeadlineUTC());
     }
 }

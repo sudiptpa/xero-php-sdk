@@ -6,8 +6,10 @@ namespace Sujip\Xero\Accounting\Employee;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class Employee
+final class Employee extends Model
 {
     private ?string $employeeID = null;
 
@@ -82,6 +84,20 @@ final class Employee
         $this->emailAddress = $emailAddress;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'EmployeeID' => Field::string(),
+            'FirstName' => Field::string(),
+            'LastName' => Field::string(),
+            'Status' => Field::string(),
+            'EmailAddress' => Field::string(),
+        ];
     }
 
     public function firstName(string $firstName): self

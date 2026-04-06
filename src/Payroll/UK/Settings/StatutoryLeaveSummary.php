@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\UK\Settings;
 
-final class StatutoryLeaveSummary
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class StatutoryLeaveSummary extends Model
 {
     /**
      */
@@ -18,10 +21,15 @@ final class StatutoryLeaveSummary
     public function setEmployeeID(?string $employeeID): self { $this->employeeID = $employeeID; return $this; }
     public function getUnits(): ?string { return $this->units; }
     public function setUnits(?string $units): self { $this->units = $units; return $this; }
+
     /**
-     * @return array<string, mixed>
+     * @return array<string, Field>
      */
-    /**
-     * @param array<string, mixed> $raw
-     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'EmployeeID' => Field::string()->using('setEmployeeID'),
+            'Units' => Field::string()->using('setUnits'),
+        ];
+    }
 }

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Finance\AccountingActivity;
 
-final class AccountUsage
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class AccountUsage extends Model
 {
     public function __construct(
         private ?string $accountID = null,
@@ -22,4 +25,17 @@ final class AccountUsage
     public function setAccountName(?string $accountName): self { $this->accountName = $accountName; return $this; }
     public function getAmount(): ?float { return $this->amount; }
     public function setAmount(?float $amount): self { $this->amount = $amount; return $this; }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'AccountID' => Field::string()->using('setAccountID'),
+            'AccountCode' => Field::string()->using('setAccountCode'),
+            'AccountName' => Field::string()->using('setAccountName'),
+            'Amount' => Field::number()->using('setAmount'),
+        ];
+    }
 }

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\NZ\PayRun;
 
-final class PayRun
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class PayRun extends Model
 {
     /**
      */
@@ -62,6 +65,20 @@ final class PayRun
         $this->paymentDate = $paymentDate;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'PayRunID' => Field::string()->using('setPayRunID'),
+            'PayrollCalendarID' => Field::string()->using('setPayrollCalendarID'),
+            'PayRunStatus' => Field::string()->using('setPayRunStatus'),
+            'Status' => Field::string()->using('setPayRunStatus'),
+            'PaymentDate' => Field::string()->using('setPaymentDate'),
+        ];
     }
 
 }

@@ -8,8 +8,10 @@ use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Projects\Task\Tasks;
 use Sujip\Xero\Projects\TimeEntry\TimeEntries;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class Project
+final class Project extends Model
 {
     private ?string $projectID = null;
 
@@ -86,6 +88,47 @@ final class Project
         return $this;
     }
 
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'ProjectID' => Field::string()->using('setProjectID'),
+            'ProjectId' => Field::string()->using('setProjectID'),
+            'projectId' => Field::string()->using('setProjectID'),
+            'Title' => Field::string(),
+            'Name' => Field::string()->using('setTitle'),
+            'name' => Field::string()->using('setTitle'),
+            'State' => Field::string(),
+            'Status' => Field::string()->using('setState'),
+            'status' => Field::string()->using('setState'),
+            'ContactID' => Field::string()->using('setContactID'),
+            'ContactId' => Field::string()->using('setContactID'),
+            'contactId' => Field::string()->using('setContactID'),
+            'DeadlineUTC' => Field::string()->using('setDeadlineUTC'),
+            'DeadlineUtc' => Field::string()->using('setDeadlineUTC'),
+            'deadlineUtc' => Field::string()->using('setDeadlineUTC'),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        $contact = $payload['Contact'] ?? null;
+
+        if (is_array($contact)) {
+            $contactId = $contact['ContactID'] ?? $contact['ContactId'] ?? $contact['contactId'] ?? null;
+
+            if (is_scalar($contactId)) {
+                $this->setContactID((string) $contactId);
+            }
+        }
+
+        return $this;
+    }
+
     public function title(string $title): self
     {
         return $this->setTitle($title);
@@ -119,10 +162,6 @@ final class Project
 
         if ($this->contactID !== null) {
             $payload = $payload->contact($this->contactID);
-        }
-
-        if ($this->state !== null) {
-            $payload = $payload->state($this->state);
         }
 
         if ($this->deadlineUTC !== null) {

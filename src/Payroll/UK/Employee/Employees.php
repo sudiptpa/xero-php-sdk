@@ -8,7 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -59,9 +59,9 @@ final class Employees implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<Employee>
+     * @return PaginatedCollection<Employee>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -73,7 +73,7 @@ final class Employees implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/2.0/Employees']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/2.0/Employees']);
     }
 
     public function find(string $employeeId): ?Employee
@@ -208,13 +208,7 @@ final class Employees implements PaginatesResults, DefinesScopes
      */
     public function mapEmployee(array $employee): Employee
     {
-        return (new Employee($this->client))
-            ->setEmployeeID($employee['EmployeeID'] ?? null)
-            ->setFirstName($employee['FirstName'] ?? null)
-            ->setLastName($employee['LastName'] ?? null)
-            ->setEmailAddress($employee['EmailAddress'] ?? null)
-            ->setStatus($employee['Status'] ?? null)
-            ;
+        return (new Employee($this->client))->fill($employee);
     }
 
     /**
@@ -222,10 +216,6 @@ final class Employees implements PaginatesResults, DefinesScopes
      */
     public function mapLeaveType(array $leaveType): LeaveType
     {
-        return (new LeaveType())
-            ->setLeaveTypeID($leaveType['LeaveTypeID'] ?? null)
-            ->setName($leaveType['Name'] ?? null)
-            ->setIsActive(isset($leaveType['IsActive']) ? (bool) $leaveType['IsActive'] : null)
-            ;
+        return (new LeaveType())->fill($leaveType);
     }
 }

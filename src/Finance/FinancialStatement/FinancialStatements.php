@@ -99,8 +99,7 @@ final readonly class FinancialStatements implements DefinesScopes
         }
 
         return (new Statement())
-            ->setType($type)
-            ->setRows(array_values($statement['Rows'] ?? $statement['rows'] ?? []));
+            ->fill(['Type' => $type] + $statement);
     }
 
     /**
@@ -156,9 +155,6 @@ final readonly class FinancialStatements implements DefinesScopes
      */
     private function mapContactStatement(array $statement): ContactStatement
     {
-        return (new ContactStatement())
-            ->setContactID(isset($statement['ContactID']) ? (string) $statement['ContactID'] : null)
-            ->setName(isset($statement['Name']) ? (string) $statement['Name'] : null)
-            ->setTotal(isset($statement['Total']) ? (float) $statement['Total'] : null);
+        return (new ContactStatement())->fill($statement);
     }
 }

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Finance;
 
-final class BankStatementEntry
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class BankStatementEntry extends Model
 {
     public function __construct(
         private ?string $accountID = null,
@@ -19,4 +22,16 @@ final class BankStatementEntry
     public function setAccountName(?string $accountName): self { $this->accountName = $accountName; return $this; }
     public function getStatementBalance(): ?float { return $this->statementBalance; }
     public function setStatementBalance(?float $statementBalance): self { $this->statementBalance = $statementBalance; return $this; }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'AccountID' => Field::string()->using('setAccountID'),
+            'AccountName' => Field::string()->using('setAccountName'),
+            'StatementBalance' => Field::number()->using('setStatementBalance'),
+        ];
+    }
 }

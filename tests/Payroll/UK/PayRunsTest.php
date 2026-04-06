@@ -21,6 +21,13 @@ final class PayRunsTest extends TestCase
                 'PayRunID' => 'payrun-1',
                 'PayrollCalendarID' => 'calendar-1',
                 'PayRunStatus' => 'DRAFT',
+                'periodStartDate' => '2026-03-01',
+                'periodEndDate' => '2026-03-31',
+                'totalCost' => 1500.25,
+                'totalPay' => 1200.55,
+                'payRunType' => 'Scheduled',
+                'calendarType' => 'Monthly',
+                'postedDateTime' => '2026-03-31',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -52,6 +59,11 @@ final class PayRunsTest extends TestCase
         self::assertSame('/payroll.xro/2.0/PayRuns', $transport->requests()[2]->path);
         self::assertSame('payrun-1', $run?->getPayRunID());
         self::assertSame('payrun-2', $created->getPayRunID());
+        $firstRun = $runs->first();
+        self::assertInstanceOf(PayRun::class, $firstRun);
+        self::assertSame('2026-03-01', $firstRun->getPeriodStartDate());
+        self::assertSame(1500.25, $firstRun->getTotalCost());
+        self::assertSame('Scheduled', $firstRun->getPayRunType());
     }
 
     public function test_it_can_load_payrun_payslips(): void

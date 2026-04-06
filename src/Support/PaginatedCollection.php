@@ -7,7 +7,7 @@ namespace Sujip\Xero\Support;
 /**
  * @template TItem
  */
-final class PaginatedResult
+class PaginatedCollection
 {
     /**
      * @param ResourceCollection<TItem> $items

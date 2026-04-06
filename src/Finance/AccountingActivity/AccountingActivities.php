@@ -163,10 +163,7 @@ final readonly class AccountingActivities implements DefinesScopes
      */
     public function mapAccountingActivity(array $activity): AccountingActivity
     {
-        return (new AccountingActivity())
-            ->setMonth(isset($activity['Month']) ? (string) $activity['Month'] : null)
-            ->setTotalIncome(isset($activity['TotalIncome']) ? (float) $activity['TotalIncome'] : null)
-            ->setTotalExpense(isset($activity['TotalExpense']) ? (float) $activity['TotalExpense'] : null);
+        return (new AccountingActivity())->fill($activity);
     }
 
     /**
@@ -174,11 +171,7 @@ final readonly class AccountingActivities implements DefinesScopes
      */
     public function mapAccountUsage(array $usage): AccountUsage
     {
-        return (new AccountUsage())
-            ->setAccountID(isset($usage['AccountID']) ? (string) $usage['AccountID'] : null)
-            ->setAccountCode(isset($usage['AccountCode']) ? (string) $usage['AccountCode'] : null)
-            ->setAccountName(isset($usage['AccountName']) ? (string) $usage['AccountName'] : null)
-            ->setAmount(isset($usage['Amount']) ? (float) $usage['Amount'] : null);
+        return (new AccountUsage())->fill($usage);
     }
 
     /**
@@ -186,10 +179,7 @@ final readonly class AccountingActivities implements DefinesScopes
      */
     public function mapReportHistory(array $history): ReportHistory
     {
-        return (new ReportHistory())
-            ->setReportName(isset($history['ReportName']) ? (string) $history['ReportName'] : null)
-            ->setPublishedDateUTC(isset($history['PublishedDateUTC']) ? (string) $history['PublishedDateUTC'] : null)
-            ->setPublishedBy(isset($history['PublishedBy']) ? (string) $history['PublishedBy'] : null);
+        return (new ReportHistory())->fill($history);
     }
 
     /**
@@ -197,10 +187,7 @@ final readonly class AccountingActivities implements DefinesScopes
      */
     public function mapLockHistory(array $history): LockHistory
     {
-        return (new LockHistory())
-            ->setLockDate(isset($history['LockDate']) ? (string) $history['LockDate'] : null)
-            ->setLockType(isset($history['LockType']) ? (string) $history['LockType'] : null)
-            ->setChangedDateUTC(isset($history['ChangedDateUTC']) ? (string) $history['ChangedDateUTC'] : null);
+        return (new LockHistory())->fill($history);
     }
 
     /**
@@ -208,9 +195,6 @@ final readonly class AccountingActivities implements DefinesScopes
      */
     public function mapUserActivity(array $activity): UserActivity
     {
-        return (new UserActivity())
-            ->setUserId(isset($activity['UserId']) ? (string) $activity['UserId'] : null)
-            ->setFullName(isset($activity['FullName']) ? (string) $activity['FullName'] : null)
-            ->setTransactionCount(isset($activity['TransactionCount']) ? (int) $activity['TransactionCount'] : null);
+        return (new UserActivity())->fill($activity);
     }
 }

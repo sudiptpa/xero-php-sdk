@@ -6,7 +6,7 @@ namespace Sujip\Xero\Files\File;
 
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -83,9 +83,9 @@ final class Files implements DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<File>
+     * @return PaginatedCollection<File>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -97,7 +97,7 @@ final class Files implements DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult(
+        return new PaginatedCollection(
             $builder->get(),
             $builder->page,
             $builder->perPage,
@@ -199,16 +199,6 @@ final class Files implements DefinesScopes
      */
     public function mapFile(array $file): File
     {
-        $folder = $file['FolderId'] ?? null;
-
-        return (new File($this->client))
-            ->setId($file['Id'] ?? null)
-            ->setName($file['Name'] ?? null)
-            ->setMimeType($file['MimeType'] ?? null)
-            ->setSize($file['Size'] ?? null)
-            ->setFolderId(is_array($folder) ? ($folder['Id'] ?? null) : (is_string($folder) ? $folder : null))
-            ->setCreatedDateUTC($file['CreatedDateUTC'] ?? null)
-            ->setUpdatedDateUTC($file['UpdatedDateUTC'] ?? null)
-            ->setUser(is_string($file['User'] ?? null) ? $file['User'] : null);
+        return (new File($this->client))->fill($file);
     }
 }

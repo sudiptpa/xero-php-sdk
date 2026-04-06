@@ -11,7 +11,7 @@ use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -62,9 +62,9 @@ final class Items implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<Item>
+     * @return PaginatedCollection<Item>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -76,7 +76,7 @@ final class Items implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult(
+        return new PaginatedCollection(
             $builder->get(),
             $builder->currentPage(),
             $builder->currentPerPage(),
@@ -117,10 +117,6 @@ final class Items implements PaginatesResults, DefinesScopes
      */
     public function mapItem(array $payload): Item
     {
-        return (new Item($this->client))
-            ->setItemID(isset($payload['ItemID']) ? (string) $payload['ItemID'] : null)
-            ->setCode(isset($payload['Code']) ? (string) $payload['Code'] : null)
-            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
-            ->setDescription(isset($payload['Description']) ? (string) $payload['Description'] : null);
+        return (new Item($this->client))->fill($payload);
     }
 }

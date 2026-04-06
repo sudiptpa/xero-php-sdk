@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Webhooks;
 
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 use Sujip\Xero\Support\ResourceCollection;
 
-final class WebhookPayload
+final class WebhookPayload extends Model
 {
     /**
      * @var ResourceCollection<WebhookEvent>
@@ -17,17 +19,20 @@ final class WebhookPayload
      * @param ResourceCollection<WebhookEvent> $events
      */
     public function __construct(
-        private string $firstEventSequence = '',
-        private string $lastEventSequence = '',
+        private int|float|null $firstEventSequence = null,
+        private int|float|null $lastEventSequence = null,
+        private ?string $entropy = null,
         ?ResourceCollection $events = null,
     ) {
         $this->events = $events ?? new ResourceCollection([]);
     }
 
-    public function getFirstEventSequence(): string { return $this->firstEventSequence; }
-    public function setFirstEventSequence(string $firstEventSequence): self { $this->firstEventSequence = $firstEventSequence; return $this; }
-    public function getLastEventSequence(): string { return $this->lastEventSequence; }
-    public function setLastEventSequence(string $lastEventSequence): self { $this->lastEventSequence = $lastEventSequence; return $this; }
+    public function getFirstEventSequence(): int|float|null { return $this->firstEventSequence; }
+    public function setFirstEventSequence(int|float|null $firstEventSequence): self { $this->firstEventSequence = $firstEventSequence; return $this; }
+    public function getLastEventSequence(): int|float|null { return $this->lastEventSequence; }
+    public function setLastEventSequence(int|float|null $lastEventSequence): self { $this->lastEventSequence = $lastEventSequence; return $this; }
+    public function getEntropy(): ?string { return $this->entropy; }
+    public function setEntropy(?string $entropy): self { $this->entropy = $entropy; return $this; }
     /**
      * @return ResourceCollection<WebhookEvent>
      */
@@ -36,6 +41,31 @@ final class WebhookPayload
      * @param ResourceCollection<WebhookEvent> $events
      */
     public function setEvents(ResourceCollection $events): self { $this->events = $events; return $this; }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'firstEventSequence' => Field::number()->using('setFirstEventSequence'),
+            'lastEventSequence' => Field::number()->using('setLastEventSequence'),
+            'entropy' => Field::string()->using('setEntropy'),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        $events = array_map(
+            fn (array $event): WebhookEvent => (new WebhookEvent())->fill($event),
+            array_values(array_filter($payload['events'] ?? [], 'is_array'))
+        );
+
+        return $this->setEvents(new ResourceCollection($events));
+    }
+
     public function hasEvents(): bool
     {
         return $this->events->count() > 0;

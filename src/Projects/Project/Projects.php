@@ -8,7 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -75,9 +75,9 @@ final class Projects implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<Project>
+     * @return PaginatedCollection<Project>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -89,7 +89,7 @@ final class Projects implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/projects.xro/2.0/Projects']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/projects.xro/2.0/Projects']);
     }
 
     public function find(string $projectId): ?Project
@@ -146,11 +146,6 @@ final class Projects implements PaginatesResults, DefinesScopes
      */
     public function mapProject(array $project): Project
     {
-        return (new Project($this->client))
-            ->setProjectID($project['ProjectID'] ?? $project['ProjectId'] ?? null)
-            ->setTitle($project['Title'] ?? null)
-            ->setState($project['State'] ?? null)
-            ->setContactID($project['Contact']['ContactID'] ?? $project['ContactID'] ?? null)
-            ->setDeadlineUTC($project['DeadlineUTC'] ?? $project['DeadlineUtc'] ?? null);
+        return (new Project($this->client))->fill($project);
     }
 }

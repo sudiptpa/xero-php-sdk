@@ -34,7 +34,7 @@ final class Payload
     public function name(string $name): self
     {
         $clone = clone $this;
-        $clone->payload['Name'] = $name;
+        $clone->payload['name'] = $name;
 
         return $clone;
     }
@@ -42,7 +42,7 @@ final class Payload
     public function chargeType(string $chargeType): self
     {
         $clone = clone $this;
-        $clone->payload['ChargeType'] = strtoupper($chargeType);
+        $clone->payload['chargeType'] = strtoupper($chargeType);
 
         return $clone;
     }
@@ -50,7 +50,7 @@ final class Payload
     public function rate(int|float $rate): self
     {
         $clone = clone $this;
-        $clone->payload['Rate'] = $rate;
+        $clone->payload['rate'] = ['value' => $rate];
 
         return $clone;
     }
@@ -58,7 +58,7 @@ final class Payload
     public function estimateMinutes(int $minutes): self
     {
         $clone = clone $this;
-        $clone->payload['EstimateMinutes'] = $minutes;
+        $clone->payload['estimateMinutes'] = $minutes;
 
         return $clone;
     }

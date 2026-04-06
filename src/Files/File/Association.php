@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Files\File;
 
-final class Association
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class Association extends Model
 {
     private ?string $objectId = null;
 
@@ -46,6 +49,18 @@ final class Association
         $this->objectGroup = $objectGroup;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'ObjectId' => Field::string(),
+            'ObjectType' => Field::string(),
+            'ObjectGroup' => Field::string(),
+        ];
     }
 
 }

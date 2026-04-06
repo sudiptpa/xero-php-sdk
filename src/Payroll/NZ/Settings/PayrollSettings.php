@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\NZ\Settings;
 
-final class PayrollSettings
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class PayrollSettings extends Model
 {
     /**
      * @param list<array<string, mixed>> $accounts
@@ -32,9 +35,15 @@ final class PayrollSettings
      * @param list<array<string, mixed>> $trackingCategories
      */
     public function setTrackingCategories(array $trackingCategories): self { $this->trackingCategories = $trackingCategories; return $this; }
+
     /**
-     * @return array<string, mixed>
+     * @return array<string, Field>
      */
-    /**
-     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'Accounts' => Field::array()->using('setAccounts'),
+            'TrackingCategories' => Field::array()->using('setTrackingCategories'),
+        ];
+    }
 }

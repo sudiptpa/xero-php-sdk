@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Files\File;
 
-final class AssociationCount
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class AssociationCount extends Model
 {
     private ?string $objectId = null;
 
@@ -32,6 +35,17 @@ final class AssociationCount
         $this->count = $count;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'ObjectId' => Field::string(),
+            'Count' => Field::number(),
+        ];
     }
 
 }

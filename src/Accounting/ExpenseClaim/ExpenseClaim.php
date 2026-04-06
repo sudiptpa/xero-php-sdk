@@ -6,8 +6,10 @@ namespace Sujip\Xero\Accounting\ExpenseClaim;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class ExpenseClaim
+final class ExpenseClaim extends Model
 {
     private ?string $expenseClaimID = null;
 
@@ -98,6 +100,41 @@ final class ExpenseClaim
         $this->total = $total;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'ExpenseClaimID' => Field::string(),
+            'Status' => Field::string(),
+            'Total' => Field::number(),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        $this->setEmployeeID(
+            isset($payload['User']['UserID']) && is_string($payload['User']['UserID'])
+                ? $payload['User']['UserID']
+                : (isset($payload['Employee']['EmployeeID']) && is_string($payload['Employee']['EmployeeID'])
+                    ? $payload['Employee']['EmployeeID']
+                    : null)
+        );
+
+        $receiptIds = [];
+
+        foreach (($payload['Receipts'] ?? []) as $receipt) {
+            if (is_array($receipt) && isset($receipt['ReceiptID']) && is_string($receipt['ReceiptID'])) {
+                $receiptIds[] = $receipt['ReceiptID'];
+            }
+        }
+
+        return $this->setReceiptIDs($receiptIds);
     }
 
     public function status(string $status): self

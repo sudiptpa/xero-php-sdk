@@ -11,7 +11,7 @@ use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -62,9 +62,9 @@ final class ManualJournals implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<ManualJournal>
+     * @return PaginatedCollection<ManualJournal>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
         if ($page !== null) {
@@ -73,7 +73,7 @@ final class ManualJournals implements PaginatesResults, DefinesScopes
         if ($perPage !== null) {
             $builder = $builder->perPage($perPage);
         }
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/api.xro/2.0/ManualJournals']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/api.xro/2.0/ManualJournals']);
     }
 
     public function find(string $manualJournalId): ?ManualJournal
@@ -113,18 +113,7 @@ final class ManualJournals implements PaginatesResults, DefinesScopes
      */
     public function mapManualJournal(array $payload): ManualJournal
     {
-        $manualJournal = (new ManualJournal($this->client))
-            ->setManualJournalID(isset($payload['ManualJournalID']) ? (string) $payload['ManualJournalID'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
-            ->setNarration(isset($payload['Narration']) ? (string) $payload['Narration'] : null);
-
-        foreach ($payload['JournalLines'] ?? [] as $journalLine) {
-            if (is_array($journalLine)) {
-                $manualJournal->addJournalLine($this->mapJournalLine($journalLine));
-            }
-        }
-
-        return $manualJournal;
+        return (new ManualJournal($this->client))->fill($payload);
     }
 
     /**
@@ -132,9 +121,6 @@ final class ManualJournals implements PaginatesResults, DefinesScopes
      */
     public function mapJournalLine(array $payload): JournalLine
     {
-        return (new JournalLine())
-            ->setLineAmount(isset($payload['LineAmount']) && is_numeric($payload['LineAmount']) ? $payload['LineAmount'] + 0 : null)
-            ->setAccountCode(isset($payload['AccountCode']) ? (string) $payload['AccountCode'] : null)
-            ->setIsDebit(isset($payload['IsDebit']) ? (bool) $payload['IsDebit'] : null);
+        return (new JournalLine())->fill($payload);
     }
 }

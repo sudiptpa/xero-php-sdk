@@ -8,8 +8,10 @@ use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Files\File\Files as FilesResource;
 use Sujip\Xero\Files\File\Upload;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class Folder
+final class Folder extends Model
 {
     private ?string $id = null;
 
@@ -84,6 +86,20 @@ final class Folder
         $this->isInbox = $isInbox;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'Id' => Field::string(),
+            'Name' => Field::string(),
+            'FileCount' => Field::number(),
+            'Email' => Field::string(),
+            'IsInbox' => Field::boolean(),
+        ];
     }
 
     public function name(string $name): self

@@ -9,7 +9,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -79,9 +79,9 @@ final class LeaveApplications implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<LeaveApplication>
+     * @return PaginatedCollection<LeaveApplication>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -93,7 +93,7 @@ final class LeaveApplications implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/1.0/LeaveApplications']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/1.0/LeaveApplications']);
     }
 
     public function find(string $leaveApplicationId): ?LeaveApplication
@@ -147,14 +147,6 @@ final class LeaveApplications implements PaginatesResults, DefinesScopes
      */
     public function mapLeaveApplication(array $leaveApplication): LeaveApplication
     {
-        return (new LeaveApplication($this->client))
-            ->setLeaveApplicationID($leaveApplication['LeaveApplicationID'] ?? null)
-            ->setEmployeeID($leaveApplication['EmployeeID'] ?? null)
-            ->setLeaveTypeID($leaveApplication['LeaveTypeID'] ?? null)
-            ->setTitle($leaveApplication['Title'] ?? null)
-            ->setStartDate($leaveApplication['StartDate'] ?? null)
-            ->setEndDate($leaveApplication['EndDate'] ?? null)
-            ->setStatus($leaveApplication['Status'] ?? null)
-            ;
+        return (new LeaveApplication($this->client))->fill($leaveApplication);
     }
 }

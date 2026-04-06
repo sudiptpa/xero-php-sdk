@@ -19,8 +19,8 @@ final class SettingsTest extends TestCase
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
             'TrackingCategories' => [[
-                'TrackingCategoryID' => 'tracking-1',
-                'Name' => 'Department',
+                'employeeGroupsTrackingCategoryID' => 'employee-groups-1',
+                'timesheetTrackingCategoryID' => 'timesheet-1',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -72,7 +72,8 @@ final class SettingsTest extends TestCase
         self::assertSame('/payroll.xro/2.0/Reimbursements', $transport->requests()[4]->path);
         self::assertSame('reimbursement-key', $transport->requests()[4]->headers['Idempotency-Key']);
         self::assertInstanceOf(TrackingCategory::class, $trackingCategories->first());
-        self::assertSame('Department', $trackingCategories->first()->getName());
+        self::assertSame('employee-groups-1', $trackingCategories->first()->getEmployeeGroupsTrackingCategoryID());
+        self::assertSame('timesheet-1', $trackingCategories->first()->getTimesheetTrackingCategoryID());
         self::assertInstanceOf(Reimbursement::class, $reimbursements->first());
         self::assertSame('Travel', $reimbursements->first()->getName());
         self::assertSame('reimbursement-1', $reimbursement?->getReimbursementID());
