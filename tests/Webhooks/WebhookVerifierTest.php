@@ -74,10 +74,14 @@ final class WebhookVerifierTest extends TestCase
         self::assertSame(2, $webhook->getLastEventSequence());
         self::assertSame('random-entropy', $webhook->getEntropy());
         self::assertTrue($webhook->hasEvents());
-        self::assertSame('invoice-1', $webhook->first()?->getResourceId());
-        self::assertSame('tenant-1', $webhook->first()?->getTenantId());
-        self::assertSame('ORGANISATION', $webhook->first()?->getTenantType());
-        self::assertSame('contact-1', $webhook->last()?->getResourceId());
+        $firstEvent = $webhook->first();
+        self::assertInstanceOf(\Sujip\Xero\Webhooks\WebhookEvent::class, $firstEvent);
+        self::assertSame('invoice-1', $firstEvent->getResourceId());
+        self::assertSame('tenant-1', $firstEvent->getTenantId());
+        self::assertSame('ORGANISATION', $firstEvent->getTenantType());
+        $lastEvent = $webhook->last();
+        self::assertInstanceOf(\Sujip\Xero\Webhooks\WebhookEvent::class, $lastEvent);
+        self::assertSame('contact-1', $lastEvent->getResourceId());
         self::assertSame(['INVOICE', 'CONTACT'], $webhook->categories());
         self::assertSame(['CREATE', 'UPDATE'], $webhook->eventTypes());
         self::assertSame(2, $webhook->count());

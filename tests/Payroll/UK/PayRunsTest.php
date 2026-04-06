@@ -59,9 +59,11 @@ final class PayRunsTest extends TestCase
         self::assertSame('/payroll.xro/2.0/PayRuns', $transport->requests()[2]->path);
         self::assertSame('payrun-1', $run?->getPayRunID());
         self::assertSame('payrun-2', $created->getPayRunID());
-        self::assertSame('2026-03-01', $runs->first()?->getPeriodStartDate());
-        self::assertSame(1500.25, $runs->first()?->getTotalCost());
-        self::assertSame('Scheduled', $runs->first()?->getPayRunType());
+        $firstRun = $runs->first();
+        self::assertInstanceOf(PayRun::class, $firstRun);
+        self::assertSame('2026-03-01', $firstRun->getPeriodStartDate());
+        self::assertSame(1500.25, $firstRun->getTotalCost());
+        self::assertSame('Scheduled', $firstRun->getPayRunType());
     }
 
     public function test_it_can_load_payrun_payslips(): void

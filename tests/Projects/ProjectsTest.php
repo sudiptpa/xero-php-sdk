@@ -101,7 +101,9 @@ final class ProjectsTest extends TestCase
         self::assertSame('CLOSED', $closed->getState());
         self::assertSame('INPROGRESS', $reopened->getState());
         self::assertSame('project-1', $project?->getProjectID());
-        self::assertSame('contact-1', $projects->first()?->getContactID());
-        self::assertSame('2026-04-30T00:00:00Z', $projects->first()?->getDeadlineUTC());
+        $firstProject = $projects->first();
+        self::assertInstanceOf(Project::class, $firstProject);
+        self::assertSame('contact-1', $firstProject->getContactID());
+        self::assertSame('2026-04-30T00:00:00Z', $firstProject->getDeadlineUTC());
     }
 }
