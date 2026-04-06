@@ -96,11 +96,19 @@ final class Project extends Model
         return [
             'ProjectID' => Field::string()->using('setProjectID'),
             'ProjectId' => Field::string()->using('setProjectID'),
+            'projectId' => Field::string()->using('setProjectID'),
             'Title' => Field::string(),
+            'Name' => Field::string()->using('setTitle'),
+            'name' => Field::string()->using('setTitle'),
             'State' => Field::string(),
+            'Status' => Field::string()->using('setState'),
+            'status' => Field::string()->using('setState'),
             'ContactID' => Field::string()->using('setContactID'),
+            'ContactId' => Field::string()->using('setContactID'),
+            'contactId' => Field::string()->using('setContactID'),
             'DeadlineUTC' => Field::string()->using('setDeadlineUTC'),
             'DeadlineUtc' => Field::string()->using('setDeadlineUTC'),
+            'deadlineUtc' => Field::string()->using('setDeadlineUTC'),
         ];
     }
 
@@ -110,8 +118,12 @@ final class Project extends Model
 
         $contact = $payload['Contact'] ?? null;
 
-        if (is_array($contact) && isset($contact['ContactID'])) {
-            $this->setContactID(is_scalar($contact['ContactID']) ? (string) $contact['ContactID'] : null);
+        if (is_array($contact)) {
+            $contactId = $contact['ContactID'] ?? $contact['ContactId'] ?? $contact['contactId'] ?? null;
+
+            if (is_scalar($contactId)) {
+                $this->setContactID((string) $contactId);
+            }
         }
 
         return $this;

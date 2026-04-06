@@ -21,6 +21,10 @@ final class Task extends Model
 
     private ?string $projectID = null;
 
+    private ?string $status = null;
+
+    private ?int $estimateMinutes = null;
+
     public function __construct(
         private ?Client $client = null
     ) {
@@ -86,6 +90,30 @@ final class Task extends Model
         return $this;
     }
 
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status === null ? null : strtoupper($status);
+
+        return $this;
+    }
+
+    public function getEstimateMinutes(): ?int
+    {
+        return $this->estimateMinutes;
+    }
+
+    public function setEstimateMinutes(?int $estimateMinutes): self
+    {
+        $this->estimateMinutes = $estimateMinutes;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -94,11 +122,38 @@ final class Task extends Model
         return [
             'TaskID' => Field::string()->using('setTaskID'),
             'TaskId' => Field::string()->using('setTaskID'),
+            'taskId' => Field::string()->using('setTaskID'),
             'Name' => Field::string(),
+            'name' => Field::string()->using('setName'),
             'ChargeType' => Field::string(),
-            'Rate' => Field::number(),
+            'chargeType' => Field::string()->using('setChargeType'),
             'ProjectID' => Field::string()->using('setProjectID'),
+            'ProjectId' => Field::string()->using('setProjectID'),
+            'projectId' => Field::string()->using('setProjectID'),
+            'Status' => Field::string()->using('setStatus'),
+            'status' => Field::string()->using('setStatus'),
+            'EstimateMinutes' => Field::number()->using('setEstimateMinutes'),
+            'estimateMinutes' => Field::number()->using('setEstimateMinutes'),
         ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        $rate = $payload['Rate'] ?? $payload['rate'] ?? null;
+
+        if (is_array($rate)) {
+            $value = $rate['Value'] ?? $rate['value'] ?? null;
+
+            if (is_numeric($value)) {
+                $this->setRate($value + 0);
+            }
+        } elseif (is_numeric($rate)) {
+            $this->setRate($rate + 0);
+        }
+
+        return $this;
     }
 
     public function name(string $name): self

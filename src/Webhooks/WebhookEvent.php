@@ -11,6 +11,7 @@ use Sujip\Xero\Support\Model;
 final class WebhookEvent extends Model
 {
     /**
+     * @param array<int|string, mixed> $data
      * @param array<string, mixed> $payload
      */
     public function __construct(
@@ -19,6 +20,9 @@ final class WebhookEvent extends Model
         private ?string $eventCategory = null,
         private ?string $eventType = null,
         private ?string $eventDateUtc = null,
+        private ?string $tenantId = null,
+        private ?string $tenantType = null,
+        private array $data = [],
         private array $payload = []
     ) {
     }
@@ -33,6 +37,18 @@ final class WebhookEvent extends Model
     public function setEventType(?string $eventType): self { $this->eventType = $eventType; return $this; }
     public function getEventDateUtc(): ?string { return $this->eventDateUtc; }
     public function setEventDateUtc(?string $eventDateUtc): self { $this->eventDateUtc = $eventDateUtc; return $this; }
+    public function getTenantId(): ?string { return $this->tenantId; }
+    public function setTenantId(?string $tenantId): self { $this->tenantId = $tenantId; return $this; }
+    public function getTenantType(): ?string { return $this->tenantType; }
+    public function setTenantType(?string $tenantType): self { $this->tenantType = $tenantType; return $this; }
+    /**
+     * @return array<int|string, mixed>
+     */
+    public function getData(): array { return $this->data; }
+    /**
+     * @param array<int|string, mixed> $data
+     */
+    public function setData(array $data): self { $this->data = $data; return $this; }
     /**
      * @return array<string, mixed>
      */
@@ -53,6 +69,9 @@ final class WebhookEvent extends Model
             'eventCategory' => Field::string()->using('setEventCategory'),
             'eventType' => Field::string()->using('setEventType'),
             'eventDateUtc' => Field::string()->using('setEventDateUtc'),
+            'tenantId' => Field::string()->using('setTenantId'),
+            'tenantType' => Field::string()->using('setTenantType'),
+            'data' => Field::array()->using('setData'),
         ];
     }
 

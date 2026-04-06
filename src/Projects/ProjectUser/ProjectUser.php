@@ -59,9 +59,12 @@ final class ProjectUser extends Model
         return [
             'UserID' => Field::string()->using('setUserID'),
             'UserId' => Field::string()->using('setUserID'),
+            'userId' => Field::string()->using('setUserID'),
             'Name' => Field::string(),
+            'name' => Field::string()->using('setName'),
             'EmailAddress' => Field::string()->using('setEmailAddress'),
             'Email' => Field::string()->using('setEmailAddress'),
+            'email' => Field::string()->using('setEmailAddress'),
         ];
     }
 

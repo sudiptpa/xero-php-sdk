@@ -17,18 +17,19 @@ final class ProjectsTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Projects' => [[
-                'ProjectID' => 'project-1',
-                'Title' => 'Website rebuild',
-                'State' => 'INPROGRESS',
-                'Contact' => ['ContactID' => 'contact-1'],
+            'items' => [[
+                'projectId' => 'project-1',
+                'name' => 'Website rebuild',
+                'status' => 'INPROGRESS',
+                'contactId' => 'contact-1',
+                'deadlineUtc' => '2026-04-30T00:00:00Z',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Project' => [
-                'ProjectID' => 'project-1',
-                'Title' => 'Website rebuild',
-                'State' => 'INPROGRESS',
+            'project' => [
+                'projectId' => 'project-1',
+                'name' => 'Website rebuild',
+                'status' => 'INPROGRESS',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -100,5 +101,7 @@ final class ProjectsTest extends TestCase
         self::assertSame('CLOSED', $closed->getState());
         self::assertSame('INPROGRESS', $reopened->getState());
         self::assertSame('project-1', $project?->getProjectID());
+        self::assertSame('contact-1', $projects->first()?->getContactID());
+        self::assertSame('2026-04-30T00:00:00Z', $projects->first()?->getDeadlineUTC());
     }
 }

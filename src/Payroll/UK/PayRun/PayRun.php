@@ -15,6 +15,13 @@ final class PayRun extends Model
     private ?string $payrollCalendarID = null;
     private ?string $payRunStatus = null;
     private ?string $paymentDate = null;
+    private ?string $periodStartDate = null;
+    private ?string $periodEndDate = null;
+    private int|float|null $totalCost = null;
+    private int|float|null $totalPay = null;
+    private ?string $payRunType = null;
+    private ?string $calendarType = null;
+    private ?string $postedDateTime = null;
 
     public function __construct(
         private ?Client $client = null
@@ -68,6 +75,90 @@ final class PayRun extends Model
         return $this;
     }
 
+    public function getPeriodStartDate(): ?string
+    {
+        return $this->periodStartDate;
+    }
+
+    public function setPeriodStartDate(?string $periodStartDate): self
+    {
+        $this->periodStartDate = $periodStartDate;
+
+        return $this;
+    }
+
+    public function getPeriodEndDate(): ?string
+    {
+        return $this->periodEndDate;
+    }
+
+    public function setPeriodEndDate(?string $periodEndDate): self
+    {
+        $this->periodEndDate = $periodEndDate;
+
+        return $this;
+    }
+
+    public function getTotalCost(): int|float|null
+    {
+        return $this->totalCost;
+    }
+
+    public function setTotalCost(int|float|null $totalCost): self
+    {
+        $this->totalCost = $totalCost;
+
+        return $this;
+    }
+
+    public function getTotalPay(): int|float|null
+    {
+        return $this->totalPay;
+    }
+
+    public function setTotalPay(int|float|null $totalPay): self
+    {
+        $this->totalPay = $totalPay;
+
+        return $this;
+    }
+
+    public function getPayRunType(): ?string
+    {
+        return $this->payRunType;
+    }
+
+    public function setPayRunType(?string $payRunType): self
+    {
+        $this->payRunType = $payRunType;
+
+        return $this;
+    }
+
+    public function getCalendarType(): ?string
+    {
+        return $this->calendarType;
+    }
+
+    public function setCalendarType(?string $calendarType): self
+    {
+        $this->calendarType = $calendarType;
+
+        return $this;
+    }
+
+    public function getPostedDateTime(): ?string
+    {
+        return $this->postedDateTime;
+    }
+
+    public function setPostedDateTime(?string $postedDateTime): self
+    {
+        $this->postedDateTime = $postedDateTime;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -79,6 +170,20 @@ final class PayRun extends Model
             'PayRunStatus' => Field::string()->using('setPayRunStatus'),
             'Status' => Field::string()->using('setPayRunStatus'),
             'PaymentDate' => Field::string()->using('setPaymentDate'),
+            'PeriodStartDate' => Field::string()->using('setPeriodStartDate'),
+            'periodStartDate' => Field::string()->using('setPeriodStartDate'),
+            'PeriodEndDate' => Field::string()->using('setPeriodEndDate'),
+            'periodEndDate' => Field::string()->using('setPeriodEndDate'),
+            'TotalCost' => Field::number()->using('setTotalCost'),
+            'totalCost' => Field::number()->using('setTotalCost'),
+            'TotalPay' => Field::number()->using('setTotalPay'),
+            'totalPay' => Field::number()->using('setTotalPay'),
+            'PayRunType' => Field::string()->using('setPayRunType'),
+            'payRunType' => Field::string()->using('setPayRunType'),
+            'CalendarType' => Field::string()->using('setCalendarType'),
+            'calendarType' => Field::string()->using('setCalendarType'),
+            'PostedDateTime' => Field::string()->using('setPostedDateTime'),
+            'postedDateTime' => Field::string()->using('setPostedDateTime'),
         ];
     }
 
