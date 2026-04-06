@@ -164,10 +164,6 @@ final class Project extends Model
             $payload = $payload->contact($this->contactID);
         }
 
-        if ($this->state !== null) {
-            $payload = $payload->state($this->state);
-        }
-
         if ($this->deadlineUTC !== null) {
             $payload = $payload->deadline($this->deadlineUTC);
         }

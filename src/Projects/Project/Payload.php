@@ -47,18 +47,10 @@ final class Payload
         return $clone;
     }
 
-    public function state(string $state): self
+    public function estimateAmount(int|float $amount): self
     {
         $clone = clone $this;
-        $clone->payload['status'] = strtoupper($state);
-
-        return $clone;
-    }
-
-    public function estimateMinutes(int $minutes): self
-    {
-        $clone = clone $this;
-        $clone->payload['estimateMinutes'] = $minutes;
+        $clone->payload['estimateAmount'] = $amount;
 
         return $clone;
     }
@@ -69,14 +61,6 @@ final class Payload
         $clone->payload['deadlineUtc'] = $deadlineUtc instanceof DateTimeInterface
             ? $deadlineUtc->format(DateTimeInterface::ATOM)
             : $deadlineUtc;
-
-        return $clone;
-    }
-
-    public function notes(string $notes): self
-    {
-        $clone = clone $this;
-        $clone->payload['notes'] = $notes;
 
         return $clone;
     }
