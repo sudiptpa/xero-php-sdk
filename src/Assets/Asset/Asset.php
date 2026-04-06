@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Assets\Asset;
 
-final class Asset
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class Asset extends Model
 {
     private ?string $assetId = null;
 
@@ -72,6 +75,35 @@ final class Asset
     public function setAssetTypeId(?string $assetTypeId): self
     {
         $this->assetTypeId = $assetTypeId;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'AssetId' => Field::string(),
+            'AssetName' => Field::string(),
+            'AssetNumber' => Field::string(),
+            'Status' => Field::string(),
+            'AssetTypeId' => Field::string(),
+            'Id' => Field::string()->using('setAssetId'),
+            'Name' => Field::string()->using('setAssetName'),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        $assetType = $payload['AssetType'] ?? null;
+
+        if (is_array($assetType) && isset($assetType['AssetTypeId'])) {
+            $this->setAssetTypeId(is_scalar($assetType['AssetTypeId']) ? (string) $assetType['AssetTypeId'] : null);
+        }
 
         return $this;
     }

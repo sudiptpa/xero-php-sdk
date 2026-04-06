@@ -6,22 +6,22 @@ namespace Sujip\Xero\Payroll\AU\LeaveApplication;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class LeaveApplication
+final class LeaveApplication extends Model
 {
-    /**
-     */
+    private ?string $leaveApplicationID = null;
+    private ?string $employeeID = null;
+    private ?string $leaveTypeID = null;
+    private ?string $title = null;
+    private ?string $startDate = null;
+    private ?string $endDate = null;
+    private ?string $status = null;
+
     public function __construct(
-        private ?Client $client = null,
-        private ?string $leaveApplicationID = null,
-        private ?string $employeeID = null,
-        private ?string $leaveTypeID = null,
-        private ?string $title = null,
-        private ?string $startDate = null,
-        private ?string $endDate = null,
-        private ?string $status = null,
-    ) {
-    }
+        private ?Client $client = null
+    ) {}
 
     public function getLeaveApplicationID(): ?string { return $this->leaveApplicationID; }
     public function setLeaveApplicationID(?string $leaveApplicationID): self { $this->leaveApplicationID = $leaveApplicationID; return $this; }
@@ -42,6 +42,22 @@ final class LeaveApplication
         $this->status = strtoupper($status);
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'LeaveApplicationID' => Field::string()->using('setLeaveApplicationID'),
+            'EmployeeID' => Field::string()->using('setEmployeeID'),
+            'LeaveTypeID' => Field::string()->using('setLeaveTypeID'),
+            'Title' => Field::string()->using('setTitle'),
+            'StartDate' => Field::string()->using('setStartDate'),
+            'EndDate' => Field::string()->using('setEndDate'),
+            'Status' => Field::string()->using('setStatus'),
+        ];
     }
 
     public function save(): self

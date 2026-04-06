@@ -7,8 +7,10 @@ namespace Sujip\Xero\AppStore\Subscription;
 use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\ResourceCollection;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class Subscription
+final class Subscription extends Model
 {
     /**
      * @param list<array<string, mixed>> $items
@@ -39,6 +41,31 @@ final class Subscription
      * @param list<array<string, mixed>> $items
      */
     public function setItems(array $items): self { $this->items = $items; return $this; }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'SubscriptionID' => Field::string(),
+            'PlanID' => Field::string(),
+            'Status' => Field::string(),
+            'CurrentPeriodEnd' => Field::string(),
+            'id' => Field::string()->using('setSubscriptionID'),
+            'planId' => Field::string()->using('setPlanID'),
+            'status' => Field::string()->using('setStatus'),
+            'currentPeriodEnd' => Field::string()->using('setCurrentPeriodEnd'),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        return $this->setItems(array_values(array_filter($payload['items'] ?? $payload['Items'] ?? [], 'is_array')));
+    }
+
     /**
      * @return ResourceCollection<UsageRecord>
      */

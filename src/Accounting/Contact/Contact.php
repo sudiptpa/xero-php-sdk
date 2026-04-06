@@ -6,9 +6,11 @@ namespace Sujip\Xero\Accounting\Contact;
 
 use RuntimeException;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class Contact implements SerializesForRequest
+final class Contact extends Model implements SerializesRequest
 {
     private ?string $contactID = null;
 
@@ -143,6 +145,22 @@ final class Contact implements SerializesForRequest
         $this->phones[] = $phone;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'ContactID' => Field::string(),
+            'Name' => Field::string(),
+            'FirstName' => Field::string(),
+            'LastName' => Field::string(),
+            'EmailAddress' => Field::string(),
+            'Addresses' => Field::many(Address::class),
+            'Phones' => Field::many(Phone::class),
+        ];
     }
 
     /**

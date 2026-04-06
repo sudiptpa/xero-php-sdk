@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\BankTransaction;
 
 use Sujip\Xero\Accounting\History;
-use Sujip\Xero\Accounting\Contact\Contacts;
-use Sujip\Xero\Accounting\Invoice\Invoices;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -64,9 +62,9 @@ final class BankTransactions implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<BankTransaction>
+     * @return PaginatedCollection<BankTransaction>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -78,7 +76,7 @@ final class BankTransactions implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/api.xro/2.0/BankTransactions']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/api.xro/2.0/BankTransactions']);
     }
 
     public function find(string $bankTransactionId): ?BankTransaction
@@ -113,34 +111,6 @@ final class BankTransactions implements PaginatesResults, DefinesScopes
      */
     public function mapBankTransaction(array $payload): BankTransaction
     {
-        $transaction = (new BankTransaction($this->client))
-            ->setBankTransactionID(isset($payload['BankTransactionID']) ? (string) $payload['BankTransactionID'] : null)
-            ->setType(isset($payload['Type']) ? (string) $payload['Type'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
-            ->setReference(isset($payload['Reference']) ? (string) $payload['Reference'] : null)
-            ->setTotal(isset($payload['Total']) && is_numeric($payload['Total']) ? $payload['Total'] + 0 : null);
-
-        if (is_array($payload['Contact'] ?? null)) {
-            $transaction->setContact((new Contacts($this->client))->mapContact($payload['Contact']));
-        }
-
-        if (is_array($payload['BankAccount'] ?? null)) {
-            $transaction->setBankAccount(
-                (new BankAccount())
-                    ->setAccountID(
-                        isset($payload['BankAccount']['AccountID']) && is_string($payload['BankAccount']['AccountID'])
-                            ? $payload['BankAccount']['AccountID']
-                            : null
-                    )
-            );
-        }
-
-        foreach ($payload['LineItems'] ?? [] as $lineItem) {
-            if (is_array($lineItem)) {
-                $transaction->addLineItem((new Invoices($this->client))->mapLineItem($lineItem));
-            }
-        }
-
-        return $transaction;
+        return (new BankTransaction($this->client))->fill($payload);
     }
 }

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\AppStore\Subscription;
 
-final class UsageRecord
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class UsageRecord extends Model
 {
     public function __construct(
         private ?string $usageRecordID = null,
@@ -25,4 +28,23 @@ final class UsageRecord
     public function setStartDate(?string $startDate): self { $this->startDate = $startDate; return $this; }
     public function getEndDate(): ?string { return $this->endDate; }
     public function setEndDate(?string $endDate): self { $this->endDate = $endDate; return $this; }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'UsageRecordID' => Field::string(),
+            'SubscriptionItemID' => Field::string(),
+            'Quantity' => Field::number(),
+            'StartDate' => Field::string(),
+            'EndDate' => Field::string(),
+            'id' => Field::string()->using('setUsageRecordID'),
+            'subscriptionItemId' => Field::string()->using('setSubscriptionItemID'),
+            'quantity' => Field::number()->using('setQuantity'),
+            'startDate' => Field::string()->using('setStartDate'),
+            'endDate' => Field::string()->using('setEndDate'),
+        ];
+    }
 }

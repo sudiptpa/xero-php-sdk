@@ -78,15 +78,7 @@ final readonly class WebhookVerifier
         /** @var array<string, mixed> $decoded */
         $decoded = Json::decodeObject($payload);
 
-        $events = array_values(array_map(
-            fn (array $event): WebhookEvent => $this->mapEvent($event),
-            $decoded['events'] ?? []
-        ));
-
-        return (new WebhookPayload())
-            ->setFirstEventSequence((string) ($decoded['firstEventSequence'] ?? ''))
-            ->setLastEventSequence((string) ($decoded['lastEventSequence'] ?? ''))
-            ->setEvents(new \Sujip\Xero\Support\ResourceCollection($events));
+        return (new WebhookPayload())->fill($decoded);
     }
 
     public function verifyAndParse(string $payload, ?string $signature): WebhookPayload
@@ -104,17 +96,4 @@ final readonly class WebhookVerifier
         return $this->verifyAndParse($payload, $this->signatureFromHeaders($headers, $header));
     }
 
-    /**
-     * @param array<string, mixed> $event
-     */
-    private function mapEvent(array $event): WebhookEvent
-    {
-        return (new WebhookEvent())
-            ->setResourceUrl($event['resourceUrl'] ?? null)
-            ->setResourceId($event['resourceId'] ?? null)
-            ->setEventCategory($event['eventCategory'] ?? null)
-            ->setEventType($event['eventType'] ?? null)
-            ->setEventDateUtc($event['eventDateUtc'] ?? null)
-            ->setPayload($event);
-    }
 }

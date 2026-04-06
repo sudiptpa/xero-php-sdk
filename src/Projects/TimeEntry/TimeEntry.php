@@ -6,8 +6,10 @@ namespace Sujip\Xero\Projects\TimeEntry;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class TimeEntry
+final class TimeEntry extends Model
 {
     private ?string $timeEntryID = null;
 
@@ -110,6 +112,26 @@ final class TimeEntry
         $this->projectID = $projectID;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'TimeEntryID' => Field::string()->using('setTimeEntryID'),
+            'TimeEntryId' => Field::string()->using('setTimeEntryID'),
+            'TaskID' => Field::string()->using('setTaskID'),
+            'TaskId' => Field::string()->using('setTaskID'),
+            'UserID' => Field::string()->using('setUserID'),
+            'UserId' => Field::string()->using('setUserID'),
+            'DateUTC' => Field::string()->using('setDateUTC'),
+            'DateUtc' => Field::string()->using('setDateUTC'),
+            'Status' => Field::string(),
+            'Duration' => Field::number(),
+            'ProjectID' => Field::string()->using('setProjectID'),
+        ];
     }
 
     public function durationMinutes(int $minutes): self

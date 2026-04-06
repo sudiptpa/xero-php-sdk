@@ -101,11 +101,6 @@ final class LinkedTransactions implements DefinesScopes
      */
     public function mapLinkedTransaction(array $payload): LinkedTransaction
     {
-        return (new LinkedTransaction())
-            ->setLinkedTransactionID(isset($payload['LinkedTransactionID']) ? (string) $payload['LinkedTransactionID'] : null)
-            ->setSourceTransactionID(isset($payload['SourceTransactionID']) ? (string) $payload['SourceTransactionID'] : null)
-            ->setTargetTransactionID(isset($payload['TargetTransactionID']) ? (string) $payload['TargetTransactionID'] : null)
-            ->setContactID(isset($payload['ContactID']) ? (string) $payload['ContactID'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null);
+        return (new LinkedTransaction())->fill($payload);
     }
 }

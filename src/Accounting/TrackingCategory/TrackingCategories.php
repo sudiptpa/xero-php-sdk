@@ -91,18 +91,7 @@ final class TrackingCategories implements DefinesScopes
      */
     public function mapTrackingCategory(array $payload): TrackingCategory
     {
-        $trackingCategory = (new TrackingCategory($this->client))
-            ->setTrackingCategoryID(isset($payload['TrackingCategoryID']) ? (string) $payload['TrackingCategoryID'] : null)
-            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null);
-
-        foreach ($payload['Options'] ?? [] as $option) {
-            if (is_array($option)) {
-                $trackingCategory->addOption($this->mapOption($option));
-            }
-        }
-
-        return $trackingCategory;
+        return (new TrackingCategory($this->client))->fill($payload);
     }
 
     /**
@@ -110,9 +99,6 @@ final class TrackingCategories implements DefinesScopes
      */
     public function mapOption(array $payload): Option
     {
-        return (new Option())
-            ->setTrackingOptionID(isset($payload['TrackingOptionID']) ? (string) $payload['TrackingOptionID'] : null)
-            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null);
+        return (new Option())->fill($payload);
     }
 }

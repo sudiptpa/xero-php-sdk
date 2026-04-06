@@ -14,7 +14,7 @@ use Sujip\Xero\Files\File\Upload;
 use Sujip\Xero\Files\Folder\Folder;
 use Sujip\Xero\Files\Folder\Folders as FoldersResource;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -71,9 +71,9 @@ final class Files implements DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<File>
+     * @return PaginatedCollection<File>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         return $this->files()->paginate($page, $perPage);
     }

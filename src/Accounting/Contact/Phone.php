@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Contact;
 
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class Phone implements SerializesForRequest
+final class Phone extends Model implements SerializesRequest
 {
     private ?string $phoneType = null;
 
@@ -62,6 +64,19 @@ final class Phone implements SerializesForRequest
         $this->phoneCountryCode = $phoneCountryCode;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'PhoneType' => Field::string(),
+            'PhoneNumber' => Field::string(),
+            'PhoneAreaCode' => Field::string(),
+            'PhoneCountryCode' => Field::string(),
+        ];
     }
 
     /**

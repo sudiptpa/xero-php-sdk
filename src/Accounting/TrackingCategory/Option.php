@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\TrackingCategory;
 
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class Option implements SerializesForRequest
+final class Option extends Model implements SerializesRequest
 {
     private ?string $trackingOptionID = null;
 
@@ -48,6 +50,18 @@ final class Option implements SerializesForRequest
         $this->status = $status;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'TrackingOptionID' => Field::string(),
+            'Name' => Field::string(),
+            'Status' => Field::string(),
+        ];
     }
 
     /**

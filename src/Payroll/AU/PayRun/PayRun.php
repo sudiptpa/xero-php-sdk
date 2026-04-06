@@ -6,19 +6,19 @@ namespace Sujip\Xero\Payroll\AU\PayRun;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class PayRun
+final class PayRun extends Model
 {
-    /**
-     */
+    private ?string $payRunID = null;
+    private ?string $payrollCalendarID = null;
+    private ?string $payRunStatus = null;
+    private ?string $paymentDate = null;
+
     public function __construct(
-        private ?Client $client = null,
-        private ?string $payRunID = null,
-        private ?string $payrollCalendarID = null,
-        private ?string $payRunStatus = null,
-        private ?string $paymentDate = null,
-    ) {
-    }
+        private ?Client $client = null
+    ) {}
 
     public function getPayRunID(): ?string
     {
@@ -66,6 +66,20 @@ final class PayRun
         $this->paymentDate = $paymentDate;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'PayRunID' => Field::string()->using('setPayRunID'),
+            'PayrollCalendarID' => Field::string()->using('setPayrollCalendarID'),
+            'PayRunStatus' => Field::string()->using('setPayRunStatus'),
+            'Status' => Field::string()->using('setPayRunStatus'),
+            'PaymentDate' => Field::string()->using('setPaymentDate'),
+        ];
     }
 
     /**

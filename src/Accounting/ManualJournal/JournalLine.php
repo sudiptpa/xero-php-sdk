@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\ManualJournal;
 
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class JournalLine implements SerializesForRequest
+final class JournalLine extends Model implements SerializesRequest
 {
     private int|float|null $lineAmount = null;
 
@@ -46,6 +48,26 @@ final class JournalLine implements SerializesForRequest
     public function setIsDebit(?bool $isDebit): self
     {
         $this->isDebit = $isDebit;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'LineAmount' => Field::number(),
+            'AccountCode' => Field::string(),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        $this->setIsDebit(isset($payload['IsDebit']) ? (bool) $payload['IsDebit'] : null);
 
         return $this;
     }

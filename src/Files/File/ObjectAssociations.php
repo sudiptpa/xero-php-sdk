@@ -6,7 +6,7 @@ namespace Sujip\Xero\Files\File;
 
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -81,9 +81,9 @@ final class ObjectAssociations implements DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<File>
+     * @return PaginatedCollection<File>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -95,7 +95,7 @@ final class ObjectAssociations implements DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult(
+        return new PaginatedCollection(
             $builder->get(),
             $builder->page,
             $builder->perPage,

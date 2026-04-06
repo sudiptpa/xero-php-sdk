@@ -52,9 +52,6 @@ final class Currencies implements DefinesScopes
      */
     public function mapCurrency(array $payload): Currency
     {
-        return (new Currency($this->client))
-            ->setCode(isset($payload['Code']) ? (string) $payload['Code'] : null)
-            ->setDescription(isset($payload['Description']) ? (string) $payload['Description'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null);
+        return (new Currency($this->client))->fill($payload);
     }
 }

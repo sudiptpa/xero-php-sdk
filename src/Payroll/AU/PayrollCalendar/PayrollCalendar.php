@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\AU\PayrollCalendar;
 
-final class PayrollCalendar
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class PayrollCalendar extends Model
 {
     /**
      */
@@ -29,10 +32,16 @@ final class PayrollCalendar
     public function setPaymentDate(?string $paymentDate): self { $this->paymentDate = $paymentDate; return $this; }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, Field>
      */
-
-    /**
-     * @param array<string, mixed> $raw
-     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'PayrollCalendarID' => Field::string()->using('setPayrollCalendarID'),
+            'Name' => Field::string()->using('setName'),
+            'CalendarType' => Field::string()->using('setCalendarType'),
+            'StartDate' => Field::string()->using('setStartDate'),
+            'PaymentDate' => Field::string()->using('setPaymentDate'),
+        ];
+    }
 }

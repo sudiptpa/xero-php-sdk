@@ -10,7 +10,7 @@ use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -61,9 +61,9 @@ final class Overpayments implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<Overpayment>
+     * @return PaginatedCollection<Overpayment>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
         if ($page !== null) {
@@ -72,7 +72,7 @@ final class Overpayments implements PaginatesResults, DefinesScopes
         if ($perPage !== null) {
             $builder = $builder->perPage($perPage);
         }
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/api.xro/2.0/Overpayments']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/api.xro/2.0/Overpayments']);
     }
 
     public function find(string $overpaymentId): ?Overpayment
@@ -92,10 +92,6 @@ final class Overpayments implements PaginatesResults, DefinesScopes
      */
     public function mapOverpayment(array $payload): Overpayment
     {
-        return (new Overpayment())
-            ->setOverpaymentID(isset($payload['OverpaymentID']) ? (string) $payload['OverpaymentID'] : null)
-            ->setType(isset($payload['Type']) ? (string) $payload['Type'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
-            ->setRemainingCredit(isset($payload['RemainingCredit']) && is_numeric($payload['RemainingCredit']) ? $payload['RemainingCredit'] + 0 : null);
+        return (new Overpayment())->fill($payload);
     }
 }

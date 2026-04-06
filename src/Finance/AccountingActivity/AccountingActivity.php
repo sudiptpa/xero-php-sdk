@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Finance\AccountingActivity;
 
-final class AccountingActivity
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class AccountingActivity extends Model
 {
     public function __construct(
         private ?string $month = null,
@@ -19,4 +22,16 @@ final class AccountingActivity
     public function setTotalIncome(?float $totalIncome): self { $this->totalIncome = $totalIncome; return $this; }
     public function getTotalExpense(): ?float { return $this->totalExpense; }
     public function setTotalExpense(?float $totalExpense): self { $this->totalExpense = $totalExpense; return $this; }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'Month' => Field::string()->using('setMonth'),
+            'TotalIncome' => Field::number()->using('setTotalIncome'),
+            'TotalExpense' => Field::number()->using('setTotalExpense'),
+        ];
+    }
 }

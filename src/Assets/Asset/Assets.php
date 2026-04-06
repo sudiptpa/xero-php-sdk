@@ -6,7 +6,7 @@ namespace Sujip\Xero\Assets\Asset;
 
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -97,9 +97,9 @@ final class Assets implements DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<Asset>
+     * @return PaginatedCollection<Asset>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -111,7 +111,7 @@ final class Assets implements DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult(
+        return new PaginatedCollection(
             $builder->get(),
             $builder->page,
             $builder->pageSize,
@@ -175,13 +175,6 @@ final class Assets implements DefinesScopes
      */
     public function mapAsset(array $asset): Asset
     {
-        $assetType = $asset['AssetType'] ?? null;
-
-        return (new Asset())
-            ->setAssetId($asset['AssetId'] ?? $asset['Id'] ?? null)
-            ->setAssetName($asset['AssetName'] ?? $asset['Name'] ?? null)
-            ->setAssetNumber($asset['AssetNumber'] ?? null)
-            ->setStatus($asset['Status'] ?? null)
-            ->setAssetTypeId(is_array($assetType) ? ($assetType['AssetTypeId'] ?? null) : ($asset['AssetTypeId'] ?? null));
+        return (new Asset())->fill($asset);
     }
 }

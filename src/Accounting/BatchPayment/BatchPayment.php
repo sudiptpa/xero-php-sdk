@@ -8,9 +8,11 @@ use Sujip\Xero\Accounting\Account\Account;
 use Sujip\Xero\Accounting\History;
 use RuntimeException;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class BatchPayment implements SerializesForRequest
+final class BatchPayment extends Model implements SerializesRequest
 {
     public function __construct(
         private ?Client $client = null
@@ -115,6 +117,30 @@ final class BatchPayment implements SerializesForRequest
         $this->payments[] = $payment;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'BatchPaymentID' => Field::string(),
+            'Reference' => Field::string(),
+            'Status' => Field::string(),
+            'Amount' => Field::number(),
+            'Account' => Field::object(Account::class),
+            'Payments' => Field::many(PaymentEntry::class),
+        ];
+    }
+
+    protected function newDefinitionInstance(string $class): object
+    {
+        if ($class === Account::class) {
+            return new Account($this->client);
+        }
+
+        return parent::newDefinitionInstance($class);
     }
 
     /**

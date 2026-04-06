@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\User;
 
-final class User
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class User extends Model
 {
     private ?string $userID = null;
 
@@ -74,5 +77,19 @@ final class User
         $this->isSubscriber = $isSubscriber;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'UserID' => Field::string(),
+            'FirstName' => Field::string(),
+            'LastName' => Field::string(),
+            'EmailAddress' => Field::string(),
+            'IsSubscriber' => Field::boolean(),
+        ];
     }
 }

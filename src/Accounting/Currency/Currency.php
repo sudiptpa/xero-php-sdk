@@ -6,9 +6,11 @@ namespace Sujip\Xero\Accounting\Currency;
 
 use RuntimeException;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class Currency implements SerializesForRequest
+final class Currency extends Model implements SerializesRequest
 {
     public function __construct(
         private ?Client $client = null
@@ -55,6 +57,18 @@ final class Currency implements SerializesForRequest
         $this->status = $status;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'Code' => Field::string(),
+            'Description' => Field::string(),
+            'Status' => Field::string(),
+        ];
     }
 
     /**

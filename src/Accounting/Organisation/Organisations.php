@@ -52,10 +52,6 @@ final class Organisations implements DefinesScopes
      */
     public function mapOrganisation(array $payload): Organisation
     {
-        return (new Organisation())
-            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
-            ->setLegalName(isset($payload['LegalName']) ? (string) $payload['LegalName'] : null)
-            ->setShortCode(isset($payload['ShortCode']) ? (string) $payload['ShortCode'] : null)
-            ->setCountryCode(isset($payload['CountryCode']) ? (string) $payload['CountryCode'] : null);
+        return (new Organisation())->fill($payload);
     }
 }

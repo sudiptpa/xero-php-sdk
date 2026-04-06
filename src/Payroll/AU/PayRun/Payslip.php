@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\AU\PayRun;
 
-final class Payslip
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class Payslip extends Model
 {
     /**
      */
@@ -24,10 +27,17 @@ final class Payslip
     public function setPaymentDate(?string $paymentDate): self { $this->paymentDate = $paymentDate; return $this; }
     public function getNetPay(): ?string { return $this->netPay; }
     public function setNetPay(?string $netPay): self { $this->netPay = $netPay; return $this; }
+
     /**
-     * @return array<string, mixed>
+     * @return array<string, Field>
      */
-    /**
-     * @param array<string, mixed> $raw
-     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'PayslipID' => Field::string()->using('setPayslipID'),
+            'EmployeeID' => Field::string()->using('setEmployeeID'),
+            'PaymentDate' => Field::string()->using('setPaymentDate'),
+            'NetPay' => Field::string()->using('setNetPay'),
+        ];
+    }
 }

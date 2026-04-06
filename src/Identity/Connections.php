@@ -64,12 +64,6 @@ final readonly class Connections
      */
     public function mapConnection(array $connection): Connection
     {
-        return (new Connection($this->client))
-            ->setId($connection['id'] ?? null)
-            ->setTenantId($connection['tenantId'] ?? null)
-            ->setTenantName($connection['tenantName'] ?? null)
-            ->setTenantType($connection['tenantType'] ?? null)
-            ->setCreatedDateUtc($connection['createdDateUtc'] ?? null)
-            ->setUpdatedDateUtc($connection['updatedDateUtc'] ?? null);
+        return (new Connection($this->client))->fill($connection);
     }
 }

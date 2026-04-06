@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\PaymentService;
 
-final class PaymentService
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class PaymentService extends Model
 {
     private ?string $paymentServiceName = null;
 
@@ -47,5 +50,15 @@ final class PaymentService
 
         return $this;
     }
-
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'PaymentServiceName' => Field::string(),
+            'PaymentServiceUrl' => Field::string(),
+            'PayNowText' => Field::string(),
+        ];
+    }
 }

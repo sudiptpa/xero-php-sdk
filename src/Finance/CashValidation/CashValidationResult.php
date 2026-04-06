@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Finance\CashValidation;
 
-final class CashValidationResult
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class CashValidationResult extends Model
 {
     public function __construct(
         private ?string $status = null,
@@ -19,4 +22,16 @@ final class CashValidationResult
     public function setBalance(?float $balance): self { $this->balance = $balance; return $this; }
     public function getCurrency(): ?string { return $this->currency; }
     public function setCurrency(?string $currency): self { $this->currency = $currency; return $this; }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'Status' => Field::string()->using('setStatus'),
+            'Balance' => Field::number()->using('setBalance'),
+            'Currency' => Field::string()->using('setCurrency'),
+        ];
+    }
 }

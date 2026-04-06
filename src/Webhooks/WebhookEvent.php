@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Sujip\Xero\Webhooks;
 
 use DateTimeImmutable;
-use DateTimeInterface;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class WebhookEvent
+final class WebhookEvent extends Model
 {
     /**
      * @param array<string, mixed> $payload
@@ -40,6 +41,27 @@ final class WebhookEvent
      * @param array<string, mixed> $payload
      */
     public function setPayload(array $payload): self { $this->payload = $payload; return $this; }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'resourceUrl' => Field::string()->using('setResourceUrl'),
+            'resourceId' => Field::string()->using('setResourceId'),
+            'eventCategory' => Field::string()->using('setEventCategory'),
+            'eventType' => Field::string()->using('setEventType'),
+            'eventDateUtc' => Field::string()->using('setEventDateUtc'),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        return $this->setPayload($payload);
+    }
 
     public function is(string $category, ?string $type = null): bool
     {

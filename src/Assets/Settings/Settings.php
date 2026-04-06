@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Sujip\Xero\Assets\Settings;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class Settings
+final class Settings extends Model
 {
     private ?bool $depreciationCalculationEnabled = null;
 
@@ -29,11 +31,7 @@ final class Settings
             return null;
         }
 
-        return (new self())
-            ->setDepreciationCalculationEnabled($settings['DepreciationCalculationEnabled'] ?? null)
-            ->setDefaultGainOnDisposalAccountId($settings['DefaultGainOnDisposalAccountId'] ?? null)
-            ->setDefaultLossOnDisposalAccountId($settings['DefaultLossOnDisposalAccountId'] ?? null)
-            ->setDefaultCapitalGainOnDisposalAccountId($settings['DefaultCapitalGainOnDisposalAccountId'] ?? null);
+        return (new self())->fill($settings);
     }
 
     public function getDepreciationCalculationEnabled(): ?bool
@@ -82,5 +80,18 @@ final class Settings
         $this->defaultCapitalGainOnDisposalAccountId = $defaultCapitalGainOnDisposalAccountId;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'DepreciationCalculationEnabled' => Field::boolean(),
+            'DefaultGainOnDisposalAccountId' => Field::string(),
+            'DefaultLossOnDisposalAccountId' => Field::string(),
+            'DefaultCapitalGainOnDisposalAccountId' => Field::string(),
+        ];
     }
 }

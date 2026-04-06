@@ -6,8 +6,10 @@ namespace Sujip\Xero\Identity;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class Connection
+final class Connection extends Model
 {
     public function __construct(
         private ?Client $client = null,
@@ -32,6 +34,22 @@ final class Connection
     public function setCreatedDateUtc(?string $createdDateUtc): self { $this->createdDateUtc = $createdDateUtc; return $this; }
     public function getUpdatedDateUtc(): ?string { return $this->updatedDateUtc; }
     public function setUpdatedDateUtc(?string $updatedDateUtc): self { $this->updatedDateUtc = $updatedDateUtc; return $this; }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'id' => Field::string()->using('setId'),
+            'tenantId' => Field::string()->using('setTenantId'),
+            'tenantName' => Field::string()->using('setTenantName'),
+            'tenantType' => Field::string()->using('setTenantType'),
+            'createdDateUtc' => Field::string()->using('setCreatedDateUtc'),
+            'updatedDateUtc' => Field::string()->using('setUpdatedDateUtc'),
+        ];
+    }
+
     public function disconnect(): bool
     {
         if ($this->client === null || $this->id === null) {

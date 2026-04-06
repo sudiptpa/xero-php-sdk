@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\NZ\Settings;
 
-final class StatutoryDeduction
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class StatutoryDeduction extends Model
 {
     /**
      */
@@ -18,10 +21,15 @@ final class StatutoryDeduction
     public function setStatutoryDeductionID(?string $statutoryDeductionID): self { $this->statutoryDeductionID = $statutoryDeductionID; return $this; }
     public function getName(): ?string { return $this->name; }
     public function setName(?string $name): self { $this->name = $name; return $this; }
+
     /**
-     * @return array<string, mixed>
+     * @return array<string, Field>
      */
-    /**
-     * @param array<string, mixed> $raw
-     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'StatutoryDeductionID' => Field::string()->using('setStatutoryDeductionID'),
+            'Name' => Field::string()->using('setName'),
+        ];
+    }
 }

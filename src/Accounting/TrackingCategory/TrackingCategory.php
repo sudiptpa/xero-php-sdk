@@ -6,9 +6,11 @@ namespace Sujip\Xero\Accounting\TrackingCategory;
 
 use RuntimeException;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class TrackingCategory implements SerializesForRequest
+final class TrackingCategory extends Model implements SerializesRequest
 {
     public function __construct(
         private ?Client $client = null
@@ -85,6 +87,19 @@ final class TrackingCategory implements SerializesForRequest
         $this->options[] = $option;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'TrackingCategoryID' => Field::string(),
+            'Name' => Field::string(),
+            'Status' => Field::string(),
+            'Options' => Field::many(Option::class),
+        ];
     }
 
     /**

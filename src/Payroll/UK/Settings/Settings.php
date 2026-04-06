@@ -99,10 +99,7 @@ final readonly class Settings implements DefinesScopes
      */
     public function mapTrackingCategory(array $trackingCategory): TrackingCategory
     {
-        return (new TrackingCategory())
-            ->setTrackingCategoryID($trackingCategory['TrackingCategoryID'] ?? null)
-            ->setName($trackingCategory['Name'] ?? null)
-            ;
+        return (new TrackingCategory())->fill($trackingCategory);
     }
 
     /**
@@ -110,11 +107,7 @@ final readonly class Settings implements DefinesScopes
      */
     public function mapReimbursement(array $reimbursement): Reimbursement
     {
-        return (new Reimbursement())
-            ->setReimbursementID($reimbursement['ReimbursementID'] ?? null)
-            ->setName($reimbursement['Name'] ?? null)
-            ->setAccountCode($reimbursement['AccountCode'] ?? null)
-            ;
+        return (new Reimbursement())->fill($reimbursement);
     }
 
     /**
@@ -122,9 +115,6 @@ final readonly class Settings implements DefinesScopes
      */
     public function mapStatutoryLeaveSummary(array $summary): StatutoryLeaveSummary
     {
-        return (new StatutoryLeaveSummary())
-            ->setEmployeeID($summary['EmployeeID'] ?? null)
-            ->setUnits($summary['Units'] ?? null)
-            ;
+        return (new StatutoryLeaveSummary())->fill($summary);
     }
 }

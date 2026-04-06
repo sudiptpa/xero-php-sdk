@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\BatchPayment;
 
-use Sujip\Xero\Accounting\Account\Accounts;
 use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
@@ -12,7 +11,7 @@ use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -63,9 +62,9 @@ final class BatchPayments implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<BatchPayment>
+     * @return PaginatedCollection<BatchPayment>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
         if ($page !== null) {
@@ -74,7 +73,7 @@ final class BatchPayments implements PaginatesResults, DefinesScopes
         if ($perPage !== null) {
             $builder = $builder->perPage($perPage);
         }
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/api.xro/2.0/BatchPayments']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/api.xro/2.0/BatchPayments']);
     }
 
     public function find(string $batchPaymentId): ?BatchPayment
@@ -104,23 +103,7 @@ final class BatchPayments implements PaginatesResults, DefinesScopes
      */
     public function mapBatchPayment(array $payload): BatchPayment
     {
-        $batchPayment = (new BatchPayment($this->client))
-            ->setBatchPaymentID(isset($payload['BatchPaymentID']) ? (string) $payload['BatchPaymentID'] : null)
-            ->setReference(isset($payload['Reference']) ? (string) $payload['Reference'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
-            ->setAmount(isset($payload['Amount']) && is_numeric($payload['Amount']) ? $payload['Amount'] + 0 : null);
-
-        if (is_array($payload['Account'] ?? null)) {
-            $batchPayment->setAccount((new Accounts($this->client))->mapAccount($payload['Account']));
-        }
-
-        foreach ($payload['Payments'] ?? [] as $payment) {
-            if (is_array($payment)) {
-                $batchPayment->addPayment($this->mapPaymentEntry($payment));
-            }
-        }
-
-        return $batchPayment;
+        return (new BatchPayment($this->client))->fill($payload);
     }
 
     /**
@@ -128,12 +111,6 @@ final class BatchPayments implements PaginatesResults, DefinesScopes
      */
     public function mapPaymentEntry(array $payload): PaymentEntry
     {
-        return (new PaymentEntry())
-            ->setInvoiceID(
-                isset($payload['Invoice']['InvoiceID']) && is_string($payload['Invoice']['InvoiceID'])
-                    ? $payload['Invoice']['InvoiceID']
-                    : null
-            )
-            ->setAmount(isset($payload['Amount']) && is_numeric($payload['Amount']) ? $payload['Amount'] + 0 : null);
+        return (new PaymentEntry())->fill($payload);
     }
 }

@@ -59,9 +59,6 @@ final class BrandingThemes implements DefinesScopes
      */
     public function mapBrandingTheme(array $payload): BrandingTheme
     {
-        return (new BrandingTheme())
-            ->setBrandingThemeID(isset($payload['BrandingThemeID']) ? (string) $payload['BrandingThemeID'] : null)
-            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
-            ->setSortOrder(isset($payload['SortOrder']) ? (string) $payload['SortOrder'] : null);
+        return (new BrandingTheme())->fill($payload);
     }
 }

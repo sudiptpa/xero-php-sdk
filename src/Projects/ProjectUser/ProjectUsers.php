@@ -8,7 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -49,9 +49,9 @@ final class ProjectUsers implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<ProjectUser>
+     * @return PaginatedCollection<ProjectUser>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -63,7 +63,7 @@ final class ProjectUsers implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/projects.xro/2.0/ProjectsUsers']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/projects.xro/2.0/ProjectsUsers']);
     }
 
     /**
@@ -71,9 +71,6 @@ final class ProjectUsers implements PaginatesResults, DefinesScopes
      */
     public function mapProjectUser(array $user): ProjectUser
     {
-        return (new ProjectUser())
-            ->setUserID($user['UserID'] ?? $user['UserId'] ?? null)
-            ->setName($user['Name'] ?? null)
-            ->setEmailAddress($user['Email'] ?? $user['EmailAddress'] ?? null);
+        return (new ProjectUser())->fill($user);
     }
 }

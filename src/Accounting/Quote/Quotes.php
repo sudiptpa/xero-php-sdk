@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Quote;
 
-use Sujip\Xero\Accounting\Contact\Contacts;
-use Sujip\Xero\Accounting\Invoice\Invoices;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -63,9 +61,9 @@ final class Quotes implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<Quote>
+     * @return PaginatedCollection<Quote>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
         if ($page !== null) {
@@ -75,7 +73,7 @@ final class Quotes implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/api.xro/2.0/Quotes']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/api.xro/2.0/Quotes']);
     }
 
     public function find(string $quoteId): ?Quote
@@ -115,22 +113,6 @@ final class Quotes implements PaginatesResults, DefinesScopes
      */
     public function mapQuote(array $payload): Quote
     {
-        $quote = (new Quote($this->client))
-            ->setQuoteID(isset($payload['QuoteID']) ? (string) $payload['QuoteID'] : null)
-            ->setQuoteNumber(isset($payload['QuoteNumber']) ? (string) $payload['QuoteNumber'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
-            ->setTitle(isset($payload['Title']) ? (string) $payload['Title'] : null);
-
-        if (is_array($payload['Contact'] ?? null)) {
-            $quote->setContact((new Contacts($this->client))->mapContact($payload['Contact']));
-        }
-
-        foreach ($payload['LineItems'] ?? [] as $lineItem) {
-            if (is_array($lineItem)) {
-                $quote->addLineItem((new Invoices($this->client))->mapLineItem($lineItem));
-            }
-        }
-
-        return $quote;
+        return (new Quote($this->client))->fill($payload);
     }
 }

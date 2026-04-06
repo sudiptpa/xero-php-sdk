@@ -64,10 +64,6 @@ final readonly class SuperFunds implements DefinesScopes
      */
     public function mapSuperFund(array $fund): SuperFund
     {
-        return (new SuperFund())
-            ->setSuperFundID($fund['SuperFundID'] ?? null)
-            ->setName($fund['Name'] ?? null)
-            ->setType($fund['Type'] ?? null)
-            ;
+        return (new SuperFund())->fill($fund);
     }
 }

@@ -13,7 +13,7 @@ use Sujip\Xero\Projects\ProjectUser\ProjectUsers;
 use Sujip\Xero\Projects\Task\Tasks;
 use Sujip\Xero\Projects\TimeEntry\TimeEntries;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -81,9 +81,9 @@ final class Projects implements DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<Project>
+     * @return PaginatedCollection<Project>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         return $this->projects()->paginate($page, $perPage);
     }

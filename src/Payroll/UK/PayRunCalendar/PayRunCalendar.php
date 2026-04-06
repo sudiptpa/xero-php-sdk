@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\UK\PayRunCalendar;
 
-final class PayRunCalendar
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class PayRunCalendar extends Model
 {
     /**
      */
@@ -24,10 +27,17 @@ final class PayRunCalendar
     public function setCalendarType(?string $calendarType): self { $this->calendarType = $calendarType; return $this; }
     public function getPeriodStartDate(): ?string { return $this->periodStartDate; }
     public function setPeriodStartDate(?string $periodStartDate): self { $this->periodStartDate = $periodStartDate; return $this; }
+
     /**
-     * @return array<string, mixed>
+     * @return array<string, Field>
      */
-    /**
-     * @param array<string, mixed> $raw
-     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'PayrollCalendarID' => Field::string()->using('setPayrollCalendarID'),
+            'Name' => Field::string()->using('setName'),
+            'CalendarType' => Field::string()->using('setCalendarType'),
+            'PeriodStartDate' => Field::string()->using('setPeriodStartDate'),
+        ];
+    }
 }

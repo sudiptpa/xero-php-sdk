@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\AU\PayItem;
 
-final class PayItem
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class PayItem extends Model
 {
     /**
      * @param list<array<string, mixed>> $earningsRates
@@ -62,10 +65,18 @@ final class PayItem
      * @param list<array<string, mixed>> $superannuationTypes
      */
     public function setSuperannuationTypes(array $superannuationTypes): self { $this->superannuationTypes = $superannuationTypes; return $this; }
+
     /**
-     * @return array<string, mixed>
+     * @return array<string, Field>
      */
-    /**
-     * @param array<string, mixed> $raw
-     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'EarningsRates' => Field::array()->using('setEarningsRates'),
+            'DeductionTypes' => Field::array()->using('setDeductionTypes'),
+            'LeaveTypes' => Field::array()->using('setLeaveTypes'),
+            'ReimbursementTypes' => Field::array()->using('setReimbursementTypes'),
+            'SuperannuationTypes' => Field::array()->using('setSuperannuationTypes'),
+        ];
+    }
 }

@@ -8,8 +8,10 @@ use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Projects\Task\Tasks;
 use Sujip\Xero\Projects\TimeEntry\TimeEntries;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class Project
+final class Project extends Model
 {
     private ?string $projectID = null;
 
@@ -82,6 +84,35 @@ final class Project
     public function setDeadlineUTC(?string $deadlineUTC): self
     {
         $this->deadlineUTC = $deadlineUTC;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'ProjectID' => Field::string()->using('setProjectID'),
+            'ProjectId' => Field::string()->using('setProjectID'),
+            'Title' => Field::string(),
+            'State' => Field::string(),
+            'ContactID' => Field::string()->using('setContactID'),
+            'DeadlineUTC' => Field::string()->using('setDeadlineUTC'),
+            'DeadlineUtc' => Field::string()->using('setDeadlineUTC'),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        $contact = $payload['Contact'] ?? null;
+
+        if (is_array($contact) && isset($contact['ContactID'])) {
+            $this->setContactID(is_scalar($contact['ContactID']) ? (string) $contact['ContactID'] : null);
+        }
 
         return $this;
     }

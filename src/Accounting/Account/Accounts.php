@@ -110,12 +110,6 @@ final class Accounts implements PaginatesResults, DefinesScopes
      */
     public function mapAccount(array $payload): Account
     {
-        return (new Account($this->client))
-            ->setAccountID(isset($payload['AccountID']) ? (string) $payload['AccountID'] : null)
-            ->setCode(isset($payload['Code']) ? (string) $payload['Code'] : null)
-            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
-            ->setType(isset($payload['Type']) ? (string) $payload['Type'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
-            ->setDescription(isset($payload['Description']) ? (string) $payload['Description'] : null);
+        return (new Account($this->client))->fill($payload);
     }
 }

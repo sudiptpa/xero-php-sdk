@@ -6,18 +6,8 @@ namespace Sujip\Xero\Support;
 
 /**
  * @template TItem
+ * @extends PaginatedCollection<TItem>
  */
-final class PaginatedResult
+class PaginatedResult extends PaginatedCollection
 {
-    /**
-     * @param ResourceCollection<TItem> $items
-     * @param array<string, mixed> $meta
-     */
-    public function __construct(
-        public readonly ResourceCollection $items,
-        public readonly ?int $page = null,
-        public readonly ?int $perPage = null,
-        public readonly array $meta = []
-    ) {
-    }
 }

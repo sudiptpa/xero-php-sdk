@@ -10,7 +10,7 @@ use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -61,9 +61,9 @@ final class Prepayments implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<Prepayment>
+     * @return PaginatedCollection<Prepayment>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
         if ($page !== null) {
@@ -72,7 +72,7 @@ final class Prepayments implements PaginatesResults, DefinesScopes
         if ($perPage !== null) {
             $builder = $builder->perPage($perPage);
         }
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/api.xro/2.0/Prepayments']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/api.xro/2.0/Prepayments']);
     }
 
     public function find(string $prepaymentId): ?Prepayment
@@ -92,10 +92,6 @@ final class Prepayments implements PaginatesResults, DefinesScopes
      */
     public function mapPrepayment(array $payload): Prepayment
     {
-        return (new Prepayment())
-            ->setPrepaymentID(isset($payload['PrepaymentID']) ? (string) $payload['PrepaymentID'] : null)
-            ->setType(isset($payload['Type']) ? (string) $payload['Type'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
-            ->setRemainingCredit(isset($payload['RemainingCredit']) && is_numeric($payload['RemainingCredit']) ? $payload['RemainingCredit'] + 0 : null);
+        return (new Prepayment())->fill($payload);
     }
 }

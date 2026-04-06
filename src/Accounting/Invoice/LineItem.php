@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Invoice;
 
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class LineItem implements SerializesForRequest
+final class LineItem extends Model implements SerializesRequest
 {
     private ?string $description = null;
 
@@ -48,6 +50,18 @@ final class LineItem implements SerializesForRequest
         $this->unitAmount = $unitAmount;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'Description' => Field::string(),
+            'Quantity' => Field::number(),
+            'UnitAmount' => Field::number(),
+        ];
     }
 
     /**

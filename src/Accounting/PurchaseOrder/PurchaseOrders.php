@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\PurchaseOrder;
 
 use Sujip\Xero\Accounting\History;
-use Sujip\Xero\Accounting\Contact\Contacts;
-use Sujip\Xero\Accounting\Invoice\Invoices;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -64,9 +62,9 @@ final class PurchaseOrders implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<PurchaseOrder>
+     * @return PaginatedCollection<PurchaseOrder>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
         if ($page !== null) {
@@ -76,7 +74,7 @@ final class PurchaseOrders implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/api.xro/2.0/PurchaseOrders']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/api.xro/2.0/PurchaseOrders']);
     }
 
     public function find(string $purchaseOrderId): ?PurchaseOrder
@@ -126,22 +124,6 @@ final class PurchaseOrders implements PaginatesResults, DefinesScopes
      */
     public function mapPurchaseOrder(array $payload): PurchaseOrder
     {
-        $purchaseOrder = (new PurchaseOrder($this->client))
-            ->setPurchaseOrderID(isset($payload['PurchaseOrderID']) ? (string) $payload['PurchaseOrderID'] : null)
-            ->setPurchaseOrderNumber(isset($payload['PurchaseOrderNumber']) ? (string) $payload['PurchaseOrderNumber'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
-            ->setReference(isset($payload['Reference']) ? (string) $payload['Reference'] : null);
-
-        if (is_array($payload['Contact'] ?? null)) {
-            $purchaseOrder->setContact((new Contacts($this->client))->mapContact($payload['Contact']));
-        }
-
-        foreach ($payload['LineItems'] ?? [] as $lineItem) {
-            if (is_array($lineItem)) {
-                $purchaseOrder->addLineItem((new Invoices($this->client))->mapLineItem($lineItem));
-            }
-        }
-
-        return $purchaseOrder;
+        return (new PurchaseOrder($this->client))->fill($payload);
     }
 }

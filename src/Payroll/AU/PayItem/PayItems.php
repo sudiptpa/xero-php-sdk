@@ -9,7 +9,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -80,9 +80,9 @@ final class PayItems implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<PayItem>
+     * @return PaginatedCollection<PayItem>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -94,7 +94,7 @@ final class PayItems implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/1.0/PayItems']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/1.0/PayItems']);
     }
 
     /**
@@ -102,12 +102,6 @@ final class PayItems implements PaginatesResults, DefinesScopes
      */
     public function mapPayItem(array $payItem): PayItem
     {
-        return (new PayItem())
-            ->setEarningsRates(array_values($payItem['EarningsRates'] ?? []))
-            ->setDeductionTypes(array_values($payItem['DeductionTypes'] ?? []))
-            ->setLeaveTypes(array_values($payItem['LeaveTypes'] ?? []))
-            ->setReimbursementTypes(array_values($payItem['ReimbursementTypes'] ?? []))
-            ->setSuperannuationTypes(array_values($payItem['SuperannuationTypes'] ?? []))
-            ;
+        return (new PayItem())->fill($payItem);
     }
 }

@@ -6,8 +6,10 @@ namespace Sujip\Xero\Projects\Task;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class Task
+final class Task extends Model
 {
     private ?string $taskID = null;
 
@@ -82,6 +84,21 @@ final class Task
         $this->projectID = $projectID;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'TaskID' => Field::string()->using('setTaskID'),
+            'TaskId' => Field::string()->using('setTaskID'),
+            'Name' => Field::string(),
+            'ChargeType' => Field::string(),
+            'Rate' => Field::number(),
+            'ProjectID' => Field::string()->using('setProjectID'),
+        ];
     }
 
     public function name(string $name): self

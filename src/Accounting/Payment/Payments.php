@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Payment;
 
-use Sujip\Xero\Accounting\Account\Accounts;
 use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
@@ -12,7 +11,7 @@ use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -63,9 +62,9 @@ final class Payments implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<Payment>
+     * @return PaginatedCollection<Payment>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -77,7 +76,7 @@ final class Payments implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult(
+        return new PaginatedCollection(
             $builder->get(),
             $builder->currentPage(),
             $builder->currentPerPage(),
@@ -117,20 +116,6 @@ final class Payments implements PaginatesResults, DefinesScopes
      */
     public function mapPayment(array $payload): Payment
     {
-        return (new Payment($this->client))
-            ->setPaymentID(isset($payload['PaymentID']) ? (string) $payload['PaymentID'] : null)
-            ->setAmount(isset($payload['Amount']) ? (float) $payload['Amount'] : null)
-            ->setDate(isset($payload['Date']) ? (string) $payload['Date'] : null)
-            ->setReference(isset($payload['Reference']) ? (string) $payload['Reference'] : null)
-            ->setInvoiceID(
-                isset($payload['Invoice']['InvoiceID']) && is_string($payload['Invoice']['InvoiceID'])
-                    ? $payload['Invoice']['InvoiceID']
-                    : null
-            )
-            ->setAccount(
-                is_array($payload['Account'] ?? null)
-                    ? (new Accounts($this->client))->mapAccount($payload['Account'])
-                    : null
-            );
+        return (new Payment($this->client))->fill($payload);
     }
 }

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Webhooks;
 
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 use Sujip\Xero\Support\ResourceCollection;
 
-final class WebhookPayload
+final class WebhookPayload extends Model
 {
     /**
      * @var ResourceCollection<WebhookEvent>
@@ -36,6 +38,30 @@ final class WebhookPayload
      * @param ResourceCollection<WebhookEvent> $events
      */
     public function setEvents(ResourceCollection $events): self { $this->events = $events; return $this; }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'firstEventSequence' => Field::string()->using('setFirstEventSequence'),
+            'lastEventSequence' => Field::string()->using('setLastEventSequence'),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        $events = array_values(array_map(
+            fn (array $event): WebhookEvent => (new WebhookEvent())->fill($event),
+            array_values(array_filter($payload['events'] ?? [], 'is_array'))
+        ));
+
+        return $this->setEvents(new ResourceCollection($events));
+    }
+
     public function hasEvents(): bool
     {
         return $this->events->count() > 0;

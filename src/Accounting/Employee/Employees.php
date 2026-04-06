@@ -83,12 +83,6 @@ final class Employees implements DefinesScopes
      */
     public function mapEmployee(array $payload): Employee
     {
-        return (new Employee($this->client))
-            ->setEmployeeID(isset($payload['EmployeeID']) ? (string) $payload['EmployeeID'] : null)
-            ->setFirstName(isset($payload['FirstName']) ? (string) $payload['FirstName'] : null)
-            ->setLastName(isset($payload['LastName']) ? (string) $payload['LastName'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
-            ->setEmailAddress(isset($payload['EmailAddress']) ? (string) $payload['EmailAddress'] : null)
-            ;
+        return (new Employee($this->client))->fill($payload);
     }
 }

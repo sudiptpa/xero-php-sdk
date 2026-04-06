@@ -83,26 +83,6 @@ final class ExpenseClaims implements DefinesScopes
      */
     public function mapExpenseClaim(array $payload): ExpenseClaim
     {
-        $receiptIds = [];
-
-        foreach (($payload['Receipts'] ?? []) as $receipt) {
-            if (is_array($receipt) && isset($receipt['ReceiptID']) && is_string($receipt['ReceiptID'])) {
-                $receiptIds[] = $receipt['ReceiptID'];
-            }
-        }
-
-        return (new ExpenseClaim($this->client))
-            ->setExpenseClaimID(isset($payload['ExpenseClaimID']) ? (string) $payload['ExpenseClaimID'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null)
-            ->setEmployeeID(
-                isset($payload['User']['UserID']) && is_string($payload['User']['UserID'])
-                    ? $payload['User']['UserID']
-                    : (isset($payload['Employee']['EmployeeID']) && is_string($payload['Employee']['EmployeeID'])
-                        ? $payload['Employee']['EmployeeID']
-                        : null)
-            )
-            ->setReceiptIDs($receiptIds)
-            ->setTotal(isset($payload['Total']) && is_numeric($payload['Total']) ? $payload['Total'] + 0 : null)
-            ;
+        return (new ExpenseClaim($this->client))->fill($payload);
     }
 }

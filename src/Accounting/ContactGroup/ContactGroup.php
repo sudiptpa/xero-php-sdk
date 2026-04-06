@@ -6,8 +6,10 @@ namespace Sujip\Xero\Accounting\ContactGroup;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class ContactGroup
+final class ContactGroup extends Model
 {
     private ?string $contactGroupID = null;
 
@@ -84,6 +86,33 @@ final class ContactGroup
         $this->contactIDs[] = $contactID;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'ContactGroupID' => Field::string(),
+            'Name' => Field::string(),
+            'Status' => Field::string(),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        $contactIds = [];
+
+        foreach ($payload['Contacts'] ?? [] as $contact) {
+            if (is_array($contact) && isset($contact['ContactID']) && is_string($contact['ContactID'])) {
+                $contactIds[] = $contact['ContactID'];
+            }
+        }
+
+        return $this->setContactIDs($contactIds);
     }
 
     public function name(string $name): self

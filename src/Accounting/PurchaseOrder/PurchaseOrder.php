@@ -9,9 +9,11 @@ use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Accounting\Invoice\LineItem;
 use RuntimeException;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class PurchaseOrder implements SerializesForRequest
+final class PurchaseOrder extends Model implements SerializesRequest
 {
     public function __construct(
         private ?Client $client = null
@@ -116,6 +118,30 @@ final class PurchaseOrder implements SerializesForRequest
         $this->lineItems[] = $lineItem;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'PurchaseOrderID' => Field::string(),
+            'PurchaseOrderNumber' => Field::string(),
+            'Status' => Field::string(),
+            'Reference' => Field::string(),
+            'Contact' => Field::object(Contact::class),
+            'LineItems' => Field::many(LineItem::class),
+        ];
+    }
+
+    protected function newDefinitionInstance(string $class): object
+    {
+        if ($class === Contact::class) {
+            return new Contact($this->client);
+        }
+
+        return parent::newDefinitionInstance($class);
     }
 
     /**

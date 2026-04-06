@@ -8,7 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
-use Sujip\Xero\Support\PaginatedResult;
+use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
@@ -68,9 +68,9 @@ final class Tasks implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return PaginatedResult<Task>
+     * @return PaginatedCollection<Task>
      */
-    public function paginate(?int $page = null, ?int $perPage = null): PaginatedResult
+    public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
 
@@ -82,7 +82,7 @@ final class Tasks implements PaginatesResults, DefinesScopes
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedResult($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/projects.xro/2.0/Projects/' . $this->projectId . '/Tasks']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/projects.xro/2.0/Projects/' . $this->projectId . '/Tasks']);
     }
 
     public function find(string $taskId): ?Task
@@ -142,10 +142,7 @@ final class Tasks implements PaginatesResults, DefinesScopes
     public function mapTask(array $task): Task
     {
         return (new Task($this->client))
-            ->setTaskID($task['TaskID'] ?? $task['TaskId'] ?? null)
-            ->setName($task['Name'] ?? null)
-            ->setChargeType($task['ChargeType'] ?? null)
-            ->setRate($task['Rate'] ?? null)
+            ->fill($task)
             ->setProjectID($this->projectId);
     }
 }

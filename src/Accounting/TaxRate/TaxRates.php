@@ -83,18 +83,7 @@ final class TaxRates implements DefinesScopes
      */
     public function mapTaxRate(array $payload): TaxRate
     {
-        $taxRate = (new TaxRate($this->client))
-            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
-            ->setTaxType(isset($payload['TaxType']) ? (string) $payload['TaxType'] : null)
-            ->setStatus(isset($payload['Status']) ? (string) $payload['Status'] : null);
-
-        foreach ($payload['TaxComponents'] ?? [] as $component) {
-            if (is_array($component)) {
-                $taxRate->addTaxComponent($this->mapComponent($component));
-            }
-        }
-
-        return $taxRate;
+        return (new TaxRate($this->client))->fill($payload);
     }
 
     /**
@@ -102,8 +91,6 @@ final class TaxRates implements DefinesScopes
      */
     public function mapComponent(array $payload): Component
     {
-        return (new Component())
-            ->setName(isset($payload['Name']) ? (string) $payload['Name'] : null)
-            ->setRate(isset($payload['Rate']) && is_numeric($payload['Rate']) ? $payload['Rate'] + 0 : null);
+        return (new Component())->fill($payload);
     }
 }

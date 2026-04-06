@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Journal;
 
-final class Journal
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class Journal extends Model
 {
     private ?string $journalID = null;
 
@@ -62,4 +65,16 @@ final class Journal
         return $this;
     }
 
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'JournalID' => Field::string(),
+            'JournalNumber' => Field::number(),
+            'SourceType' => Field::string(),
+            'SourceID' => Field::string(),
+        ];
+    }
 }

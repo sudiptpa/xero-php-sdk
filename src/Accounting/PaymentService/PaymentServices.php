@@ -52,10 +52,6 @@ final class PaymentServices implements DefinesScopes
      */
     public function mapPaymentService(array $payload): PaymentService
     {
-        return (new PaymentService())
-            ->setPaymentServiceName(isset($payload['PaymentServiceName']) ? (string) $payload['PaymentServiceName'] : null)
-            ->setPaymentServiceUrl(isset($payload['PaymentServiceUrl']) ? (string) $payload['PaymentServiceUrl'] : null)
-            ->setPayNowText(isset($payload['PayNowText']) ? (string) $payload['PayNowText'] : null)
-            ;
+        return (new PaymentService())->fill($payload);
     }
 }

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\BatchPayment;
 
-use Sujip\Xero\Support\Contracts\SerializesForRequest;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class PaymentEntry implements SerializesForRequest
+final class PaymentEntry extends Model implements SerializesRequest
 {
     private ?string $invoiceID = null;
 
@@ -34,6 +36,27 @@ final class PaymentEntry implements SerializesForRequest
         $this->amount = $amount;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'Amount' => Field::number(),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        return $this->setInvoiceID(
+            isset($payload['Invoice']['InvoiceID']) && is_string($payload['Invoice']['InvoiceID'])
+                ? $payload['Invoice']['InvoiceID']
+                : null
+        );
     }
 
     /**

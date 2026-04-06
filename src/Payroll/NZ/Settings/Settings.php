@@ -79,10 +79,7 @@ final readonly class Settings implements DefinesScopes
      */
     public function mapSettings(array $settings): PayrollSettings
     {
-        return (new PayrollSettings())
-            ->setAccounts(array_values($settings['Accounts'] ?? []))
-            ->setTrackingCategories(array_values($settings['TrackingCategories'] ?? []))
-            ;
+        return (new PayrollSettings())->fill($settings);
     }
 
     /**
@@ -90,9 +87,6 @@ final readonly class Settings implements DefinesScopes
      */
     public function mapStatutoryDeduction(array $deduction): StatutoryDeduction
     {
-        return (new StatutoryDeduction())
-            ->setStatutoryDeductionID($deduction['StatutoryDeductionID'] ?? null)
-            ->setName($deduction['Name'] ?? null)
-            ;
+        return (new StatutoryDeduction())->fill($deduction);
     }
 }

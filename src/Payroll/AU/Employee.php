@@ -7,8 +7,10 @@ namespace Sujip\Xero\Payroll\AU;
 use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Payroll\AU\LeaveApplication\Payload as LeaveApplicationPayload;
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
 
-final class Employee
+final class Employee extends Model
 {
     private ?string $employeeID = null;
     private ?string $firstName = null;
@@ -75,6 +77,20 @@ final class Employee
     {
         $this->status = $status;
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'EmployeeID' => Field::string()->using('setEmployeeID'),
+            'FirstName' => Field::string()->using('setFirstName'),
+            'LastName' => Field::string()->using('setLastName'),
+            'EmailAddress' => Field::string()->using('setEmailAddress'),
+            'Status' => Field::string()->using('setStatus'),
+        ];
     }
 
     public function save(): self

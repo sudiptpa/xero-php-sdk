@@ -100,11 +100,6 @@ final class Folders implements DefinesScopes
      */
     public function mapFolder(array $folder): Folder
     {
-        return (new Folder($this->client))
-            ->setId($folder['Id'] ?? null)
-            ->setName($folder['Name'] ?? null)
-            ->setFileCount($folder['FileCount'] ?? null)
-            ->setEmail($folder['Email'] ?? null)
-            ->setIsInbox($folder['IsInbox'] ?? null);
+        return (new Folder($this->client))->fill($folder);
     }
 }

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Report;
 
-final class Report
+use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Model;
+
+final class Report extends Model
 {
     private ?string $reportID = null;
 
@@ -60,6 +63,29 @@ final class Report
         $this->title = $title;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, Field>
+     */
+    protected static function getDefinitions(): array
+    {
+        return [
+            'ReportID' => Field::string(),
+            'ReportName' => Field::string(),
+            'ReportType' => Field::string(),
+        ];
+    }
+
+    public function fill(array $payload): static
+    {
+        parent::fill($payload);
+
+        return $this->setTitle(
+            isset($payload['ReportTitles'][0]) && is_string($payload['ReportTitles'][0])
+                ? $payload['ReportTitles'][0]
+                : null
+        );
     }
 
 }
