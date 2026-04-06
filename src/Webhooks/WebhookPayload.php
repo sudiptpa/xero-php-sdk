@@ -54,10 +54,10 @@ final class WebhookPayload extends Model
     {
         parent::fill($payload);
 
-        $events = array_values(array_map(
+        $events = array_map(
             fn (array $event): WebhookEvent => (new WebhookEvent())->fill($event),
             array_values(array_filter($payload['events'] ?? [], 'is_array'))
-        ));
+        );
 
         return $this->setEvents(new ResourceCollection($events));
     }
