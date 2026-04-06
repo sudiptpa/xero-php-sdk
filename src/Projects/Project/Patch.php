@@ -24,7 +24,7 @@ final class Patch
     public function state(string $state): self
     {
         $clone = clone $this;
-        $clone->payload['State'] = strtoupper($state);
+        $clone->payload['status'] = strtoupper($state);
 
         return $clone;
     }

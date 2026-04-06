@@ -65,7 +65,8 @@ final class TasksTest extends TestCase
         self::assertSame('TIME', $transport->requests()[0]->query['chargeType']);
         self::assertSame('/projects.xro/2.0/Projects/project-1/Tasks/task-1', $transport->requests()[1]->path);
         self::assertSame('/projects.xro/2.0/Projects/project-1/Tasks', $transport->requests()[2]->path);
-        self::assertSame('Build', $transport->requests()[2]->json['Name']);
+        self::assertSame('Build', $transport->requests()[2]->json['name']);
+        self::assertSame(180, $transport->requests()[2]->json['rate']['value']);
         self::assertSame('/projects.xro/2.0/Projects/project-1/Tasks/task-2', $transport->requests()[3]->path);
         self::assertSame('DELETE', $transport->requests()[4]->method);
         self::assertInstanceOf(Task::class, $tasks->first());

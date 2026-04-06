@@ -35,7 +35,7 @@ final class Payload
     public function task(string $taskId): self
     {
         $clone = clone $this;
-        $clone->payload['TaskID'] = $taskId;
+        $clone->payload['taskId'] = $taskId;
 
         return $clone;
     }
@@ -43,7 +43,7 @@ final class Payload
     public function user(string $userId): self
     {
         $clone = clone $this;
-        $clone->payload['UserID'] = $userId;
+        $clone->payload['userId'] = $userId;
 
         return $clone;
     }
@@ -51,7 +51,7 @@ final class Payload
     public function date(DateTimeInterface|string $dateUtc): self
     {
         $clone = clone $this;
-        $clone->payload['DateUTC'] = $dateUtc instanceof DateTimeInterface
+        $clone->payload['dateUtc'] = $dateUtc instanceof DateTimeInterface
             ? $dateUtc->format(DateTimeInterface::ATOM)
             : $dateUtc;
 
@@ -61,7 +61,7 @@ final class Payload
     public function durationMinutes(int $minutes): self
     {
         $clone = clone $this;
-        $clone->payload['Duration'] = $minutes;
+        $clone->payload['duration'] = $minutes;
 
         return $clone;
     }
@@ -69,7 +69,7 @@ final class Payload
     public function description(string $description): self
     {
         $clone = clone $this;
-        $clone->payload['Description'] = $description;
+        $clone->payload['description'] = $description;
 
         return $clone;
     }

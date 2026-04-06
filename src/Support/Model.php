@@ -104,7 +104,7 @@ abstract class Model
             throw new LogicException(sprintf('Missing method [%s] for field [%s].', $method, $field));
         }
 
-        $this->{$method}(is_array($value) ? array_values($value) : []);
+        $this->{$method}(is_array($value) ? $value : []);
     }
 
     private function applyObjectField(string $field, Field $definition, mixed $value): void

@@ -82,6 +82,10 @@ final class TimeEntriesTest extends TestCase
         self::assertSame('/projects.xro/2.0/Projects/project-1/Time', $transport->requests()[2]->path);
         self::assertSame('/projects.xro/2.0/Projects/project-1/Time/time-2', $transport->requests()[3]->path);
         self::assertSame('DELETE', $transport->requests()[4]->method);
+        self::assertSame('task-1', $transport->requests()[2]->json['taskId']);
+        self::assertSame('user-1', $transport->requests()[2]->json['userId']);
+        self::assertSame('2026-03-26T00:00:00Z', $transport->requests()[2]->json['dateUtc']);
+        self::assertSame(120, $transport->requests()[2]->json['duration']);
         self::assertInstanceOf(TimeEntry::class, $entries->first());
         self::assertSame(150, $updated->getDuration());
         self::assertSame('time-1', $entry?->getTimeEntryID());
