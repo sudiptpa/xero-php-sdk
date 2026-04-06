@@ -35,8 +35,8 @@ $xero->payroll()->au()->employees()->get();
 
 ## Model Standard
 
-- Xero field names stay the source of truth
-- PHP code uses the same names in camelCase
+- official Xero request and response field names stay the source of truth at the API boundary
+- PHP models keep the package's method naming style
 - rich models are the public face of the package
 - arrays stay at the HTTP boundary only
 

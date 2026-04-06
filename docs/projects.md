@@ -24,7 +24,7 @@ $project = $xero->projects()
     ->create()
     ->title('Website rebuild')
     ->contact('contact-id')
-    ->estimateMinutes(600)
+    ->estimateAmount(1200)
     ->save();
 
 $projectId = $project->getProjectID();
