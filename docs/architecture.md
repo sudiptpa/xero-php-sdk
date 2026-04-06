@@ -35,8 +35,8 @@ $xero->payroll()->au()->employees()->get();
 
 ## Model Standard
 
-- Xero field names stay the source of truth
-- PHP code uses the same names in camelCase
+- official Xero request and response field names stay the source of truth at the API boundary
+- PHP models keep the package's method naming style
 - rich models are the public face of the package
 - arrays stay at the HTTP boundary only
 
@@ -45,6 +45,7 @@ Examples:
 - `ContactID` becomes `getContactID()` and `setContactID(...)`
 - `EmailAddress` becomes `getEmailAddress()` and `setEmailAddress(...)`
 - `LineItems` becomes `getLineItems()`, `setLineItems(...)`, and `addLineItem(...)`
+- Projects payload keys like `contactId`, `taskId`, and `deadlineUtc` stay doc-accurate on the wire while mapping into the package's model methods
 
 - getters should follow the Xero field name exactly in PHP method form
 - setters should use the same field name with a `set...` prefix
