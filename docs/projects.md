@@ -116,17 +116,3 @@ Projects uses:
 Use `projects.read` for project, task, user, and time-entry reads.
 
 Use `projects` for project writes, project lifecycle patch calls, task writes, and time-entry writes.
-
-## Official Schema Notes
-
-Projects request payloads follow the official Xero Projects schema.
-
-Examples:
-
-- project create/update uses keys such as `name`, `contactId`, `estimateAmount`, and `deadlineUtc`
-- task create/update uses keys such as `name`, `chargeType`, `estimateMinutes`, and `rate` as an amount object
-- time entry create/update uses keys such as `taskId`, `userId`, `dateUtc`, `duration`, and `description`
-
-Official source:
-
-- `https://github.com/XeroAPI/Xero-OpenAPI/blob/master/xero-projects.yaml`

@@ -45,7 +45,6 @@ Examples:
 - `ContactID` becomes `getContactID()` and `setContactID(...)`
 - `EmailAddress` becomes `getEmailAddress()` and `setEmailAddress(...)`
 - `LineItems` becomes `getLineItems()`, `setLineItems(...)`, and `addLineItem(...)`
-- Projects payload keys like `contactId`, `taskId`, and `deadlineUtc` stay doc-accurate on the wire while mapping into the package's model methods
 
 - getters should follow the Xero field name exactly in PHP method form
 - setters should use the same field name with a `set...` prefix
