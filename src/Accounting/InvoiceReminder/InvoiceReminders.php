@@ -32,8 +32,7 @@ final readonly class InvoiceReminders implements DefinesScopes
             ->json();
 
         $settings = Json::extractObject($payload, 'InvoiceReminders')
-            ?: Json::extractObject($payload, 'InvoiceReminderSettings')
-            ?: $payload;
+            ?: Json::extractObject($payload, 'InvoiceReminderSettings');
 
         return $this->mapInvoiceReminderSettings($settings);
     }

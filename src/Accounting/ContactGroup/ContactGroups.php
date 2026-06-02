@@ -64,7 +64,8 @@ final class ContactGroups implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $contactGroup = Json::extractFirst($payload, 'ContactGroups') ?? Json::extractObject($payload, 'ContactGroup') ?: null;
+        $raw = Json::extractObject($payload, 'ContactGroup');
+        $contactGroup = Json::extractFirst($payload, 'ContactGroups') ?? ($raw !== [] ? $raw : null);
 
         return $contactGroup !== null ? $this->mapContactGroup($contactGroup) : null;
     }

@@ -71,10 +71,9 @@ final class PayItems implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $payItems = Json::extractList($payload, 'PayItems');
         $items = array_map(
             fn (array $payItem): PayItem => $this->mapPayItem($payItem),
-            $payItems !== [] ? $payItems : [$payload]
+            Json::extractList($payload, 'PayItems')
         );
 
         return new ResourceCollection($items);
