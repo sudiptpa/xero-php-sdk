@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Projects\Project\Project;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class ProjectsTest extends TestCase
@@ -87,22 +88,24 @@ final class ProjectsTest extends TestCase
         self::assertSame('INPROGRESS', $transport->requests()[0]->query['states']);
         self::assertSame(2, $transport->requests()[0]->query['page']);
         self::assertSame(25, $transport->requests()[0]->query['pageSize']);
-        self::assertInstanceOf(Project::class, $projects->first());
+        $firstProject = $projects->first();
+        self::assertNotNull($firstProject);
         self::assertSame('/projects.xro/2.0/Projects/project-1', $transport->requests()[1]->path);
         self::assertSame('/projects.xro/2.0/Projects', $transport->requests()[2]->path);
-        self::assertSame('Mobile app', $transport->requests()[2]->json['name']);
+        $json2 = $transport->requests()[2]->json ?? [];
+        self::assertSame('Mobile app', $json2['name'] ?? null);
         self::assertSame('/projects.xro/2.0/Projects/project-2', $transport->requests()[3]->path);
         self::assertSame('PATCH', $transport->requests()[4]->method);
         self::assertSame('/projects.xro/2.0/Projects/project-2', $transport->requests()[4]->path);
-        self::assertSame('CLOSED', $transport->requests()[4]->json['status']);
+        $json4 = $transport->requests()[4]->json ?? [];
+        self::assertSame('CLOSED', $json4['status'] ?? null);
         self::assertSame('PATCH', $transport->requests()[5]->method);
-        self::assertSame('INPROGRESS', $transport->requests()[5]->json['status']);
+        $json5 = $transport->requests()[5]->json ?? [];
+        self::assertSame('INPROGRESS', $json5['status'] ?? null);
         self::assertSame('Mobile app v2', $updated->getTitle());
         self::assertSame('CLOSED', $closed->getState());
         self::assertSame('INPROGRESS', $reopened->getState());
         self::assertSame('project-1', $project?->getProjectID());
-        $firstProject = $projects->first();
-        self::assertInstanceOf(Project::class, $firstProject);
         self::assertSame('contact-1', $firstProject->getContactID());
         self::assertSame('2026-04-30T00:00:00Z', $firstProject->getDeadlineUTC());
     }

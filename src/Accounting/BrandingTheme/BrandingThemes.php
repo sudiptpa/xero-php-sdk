@@ -8,6 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class BrandingThemes implements DefinesScopes
 {
@@ -34,10 +35,10 @@ final class BrandingThemes implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $brandingTheme): BrandingTheme => $this->mapBrandingTheme($brandingTheme),
-            $payload['BrandingThemes'] ?? []
-        ));
+            Json::extractList($payload, 'BrandingThemes')
+        );
 
         return new ResourceCollection($items);
     }
@@ -49,9 +50,9 @@ final class BrandingThemes implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $brandingTheme = $payload['BrandingThemes'][0] ?? null;
+        $brandingTheme = Json::extractFirst($payload, 'BrandingThemes');
 
-        return is_array($brandingTheme) ? $this->mapBrandingTheme($brandingTheme) : null;
+        return $brandingTheme !== null ? $this->mapBrandingTheme($brandingTheme) : null;
     }
 
     /**

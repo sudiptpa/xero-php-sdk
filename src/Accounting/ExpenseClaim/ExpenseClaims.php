@@ -10,6 +10,7 @@ use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class ExpenseClaims implements DefinesScopes
 {
@@ -48,10 +49,10 @@ final class ExpenseClaims implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $expenseClaim): ExpenseClaim => $this->mapExpenseClaim($expenseClaim),
-            $payload['ExpenseClaims'] ?? []
-        ));
+            Json::extractList($payload, 'ExpenseClaims')
+        );
 
         return new ResourceCollection($items);
     }
@@ -63,9 +64,9 @@ final class ExpenseClaims implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $expenseClaim = $payload['ExpenseClaims'][0] ?? null;
+        $expenseClaim = Json::extractFirst($payload, 'ExpenseClaims');
 
-        return is_array($expenseClaim) ? $this->mapExpenseClaim($expenseClaim) : null;
+        return $expenseClaim !== null ? $this->mapExpenseClaim($expenseClaim) : null;
     }
 
     public function create(): Payload

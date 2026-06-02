@@ -7,6 +7,7 @@ namespace Sujip\Xero\Tests\Payroll\AU;
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class SettingsTest extends TestCase
@@ -28,6 +29,7 @@ final class SettingsTest extends TestCase
             ->get();
 
         self::assertSame('/payroll.xro/1.0/Settings', $transport->requests()[0]->path);
-        self::assertSame([], $settings['Settings']['EmployeeGroups']);
+        $settingsObj = Json::extractObject($settings, 'Settings');
+        self::assertSame([], $settingsObj['EmployeeGroups'] ?? null);
     }
 }

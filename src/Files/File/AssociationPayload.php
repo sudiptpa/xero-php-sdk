@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Files\File;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class AssociationPayload
 {
@@ -58,9 +59,9 @@ final class AssociationPayload
             ->send();
 
         $payload = $response->json();
-        $association = $payload['Items'][0] ?? [];
+        $association = Json::extractFirst($payload, 'Items') ?? [];
 
         return (new Associations($this->client, $this->fileId))
-            ->mapAssociation(is_array($association) ? $association : []);
+            ->mapAssociation($association);
     }
 }

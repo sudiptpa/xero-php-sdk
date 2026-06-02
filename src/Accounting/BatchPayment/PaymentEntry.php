@@ -52,9 +52,10 @@ final class PaymentEntry extends Model implements SerializesRequest
     {
         parent::fill($payload);
 
+        $invoice = is_array($payload['Invoice'] ?? null) ? $payload['Invoice'] : [];
         return $this->setInvoiceID(
-            isset($payload['Invoice']['InvoiceID']) && is_string($payload['Invoice']['InvoiceID'])
-                ? $payload['Invoice']['InvoiceID']
+            isset($invoice['InvoiceID']) && is_string($invoice['InvoiceID'])
+                ? $invoice['InvoiceID']
                 : null
         );
     }

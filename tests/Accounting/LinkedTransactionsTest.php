@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Accounting\LinkedTransaction\LinkedTransaction;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class LinkedTransactionsTest extends TestCase
@@ -38,8 +39,9 @@ final class LinkedTransactionsTest extends TestCase
         self::assertSame('/api.xro/2.0/LinkedTransactions', $transport->requests()[0]->path);
         self::assertSame('source-1', $transport->requests()[0]->query['SourceTransactionID']);
         self::assertSame('ACTIVE', $transport->requests()[0]->query['Status']);
-        self::assertInstanceOf(LinkedTransaction::class, $linkedTransactions->first());
-        self::assertSame('source-1', $linkedTransactions->first()->getSourceTransactionID());
+        $firstLt = $linkedTransactions->first();
+        self::assertNotNull($firstLt);
+        self::assertSame('source-1', $firstLt->getSourceTransactionID());
     }
 
     public function test_it_can_create_linked_transactions(): void
@@ -69,7 +71,8 @@ final class LinkedTransactionsTest extends TestCase
             ->save();
 
         self::assertSame('/api.xro/2.0/LinkedTransactions', $transport->requests()[0]->path);
-        self::assertSame('source-1', $transport->requests()[0]->json['SourceTransactionID']);
+        $json0 = $transport->requests()[0]->json ?? [];
+        self::assertSame('source-1', $json0['SourceTransactionID'] ?? null);
         self::assertSame('target-1', $linkedTransaction->getTargetTransactionID());
     }
 }

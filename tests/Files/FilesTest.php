@@ -9,6 +9,7 @@ use Sujip\Xero\Files\File\Association;
 use Sujip\Xero\Files\File\File;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class FilesTest extends TestCase
@@ -41,7 +42,7 @@ final class FilesTest extends TestCase
         self::assertSame('DESC', $request->query['direction']);
         self::assertSame(2, $request->query['page']);
         self::assertSame(50, $request->query['pagesize']);
-        self::assertInstanceOf(File::class, $files->first());
+        self::assertNotNull($files->first());
     }
 
     public function test_it_can_find_and_download_file_content(): void
@@ -131,8 +132,9 @@ final class FilesTest extends TestCase
 
         self::assertSame('PUT', $request->method);
         self::assertSame('/files.xro/1.0/Files/file-1', $request->path);
-        self::assertSame('contract-v2.pdf', $request->json['Name']);
-        self::assertSame('folder-2', $request->json['FolderId']);
+        $json = $request->json ?? [];
+        self::assertSame('contract-v2.pdf', $json['Name'] ?? null);
+        self::assertSame('folder-2', $json['FolderId'] ?? null);
         self::assertSame('contract-v2.pdf', $saved?->getName());
     }
 
@@ -162,9 +164,10 @@ final class FilesTest extends TestCase
             ->save();
 
         self::assertSame('/files.xro/1.0/Files/file-1/Associations', $transport->requests()[0]->path);
-        self::assertInstanceOf(Association::class, $associations->first());
+        self::assertNotNull($associations->first());
         self::assertSame('/files.xro/1.0/Files/file-1/Associations', $transport->requests()[1]->path);
-        self::assertSame('invoice-2', $transport->requests()[1]->json['ObjectId']);
+        $json1 = $transport->requests()[1]->json ?? [];
+        self::assertSame('invoice-2', $json1['ObjectId'] ?? null);
         self::assertSame('Invoice', $created->getObjectType());
     }
 
@@ -198,7 +201,7 @@ final class FilesTest extends TestCase
         self::assertSame('DESC', $transport->requests()[0]->query['direction']);
         self::assertSame(2, $transport->requests()[0]->query['page']);
         self::assertSame(25, $transport->requests()[0]->query['pagesize']);
-        self::assertInstanceOf(File::class, $files->first());
+        self::assertNotNull($files->first());
         self::assertSame('/files.xro/1.0/Files/file-1/Associations/invoice-1', $transport->requests()[1]->path);
         self::assertTrue($deleted);
     }

@@ -6,6 +6,7 @@ namespace Sujip\Xero\Assets\Settings;
 
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Support\Model;
 
 final class Settings extends Model
@@ -25,9 +26,9 @@ final class Settings extends Model
             ->send();
 
         $payload = $response->json();
-        $settings = $payload['Items'][0] ?? null;
+        $settings = Json::extractFirst($payload, 'Items');
 
-        if (! is_array($settings)) {
+        if ($settings === null) {
             return null;
         }
 

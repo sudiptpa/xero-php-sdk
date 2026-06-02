@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Payroll\UK\Settings;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class ReimbursementPayload
 {
@@ -53,10 +54,9 @@ final class ReimbursementPayload
             ->send()
             ->json();
 
-        /** @var array<string, mixed>|null $reimbursement */
-        $reimbursement = $payload['Reimbursements'][0] ?? $payload['Reimbursement'] ?? null;
+        $reimbursement = Json::extractFirst($payload, 'Reimbursements') ?? Json::extractObject($payload, 'Reimbursement') ?: null;
 
-        if (! is_array($reimbursement)) {
+        if ($reimbursement === null) {
             return new Reimbursement();
         }
 

@@ -9,6 +9,7 @@ use Sujip\Xero\Accounting\Account\Account;
 use Sujip\Xero\Accounting\Payment\Payment;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class PaymentsTest extends TestCase
@@ -40,9 +41,10 @@ final class PaymentsTest extends TestCase
 
         self::assertSame('/api.xro/2.0/Payments', $request->path);
         self::assertSame('Amount == 150', $request->query['where']);
-        self::assertInstanceOf(Payment::class, $payments->first());
-        self::assertSame(150.0, $payments->first()->getAmount());
-        self::assertSame('account-1', $payments->first()->getAccount()?->getAccountID());
+        $firstPayment = $payments->first();
+        self::assertNotNull($firstPayment);
+        self::assertSame(150.0, $firstPayment->getAmount());
+        self::assertSame('account-1', $firstPayment->getAccount()?->getAccountID());
     }
 
     public function test_it_can_create_a_payment_with_a_nested_account(): void
@@ -79,8 +81,11 @@ final class PaymentsTest extends TestCase
 
         self::assertSame('POST', $request->method);
         self::assertSame('/api.xro/2.0/Payments', $request->path);
-        self::assertSame('invoice-1', $request->json['Payments'][0]['Invoice']['InvoiceID']);
-        self::assertSame('account-1', $request->json['Payments'][0]['Account']['AccountID']);
+        $json = $request->json ?? [];
+        $pay = Json::extractFirst($json, 'Payments');
+        self::assertNotNull($pay);
+        self::assertSame('invoice-1', Json::extractObject($pay, 'Invoice')['InvoiceID']);
+        self::assertSame('account-1', Json::extractObject($pay, 'Account')['AccountID']);
         self::assertSame(150.0, $payment->getAmount());
     }
 

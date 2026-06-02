@@ -9,6 +9,7 @@ use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\UK\Employee\Employee;
 use Sujip\Xero\Payroll\UK\Employee\LeaveType;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class EmployeesTest extends TestCase
@@ -138,8 +139,9 @@ final class EmployeesTest extends TestCase
         self::assertSame('/payroll.xro/2.0/Employees', $transport->requests()[0]->path);
         self::assertSame('Ada', $transport->requests()[0]->query['filter']);
         self::assertSame(2, $transport->requests()[0]->query['page']);
-        self::assertInstanceOf(Employee::class, $employees->first());
-        self::assertSame('Ada', $employees->first()->getFirstName());
+        $firstEmp = $employees->first();
+        self::assertNotNull($firstEmp);
+        self::assertSame('Ada', $firstEmp->getFirstName());
         self::assertSame('/payroll.xro/2.0/Employees/employee-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/2.0/Employees', $transport->requests()[2]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-2', $transport->requests()[3]->path);
@@ -156,15 +158,17 @@ final class EmployeesTest extends TestCase
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeaveTypes', $transport->requests()[12]->path);
         self::assertSame('employee-2', $created->getEmployeeID());
         self::assertSame('employee-2', $updated->getEmployeeID());
-        self::assertSame('Holiday', $leaveBalances['LeaveBalances'][0]['Name']);
-        self::assertEquals(2.0, $statutoryLeaveBalance['StatutoryLeaveBalance']['Balance']);
-        self::assertSame('leave-1', $leaves['Leave'][0]['LeaveID']);
-        self::assertSame('leave-1', $leave['Leave']['LeaveID']);
-        self::assertSame('Main bank account', $paymentMethod['PaymentMethod']['Name']);
-        self::assertSame('2020-01-15', $employment['Employment']['StartDate']);
-        self::assertInstanceOf(LeaveType::class, $leaveTypes->first());
-        self::assertSame('leave-type-1', $leaveTypes->first()->getLeaveTypeID());
-        self::assertSame('leave-2', $createdLeave['EmployeeLeave']['LeaveID']);
-        self::assertSame('leave-type-2', $createdLeaveType['EmployeeLeaveType']['LeaveTypeID']);
+        self::assertSame('Holiday', (Json::extractList($leaveBalances ?? [], 'LeaveBalances')[0] ?? [])['Name'] ?? null);
+        self::assertEquals(2.0, Json::extractObject($statutoryLeaveBalance ?? [], 'StatutoryLeaveBalance')['Balance'] ?? null);
+        self::assertSame('leave-1', (Json::extractList($leaves ?? [], 'Leave')[0] ?? [])['LeaveID'] ?? null);
+        self::assertSame('leave-1', Json::extractObject($leave ?? [], 'Leave')['LeaveID'] ?? null);
+        self::assertSame('Main bank account', Json::extractObject($paymentMethod ?? [], 'PaymentMethod')['Name'] ?? null);
+        self::assertSame('2020-01-15', Json::extractObject($employment ?? [], 'Employment')['StartDate'] ?? null);
+        self::assertNotNull($leaveTypes);
+        $firstLt = $leaveTypes->first();
+        self::assertNotNull($firstLt);
+        self::assertSame('leave-type-1', $firstLt->getLeaveTypeID());
+        self::assertSame('leave-2', Json::extractObject($createdLeave ?? [], 'EmployeeLeave')['LeaveID'] ?? null);
+        self::assertSame('leave-type-2', Json::extractObject($createdLeaveType ?? [], 'EmployeeLeaveType')['LeaveTypeID'] ?? null);
     }
 }

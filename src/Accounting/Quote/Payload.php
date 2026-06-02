@@ -7,6 +7,7 @@ namespace Sujip\Xero\Accounting\Quote;
 use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -78,9 +79,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $quote = $payload['Quotes'][0] ?? [];
+        $quote = Json::extractFirst($payload, 'Quotes') ?? [];
 
         return (new Quotes($this->client))
-            ->mapQuote(is_array($quote) ? $quote : []);
+            ->mapQuote($quote);
     }
 }

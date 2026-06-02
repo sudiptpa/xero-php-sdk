@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Accounting\BankTransfer\BankTransfer;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class BankTransfersTest extends TestCase
@@ -52,10 +53,13 @@ final class BankTransfersTest extends TestCase
 
         self::assertSame('/api.xro/2.0/BankTransfers', $transport->requests()[0]->path);
         self::assertSame('Amount > 100', $transport->requests()[0]->query['where']);
-        self::assertInstanceOf(BankTransfer::class, $transfers->first());
+        self::assertNotNull($transfers->first());
         self::assertSame('/api.xro/2.0/BankTransfers/transfer-1', $transport->requests()[1]->path);
+        $json2 = $transport->requests()[2]->json ?? [];
+        $bt2 = Json::extractFirst($json2, 'BankTransfers');
+        self::assertNotNull($bt2);
         self::assertSame('/api.xro/2.0/BankTransfers', $transport->requests()[2]->path);
-        self::assertSame('bank-a', $transport->requests()[2]->json['BankTransfers'][0]['FromBankAccount']['AccountID']);
+        self::assertSame('bank-a', Json::extractObject($bt2, 'FromBankAccount')['AccountID']);
         self::assertSame('Sweep', $created->getReference());
     }
 }

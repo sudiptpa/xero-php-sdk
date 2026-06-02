@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Accounting\Account\Account;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class AccountsTest extends TestCase
@@ -39,8 +40,9 @@ final class AccountsTest extends TestCase
         self::assertSame('/api.xro/2.0/Accounts', $request->path);
         self::assertSame('Status == "ACTIVE"', $request->query['where']);
         self::assertSame('Code ASC', $request->query['order']);
-        self::assertInstanceOf(Account::class, $accounts->first());
-        self::assertSame('Sales', $accounts->first()->getName());
+        $firstAccount = $accounts->first();
+        self::assertNotNull($firstAccount);
+        self::assertSame('Sales', $firstAccount->getName());
     }
 
     public function test_it_can_create_an_account(): void
@@ -75,7 +77,10 @@ final class AccountsTest extends TestCase
 
         self::assertSame('POST', $request->method);
         self::assertSame('/api.xro/2.0/Accounts', $request->path);
-        self::assertSame('200', $request->json['Accounts'][0]['Code']);
+        $json = $request->json ?? [];
+        $firstAccount = Json::extractFirst($json, 'Accounts');
+        self::assertNotNull($firstAccount);
+        self::assertSame('200', $firstAccount['Code']);
         self::assertSame('Sales', $account->getName());
     }
 

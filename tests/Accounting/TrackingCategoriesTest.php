@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
-use Sujip\Xero\Accounting\TrackingCategory\Option;
-use Sujip\Xero\Accounting\TrackingCategory\TrackingCategory;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class TrackingCategoriesTest extends TestCase
@@ -42,11 +41,12 @@ final class TrackingCategoriesTest extends TestCase
 
         self::assertSame('/api.xro/2.0/TrackingCategories', $transport->requests()[0]->path);
         self::assertSame('true', $transport->requests()[0]->query['includeArchived']);
-        self::assertInstanceOf(TrackingCategory::class, $categories->first());
+        $firstCat = $categories->first();
+        self::assertNotNull($firstCat);
         self::assertSame('/api.xro/2.0/TrackingCategories/tracking-1', $transport->requests()[1]->path);
         self::assertSame('tracking-1', $category?->getTrackingCategoryID());
-        self::assertInstanceOf(Option::class, $categories->first()->getOptions()[0]);
-        self::assertSame('APAC', $categories->first()->getOptions()[0]->getName());
+        self::assertSame('APAC', $firstCat->getOptions()[0]->getName());
+        self::assertSame('APAC', $firstCat->getOptions()[0]->getName());
     }
 
     public function test_it_can_create_and_update_tracking_categories(): void
@@ -77,8 +77,10 @@ final class TrackingCategoriesTest extends TestCase
 
         self::assertSame('/api.xro/2.0/TrackingCategories', $transport->requests()[0]->path);
         self::assertSame('tracking-key', $transport->requests()[0]->headers['Idempotency-Key']);
-        self::assertSame('Region', $transport->requests()[0]->json['Name']);
-        self::assertSame('APAC', $transport->requests()[0]->json['Options'][0]['Name']);
+        $json0 = $transport->requests()[0]->json ?? [];
+        self::assertSame('Region', $json0['Name'] ?? null);
+        $options0 = Json::extractList($json0, 'Options');
+        self::assertSame('APAC', $options0[0]['Name'] ?? null);
         self::assertSame('/api.xro/2.0/TrackingCategories/tracking-1', $transport->requests()[1]->path);
         self::assertSame('Sales Region', $updated->getName());
     }

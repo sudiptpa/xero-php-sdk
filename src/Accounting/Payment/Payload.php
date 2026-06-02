@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Payment;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -99,9 +100,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $payment = $payload['Payments'][0] ?? [];
+        $payment = Json::extractFirst($payload, 'Payments') ?? [];
 
         return (new Payments($this->client))
-            ->mapPayment(is_array($payment) ? $payment : []);
+            ->mapPayment($payment);
     }
 }

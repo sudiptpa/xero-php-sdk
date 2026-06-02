@@ -8,6 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final readonly class SuperFunds implements DefinesScopes
 {
@@ -34,10 +35,10 @@ final readonly class SuperFunds implements DefinesScopes
             ->send()
             ->json();
 
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $fund): SuperFund => $this->mapSuperFund($fund),
-            $payload['SuperFunds'] ?? []
-        ));
+            Json::extractList($payload, 'SuperFunds')
+        );
 
         return new ResourceCollection($items);
     }
@@ -49,9 +50,9 @@ final readonly class SuperFunds implements DefinesScopes
             ->send()
             ->json();
 
-        $fund = $payload['SuperFunds'][0] ?? $payload['SuperFund'] ?? null;
+        $fund = Json::extractFirst($payload, 'SuperFunds') ?? Json::extractObject($payload, 'SuperFund') ?: null;
 
-        return is_array($fund) ? $this->mapSuperFund($fund) : null;
+        return $fund !== null ? $this->mapSuperFund($fund) : null;
     }
 
     public function create(): Payload

@@ -7,6 +7,7 @@ namespace Sujip\Xero\Accounting\BankTransaction;
 use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -99,9 +100,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $bankTransaction = $payload['BankTransactions'][0] ?? [];
+        $bankTransaction = Json::extractFirst($payload, 'BankTransactions') ?? [];
 
         return (new BankTransactions($this->client))
-            ->mapBankTransaction(is_array($bankTransaction) ? $bankTransaction : []);
+            ->mapBankTransaction($bankTransaction);
     }
 }

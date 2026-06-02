@@ -60,9 +60,14 @@ final class InvoiceReminderSettings extends Model
     {
         parent::fill($payload);
 
-        return $this->setDays(array_values(array_filter(
-            $payload['Days'] ?? [],
-            static fn (mixed $day): bool => is_int($day) || is_string($day)
-        )));
+        $rawDays = is_array($payload['Days'] ?? null) ? $payload['Days'] : [];
+        $days = [];
+        foreach ($rawDays as $day) {
+            if (is_int($day) || is_string($day)) {
+                $days[] = $day;
+            }
+        }
+
+        return $this->setDays($days);
     }
 }

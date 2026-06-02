@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\TaxRate;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -76,9 +77,9 @@ final class Payload
             ->send();
 
         $decoded = $response->json();
-        $taxRate = $decoded['TaxRates'][0] ?? [];
+        $taxRate = Json::extractFirst($decoded, 'TaxRates') ?? [];
 
         return (new TaxRates($this->client))
-            ->mapTaxRate(is_array($taxRate) ? $taxRate : []);
+            ->mapTaxRate($taxRate);
     }
 }

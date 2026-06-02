@@ -6,6 +6,7 @@ namespace Sujip\Xero\Accounting\InvoiceReminder;
 
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Support\ScopeRequirements;
 
 final readonly class InvoiceReminders implements DefinesScopes
@@ -30,9 +31,11 @@ final readonly class InvoiceReminders implements DefinesScopes
             ->send()
             ->json();
 
-        $settings = $payload['InvoiceReminders'] ?? $payload['InvoiceReminderSettings'] ?? $payload;
+        $settings = Json::extractObject($payload, 'InvoiceReminders')
+            ?: Json::extractObject($payload, 'InvoiceReminderSettings')
+            ?: $payload;
 
-        return $this->mapInvoiceReminderSettings(is_array($settings) ? $settings : []);
+        return $this->mapInvoiceReminderSettings($settings);
     }
 
     /**

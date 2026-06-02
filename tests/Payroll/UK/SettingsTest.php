@@ -71,13 +71,14 @@ final class SettingsTest extends TestCase
         self::assertSame('/payroll.xro/2.0/StatutoryLeaves/Summary/employee-1', $transport->requests()[3]->path);
         self::assertSame('/payroll.xro/2.0/Reimbursements', $transport->requests()[4]->path);
         self::assertSame('reimbursement-key', $transport->requests()[4]->headers['Idempotency-Key']);
-        self::assertInstanceOf(TrackingCategory::class, $trackingCategories->first());
-        self::assertSame('employee-groups-1', $trackingCategories->first()->getEmployeeGroupsTrackingCategoryID());
-        self::assertSame('timesheet-1', $trackingCategories->first()->getTimesheetTrackingCategoryID());
-        self::assertInstanceOf(Reimbursement::class, $reimbursements->first());
-        self::assertSame('Travel', $reimbursements->first()->getName());
+        $firstTc = $trackingCategories->first();
+        self::assertNotNull($firstTc);
+        self::assertSame('employee-groups-1', $firstTc->getEmployeeGroupsTrackingCategoryID());
+        self::assertSame('timesheet-1', $firstTc->getTimesheetTrackingCategoryID());
+        $firstReimb = $reimbursements->first();
+        self::assertNotNull($firstReimb);
+        self::assertSame('Travel', $firstReimb->getName());
         self::assertSame('reimbursement-1', $reimbursement?->getReimbursementID());
-        self::assertInstanceOf(StatutoryLeaveSummary::class, $summary);
         self::assertSame('employee-1', $summary->getEmployeeID());
         self::assertSame('reimbursement-2', $created->getReimbursementID());
     }

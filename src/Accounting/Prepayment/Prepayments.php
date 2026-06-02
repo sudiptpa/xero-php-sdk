@@ -13,6 +13,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class Prepayments implements PaginatesResults, DefinesScopes
 {
@@ -52,10 +53,10 @@ final class Prepayments implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $prepayment): Prepayment => $this->mapPrepayment($prepayment),
-            $payload['Prepayments'] ?? []
-        ));
+            Json::extractList($payload, 'Prepayments')
+        );
 
         return new ResourceCollection($items);
     }
@@ -82,9 +83,9 @@ final class Prepayments implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $prepayment = $payload['Prepayments'][0] ?? null;
+        $prepayment = Json::extractFirst($payload, 'Prepayments');
 
-        return is_array($prepayment) ? $this->mapPrepayment($prepayment) : null;
+        return $prepayment !== null ? $this->mapPrepayment($prepayment) : null;
     }
 
     /**

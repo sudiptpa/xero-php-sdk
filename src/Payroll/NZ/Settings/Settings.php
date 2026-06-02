@@ -8,6 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final readonly class Settings implements DefinesScopes
 {
@@ -54,10 +55,10 @@ final readonly class Settings implements DefinesScopes
             ->send()
             ->json();
 
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $deduction): StatutoryDeduction => $this->mapStatutoryDeduction($deduction),
-            $payload['StatutoryDeductions'] ?? []
-        ));
+            Json::extractList($payload, 'StatutoryDeductions')
+        );
 
         return new ResourceCollection($items);
     }
@@ -69,9 +70,9 @@ final readonly class Settings implements DefinesScopes
             ->send()
             ->json();
 
-        $deduction = $payload['StatutoryDeductions'][0] ?? $payload['StatutoryDeduction'] ?? null;
+        $deduction = Json::extractFirst($payload, 'StatutoryDeductions') ?? Json::extractObject($payload, 'StatutoryDeduction') ?: null;
 
-        return is_array($deduction) ? $this->mapStatutoryDeduction($deduction) : null;
+        return $deduction !== null ? $this->mapStatutoryDeduction($deduction) : null;
     }
 
     /**

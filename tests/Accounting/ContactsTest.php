@@ -11,6 +11,7 @@ use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Accounting\Contact\Phone;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class ContactsTest extends TestCase
@@ -57,10 +58,11 @@ final class ContactsTest extends TestCase
         self::assertSame('Name.Contains("Acme")', $request->query['where']);
         self::assertSame(1, $request->query['page']);
         self::assertSame('true', $request->query['includeArchived']);
-        self::assertInstanceOf(Contact::class, $contacts->first());
-        self::assertSame('Acme Pty Ltd', $contacts->first()->getName());
-        self::assertInstanceOf(Address::class, $contacts->first()->getAddresses()[0]);
-        self::assertInstanceOf(Phone::class, $contacts->first()->getPhones()[0]);
+        $firstContact = $contacts->first();
+        self::assertNotNull($firstContact);
+        self::assertSame('Acme Pty Ltd', $firstContact->getName());
+        self::assertSame('POBOX', $firstContact->getAddresses()[0]->getAddressType());
+        self::assertSame('DEFAULT', $firstContact->getPhones()[0]->getPhoneType());
     }
 
     public function test_it_can_paginate_contacts(): void
@@ -133,7 +135,10 @@ final class ContactsTest extends TestCase
 
         self::assertSame('POST', $request->method);
         self::assertSame('/api.xro/2.0/Contacts', $request->path);
-        self::assertSame('Acme Pty Ltd', $request->json['Contacts'][0]['Name']);
+        $json = $request->json ?? [];
+        $firstContact = Json::extractFirst($json, 'Contacts');
+        self::assertNotNull($firstContact);
+        self::assertSame('Acme Pty Ltd', $firstContact['Name']);
         self::assertSame('accounts@acme.test', $contact->getEmailAddress());
     }
 
@@ -182,8 +187,13 @@ final class ContactsTest extends TestCase
 
         $request = $transport->requests()[0];
 
-        self::assertSame('100 George Street', $request->json['Contacts'][0]['Addresses'][0]['AddressLine1']);
-        self::assertSame('5551234', $request->json['Contacts'][0]['Phones'][0]['PhoneNumber']);
+        $json = $request->json ?? [];
+        $firstContact = Json::extractFirst($json, 'Contacts');
+        self::assertNotNull($firstContact);
+        $addresses = Json::extractList($firstContact, 'Addresses');
+        self::assertSame('100 George Street', $addresses[0]['AddressLine1'] ?? null);
+        $phones = Json::extractList($firstContact, 'Phones');
+        self::assertSame('5551234', $phones[0]['PhoneNumber'] ?? null);
         self::assertSame('Sydney', $contact->getAddresses()[0]->getCity());
         self::assertSame('5551234', $contact->getPhones()[0]->getPhoneNumber());
     }

@@ -73,12 +73,12 @@ final class FinancialStatementsTest extends TestCase
         self::assertSame(['contact-1'], $transport->requests()[4]->query['contactIds']);
         self::assertSame('/finance.xro/1.0/FinancialStatements/contacts/revenue', $transport->requests()[5]->path);
         self::assertSame(['contact-2'], $transport->requests()[5]->query['contactIds']);
-        self::assertInstanceOf(Statement::class, $balanceSheet);
-        self::assertInstanceOf(Statement::class, $cashflow);
-        self::assertInstanceOf(Statement::class, $profitAndLoss);
-        self::assertInstanceOf(Statement::class, $trialBalance);
-        self::assertInstanceOf(ContactStatement::class, $expenses->first());
-        self::assertInstanceOf(ContactStatement::class, $revenue->first());
+        self::assertNotEmpty($balanceSheet->getRows());
+        self::assertNotEmpty($cashflow->getRows());
+        self::assertNotEmpty($profitAndLoss->getRows());
+        self::assertNotEmpty($trialBalance->getRows());
+        self::assertNotNull($expenses->first());
+        self::assertNotNull($revenue->first());
     }
 
     public function test_it_can_get_finance_account_usage_and_report_history(): void
@@ -113,7 +113,7 @@ final class FinancialStatementsTest extends TestCase
         self::assertSame('2026-03', $transport->requests()[0]->query['endMonth']);
         self::assertSame('/finance.xro/1.0/AccountingActivities/ReportHistory', $transport->requests()[1]->path);
         self::assertSame('2026-03-31', $transport->requests()[1]->query['endDate']);
-        self::assertInstanceOf(AccountUsage::class, $accountUsage->first());
-        self::assertInstanceOf(ReportHistory::class, $reportHistory->first());
+        self::assertNotNull($accountUsage->first());
+        self::assertNotNull($reportHistory->first());
     }
 }

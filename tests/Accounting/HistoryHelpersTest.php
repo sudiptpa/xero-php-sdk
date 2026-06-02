@@ -7,6 +7,7 @@ namespace Sujip\Xero\Tests\Accounting;
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class HistoryHelpersTest extends TestCase
@@ -42,7 +43,10 @@ final class HistoryHelpersTest extends TestCase
         self::assertSame('/api.xro/2.0/Payments/payment-1/History', $transport->requests()[4]->path);
         self::assertSame('/api.xro/2.0/Receipts/receipt-1/History', $transport->requests()[5]->path);
         self::assertSame('/api.xro/2.0/PurchaseOrders/po-1/History', $transport->requests()[6]->path);
-        self::assertSame('PO change', $transport->requests()[7]->json['HistoryRecords'][0]['Details']);
+        $json7 = $transport->requests()[7]->json ?? [];
+        $hr7 = Json::extractFirst($json7, 'HistoryRecords');
+        self::assertNotNull($hr7);
+        self::assertSame('PO change', $hr7['Details']);
     }
 
     public function test_it_can_access_history_from_loaded_models(): void

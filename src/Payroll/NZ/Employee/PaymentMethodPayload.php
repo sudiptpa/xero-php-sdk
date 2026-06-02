@@ -24,7 +24,9 @@ final class PaymentMethodPayload
     public function bankAccountNumber(string $accountNumber): self
     {
         $clone = clone $this;
-        $clone->payload['BankAccount']['AccountNumber'] = $accountNumber;
+        $bankAccount = is_array($clone->payload['BankAccount'] ?? null) ? $clone->payload['BankAccount'] : [];
+        $bankAccount['AccountNumber'] = $accountNumber;
+        $clone->payload['BankAccount'] = $bankAccount;
 
         return $clone;
     }

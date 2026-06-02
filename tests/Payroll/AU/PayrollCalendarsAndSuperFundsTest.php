@@ -73,7 +73,7 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('/payroll.xro/1.0/PayrollCalendars', $transport->requests()[4]->path);
         self::assertSame(3, $transport->requests()[4]->query['page']);
         self::assertSame(25, $transport->requests()[4]->query['pageSize']);
-        self::assertInstanceOf(PayrollCalendar::class, $calendars->first());
+        self::assertNotNull($calendars->first());
         self::assertSame('calendar-1', $calendar?->getPayrollCalendarID());
         self::assertSame('calendar-2', $created->getPayrollCalendarID());
         self::assertSame('calendar-2', $updated->getPayrollCalendarID());
@@ -121,8 +121,9 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('/payroll.xro/1.0/SuperFunds/fund-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/1.0/SuperFunds', $transport->requests()[2]->path);
         self::assertSame('superfund-key', $transport->requests()[2]->headers['Idempotency-Key']);
-        self::assertSame('40022701955002', $transport->requests()[2]->json['USI']);
-        self::assertInstanceOf(SuperFund::class, $funds->first());
+        $json2 = $transport->requests()[2]->json ?? [];
+        self::assertSame('40022701955002', $json2['USI'] ?? null);
+        self::assertNotNull($funds->first());
         self::assertSame('fund-1', $fund?->getSuperFundID());
         self::assertSame('fund-2', $created->getSuperFundID());
     }
@@ -149,7 +150,8 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('/payroll.xro/1.0/SuperFundProducts', $transport->requests()[0]->path);
         self::assertSame('40022701955', $transport->requests()[0]->query['ABN']);
         self::assertSame('OSF0001AU', $transport->requests()[0]->query['USI']);
-        self::assertInstanceOf(Product::class, $products->first());
-        self::assertSame('product-1', $products->first()->getSuperFundProductID());
+        $firstProduct = $products->first();
+        self::assertNotNull($firstProduct);
+        self::assertSame('product-1', $firstProduct->getSuperFundProductID());
     }
 }

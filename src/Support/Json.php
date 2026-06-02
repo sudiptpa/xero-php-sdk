@@ -31,7 +31,12 @@ final class Json
             throw new RuntimeException('Unable to decode JSON response body.');
         }
 
-        return $decoded;
+        $result = [];
+        foreach ($decoded as $k => $v) {
+            $result[(string) $k] = $v;
+        }
+
+        return $result;
     }
 
     /**
@@ -42,6 +47,61 @@ final class Json
         self::ensureAvailable();
 
         return json_decode($value, true, flags: JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return list<array<string, mixed>>
+     */
+    public static function extractList(array $payload, string $key): array
+    {
+        $raw = $payload[$key] ?? null;
+
+        if (! is_array($raw)) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($raw as $item) {
+            if (is_array($item)) {
+                $typed = [];
+                foreach ($item as $k => $v) {
+                    $typed[(string) $k] = $v;
+                }
+                $result[] = $typed;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>|null
+     */
+    public static function extractFirst(array $payload, string $key): ?array
+    {
+        return self::extractList($payload, $key)[0] ?? null;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    public static function extractObject(array $payload, string $key): array
+    {
+        $raw = $payload[$key] ?? null;
+
+        if (! is_array($raw)) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($raw as $k => $v) {
+            $result[(string) $k] = $v;
+        }
+
+        return $result;
     }
 
     public static function ensureAvailable(): void

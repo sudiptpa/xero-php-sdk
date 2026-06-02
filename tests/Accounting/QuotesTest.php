@@ -10,6 +10,7 @@ use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Accounting\Quote\Quote;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class QuotesTest extends TestCase
@@ -47,11 +48,12 @@ final class QuotesTest extends TestCase
         $quote = $client->accounting()->quotes()->find('quote-1');
 
         self::assertSame('/api.xro/2.0/Quotes', $transport->requests()[0]->path);
-        self::assertInstanceOf(Quote::class, $quotes->first());
+        $firstQuote = $quotes->first();
+        self::assertNotNull($firstQuote);
         self::assertSame('/api.xro/2.0/Quotes/quote-1', $transport->requests()[1]->path);
         self::assertSame('quote-1', $quote?->getQuoteID());
-        self::assertSame('contact-1', $quotes->first()->getContact()?->getContactID());
-        self::assertSame('Design sprint', $quotes->first()->getLineItems()[0]->getDescription());
+        self::assertSame('contact-1', $firstQuote->getContact()?->getContactID());
+        self::assertSame('Design sprint', $firstQuote->getLineItems()[0]->getDescription());
     }
 
     public function test_it_can_create_and_update_quotes(): void
@@ -92,9 +94,15 @@ final class QuotesTest extends TestCase
         $updated = $created->title('Website redesign phase 2')->save();
 
         self::assertSame('/api.xro/2.0/Quotes', $transport->requests()[0]->path);
-        self::assertSame('contact-1', $transport->requests()[0]->json['Quotes'][0]['Contact']['ContactID']);
+        $json0 = $transport->requests()[0]->json ?? [];
+        $q0 = Json::extractFirst($json0, 'Quotes');
+        self::assertNotNull($q0);
+        self::assertSame('contact-1', Json::extractObject($q0, 'Contact')['ContactID']);
+        $json1 = $transport->requests()[1]->json ?? [];
+        $q1 = Json::extractFirst($json1, 'Quotes');
+        self::assertNotNull($q1);
         self::assertSame('/api.xro/2.0/Quotes', $transport->requests()[1]->path);
-        self::assertSame('quote-1', $transport->requests()[1]->json['Quotes'][0]['QuoteID']);
+        self::assertSame('quote-1', $q1['QuoteID']);
         self::assertSame('Website redesign phase 2', $updated->getTitle());
     }
 }

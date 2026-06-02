@@ -9,6 +9,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Json;
 
 final class Subscription extends Model
 {
@@ -63,7 +64,7 @@ final class Subscription extends Model
     {
         parent::fill($payload);
 
-        return $this->setItems(array_values(array_filter($payload['items'] ?? $payload['Items'] ?? [], 'is_array')));
+        return $this->setItems(Json::extractList($payload, 'items') ?: Json::extractList($payload, 'Items'));
     }
 
     /**

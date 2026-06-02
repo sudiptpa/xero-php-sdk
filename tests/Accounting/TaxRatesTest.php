@@ -9,6 +9,7 @@ use Sujip\Xero\Accounting\TaxRate\Component;
 use Sujip\Xero\Accounting\TaxRate\TaxRate;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class TaxRatesTest extends TestCase
@@ -39,7 +40,7 @@ final class TaxRatesTest extends TestCase
         self::assertSame('/api.xro/2.0/TaxRates', $transport->requests()[0]->path);
         self::assertSame('Status == "ACTIVE"', $transport->requests()[0]->query['where']);
         self::assertSame('Name ASC', $transport->requests()[0]->query['order']);
-        self::assertInstanceOf(TaxRate::class, $taxRates->first());
+        self::assertNotNull($taxRates->first());
         self::assertSame('/api.xro/2.0/TaxRates/OUTPUT', $transport->requests()[1]->path);
         self::assertSame('OUTPUT', $taxRate?->getTaxType());
     }
@@ -82,8 +83,12 @@ final class TaxRatesTest extends TestCase
 
         self::assertSame('/api.xro/2.0/TaxRates', $transport->requests()[0]->path);
         self::assertSame('tax-key', $transport->requests()[0]->headers['Idempotency-Key']);
-        self::assertSame('OUTPUT', $transport->requests()[0]->json['TaxRates'][0]['TaxType']);
-        self::assertSame('GST', $transport->requests()[0]->json['TaxRates'][0]['TaxComponents'][0]['Name']);
+        $json0 = $transport->requests()[0]->json ?? [];
+        $tr0 = Json::extractFirst($json0, 'TaxRates');
+        self::assertNotNull($tr0);
+        self::assertSame('OUTPUT', $tr0['TaxType']);
+        $components = Json::extractList($tr0, 'TaxComponents');
+        self::assertSame('GST', $components[0]['Name'] ?? null);
         self::assertSame('/api.xro/2.0/TaxRates', $transport->requests()[1]->path);
         self::assertSame('GST Plus', $updated->getName());
     }

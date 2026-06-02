@@ -40,10 +40,11 @@ final class CurrenciesTest extends TestCase
             ->save();
 
         self::assertSame('/api.xro/2.0/Currencies', $transport->requests()[0]->path);
-        self::assertInstanceOf(Currency::class, $currencies->first());
+        self::assertNotNull($currencies->first());
         self::assertSame('/api.xro/2.0/Currencies', $transport->requests()[1]->path);
         self::assertSame('currency-key', $transport->requests()[1]->headers['Idempotency-Key']);
-        self::assertSame('EUR', $transport->requests()[1]->json['Code']);
+        $json1 = $transport->requests()[1]->json ?? [];
+        self::assertSame('EUR', $json1['Code'] ?? null);
         self::assertSame('EUR', $created->getCode());
     }
 }

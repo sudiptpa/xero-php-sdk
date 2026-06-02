@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Projects\Task\Task;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class TasksTest extends TestCase
@@ -65,11 +66,13 @@ final class TasksTest extends TestCase
         self::assertSame('TIME', $transport->requests()[0]->query['chargeType']);
         self::assertSame('/projects.xro/2.0/Projects/project-1/Tasks/task-1', $transport->requests()[1]->path);
         self::assertSame('/projects.xro/2.0/Projects/project-1/Tasks', $transport->requests()[2]->path);
-        self::assertSame('Build', $transport->requests()[2]->json['name']);
-        self::assertSame(180, $transport->requests()[2]->json['rate']['value']);
+        $json2 = $transport->requests()[2]->json ?? [];
+        self::assertSame('Build', $json2['name'] ?? null);
+        $rate = Json::extractObject($json2, 'rate');
+        self::assertSame(180, $rate['value'] ?? null);
         self::assertSame('/projects.xro/2.0/Projects/project-1/Tasks/task-2', $transport->requests()[3]->path);
         self::assertSame('DELETE', $transport->requests()[4]->method);
-        self::assertInstanceOf(Task::class, $tasks->first());
+        self::assertNotNull($tasks->first());
         self::assertSame('Build and QA', $updated->getName());
         self::assertSame('task-1', $task?->getTaskID());
     }

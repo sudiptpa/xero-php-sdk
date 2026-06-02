@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Files\Folder\Folder;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class FoldersTest extends TestCase
@@ -37,7 +38,7 @@ final class FoldersTest extends TestCase
 
         self::assertSame('/files.xro/1.0/Folders', $transport->requests()[0]->path);
         self::assertSame('CreatedDateUTC DESC', $transport->requests()[0]->query['sort']);
-        self::assertInstanceOf(Folder::class, $folders->first());
+        self::assertNotNull($folders->first());
         self::assertSame('/files.xro/1.0/Folders/folder-1', $transport->requests()[1]->path);
         self::assertSame('folder-1', $folder?->getId());
     }
@@ -88,7 +89,8 @@ final class FoldersTest extends TestCase
 
         self::assertSame('POST', $transport->requests()[0]->method);
         self::assertSame('/files.xro/1.0/Folders', $transport->requests()[0]->path);
-        self::assertSame('Contracts', $transport->requests()[0]->json['Name']);
+        $json0 = $transport->requests()[0]->json ?? [];
+        self::assertSame('Contracts', $json0['Name'] ?? null);
         self::assertSame('PUT', $transport->requests()[1]->method);
         self::assertSame('/files.xro/1.0/Folders/folder-1', $transport->requests()[1]->path);
         self::assertSame('Contracts 2026', $updated->getName());

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Assets\Type;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -142,10 +143,10 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $type = $payload['Items'][0] ?? [];
+        $type = Json::extractFirst($payload, 'Items') ?? [];
 
-        if (! is_array($type)) {
-            return new Type();
+        if ($type === []) {
+    return new Type();
         }
 
         return (new Types($this->client))->mapType($type);

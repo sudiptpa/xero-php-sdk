@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Accounting\Item\Item;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class ItemsTest extends TestCase
@@ -39,7 +40,7 @@ final class ItemsTest extends TestCase
         self::assertSame('/api.xro/2.0/Items', $transport->requests()[0]->path);
         self::assertSame('Code == "ABC123"', $transport->requests()[0]->query['where']);
         self::assertSame(4, $transport->requests()[0]->query['unitdp']);
-        self::assertInstanceOf(Item::class, $items->first());
+        self::assertNotNull($items->first());
         self::assertSame('/api.xro/2.0/Items/item-1', $transport->requests()[1]->path);
         self::assertSame('item-1', $item?->getItemID());
     }
@@ -80,9 +81,15 @@ final class ItemsTest extends TestCase
 
         self::assertSame('/api.xro/2.0/Items', $transport->requests()[0]->path);
         self::assertSame('item-key', $transport->requests()[0]->headers['Idempotency-Key']);
-        self::assertSame('ABC123', $transport->requests()[0]->json['Items'][0]['Code']);
+        $json0 = $transport->requests()[0]->json ?? [];
+        $item0 = Json::extractFirst($json0, 'Items');
+        self::assertNotNull($item0);
+        self::assertSame('ABC123', $item0['Code']);
+        $json1 = $transport->requests()[1]->json ?? [];
+        $item1 = Json::extractFirst($json1, 'Items');
+        self::assertNotNull($item1);
         self::assertSame('/api.xro/2.0/Items', $transport->requests()[1]->path);
-        self::assertSame('item-1', $transport->requests()[1]->json['Items'][0]['ItemID']);
+        self::assertSame('item-1', $item1['ItemID']);
         self::assertSame('Widget Plus', $updated->getName());
     }
 }

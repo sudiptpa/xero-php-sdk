@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Account;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -85,9 +86,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $account = $payload['Accounts'][0] ?? [];
+        $account = Json::extractFirst($payload, 'Accounts') ?? [];
 
         return (new Accounts($this->client))
-            ->mapAccount(is_array($account) ? $account : []);
+            ->mapAccount($account);
     }
 }

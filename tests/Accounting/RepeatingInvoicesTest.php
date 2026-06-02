@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Accounting\RepeatingInvoice\RepeatingInvoice;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class RepeatingInvoicesTest extends TestCase
@@ -36,7 +37,7 @@ final class RepeatingInvoicesTest extends TestCase
         $repeatingInvoice = $client->accounting()->repeatingInvoices()->find('repeat-1');
 
         self::assertSame('/api.xro/2.0/RepeatingInvoices', $transport->requests()[0]->path);
-        self::assertInstanceOf(RepeatingInvoice::class, $repeatingInvoices->first());
+        self::assertNotNull($repeatingInvoices->first());
         self::assertSame('/api.xro/2.0/RepeatingInvoices/repeat-1', $transport->requests()[1]->path);
         self::assertSame('repeat-1', $repeatingInvoice?->getRepeatingInvoiceID());
     }
@@ -71,9 +72,15 @@ final class RepeatingInvoicesTest extends TestCase
         $updated = $created->reference('RI-1002')->save();
 
         self::assertSame('/api.xro/2.0/RepeatingInvoices', $transport->requests()[0]->path);
-        self::assertSame('contact-1', $transport->requests()[0]->json['RepeatingInvoices'][0]['Contact']['ContactID']);
+        $json0 = $transport->requests()[0]->json ?? [];
+        $ri0 = Json::extractFirst($json0, 'RepeatingInvoices');
+        self::assertNotNull($ri0);
+        self::assertSame('contact-1', Json::extractObject($ri0, 'Contact')['ContactID']);
+        $json1 = $transport->requests()[1]->json ?? [];
+        $ri1 = Json::extractFirst($json1, 'RepeatingInvoices');
+        self::assertNotNull($ri1);
         self::assertSame('/api.xro/2.0/RepeatingInvoices', $transport->requests()[1]->path);
-        self::assertSame('repeat-1', $transport->requests()[1]->json['RepeatingInvoices'][0]['RepeatingInvoiceID']);
+        self::assertSame('repeat-1', $ri1['RepeatingInvoiceID']);
         self::assertSame('RI-1002', $updated->getReference());
     }
 }

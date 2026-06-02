@@ -10,6 +10,7 @@ use Sujip\Xero\Accounting\BatchPayment\BatchPayment;
 use Sujip\Xero\Accounting\BatchPayment\PaymentEntry;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class BatchPaymentsTest extends TestCase
@@ -47,11 +48,12 @@ final class BatchPaymentsTest extends TestCase
         $batchPayment = $client->accounting()->batchPayments()->find('batch-1');
 
         self::assertSame('/api.xro/2.0/BatchPayments', $transport->requests()[0]->path);
-        self::assertInstanceOf(BatchPayment::class, $batchPayments->first());
+        $firstBp = $batchPayments->first();
+        self::assertNotNull($firstBp);
         self::assertSame('/api.xro/2.0/BatchPayments/batch-1', $transport->requests()[1]->path);
         self::assertSame('batch-1', $batchPayment?->getBatchPaymentID());
-        self::assertSame('account-1', $batchPayments->first()->getAccount()?->getAccountID());
-        self::assertSame('invoice-1', $batchPayments->first()->getPayments()[0]->getInvoiceID());
+        self::assertSame('account-1', $firstBp->getAccount()?->getAccountID());
+        self::assertSame('invoice-1', $firstBp->getPayments()[0]->getInvoiceID());
     }
 
     public function test_it_can_create_batch_payments(): void
@@ -86,8 +88,13 @@ final class BatchPaymentsTest extends TestCase
             ->save();
 
         self::assertSame('/api.xro/2.0/BatchPayments', $transport->requests()[0]->path);
-        self::assertSame('account-1', $transport->requests()[0]->json['BatchPayments'][0]['Account']['AccountID']);
-        self::assertSame('invoice-1', $transport->requests()[0]->json['BatchPayments'][0]['Payments'][0]['Invoice']['InvoiceID']);
+        $json0 = $transport->requests()[0]->json ?? [];
+        $bp0 = Json::extractFirst($json0, 'BatchPayments');
+        self::assertNotNull($bp0);
+        self::assertSame('account-1', Json::extractObject($bp0, 'Account')['AccountID']);
+        $payments0 = Json::extractList($bp0, 'Payments');
+        $invoice0 = Json::extractObject($payments0[0] ?? [], 'Invoice');
+        self::assertSame('invoice-1', $invoice0['InvoiceID']);
         self::assertSame('batch-1', $batchPayment->getBatchPaymentID());
     }
 }

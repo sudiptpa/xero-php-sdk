@@ -9,6 +9,7 @@ use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\AU\Employee;
 use Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class EmployeesTest extends TestCase
@@ -78,11 +79,12 @@ final class EmployeesTest extends TestCase
         self::assertSame('Status=="ACTIVE"', $transport->requests()[0]->query['where']);
         self::assertSame('LastName ASC', $transport->requests()[0]->query['order']);
         self::assertSame(2, $transport->requests()[0]->query['page']);
-        self::assertInstanceOf(Employee::class, $employees->first());
+        $firstEmp = $employees->first();
+        self::assertNotNull($firstEmp);
         self::assertSame('/payroll.xro/1.0/Employees/employee-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/1.0/Employees', $transport->requests()[2]->path);
         self::assertSame('/payroll.xro/1.0/Employees/employee-2', $transport->requests()[3]->path);
-        self::assertSame('Jane', $employees->first()->getFirstName());
+        self::assertSame('Jane', $firstEmp->getFirstName());
         self::assertSame('employee-1', $employee?->getEmployeeID());
         self::assertSame('employee-2', $created->getEmployeeID());
         self::assertSame('employee-2', $updated->getEmployeeID());
@@ -126,8 +128,10 @@ final class EmployeesTest extends TestCase
         self::assertSame('/payroll.xro/1.0/Employees/employee-1', $transport->requests()[0]->path);
         self::assertSame('/payroll.xro/1.0/Employees/employee-1/LeaveBalances', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/1.0/LeaveApplications', $transport->requests()[2]->path);
-        self::assertEquals(18.25, $leaveBalances['LeaveBalances'][0]['Balance']);
-        self::assertInstanceOf(LeaveApplication::class, $leaveApplication);
+        $lb = Json::extractFirst($leaveBalances ?? [], 'LeaveBalances');
+        self::assertNotNull($lb);
+        self::assertEquals(18.25, $lb['Balance']);
+        self::assertNotNull($leaveApplication);
         self::assertSame('employee-1', $leaveApplication->getEmployeeID());
     }
 

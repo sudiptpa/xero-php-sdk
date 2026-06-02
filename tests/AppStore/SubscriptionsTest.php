@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\AppStore;
 
 use PHPUnit\Framework\TestCase;
-use Sujip\Xero\AppStore\Subscription\Subscription;
 use Sujip\Xero\AppStore\Subscription\UsageRecord;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
@@ -66,15 +65,15 @@ final class SubscriptionsTest extends TestCase
             ->endDate('2026-03-31')
             ->save();
 
-        self::assertInstanceOf(Subscription::class, $subscription);
-        self::assertSame('item-1', $subscription->getItems()[0]['id']);
+        $items = $subscription->getItems();
+        self::assertSame('item-1', $items[0]['id'] ?? null);
         self::assertSame('/subscriptions/subscription-1', $transport->requests()[0]->path);
         self::assertFalse($transport->requests()[0]->includeTenantHeader);
         self::assertSame('/subscriptions/subscription-1/usage-records', $transport->requests()[1]->path);
         self::assertFalse($transport->requests()[1]->includeTenantHeader);
         self::assertSame('/subscriptions/subscription-1/items/item-1/usage-records', $transport->requests()[2]->path);
         self::assertSame('/subscriptions/subscription-1/items/item-1/usage-records/usage-2', $transport->requests()[3]->path);
-        self::assertInstanceOf(UsageRecord::class, $usageRecords->first());
+        self::assertNotNull($usageRecords->first());
         self::assertSame('usage-2', $recorded->getUsageRecordID());
         self::assertSame(15.0, $updated->getQuantity());
     }

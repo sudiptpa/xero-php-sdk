@@ -10,6 +10,7 @@ use Sujip\Xero\Accounting\CreditNote\CreditNote;
 use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class CreditNotesTest extends TestCase
@@ -49,11 +50,12 @@ final class CreditNotesTest extends TestCase
 
         self::assertSame('/api.xro/2.0/CreditNotes', $transport->requests()[0]->path);
         self::assertSame('Status == "AUTHORISED"', $transport->requests()[0]->query['where']);
-        self::assertInstanceOf(CreditNote::class, $creditNotes->first());
+        $firstCn = $creditNotes->first();
+        self::assertNotNull($firstCn);
         self::assertSame('/api.xro/2.0/CreditNotes/credit-1', $transport->requests()[1]->path);
         self::assertSame('credit-1', $creditNote?->getCreditNoteID());
-        self::assertSame('contact-1', $creditNotes->first()->getContact()?->getContactID());
-        self::assertSame('Adjustment', $creditNotes->first()->getLineItems()[0]->getDescription());
+        self::assertSame('contact-1', $firstCn->getContact()?->getContactID());
+        self::assertSame('Adjustment', $firstCn->getLineItems()[0]->getDescription());
     }
 
     public function test_it_can_create_and_update_credit_notes(): void
@@ -97,10 +99,16 @@ final class CreditNotesTest extends TestCase
         $updated = $created->reference('CN-1002')->save();
 
         self::assertSame('/api.xro/2.0/CreditNotes', $transport->requests()[0]->path);
-        self::assertSame('ACCRECCREDIT', $transport->requests()[0]->json['CreditNotes'][0]['Type']);
-        self::assertSame('contact-1', $transport->requests()[0]->json['CreditNotes'][0]['Contact']['ContactID']);
+        $json0 = $transport->requests()[0]->json ?? [];
+        $cn0 = Json::extractFirst($json0, 'CreditNotes');
+        self::assertNotNull($cn0);
+        self::assertSame('ACCRECCREDIT', $cn0['Type']);
+        self::assertSame('contact-1', Json::extractObject($cn0, 'Contact')['ContactID']);
+        $json1 = $transport->requests()[1]->json ?? [];
+        $cn1 = Json::extractFirst($json1, 'CreditNotes');
+        self::assertNotNull($cn1);
         self::assertSame('/api.xro/2.0/CreditNotes', $transport->requests()[1]->path);
-        self::assertSame('credit-1', $transport->requests()[1]->json['CreditNotes'][0]['CreditNoteID']);
+        self::assertSame('credit-1', $cn1['CreditNoteID']);
         self::assertSame('CN-1002', $updated->getReference());
     }
 }

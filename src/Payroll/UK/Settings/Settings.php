@@ -8,6 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final readonly class Settings implements DefinesScopes
 {
@@ -34,10 +35,10 @@ final readonly class Settings implements DefinesScopes
             ->send()
             ->json();
 
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $trackingCategory): TrackingCategory => $this->mapTrackingCategory($trackingCategory),
-            $payload['TrackingCategories'] ?? []
-        ));
+            Json::extractList($payload, 'TrackingCategories')
+        );
 
         return new ResourceCollection($items);
     }
@@ -52,10 +53,10 @@ final readonly class Settings implements DefinesScopes
             ->send()
             ->json();
 
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $reimbursement): Reimbursement => $this->mapReimbursement($reimbursement),
-            $payload['Reimbursements'] ?? []
-        ));
+            Json::extractList($payload, 'Reimbursements')
+        );
 
         return new ResourceCollection($items);
     }
@@ -67,9 +68,9 @@ final readonly class Settings implements DefinesScopes
             ->send()
             ->json();
 
-        $reimbursement = $payload['Reimbursements'][0] ?? $payload['Reimbursement'] ?? null;
+        $reimbursement = Json::extractFirst($payload, 'Reimbursements') ?? Json::extractObject($payload, 'Reimbursement') ?: null;
 
-        return is_array($reimbursement) ? $this->mapReimbursement($reimbursement) : null;
+        return $reimbursement !== null ? $this->mapReimbursement($reimbursement) : null;
     }
 
     public function createReimbursement(): ReimbursementPayload

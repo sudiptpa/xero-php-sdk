@@ -10,6 +10,7 @@ use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Accounting\PurchaseOrder\PurchaseOrder;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class PurchaseOrdersTest extends TestCase
@@ -47,11 +48,12 @@ final class PurchaseOrdersTest extends TestCase
         $purchaseOrder = $client->accounting()->purchaseOrders()->find('po-1');
 
         self::assertSame('/api.xro/2.0/PurchaseOrders', $transport->requests()[0]->path);
-        self::assertInstanceOf(PurchaseOrder::class, $purchaseOrders->first());
+        $firstPo = $purchaseOrders->first();
+        self::assertNotNull($firstPo);
         self::assertSame('/api.xro/2.0/PurchaseOrders/po-1', $transport->requests()[1]->path);
         self::assertSame('po-1', $purchaseOrder?->getPurchaseOrderID());
-        self::assertSame('contact-1', $purchaseOrders->first()->getContact()?->getContactID());
-        self::assertSame('Hardware', $purchaseOrders->first()->getLineItems()[0]->getDescription());
+        self::assertSame('contact-1', $firstPo->getContact()?->getContactID());
+        self::assertSame('Hardware', $firstPo->getLineItems()[0]->getDescription());
     }
 
     public function test_it_can_create_and_update_purchase_orders(): void
@@ -92,9 +94,15 @@ final class PurchaseOrdersTest extends TestCase
         $updated = $created->reference('PO-REF-UPDATED')->save();
 
         self::assertSame('/api.xro/2.0/PurchaseOrders', $transport->requests()[0]->path);
-        self::assertSame('contact-1', $transport->requests()[0]->json['PurchaseOrders'][0]['Contact']['ContactID']);
+        $json0 = $transport->requests()[0]->json ?? [];
+        $po0 = Json::extractFirst($json0, 'PurchaseOrders');
+        self::assertNotNull($po0);
+        self::assertSame('contact-1', Json::extractObject($po0, 'Contact')['ContactID']);
+        $json1 = $transport->requests()[1]->json ?? [];
+        $po1 = Json::extractFirst($json1, 'PurchaseOrders');
+        self::assertNotNull($po1);
         self::assertSame('/api.xro/2.0/PurchaseOrders', $transport->requests()[1]->path);
-        self::assertSame('po-1', $transport->requests()[1]->json['PurchaseOrders'][0]['PurchaseOrderID']);
+        self::assertSame('po-1', $po1['PurchaseOrderID']);
         self::assertSame('PO-REF-UPDATED', $updated->getReference());
     }
 }

@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Accounting\Employee\Employee;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class EmployeesTest extends TestCase
@@ -71,11 +72,14 @@ final class EmployeesTest extends TestCase
         self::assertSame('Status == "ACTIVE"', $transport->requests()[0]->query['where']);
         self::assertSame('LastName ASC', $transport->requests()[0]->query['order']);
         self::assertSame('Wed, 25 Mar 2026 00:00:00 GMT', $transport->requests()[0]->query['If-Modified-Since']);
-        self::assertInstanceOf(Employee::class, $employees->first());
+        self::assertNotNull($employees->first());
         self::assertSame('/api.xro/2.0/Employees/employee-1', $transport->requests()[1]->path);
         self::assertSame('/api.xro/2.0/Employees', $transport->requests()[2]->path);
+        $json3 = $transport->requests()[3]->json ?? [];
+        $emp3 = Json::extractFirst($json3, 'Employees');
+        self::assertNotNull($emp3);
         self::assertSame('/api.xro/2.0/Employees', $transport->requests()[3]->path);
-        self::assertSame('employee-2', $transport->requests()[3]->json['Employees'][0]['EmployeeID']);
+        self::assertSame('employee-2', $emp3['EmployeeID']);
         self::assertSame('maria@example.test', $updated->getEmailAddress());
         self::assertSame('employee-1', $employee?->getEmployeeID());
     }

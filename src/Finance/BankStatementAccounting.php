@@ -9,6 +9,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final readonly class BankStatementAccounting implements DefinesScopes
 {
@@ -46,10 +47,10 @@ final readonly class BankStatementAccounting implements DefinesScopes
             ->send()
             ->json();
 
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $entry): BankStatementEntry => $this->mapBankStatementEntry($entry),
-            $payload['Items'] ?? $payload['BankStatementAccounting'] ?? []
-        ));
+            Json::extractList($payload, 'Items') ?: Json::extractList($payload, 'BankStatementAccounting')
+        );
 
         return new ResourceCollection($items);
     }

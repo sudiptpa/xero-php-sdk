@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Accounting\ContactGroup\ContactGroup;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class ContactGroupsTest extends TestCase
@@ -62,12 +63,15 @@ final class ContactGroupsTest extends TestCase
 
         self::assertSame('/api.xro/2.0/ContactGroups', $transport->requests()[0]->path);
         self::assertSame('Status == "ACTIVE"', $transport->requests()[0]->query['where']);
-        self::assertInstanceOf(ContactGroup::class, $groups->first());
+        self::assertNotNull($groups->first());
         self::assertSame('/api.xro/2.0/ContactGroups/group-1', $transport->requests()[1]->path);
         self::assertSame('/api.xro/2.0/ContactGroups', $transport->requests()[2]->path);
         self::assertSame('/api.xro/2.0/ContactGroups/group-2', $transport->requests()[3]->path);
         self::assertSame('/api.xro/2.0/ContactGroups/group-2/Contacts', $transport->requests()[4]->path);
-        self::assertSame('contact-1', $transport->requests()[4]->json['Contacts'][0]['ContactID']);
+        $json4 = $transport->requests()[4]->json ?? [];
+        $contact4 = Json::extractFirst($json4, 'Contacts');
+        self::assertNotNull($contact4);
+        self::assertSame('contact-1', $contact4['ContactID']);
         self::assertSame(['contact-1'], $attached->getContactIDs());
         self::assertSame('group-1', $group?->getContactGroupID());
     }

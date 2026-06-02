@@ -6,6 +6,7 @@ namespace Sujip\Xero\Finance\FinancialStatement;
 
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Json;
 
 final class Statement extends Model
 {
@@ -43,6 +44,6 @@ final class Statement extends Model
     {
         parent::fill($payload);
 
-        return $this->setRows(array_values(array_filter($payload['Rows'] ?? $payload['rows'] ?? [], 'is_array')));
+        return $this->setRows(Json::extractList($payload, 'Rows') ?: Json::extractList($payload, 'rows'));
     }
 }

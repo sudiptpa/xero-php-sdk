@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Webhooks;
 
 use Sujip\Xero\Support\Field;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Support\Model;
 use Sujip\Xero\Support\ResourceCollection;
 
@@ -60,7 +61,7 @@ final class WebhookPayload extends Model
 
         $events = array_map(
             fn (array $event): WebhookEvent => (new WebhookEvent())->fill($event),
-            array_values(array_filter($payload['events'] ?? [], 'is_array'))
+            Json::extractList($payload, 'events')
         );
 
         return $this->setEvents(new ResourceCollection($events));

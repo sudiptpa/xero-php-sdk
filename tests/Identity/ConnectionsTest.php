@@ -7,7 +7,6 @@ namespace Sujip\Xero\Tests\Identity;
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
-use Sujip\Xero\Identity\Connection;
 use Sujip\Xero\Xero;
 
 final class ConnectionsTest extends TestCase
@@ -37,8 +36,9 @@ final class ConnectionsTest extends TestCase
 
         self::assertSame('/connections', $request->path);
         self::assertArrayNotHasKey('Xero-Tenant-Id', $request->headers);
-        self::assertInstanceOf(Connection::class, $connections->first());
-        self::assertSame('tenant-1', $connections->first()->getTenantId());
+        $firstConn = $connections->first();
+        self::assertNotNull($firstConn);
+        self::assertSame('tenant-1', $firstConn->getTenantId());
     }
 
     public function test_it_can_find_a_connection_by_tenant(): void
@@ -63,6 +63,7 @@ final class ConnectionsTest extends TestCase
             ->connections()
             ->findByTenant('tenant-2');
 
+        self::assertNotNull($connection);
         self::assertSame('connection-2', $connection->getId());
         self::assertSame('Beta Pty Ltd', $connection->getTenantName());
     }
@@ -104,7 +105,7 @@ final class ConnectionsTest extends TestCase
             ->get()
             ->first();
 
-        self::assertInstanceOf(Connection::class, $connection);
+        self::assertNotNull($connection);
         self::assertTrue($connection->disconnect());
     }
 }

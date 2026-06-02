@@ -11,6 +11,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class PayRunCalendars implements PaginatesResults, DefinesScopes
 {
@@ -40,10 +41,10 @@ final class PayRunCalendars implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $calendar): PayRunCalendar => $this->mapPayRunCalendar($calendar),
-            $payload['PayrollCalendars'] ?? $payload['PayRunCalendars'] ?? []
-        ));
+            Json::extractList($payload, 'PayrollCalendars') ?: Json::extractList($payload, 'PayRunCalendars')
+        );
 
         return new ResourceCollection($items);
     }
@@ -73,9 +74,20 @@ final class PayRunCalendars implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $calendar = $payload['PayrollCalendars'][0] ?? $payload['PayRunCalendars'][0] ?? $payload['PayrollCalendar'] ?? $payload['PayRunCalendar'] ?? null;
+        $calendar = Json::extractFirst($payload, 'PayrollCalendars')
+            ?? Json::extractFirst($payload, 'PayRunCalendars');
 
-        return is_array($calendar) ? $this->mapPayRunCalendar($calendar) : null;
+        if ($calendar === null) {
+            $obj = Json::extractObject($payload, 'PayrollCalendar');
+            $calendar = $obj !== [] ? $obj : null;
+        }
+
+        if ($calendar === null) {
+            $obj = Json::extractObject($payload, 'PayRunCalendar');
+            $calendar = $obj !== [] ? $obj : null;
+        }
+
+        return $calendar !== null ? $this->mapPayRunCalendar($calendar) : null;
     }
 
     /**

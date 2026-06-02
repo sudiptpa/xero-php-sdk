@@ -13,6 +13,7 @@ use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class Contacts implements PaginatesResults, DefinesScopes
 {
@@ -68,10 +69,10 @@ final class Contacts implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $contact): Contact => $this->mapContact($contact),
-            $payload['Contacts'] ?? []
-        ));
+            Json::extractList($payload, 'Contacts')
+        );
 
         return new ResourceCollection($items);
     }
@@ -110,9 +111,9 @@ final class Contacts implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $contact = $payload['Contacts'][0] ?? null;
+        $contact = Json::extractFirst($payload, 'Contacts');
 
-        return is_array($contact) ? $this->mapContact($contact) : null;
+        return $contact !== null ? $this->mapContact($contact) : null;
     }
 
     public function create(): Payload

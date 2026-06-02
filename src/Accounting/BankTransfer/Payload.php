@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\BankTransfer;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -77,9 +78,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $bankTransfer = $payload['BankTransfers'][0] ?? [];
+        $bankTransfer = Json::extractFirst($payload, 'BankTransfers') ?? [];
 
         return (new BankTransfers($this->client))
-            ->mapBankTransfer(is_array($bankTransfer) ? $bankTransfer : []);
+            ->mapBankTransfer($bankTransfer);
     }
 }

@@ -10,6 +10,7 @@ use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class BankTransfers implements DefinesScopes
 {
@@ -48,10 +49,10 @@ final class BankTransfers implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $bankTransfer): BankTransfer => $this->mapBankTransfer($bankTransfer),
-            $payload['BankTransfers'] ?? []
-        ));
+            Json::extractList($payload, 'BankTransfers')
+        );
 
         return new ResourceCollection($items);
     }
@@ -63,9 +64,9 @@ final class BankTransfers implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $bankTransfer = $payload['BankTransfers'][0] ?? null;
+        $bankTransfer = Json::extractFirst($payload, 'BankTransfers');
 
-        return is_array($bankTransfer) ? $this->mapBankTransfer($bankTransfer) : null;
+        return $bankTransfer !== null ? $this->mapBankTransfer($bankTransfer) : null;
     }
 
     public function create(): Payload

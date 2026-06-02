@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Employee;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -83,9 +84,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $employee = $payload['Employees'][0] ?? [];
+        $employee = Json::extractFirst($payload, 'Employees') ?? [];
 
         return (new Employees($this->client))
-            ->mapEmployee(is_array($employee) ? $employee : []);
+            ->mapEmployee($employee);
     }
 }

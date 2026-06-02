@@ -50,10 +50,10 @@ final class SettingsTest extends TestCase
         self::assertSame('/payroll.xro/2.0/StatutoryDeductions', $transport->requests()[1]->path);
         self::assertSame(2, $transport->requests()[1]->query['page']);
         self::assertSame('/payroll.xro/2.0/StatutoryDeductions/deduction-1', $transport->requests()[2]->path);
-        self::assertInstanceOf(PayrollSettings::class, $settings);
         self::assertSame([], $settings->getAccounts());
-        self::assertInstanceOf(StatutoryDeduction::class, $deductions->first());
-        self::assertSame('KiwiSaver', $deductions->first()->getName());
+        $firstDed = $deductions->first();
+        self::assertNotNull($firstDed);
+        self::assertSame('KiwiSaver', $firstDed->getName());
         self::assertSame('deduction-1', $deduction?->getStatutoryDeductionID());
     }
 }

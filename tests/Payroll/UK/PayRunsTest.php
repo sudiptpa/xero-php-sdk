@@ -54,13 +54,12 @@ final class PayRunsTest extends TestCase
         self::assertSame('/payroll.xro/2.0/PayRuns', $transport->requests()[0]->path);
         self::assertSame('DRAFT', $transport->requests()[0]->query['status']);
         self::assertSame(2, $transport->requests()[0]->query['page']);
-        self::assertInstanceOf(PayRun::class, $runs->first());
+        $firstRun = $runs->first();
+        self::assertNotNull($firstRun);
         self::assertSame('/payroll.xro/2.0/PayRuns/payrun-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/2.0/PayRuns', $transport->requests()[2]->path);
         self::assertSame('payrun-1', $run?->getPayRunID());
         self::assertSame('payrun-2', $created->getPayRunID());
-        $firstRun = $runs->first();
-        self::assertInstanceOf(PayRun::class, $firstRun);
         self::assertSame('2026-03-01', $firstRun->getPeriodStartDate());
         self::assertSame(1500.25, $firstRun->getTotalCost());
         self::assertSame('Scheduled', $firstRun->getPayRunType());
@@ -109,7 +108,7 @@ final class PayRunsTest extends TestCase
         self::assertSame('/payroll.xro/2.0/PayRuns/payrun-1/Payslips', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/2.0/PayRuns/payrun-1/Payslips/payslip-1', $transport->requests()[2]->path);
         self::assertSame('/payroll.xro/2.0/PayRuns/payrun-1/Payslips', $transport->requests()[3]->path);
-        self::assertInstanceOf(Payslip::class, $payslips->first());
+        self::assertNotNull($payslips->first());
         self::assertSame('payslip-1', $payslip?->getPayslipID());
         self::assertSame('payslip-1', $modelPayslips?->first()?->getPayslipID());
     }

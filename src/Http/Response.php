@@ -28,13 +28,7 @@ final readonly class Response
             return [];
         }
 
-        $decoded = Json::decode($this->body);
-
-        if (! is_array($decoded)) {
-            throw new RuntimeException('Unable to decode JSON response body.');
-        }
-
-        return $decoded;
+        return Json::decodeObject($this->body);
     }
 
     public function header(string $name, ?string $default = null): ?string

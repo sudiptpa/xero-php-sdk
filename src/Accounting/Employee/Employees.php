@@ -10,6 +10,7 @@ use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class Employees implements DefinesScopes
 {
@@ -48,10 +49,10 @@ final class Employees implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $employee): Employee => $this->mapEmployee($employee),
-            $payload['Employees'] ?? []
-        ));
+            Json::extractList($payload, 'Employees')
+        );
 
         return new ResourceCollection($items);
     }
@@ -63,9 +64,9 @@ final class Employees implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $employee = $payload['Employees'][0] ?? null;
+        $employee = Json::extractFirst($payload, 'Employees');
 
-        return is_array($employee) ? $this->mapEmployee($employee) : null;
+        return $employee !== null ? $this->mapEmployee($employee) : null;
     }
 
     public function create(): Payload

@@ -12,6 +12,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class LeaveApplications implements PaginatesResults, DefinesScopes
 {
@@ -70,10 +71,10 @@ final class LeaveApplications implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $leaveApplication): LeaveApplication => $this->mapLeaveApplication($leaveApplication),
-            $payload['LeaveApplications'] ?? []
-        ));
+            Json::extractList($payload, 'LeaveApplications')
+        );
 
         return new ResourceCollection($items);
     }
@@ -103,9 +104,9 @@ final class LeaveApplications implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $leaveApplication = $payload['LeaveApplications'][0] ?? $payload['LeaveApplication'] ?? null;
+        $leaveApplication = Json::extractFirst($payload, 'LeaveApplications') ?? Json::extractObject($payload, 'LeaveApplication') ?: null;
 
-        return is_array($leaveApplication) ? $this->mapLeaveApplication($leaveApplication) : null;
+        return $leaveApplication !== null ? $this->mapLeaveApplication($leaveApplication) : null;
     }
 
     public function create(): Payload
@@ -125,9 +126,9 @@ final class LeaveApplications implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $leaveApplication = $payload['LeaveApplications'][0] ?? $payload['LeaveApplication'] ?? [];
+        $leaveApplication = Json::extractFirst($payload, 'LeaveApplications') ?? Json::extractObject($payload, 'LeaveApplication');
 
-        return is_array($leaveApplication) ? $this->mapLeaveApplication($leaveApplication) : new LeaveApplication($this->client);
+        return $leaveApplication !== [] ? $this->mapLeaveApplication($leaveApplication) : new LeaveApplication($this->client);
     }
 
     public function reject(string $leaveApplicationId): LeaveApplication
@@ -137,9 +138,9 @@ final class LeaveApplications implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $leaveApplication = $payload['LeaveApplications'][0] ?? $payload['LeaveApplication'] ?? [];
+        $leaveApplication = Json::extractFirst($payload, 'LeaveApplications') ?? Json::extractObject($payload, 'LeaveApplication');
 
-        return is_array($leaveApplication) ? $this->mapLeaveApplication($leaveApplication) : new LeaveApplication($this->client);
+        return $leaveApplication !== [] ? $this->mapLeaveApplication($leaveApplication) : new LeaveApplication($this->client);
     }
 
     /**

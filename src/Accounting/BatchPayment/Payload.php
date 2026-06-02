@@ -6,6 +6,7 @@ namespace Sujip\Xero\Accounting\BatchPayment;
 
 use Sujip\Xero\Accounting\Account\Account;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -67,9 +68,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $batchPayment = $payload['BatchPayments'][0] ?? [];
+        $batchPayment = Json::extractFirst($payload, 'BatchPayments') ?? [];
 
         return (new BatchPayments($this->client))
-            ->mapBatchPayment(is_array($batchPayment) ? $batchPayment : []);
+            ->mapBatchPayment($batchPayment);
     }
 }

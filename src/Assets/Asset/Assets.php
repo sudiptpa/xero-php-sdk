@@ -9,6 +9,7 @@ use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class Assets implements DefinesScopes
 {
@@ -91,7 +92,7 @@ final class Assets implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(fn (array $asset): Asset => $this->mapAsset($asset), $payload['Items'] ?? []));
+        $items = array_map(fn (array $asset): Asset => $this->mapAsset($asset), Json::extractList($payload, 'Items'));
 
         return new ResourceCollection($items);
     }
@@ -126,9 +127,9 @@ final class Assets implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $asset = $payload['Items'][0] ?? null;
+        $asset = Json::extractFirst($payload, 'Items');
 
-        return is_array($asset) ? $this->mapAsset($asset) : null;
+        return $asset !== null ? $this->mapAsset($asset) : null;
     }
 
     public function create(): Payload

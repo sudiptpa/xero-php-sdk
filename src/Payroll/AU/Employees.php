@@ -10,6 +10,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\Concerns\HasPagination;
+use Sujip\Xero\Support\Json;
 
 final class Employees implements PaginatesResults
 {
@@ -60,7 +61,7 @@ final class Employees implements PaginatesResults
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(fn (array $employee): Employee => $this->mapEmployee($employee), $payload['Employees'] ?? []));
+        $items = array_map(fn (array $employee): Employee => $this->mapEmployee($employee), Json::extractList($payload, 'Employees'));
 
         return new ResourceCollection($items);
     }
@@ -99,9 +100,9 @@ final class Employees implements PaginatesResults
             ->send();
 
         $payload = $response->json();
-        $employee = $payload['Employees'][0] ?? $payload['Employee'] ?? null;
+        $employee = Json::extractFirst($payload, 'Employees') ?? Json::extractObject($payload, 'Employee') ?: null;
 
-        return is_array($employee) ? $this->mapEmployee($employee) : null;
+        return $employee !== null ? $this->mapEmployee($employee) : null;
     }
 
     public function create(): Payload

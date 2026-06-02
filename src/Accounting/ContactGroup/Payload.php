@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\ContactGroup;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -47,8 +48,9 @@ final class Payload
     public function contact(string $contactId): self
     {
         $clone = clone $this;
-        $clone->payload['Contacts'] ??= [];
-        $clone->payload['Contacts'][] = ['ContactID' => $contactId];
+        $contacts = is_array($clone->payload['Contacts'] ?? null) ? $clone->payload['Contacts'] : [];
+        $contacts[] = ['ContactID' => $contactId];
+        $clone->payload['Contacts'] = $contacts;
 
         return $clone;
     }
@@ -67,9 +69,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $contactGroup = $payload['ContactGroups'][0] ?? $payload['ContactGroup'] ?? [];
+        $contactGroup = Json::extractFirst($payload, 'ContactGroups') ?? Json::extractObject($payload, 'ContactGroup');
 
         return (new ContactGroups($this->client))
-            ->mapContactGroup(is_array($contactGroup) ? $contactGroup : []);
+            ->mapContactGroup($contactGroup);
     }
 }

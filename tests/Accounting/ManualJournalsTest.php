@@ -9,6 +9,7 @@ use Sujip\Xero\Accounting\ManualJournal\JournalLine;
 use Sujip\Xero\Accounting\ManualJournal\ManualJournal;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class ManualJournalsTest extends TestCase
@@ -41,10 +42,11 @@ final class ManualJournalsTest extends TestCase
         $manualJournal = $client->accounting()->manualJournals()->find('journal-1');
 
         self::assertSame('/api.xro/2.0/ManualJournals', $transport->requests()[0]->path);
-        self::assertInstanceOf(ManualJournal::class, $manualJournals->first());
+        $firstMj = $manualJournals->first();
+        self::assertNotNull($firstMj);
         self::assertSame('/api.xro/2.0/ManualJournals/journal-1', $transport->requests()[1]->path);
         self::assertSame('journal-1', $manualJournal?->getManualJournalID());
-        self::assertSame('200', $manualJournals->first()->getJournalLines()[0]->getAccountCode());
+        self::assertSame('200', $firstMj->getJournalLines()[0]->getAccountCode());
     }
 
     public function test_it_can_create_and_update_manual_journals(): void
@@ -87,9 +89,15 @@ final class ManualJournalsTest extends TestCase
         $updated = $created->narration('Revised month end adjustments')->save();
 
         self::assertSame('/api.xro/2.0/ManualJournals', $transport->requests()[0]->path);
-        self::assertSame('Month end adjustments', $transport->requests()[0]->json['ManualJournals'][0]['Narration']);
+        $json0 = $transport->requests()[0]->json ?? [];
+        $mj0 = Json::extractFirst($json0, 'ManualJournals');
+        self::assertNotNull($mj0);
+        self::assertSame('Month end adjustments', $mj0['Narration']);
+        $json1 = $transport->requests()[1]->json ?? [];
+        $mj1 = Json::extractFirst($json1, 'ManualJournals');
+        self::assertNotNull($mj1);
         self::assertSame('/api.xro/2.0/ManualJournals', $transport->requests()[1]->path);
-        self::assertSame('journal-1', $transport->requests()[1]->json['ManualJournals'][0]['ManualJournalID']);
+        self::assertSame('journal-1', $mj1['ManualJournalID']);
         self::assertSame('Revised month end adjustments', $updated->getNarration());
     }
 
@@ -195,7 +203,7 @@ final class ManualJournalsTest extends TestCase
         $history = $client->accounting()->manualJournals()->history('journal-1')->get();
         $record = $client->accounting()->manualJournals()->history('journal-1')->record('Updated in app');
         $manualJournal = $client->accounting()->manualJournals()->find('journal-1');
-        $modelHistory = $manualJournal?->history()->get();
+        $modelHistory = $manualJournal?->history()?->get();
 
         self::assertSame('/api.xro/2.0/ManualJournals/journal-1/History', $transport->requests()[0]->path);
         self::assertSame('/api.xro/2.0/ManualJournals/journal-1/History', $transport->requests()[1]->path);
@@ -203,6 +211,6 @@ final class ManualJournalsTest extends TestCase
         self::assertSame('/api.xro/2.0/ManualJournals/journal-1/History', $transport->requests()[3]->path);
         self::assertSame('Created in app', $history->first()?->details);
         self::assertSame('Updated in app', $record->details);
-        self::assertSame('Viewed from model', $modelHistory->first()?->details);
+        self::assertSame('Viewed from model', $modelHistory?->first()?->details);
     }
 }

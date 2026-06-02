@@ -10,6 +10,7 @@ use Sujip\Xero\Accounting\Invoice\Invoice;
 use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class InvoicesTest extends TestCase
@@ -60,10 +61,13 @@ final class InvoicesTest extends TestCase
 
         self::assertSame('POST', $request->method);
         self::assertSame('/api.xro/2.0/Invoices', $request->path);
-        self::assertSame('ACCREC', $request->json['Invoices'][0]['Type']);
-        self::assertSame('DRAFT', $request->json['Invoices'][0]['Status']);
-        self::assertSame('contact-1', $request->json['Invoices'][0]['Contact']['ContactID']);
-        self::assertSame('Acme Pty Ltd', $request->json['Invoices'][0]['Contact']['Name']);
+        $json = $request->json ?? [];
+        $inv = Json::extractFirst($json, 'Invoices');
+        self::assertNotNull($inv);
+        self::assertSame('ACCREC', $inv['Type']);
+        self::assertSame('DRAFT', $inv['Status']);
+        self::assertSame('contact-1', Json::extractObject($inv, 'Contact')['ContactID']);
+        self::assertSame('Acme Pty Ltd', Json::extractObject($inv, 'Contact')['Name']);
         self::assertSame('PO-1001', $invoice->getReference());
         self::assertCount(1, $invoice->getLineItems());
     }
@@ -100,9 +104,13 @@ final class InvoicesTest extends TestCase
         self::assertSame('/api.xro/2.0/Invoices', $request->path);
         self::assertSame('Status == "AUTHORISED"', $request->query['where']);
         self::assertSame('UpdatedDateUTC DESC', $request->query['order']);
-        self::assertSame('AUTHORISED', $invoices->first()->getStatus());
-        self::assertSame('contact-1', $invoices->first()->getContact()->getContactID());
-        self::assertSame('Acme Pty Ltd', $invoices->first()->getContact()->getName());
+        $firstInv = $invoices->first();
+        self::assertNotNull($firstInv);
+        self::assertSame('AUTHORISED', $firstInv->getStatus());
+        $contact = $firstInv->getContact();
+        self::assertNotNull($contact);
+        self::assertSame('contact-1', $contact->getContactID());
+        self::assertSame('Acme Pty Ltd', $contact->getName());
     }
 
     public function test_it_can_find_an_invoice(): void
@@ -125,6 +133,7 @@ final class InvoicesTest extends TestCase
             ->invoices()
             ->find('invoice-1');
 
+        self::assertNotNull($invoice);
         self::assertSame('invoice-1', $invoice->getInvoiceID());
         self::assertSame('ACCPAY', $invoice->getType());
     }

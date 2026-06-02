@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Accounting\ExpenseClaim\ExpenseClaim;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class ExpenseClaimsTest extends TestCase
@@ -59,12 +60,18 @@ final class ExpenseClaimsTest extends TestCase
 
         self::assertSame('/api.xro/2.0/ExpenseClaims', $transport->requests()[0]->path);
         self::assertSame('Status == "SUBMITTED"', $transport->requests()[0]->query['where']);
-        self::assertInstanceOf(ExpenseClaim::class, $claims->first());
+        self::assertNotNull($claims->first());
         self::assertSame('/api.xro/2.0/ExpenseClaims/expense-1', $transport->requests()[1]->path);
         self::assertSame('/api.xro/2.0/ExpenseClaims', $transport->requests()[2]->path);
-        self::assertSame('employee-1', $transport->requests()[2]->json['ExpenseClaims'][0]['Employee']['EmployeeID']);
+        $json2 = $transport->requests()[2]->json ?? [];
+        $ec2 = Json::extractFirst($json2, 'ExpenseClaims');
+        self::assertNotNull($ec2);
+        self::assertSame('employee-1', Json::extractObject($ec2, 'Employee')['EmployeeID']);
+        $json3 = $transport->requests()[3]->json ?? [];
+        $ec3 = Json::extractFirst($json3, 'ExpenseClaims');
+        self::assertNotNull($ec3);
         self::assertSame('/api.xro/2.0/ExpenseClaims', $transport->requests()[3]->path);
-        self::assertSame('expense-2', $transport->requests()[3]->json['ExpenseClaims'][0]['ExpenseClaimID']);
+        self::assertSame('expense-2', $ec3['ExpenseClaimID']);
         self::assertSame('SUBMITTED', $updated->getStatus());
         self::assertSame('expense-1', $claim?->getExpenseClaimID());
     }

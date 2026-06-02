@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\ManualJournal;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -64,8 +65,8 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $manualJournal = $payload['ManualJournals'][0] ?? [];
+        $manualJournal = Json::extractFirst($payload, 'ManualJournals') ?? [];
 
-        return (new ManualJournals($this->client))->mapManualJournal(is_array($manualJournal) ? $manualJournal : []);
+        return (new ManualJournals($this->client))->mapManualJournal($manualJournal);
     }
 }

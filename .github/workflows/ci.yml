@@ -20,17 +20,18 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          coverage: ${{ matrix.php-version == '8.3' && 'xdebug' || 'none' }}
+          coverage: ${{ matrix.php-version == '8.3' && 'pcov' || 'none' }}
 
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
 
       - run: mkdir -p build/logs
+      - run: composer lint:check
       - run: composer test
       - run: composer stan
       - run: composer coverage
         if: matrix.php-version == '8.3'
-      - run: find src tests -name '*.php' -print0 | xargs -0 -n1 php -l
+      - run: composer lint
 
       - uses: actions/upload-artifact@v6
         if: always() && matrix.php-version == '8.3'

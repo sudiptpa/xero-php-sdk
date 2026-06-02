@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\ManualJournal;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final readonly class Upload
 {
@@ -33,13 +34,11 @@ final readonly class Upload
         }
 
         $payload = $request->send()->json();
-        $attachment = $payload['Attachments'][0] ?? [];
-
-        $attachment = is_array($attachment) ? $attachment : [];
+        $attachment = Json::extractFirst($payload, 'Attachments') ?? [];
 
         return new Attachment(
-            isset($attachment['FileName']) ? (string) $attachment['FileName'] : null,
-            isset($attachment['Url']) ? (string) $attachment['Url'] : null,
+            is_string($attachment['FileName'] ?? null) ? $attachment['FileName'] : null,
+            is_string($attachment['Url'] ?? null) ? $attachment['Url'] : null,
             $attachment
         );
     }

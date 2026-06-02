@@ -10,6 +10,7 @@ use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class RepeatingInvoices implements DefinesScopes
 {
@@ -48,10 +49,10 @@ final class RepeatingInvoices implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $repeatingInvoice): RepeatingInvoice => $this->mapRepeatingInvoice($repeatingInvoice),
-            $payload['RepeatingInvoices'] ?? []
-        ));
+            Json::extractList($payload, 'RepeatingInvoices')
+        );
 
         return new ResourceCollection($items);
     }
@@ -63,9 +64,9 @@ final class RepeatingInvoices implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $repeatingInvoice = $payload['RepeatingInvoices'][0] ?? null;
+        $repeatingInvoice = Json::extractFirst($payload, 'RepeatingInvoices');
 
-        return is_array($repeatingInvoice) ? $this->mapRepeatingInvoice($repeatingInvoice) : null;
+        return $repeatingInvoice !== null ? $this->mapRepeatingInvoice($repeatingInvoice) : null;
     }
 
     public function create(): Payload

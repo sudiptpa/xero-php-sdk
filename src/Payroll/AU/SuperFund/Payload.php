@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Payroll\AU\SuperFund;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -69,10 +70,9 @@ final class Payload
             ->send()
             ->json();
 
-        /** @var array<string, mixed>|null $fund */
-        $fund = $payload['SuperFunds'][0] ?? $payload['SuperFund'] ?? null;
+        $fund = Json::extractFirst($payload, 'SuperFunds') ?? Json::extractObject($payload, 'SuperFund') ?: null;
 
-        if (! is_array($fund)) {
+        if ($fund === null) {
             return new SuperFund();
         }
 

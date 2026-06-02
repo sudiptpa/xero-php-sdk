@@ -9,6 +9,7 @@ use Sujip\Xero\Accounting\CreditNote\Attachment;
 use Sujip\Xero\Accounting\CreditNote\HistoryRecord;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class CreditNoteHelpersTest extends TestCase
@@ -43,7 +44,7 @@ final class CreditNoteHelpersTest extends TestCase
             ->save();
 
         self::assertSame('/api.xro/2.0/CreditNotes/credit-1/Attachments', $transport->requests()[0]->path);
-        self::assertInstanceOf(Attachment::class, $attachments->first());
+        self::assertNotNull($attachments->first());
         self::assertSame('PUT', $transport->requests()[1]->method);
         self::assertStringContainsString('/api.xro/2.0/CreditNotes/credit-1/Attachments/credit-note.pdf', $transport->requests()[1]->path);
         self::assertSame('application/pdf', $transport->requests()[1]->headers['Content-Type']);
@@ -96,9 +97,12 @@ final class CreditNoteHelpersTest extends TestCase
         $pdf = $client->accounting()->creditNotes()->pdf('credit-1');
 
         self::assertSame('/api.xro/2.0/CreditNotes/credit-1/History', $transport->requests()[0]->path);
-        self::assertInstanceOf(HistoryRecord::class, $history->first());
+        self::assertNotNull($history->first());
         self::assertSame('PUT', $transport->requests()[1]->method);
-        self::assertSame('Updated from ERP', $transport->requests()[1]->json['HistoryRecords'][0]['Details']);
+        $json1 = $transport->requests()[1]->json ?? [];
+        $hr = Json::extractFirst($json1, 'HistoryRecords');
+        self::assertNotNull($hr);
+        self::assertSame('Updated from ERP', $hr['Details']);
         self::assertSame('Updated from ERP', $record->details);
         self::assertSame('/api.xro/2.0/CreditNotes/credit-1/pdf', $transport->requests()[2]->path);
         self::assertSame('application/pdf', $transport->requests()[2]->headers['Accept']);

@@ -9,6 +9,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final readonly class AccountingActivities implements DefinesScopes
 {
@@ -46,10 +47,10 @@ final readonly class AccountingActivities implements DefinesScopes
             ->send()
             ->json();
 
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $activity): AccountingActivity => $this->mapAccountingActivity($activity),
-            $payload['Items'] ?? $payload['AccountingActivities'] ?? []
-        ));
+            Json::extractList($payload, 'Items') ?: Json::extractList($payload, 'AccountingActivities')
+        );
 
         return new ResourceCollection($items);
     }
@@ -75,10 +76,10 @@ final readonly class AccountingActivities implements DefinesScopes
             ->send()
             ->json();
 
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $usage): AccountUsage => $this->mapAccountUsage($usage),
-            $payload['Items'] ?? $payload['AccountUsage'] ?? []
-        ));
+            Json::extractList($payload, 'Items') ?: Json::extractList($payload, 'AccountUsage')
+        );
 
         return new ResourceCollection($items);
     }
@@ -100,10 +101,10 @@ final readonly class AccountingActivities implements DefinesScopes
             ->send()
             ->json();
 
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $history): ReportHistory => $this->mapReportHistory($history),
-            $payload['Items'] ?? $payload['ReportHistory'] ?? []
-        ));
+            Json::extractList($payload, 'Items') ?: Json::extractList($payload, 'ReportHistory')
+        );
 
         return new ResourceCollection($items);
     }
@@ -125,10 +126,10 @@ final readonly class AccountingActivities implements DefinesScopes
             ->send()
             ->json();
 
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $history): LockHistory => $this->mapLockHistory($history),
-            $payload['Items'] ?? $payload['LockHistory'] ?? []
-        ));
+            Json::extractList($payload, 'Items') ?: Json::extractList($payload, 'LockHistory')
+        );
 
         return new ResourceCollection($items);
     }
@@ -150,10 +151,10 @@ final readonly class AccountingActivities implements DefinesScopes
             ->send()
             ->json();
 
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $activity): UserActivity => $this->mapUserActivity($activity),
-            $payload['Items'] ?? $payload['UserActivities'] ?? []
-        ));
+            Json::extractList($payload, 'Items') ?: Json::extractList($payload, 'UserActivities')
+        );
 
         return new ResourceCollection($items);
     }

@@ -10,6 +10,7 @@ use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Support\ScopeRequirements;
 
 final class ProjectUsers implements PaginatesResults, DefinesScopes
@@ -40,11 +41,13 @@ final class ProjectUsers implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = $payload['Users'] ?? $payload['ProjectUsers'] ?? $payload['Items'] ?? [];
+        $items = Json::extractList($payload, 'Users')
+            ?: Json::extractList($payload, 'ProjectUsers')
+            ?: Json::extractList($payload, 'Items');
 
         return new ResourceCollection(array_map(
             fn (array $user): ProjectUser => $this->mapProjectUser($user),
-            array_values(array_filter($items, 'is_array'))
+            $items
         ));
     }
 

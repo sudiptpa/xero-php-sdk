@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Payroll\AU\Timesheet;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -86,9 +87,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $timesheet = $payload['Timesheets'][0] ?? $payload['Timesheet'] ?? [];
+        $timesheet = Json::extractFirst($payload, 'Timesheets') ?? Json::extractObject($payload, 'Timesheet');
 
-        if (! is_array($timesheet)) {
+        if ($timesheet === []) {
             return new Timesheet($this->client);
         }
 
