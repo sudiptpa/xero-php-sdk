@@ -13,8 +13,8 @@
 - **Branch:** `chore/dev-quality-parity`
 - **Base:** `main` (dcb3693 — Docs: Updated Projects Notes)
 - **Commits on branch:** 2 (`9b1b1fd` quality parity, `4feb8e8` code-review bug fixes) + Session 3 coverage WIP
-- **Tests:** 79 test files, 218 tests, 1163 assertions — all passing
-- **Coverage:** **79.38% lines** (6173/7777) / 73.88% methods / 27.11% classes (74/273) — 100% gate NOT yet passing; ~199 classes with gaps
+- **Tests:** 80 test files, 230 tests, 1187 assertions, all passing
+- **Coverage:** **79.53% lines** (6185/7777) / 74.15% methods / 27.47% classes (75/273). 100% gate NOT yet passing; ~198 classes with gaps
 - **PHPStan:** level `max` — 0 errors
 - **Pint:** clean (`php` preset + `declare_strict_types`)
 - **CI:** pcov on PHP 8.3, formatter gate (`lint:check`), syntax lint (`lint`)
@@ -85,7 +85,9 @@ Clover uncovered-method/line one-liner:
 - **Webhooks** (all 4 classes)
 - **Auth** (all classes)
 - **Http** (entire namespace): `Request`, `Response`, `PendingRequest`, `ResponseErrorMapper`, **`NativeTransport`**, FakeTransport
-- **Support**: `Json`, `ScopeRequirements`, `Field`, `PaginatedCollection`, `ResourceCollection`, `Concerns/*`
+- **Support** (entire namespace): `Model`, `Json`, `Field`, `ScopeRequirements`, `PaginatedCollection`, `ResourceCollection`, `Concerns/*`
+
+`Model` (the core hydrator) was covered with `tests/Support/ModelTest.php`, which defines small fixture models: one valid `GoodModel` exercising every field type plus the `singular()` pluralisation branches (ies/xes/s/none), and a set of deliberately-broken fixtures (missing setter, missing add method, target class without `fill()`) that trigger each `LogicException` guard.
 
 ### NativeTransport — SOLVED (loopback integration test)
 
