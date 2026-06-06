@@ -285,5 +285,12 @@ Next session priority order:
 ## Workflow Notes
 
 - All work is squash-merged on GitHub
-- Do not push until owner reviews locally — enforced via `.claude/settings.json` deny list
+- Do not push until owner reviews locally (enforced via `.claude/settings.json` deny list)
 - Each session should end with updated `PROGRESS.md` status and a clean `composer test && composer stan` run
+
+### Commit message rules (owner preference)
+
+- Keep messages simple and clear. Short subject, plain body only when the "why" needs it.
+- No em-dashes or other "AI-tell" punctuation/keywords. Use plain ASCII: commas, parentheses, colons.
+- Never add `Co-Authored-By` AI lines or any note that a commit was made by an AI.
+- Conventional Commits prefix (`test:`, `fix:`, `chore:`) is fine.
