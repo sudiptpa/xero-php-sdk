@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Sujip\Xero\Accounting\BankTransfer\BankTransfer;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
@@ -61,5 +62,63 @@ final class BankTransfersTest extends TestCase
         self::assertSame('/api.xro/2.0/BankTransfers', $transport->requests()[2]->path);
         self::assertSame('bank-a', Json::extractObject($bt2, 'FromBankAccount')['AccountID']);
         self::assertSame('Sweep', $created->getReference());
+    }
+
+    public function test_it_builds_with_date_idempotency_and_saves_a_model(): void
+    {
+        $body = json_encode([
+            'BankTransfers' => [[
+                'BankTransferID' => 'transfer-1',
+                'FromBankAccount' => ['AccountID' => 'bank-a'],
+                'ToBankAccount' => ['AccountID' => 'bank-b'],
+                'Amount' => 350.25,
+                'Reference' => 'Sweep',
+            ]],
+        ], JSON_THROW_ON_ERROR);
+
+        $transport = (new FakeTransport())
+            ->push(new Response(200, body: $body))
+            ->push(new Response(200, body: $body))
+            ->push(new Response(200, body: $body));
+
+        $bankTransfers = Xero::withAccessToken('token', $transport)->tenant('tenant-123')->accounting()->bankTransfers();
+
+        $bankTransfers->create()
+            ->fromBankAccount('bank-a')
+            ->toBankAccount('bank-b')
+            ->amount(350.25)
+            ->date('2026-03-25')
+            ->idempotencyKey('bt-key')
+            ->save();
+
+        self::assertSame('bt-key', $transport->requests()[0]->headers['Idempotency-Key']);
+        $sent = Json::extractFirst($transport->requests()[0]->json ?? [], 'BankTransfers');
+        self::assertNotNull($sent);
+        self::assertSame('2026-03-25', $sent['Date'] ?? null);
+
+        $transfer = $bankTransfers->get()->first();
+        self::assertNotNull($transfer);
+        self::assertSame('transfer-1', $transfer->getBankTransferID());
+        self::assertSame('bank-a', $transfer->getFromBankAccountID());
+        self::assertSame('bank-b', $transfer->getToBankAccountID());
+        self::assertSame(350.25, $transfer->getAmount());
+
+        $saved = $transfer->amount(360)->reference('Updated Sweep')->save();
+
+        self::assertSame('/api.xro/2.0/BankTransfers', $transport->requests()[2]->path);
+        $resaved = Json::extractFirst($transport->requests()[2]->json ?? [], 'BankTransfers');
+        self::assertNotNull($resaved);
+        self::assertSame('Updated Sweep', $resaved['Reference'] ?? null);
+        self::assertSame('Sweep', $saved->getReference());
+
+        self::assertNotSame([], $bankTransfers->scopes()->broad);
+    }
+
+    public function test_saving_a_bank_transfer_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('without a bound client context');
+
+        (new BankTransfer())->amount(100)->save();
     }
 }

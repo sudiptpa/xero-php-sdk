@@ -30,16 +30,32 @@ final class OverpaymentsAndPrepaymentsTest extends TestCase
                 'Status' => 'AUTHORISED',
             ]],
         ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'Overpayments' => [[
+                'OverpaymentID' => 'over-1',
+                'Type' => 'OVERPAYMENT',
+                'Status' => 'AUTHORISED',
+                'RemainingCredit' => 20,
+            ]],
+        ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $overpayments = $client->accounting()->overpayments()->where('Status == :status', status: 'AUTHORISED')->get();
         $overpayment = $client->accounting()->overpayments()->find('over-1');
+        $page = $client->accounting()->overpayments()->paginate(1, 50);
 
         self::assertSame('/api.xro/2.0/Overpayments', $transport->requests()[0]->path);
-        self::assertInstanceOf(Overpayment::class, $overpayments->first());
+        $first = $overpayments->first();
+        self::assertInstanceOf(Overpayment::class, $first);
+        self::assertSame('OVERPAYMENT', $first->getType());
+        self::assertSame('AUTHORISED', $first->getStatus());
+        self::assertSame(20, $first->getRemainingCredit());
         self::assertSame('/api.xro/2.0/Overpayments/over-1', $transport->requests()[1]->path);
         self::assertSame('over-1', $overpayment?->getOverpaymentID());
+        self::assertNotNull($page->items->first());
+        self::assertSame(1, $page->page);
+        self::assertNotSame([], $client->accounting()->overpayments()->scopes()->broad);
     }
 
     public function test_it_can_query_and_find_prepayments(): void
@@ -59,15 +75,31 @@ final class OverpaymentsAndPrepaymentsTest extends TestCase
                 'Status' => 'AUTHORISED',
             ]],
         ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'Prepayments' => [[
+                'PrepaymentID' => 'pre-1',
+                'Type' => 'PREPAYMENT',
+                'Status' => 'AUTHORISED',
+                'RemainingCredit' => 10,
+            ]],
+        ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $prepayments = $client->accounting()->prepayments()->where('Status == :status', status: 'AUTHORISED')->get();
         $prepayment = $client->accounting()->prepayments()->find('pre-1');
+        $page = $client->accounting()->prepayments()->paginate(1, 50);
 
         self::assertSame('/api.xro/2.0/Prepayments', $transport->requests()[0]->path);
-        self::assertInstanceOf(Prepayment::class, $prepayments->first());
+        $first = $prepayments->first();
+        self::assertInstanceOf(Prepayment::class, $first);
+        self::assertSame('PREPAYMENT', $first->getType());
+        self::assertSame('AUTHORISED', $first->getStatus());
+        self::assertSame(10, $first->getRemainingCredit());
         self::assertSame('/api.xro/2.0/Prepayments/pre-1', $transport->requests()[1]->path);
         self::assertSame('pre-1', $prepayment?->getPrepaymentID());
+        self::assertNotNull($page->items->first());
+        self::assertSame(1, $page->page);
+        self::assertNotSame([], $client->accounting()->prepayments()->scopes()->broad);
     }
 }

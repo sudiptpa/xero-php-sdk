@@ -13,8 +13,8 @@
 - **Branch:** `chore/dev-quality-parity`
 - **Base:** `main` (dcb3693 — Docs: Updated Projects Notes)
 - **Commits on branch:** 2 (`9b1b1fd` quality parity, `4feb8e8` code-review bug fixes) + Session 3 coverage WIP
-- **Tests:** 80 test files, 258 tests, 1329 assertions, all passing
-- **Coverage:** **82.94% lines** (6450/7777) / 78.77% methods / 42.86% classes (117/273). 100% gate NOT yet passing; ~156 classes with gaps
+- **Tests:** 80 test files, 262 tests, 1364 assertions, all passing
+- **Coverage:** **83.95% lines** (6529/7777) / 79.83% methods / 46.15% classes (126/273). 100% gate NOT yet passing; ~147 classes with gaps
 - **PHPStan:** level `max` — 0 errors
 - **Pint:** clean (`php` preset + `declare_strict_types`)
 - **CI:** pcov on PHP 8.3, formatter gate (`lint:check`), syntax lint (`lint`)
@@ -91,7 +91,9 @@ Clover uncovered-method/line one-liner:
 
 ### Accounting (in progress, one resource cluster per commit)
 
-Done to 100%: **BrandingTheme, Currency, InvoiceReminder, Organisation, PaymentService, User, Employee, ExpenseClaim, Journal, Receipt, RepeatingInvoice, Report, Account, Item, TaxRate, TrackingCategory, ContactGroup** (extended the existing resource tests).
+Done to 100%: **BrandingTheme, Currency, InvoiceReminder, Organisation, PaymentService, User, Employee, ExpenseClaim, Journal, Receipt, RepeatingInvoice, Report, Account, Item, TaxRate, TrackingCategory, ContactGroup, Overpayment, Prepayment, BankTransfer, LinkedTransaction** (extended the existing resource tests).
+
+Remaining Accounting resources (the largest, most with attachment/history sub-resources): **Contact, Invoice, CreditNote, BankTransaction, BatchPayment, PurchaseOrder, Quote, ManualJournal, Payment**.
 
 Third cluster (Account, Item, TaxRate, TrackingCategory, ContactGroup) extra notes:
 - `paginate($page, $perPage)` returns a `PaginatedCollection` whose items live on `->items` (a `ResourceCollection`); it has no `first()` of its own. Page/perPage are on `->page`/`->perPage`.
