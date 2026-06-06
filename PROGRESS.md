@@ -6,7 +6,7 @@
 
 ## Last Updated
 
-2026-06-06 — Session 3 (coverage grind — Webhooks namespace to 100%) — IN PROGRESS
+2026-06-06 — Session 3 (test-coverage grind, 56 -> 126 classes at 100%) + Session 4 (feature-coverage audit plan + Xero MCP assessment recorded) — IN PROGRESS
 
 ## Repo State
 
@@ -281,6 +281,51 @@ Resolved with `tests/Http/NativeTransportTest.php`. Rather than mock cURL global
 | `GET /BrandingThemes/{id}/PaymentServices` | Low |
 
 All other API groups (Payroll AU/NZ/UK, Finance, Files, Assets, Projects, AppStore, Identity, Webhooks) — **no significant gaps**.
+
+> NOTE: the table above was eyeballed, not systematic. Replace it with the OpenAPI-diff matrix from the audit plan below.
+
+---
+
+## Feature Coverage Audit Plan (Session 4)
+
+Distinguish two axes:
+- **Test coverage** — lines/methods of existing code (the 100% gate we are grinding). Currently ~84%.
+- **Feature coverage** — does the SDK implement every Xero endpoint? Separate. Not yet systematically measured.
+
+### Sources of truth
+
+- **Xero-OpenAPI** (https://github.com/XeroAPI/Xero-OpenAPI, MIT) — official machine-readable specs, one YAML per API. This is the basis for the completeness audit. Raw URL pattern: `https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/<file>`.
+  - `xero_accounting.yaml`, `xero-payroll-au.yaml` (+ `-au-v2`), `xero-payroll-uk.yaml`, `xero-payroll-nz.yaml`, `xero_files.yaml`, `xero_assets.yaml`, `xero-projects.yaml`, `xero-finance.yaml`, `xero-app-store.yaml`, `xero-identity.yaml`, `xero_bankfeeds.yaml`, `xero-webhooks.yaml`.
+- **xero-mcp-server** (https://github.com/xeroapi/xero-mcp-server) — NOT an endpoint reference. ~50 AI tools, partial surface (common Accounting + some Payroll/Reports), read+write, needs a Custom Connection (client-credentials) or bearer token. Useful only as a dev-time dataset/shape validation aid, not for completeness.
+
+### Plan
+
+**Phase 1 — endpoint completeness (no credentials, scriptable):**
+1. Pull each `*.yaml` spec into a gitignored scratch dir.
+2. Extract every `path` + HTTP method + response schema name.
+3. Diff against implemented routes: grep `->get/post/put/patch/delete('/api.xro/...'` and the Finance/Projects/etc. base URIs across `src/`.
+4. Emit a matrix: endpoint -> implemented? -> tested? This replaces the eyeballed gap table above.
+
+**Phase 2 — schema/field validation (spec-driven, no credentials):**
+- For each implemented `Model`, diff its `Field` definitions against the OpenAPI component schema's properties. Flags missing fields, wrong types, stale names. This is where latent bugs hide (the test grind already surfaced two PHP 8.5 ones; schema drift is the next likely class).
+
+**Phase 3 — live dataset validation (needs credentials; MCP helps):**
+- Use xero-mcp-server against the **Xero Demo Company only** (never a real org; write ops are side-effecting). Fetch live records via MCP tools and diff actual JSON against our hydration.
+- For endpoints the MCP server does not cover, fall back to a Demo Company token + saved JSON fixtures.
+
+### Boundaries / decisions
+
+- MCP stays a **dev-time aid**, never a package dependency (respects the zero-runtime-dependency rule).
+- MCP needs the owner's Custom Connection credentials / Demo Company token — Claude cannot create these. Phases 1-2 are credential-free and deliver most of the value (real gap list + schema drift); Phase 3 is the polish.
+- Do not commit any Xero tokens or client secrets.
+
+### Status
+
+- [ ] Phase 1 — OpenAPI endpoint-coverage matrix (not started)
+- [ ] Phase 2 — Model field vs OpenAPI schema diff (not started)
+- [ ] Phase 3 — live Demo Company validation via MCP (blocked on owner credentials)
+
+Decision pending: run Phase 1 now, or finish the test-coverage grind (Contact next) first and audit after.
 
 ---
 
