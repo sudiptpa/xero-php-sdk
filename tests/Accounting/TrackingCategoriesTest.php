@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use Sujip\Xero\Accounting\TrackingCategory\Option;
+use Sujip\Xero\Accounting\TrackingCategory\TrackingCategory;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Support\Json;
@@ -83,5 +86,46 @@ final class TrackingCategoriesTest extends TestCase
         self::assertSame('APAC', $options0[0]['Name'] ?? null);
         self::assertSame('/api.xro/2.0/TrackingCategories/tracking-1', $transport->requests()[1]->path);
         self::assertSame('Sales Region', $updated->getName());
+    }
+
+    public function test_it_updates_via_builder_and_exposes_helpers(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'TrackingCategories' => [[
+                'TrackingCategoryID' => 'tracking-1',
+                'Name' => 'Region',
+                'Status' => 'ACTIVE',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $categories = Xero::withAccessToken('token', $transport)->tenant('tenant-123')->accounting()->trackingCategories();
+
+        $updated = $categories->update('tracking-1')->name('Updated Region')->save();
+
+        self::assertSame('/api.xro/2.0/TrackingCategories/tracking-1', $transport->requests()[0]->path);
+        self::assertSame('Region', $updated->getName());
+
+        self::assertNotSame([], $categories->scopes()->broad);
+
+        $option = $categories->mapOption(['Name' => 'EMEA', 'TrackingOptionID' => 'opt-1', 'Status' => 'ACTIVE']);
+        self::assertSame('EMEA', $option->getName());
+
+        $model = (new TrackingCategory())->option('APAC');
+        self::assertSame('APAC', $model->getOptions()[0]->getName());
+
+        $replaced = (new TrackingCategory())->setOptions([new Option()]);
+        self::assertCount(1, $replaced->getOptions());
+
+        $opt = (new Option())->setTrackingOptionID('opt-9')->setStatus('ACTIVE');
+        self::assertSame('opt-9', $opt->getTrackingOptionID());
+        self::assertSame('ACTIVE', $opt->getStatus());
+    }
+
+    public function test_saving_a_tracking_category_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('without a bound client context');
+
+        (new TrackingCategory())->option('APAC')->save();
     }
 }

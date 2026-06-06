@@ -13,8 +13,8 @@
 - **Branch:** `chore/dev-quality-parity`
 - **Base:** `main` (dcb3693 — Docs: Updated Projects Notes)
 - **Commits on branch:** 2 (`9b1b1fd` quality parity, `4feb8e8` code-review bug fixes) + Session 3 coverage WIP
-- **Tests:** 80 test files, 244 tests, 1267 assertions, all passing
-- **Coverage:** **81.06% lines** (6304/7777) / 76.87% methods / 37.00% classes (101/273). 100% gate NOT yet passing; ~172 classes with gaps
+- **Tests:** 80 test files, 258 tests, 1329 assertions, all passing
+- **Coverage:** **82.94% lines** (6450/7777) / 78.77% methods / 42.86% classes (117/273). 100% gate NOT yet passing; ~156 classes with gaps
 - **PHPStan:** level `max` — 0 errors
 - **Pint:** clean (`php` preset + `declare_strict_types`)
 - **CI:** pcov on PHP 8.3, formatter gate (`lint:check`), syntax lint (`lint`)
@@ -91,7 +91,14 @@ Clover uncovered-method/line one-liner:
 
 ### Accounting (in progress, one resource cluster per commit)
 
-Done to 100%: **BrandingTheme, Currency, InvoiceReminder, Organisation, PaymentService, User, Employee, ExpenseClaim, Journal, Receipt, RepeatingInvoice, Report** (extended the existing resource tests).
+Done to 100%: **BrandingTheme, Currency, InvoiceReminder, Organisation, PaymentService, User, Employee, ExpenseClaim, Journal, Receipt, RepeatingInvoice, Report, Account, Item, TaxRate, TrackingCategory, ContactGroup** (extended the existing resource tests).
+
+Third cluster (Account, Item, TaxRate, TrackingCategory, ContactGroup) extra notes:
+- `paginate($page, $perPage)` returns a `PaginatedCollection` whose items live on `->items` (a `ResourceCollection`); it has no `first()` of its own. Page/perPage are on `->page`/`->perPage`.
+- Resource `update($id)` returns a `Payload`; the model `save()` PUTs to `/Resource/{id}` when the id is set, otherwise POSTs to `/Resource`. Builder-style `Payload` methods (code/name/type/description/status/contact/component) are separate from the model fluent methods and need their own coverage via `create()`/`update()` chains.
+- Resource `map*()` helpers (mapComponent, mapOption) and model bulk setters (setTaxComponents, setOptions) are often not exercised by `fill()`; call them directly.
+- Shared History class is `Sujip\Xero\Accounting\History`, not per-resource.
+- `assertInstanceOf`/`assertSame(X::class, $y::class)` on a `final` class with a declared return type both trip PHPStan (`alreadyNarrowedType`/`impossibleType`); just invoke the method for coverage and let the other assertions carry the test.
 
 Extra patterns learnt in the second cluster:
 - `update($id)` returns a `Payload`; cover it plus `Payload::idempotencyKey()` by calling `update(...)->...->idempotencyKey(...)->save()` with an extra queued response.

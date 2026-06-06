@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Sujip\Xero\Accounting\ContactGroup\ContactGroup;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
@@ -74,5 +75,79 @@ final class ContactGroupsTest extends TestCase
         self::assertSame('contact-1', $contact4['ContactID']);
         self::assertSame(['contact-1'], $attached->getContactIDs());
         self::assertSame('group-1', $group?->getContactGroupID());
+    }
+
+    public function test_it_updates_via_builder_and_exposes_helpers(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'ContactGroups' => [[
+                'ContactGroupID' => 'group-2',
+                'Name' => 'Partners',
+                'Status' => 'ACTIVE',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $contactGroups = Xero::withAccessToken('token', $transport)->tenant('tenant-123')->accounting()->contactGroups();
+
+        $updated = $contactGroups->update('group-2')
+            ->status('ACTIVE')
+            ->contact('contact-1')
+            ->save();
+
+        self::assertSame('/api.xro/2.0/ContactGroups/group-2', $transport->requests()[0]->path);
+        $sent = Json::extractFirst($transport->requests()[0]->json ?? [], 'ContactGroups');
+        self::assertNotNull($sent);
+        self::assertSame('ACTIVE', $sent['Status'] ?? null);
+        self::assertSame('contact-1', Json::extractList($sent, 'Contacts')[0]['ContactID'] ?? null);
+        self::assertSame('Partners', $updated->getName());
+        self::assertSame('ACTIVE', $updated->getStatus());
+
+        self::assertNotSame([], $contactGroups->scopes()->broad);
+        // contacts() returns a ContactAssignments manager (its return type guarantees the class); call it for coverage.
+        $contactGroups->contacts('group-2');
+
+        $model = (new ContactGroup())->addContactID('contact-9');
+        self::assertSame(['contact-9'], $model->getContactIDs());
+    }
+
+    public function test_contact_group_model_save_attaches_contacts(): void
+    {
+        $body = json_encode([
+            'ContactGroups' => [[
+                'ContactGroupID' => 'group-3',
+                'Name' => 'Team',
+                'Status' => 'ACTIVE',
+            ]],
+        ], JSON_THROW_ON_ERROR);
+
+        $transport = (new FakeTransport())
+            ->push(new Response(200, body: $body))
+            ->push(new Response(200, body: $body));
+
+        $group = Xero::withAccessToken('token', $transport)->tenant('tenant-123')
+            ->accounting()->contactGroups()->get()->first();
+        self::assertNotNull($group);
+
+        $saved = $group->addContactID('contact-5')->save();
+
+        self::assertSame('/api.xro/2.0/ContactGroups/group-3', $transport->requests()[1]->path);
+        $sent = Json::extractFirst($transport->requests()[1]->json ?? [], 'ContactGroups');
+        self::assertNotNull($sent);
+        self::assertSame('contact-5', Json::extractList($sent, 'Contacts')[0]['ContactID'] ?? null);
+        self::assertSame('Team', $saved->getName());
+    }
+
+    public function test_contact_group_model_guards_require_a_client(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new ContactGroup())->save();
+    }
+
+    public function test_contact_group_member_access_requires_a_client_and_id(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new ContactGroup())->contacts();
     }
 }
