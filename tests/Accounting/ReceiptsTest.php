@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
+use RuntimeException;
+use Sujip\Xero\Accounting\Currency\Currency;
 use Sujip\Xero\Accounting\Receipt\Receipt;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
@@ -42,7 +45,37 @@ final class ReceiptsTest extends TestCase
         self::assertSame(4, $transport->requests()[0]->query['unitdp']);
         self::assertInstanceOf(Receipt::class, $receipts->first());
         self::assertSame('contact-1', $receipts->first()->getContact()?->getContactID());
+        self::assertSame('REC-1001', $receipts->first()->getReceiptNumber());
+        self::assertSame('DRAFT', $receipts->first()->getStatus());
+        self::assertSame(45, $receipts->first()->getTotal());
         self::assertSame('/api.xro/2.0/Receipts/receipt-1', $transport->requests()[1]->path);
         self::assertSame('receipt-1', $receipt?->getReceiptID());
+
+        self::assertNotSame([], $client->accounting()->receipts()->scopes()->broad);
+
+        $model = (new Receipt())->setContactID('contact-9');
+        self::assertSame('contact-9', $model->getContactID());
+    }
+
+    public function test_receipt_attachments_require_a_bound_client(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Receipt())->attachments();
+    }
+
+    public function test_receipt_history_requires_a_bound_client(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Receipt())->history();
+    }
+
+    public function test_receipt_maps_non_contact_definitions_through_the_parent(): void
+    {
+        $method = new ReflectionMethod(Receipt::class, 'newDefinitionInstance');
+        $instance = $method->invoke(new Receipt(), Currency::class);
+
+        self::assertInstanceOf(Currency::class, $instance);
     }
 }

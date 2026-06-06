@@ -13,8 +13,8 @@
 - **Branch:** `chore/dev-quality-parity`
 - **Base:** `main` (dcb3693 — Docs: Updated Projects Notes)
 - **Commits on branch:** 2 (`9b1b1fd` quality parity, `4feb8e8` code-review bug fixes) + Session 3 coverage WIP
-- **Tests:** 80 test files, 237 tests, 1216 assertions, all passing
-- **Coverage:** **80.10% lines** (6229/7777) / 74.98% methods / 31.87% classes (87/273). 100% gate NOT yet passing; ~186 classes with gaps
+- **Tests:** 80 test files, 244 tests, 1267 assertions, all passing
+- **Coverage:** **81.06% lines** (6304/7777) / 76.87% methods / 37.00% classes (101/273). 100% gate NOT yet passing; ~172 classes with gaps
 - **PHPStan:** level `max` — 0 errors
 - **Pint:** clean (`php` preset + `declare_strict_types`)
 - **CI:** pcov on PHP 8.3, formatter gate (`lint:check`), syntax lint (`lint`)
@@ -91,7 +91,15 @@ Clover uncovered-method/line one-liner:
 
 ### Accounting (in progress, one resource cluster per commit)
 
-Done to 100%: **BrandingTheme, Currency, InvoiceReminder, Organisation, PaymentService, User** (extended the existing resource tests).
+Done to 100%: **BrandingTheme, Currency, InvoiceReminder, Organisation, PaymentService, User, Employee, ExpenseClaim, Journal, Receipt, RepeatingInvoice, Report** (extended the existing resource tests).
+
+Extra patterns learnt in the second cluster:
+- `update($id)` returns a `Payload`; cover it plus `Payload::idempotencyKey()` by calling `update(...)->...->idempotencyKey(...)->save()` with an extra queued response.
+- Model `save()` without a bound client throws `RuntimeException` (one short test each).
+- Resource sub-accessors like `Receipt::attachments()`/`history()` throw without a client/id (one test each, since `expectException` stops at the first throw).
+- A model's `newDefinitionInstance()` override that special-cases one class (e.g. `Contact`) has an unreachable parent-fallback when no other class is used in its definitions; cover it with a `ReflectionMethod` call passing a different model class.
+- Number fields keep `int` (e.g. `getTotal()` returns `80`, not `80.0`).
+- PHPStan's PHPUnit extension narrows a variable to non-null after `assertSame('literal', $x?->method())`, so later `?->` on the same variable trips `nullsafe.neverNull`; use plain `->` after the first narrowing assertion.
 
 Pattern for Accounting resources (the bulk of the remaining gap):
 - Unused model getters: assert them on the model returned by the existing `get()`/`find()` test (enrich the response body with the fields if needed).

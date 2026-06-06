@@ -22,6 +22,7 @@ final class JournalsAndReportsTest extends TestCase
                 'JournalID' => 'journal-1',
                 'JournalNumber' => 1250,
                 'SourceType' => 'ACCPAY',
+                'SourceID' => 'source-1',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -29,6 +30,7 @@ final class JournalsAndReportsTest extends TestCase
                 'JournalID' => 'journal-1',
                 'JournalNumber' => 1250,
                 'SourceType' => 'ACCPAY',
+                'SourceID' => 'source-1',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -59,6 +61,9 @@ final class JournalsAndReportsTest extends TestCase
         self::assertSame('/api.xro/2.0/Journals/1251', $transport->requests()[2]->path);
         self::assertSame(1251, $journalByNumber?->getJournalNumber());
         self::assertSame('journal-1', $journal?->getJournalID());
+        self::assertSame('ACCPAY', $journal->getSourceType());
+        self::assertSame('source-1', $journal->getSourceID());
+        self::assertNotSame([], $client->accounting()->journals()->scopes()->granular);
     }
 
     public function test_it_can_list_and_fetch_reports(): void
@@ -119,5 +124,49 @@ final class JournalsAndReportsTest extends TestCase
         self::assertSame('Custom Report', $custom?->getTitle());
         self::assertSame('Profit and Loss', $profitAndLoss?->getTitle());
         self::assertSame('Aged Receivables By Contact', $agedReceivables?->getTitle());
+    }
+
+    public function test_it_can_fetch_every_named_report_type(): void
+    {
+        $transport = new FakeTransport();
+        for ($i = 0; $i < 7; $i++) {
+            $transport->push(new Response(200, body: json_encode([
+                'Reports' => [[
+                    'ReportID' => 'report-' . $i,
+                    'ReportName' => 'Report ' . $i,
+                    'ReportType' => 'Type' . $i,
+                ]],
+            ], JSON_THROW_ON_ERROR)));
+        }
+
+        $reports = Xero::withAccessToken('token', $transport)->tenant('tenant-123')->accounting()->reports();
+
+        $balanceSheet = $reports->balanceSheet(['date' => new DateTimeImmutable('2026-03-25'), 'periods' => null]);
+        $reports->trialBalance();
+        $reports->bankSummary();
+        $reports->budgetSummary();
+        $reports->executiveSummary();
+        $reports->agedPayablesByContact('contact-9');
+        $reports->tenNinetyNine(['financialYear' => 2026]);
+
+        $paths = array_map(static fn ($r): string => $r->path, $transport->requests());
+
+        self::assertSame('/api.xro/2.0/Reports/BalanceSheet', $paths[0]);
+        self::assertSame('/api.xro/2.0/Reports/TrialBalance', $paths[1]);
+        self::assertSame('/api.xro/2.0/Reports/BankSummary', $paths[2]);
+        self::assertSame('/api.xro/2.0/Reports/BudgetSummary', $paths[3]);
+        self::assertSame('/api.xro/2.0/Reports/ExecutiveSummary', $paths[4]);
+        self::assertSame('/api.xro/2.0/Reports/AgedPayablesByContact', $paths[5]);
+        self::assertSame('contact-9', $transport->requests()[5]->query['contactId']);
+        self::assertSame('/api.xro/2.0/Reports/TenNinetyNine', $paths[6]);
+
+        // null query values are skipped by normalizeQuery.
+        self::assertArrayNotHasKey('periods', $transport->requests()[0]->query);
+
+        self::assertSame('report-0', $balanceSheet?->getReportID());
+        self::assertSame('Report 0', $balanceSheet->getReportName());
+        self::assertSame('Type0', $balanceSheet->getReportType());
+
+        self::assertSame(['accounting.reports.read'], $reports->scopes()->granular);
     }
 }

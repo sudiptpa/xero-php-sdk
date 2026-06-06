@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Sujip\Xero\Accounting\ExpenseClaim\ExpenseClaim;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
@@ -46,6 +47,12 @@ final class ExpenseClaimsTest extends TestCase
                 'Receipts' => [['ReceiptID' => 'receipt-1']],
             ]],
         ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'ExpenseClaims' => [[
+                'ExpenseClaimID' => 'expense-2',
+                'Status' => 'PAID',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
@@ -57,6 +64,11 @@ final class ExpenseClaimsTest extends TestCase
             ->status('DRAFT')
             ->save();
         $updated = $created->status('SUBMITTED')->save();
+
+        $client->accounting()->expenseClaims()->update('expense-2')
+            ->status('PAID')
+            ->idempotencyKey('expense-key')
+            ->save();
 
         self::assertSame('/api.xro/2.0/ExpenseClaims', $transport->requests()[0]->path);
         self::assertSame('Status == "SUBMITTED"', $transport->requests()[0]->query['where']);
@@ -73,6 +85,27 @@ final class ExpenseClaimsTest extends TestCase
         self::assertSame('/api.xro/2.0/ExpenseClaims', $transport->requests()[3]->path);
         self::assertSame('expense-2', $ec3['ExpenseClaimID']);
         self::assertSame('SUBMITTED', $updated->getStatus());
+        self::assertSame('employee-1', $updated->getEmployeeID());
+        self::assertSame(['receipt-1'], $updated->getReceiptIDs());
         self::assertSame('expense-1', $claim?->getExpenseClaimID());
+        self::assertSame(80, $claim->getTotal());
+
+        self::assertSame('/api.xro/2.0/ExpenseClaims', $transport->requests()[4]->path);
+        self::assertSame('expense-key', $transport->requests()[4]->headers['Idempotency-Key']);
+        self::assertNotSame([], $client->accounting()->expenseClaims()->scopes()->broad);
+
+        $model = (new ExpenseClaim())->addReceiptID('receipt-9');
+        self::assertSame(['receipt-9'], $model->getReceiptIDs());
+
+        $fromUser = (new ExpenseClaim())->fill(['User' => ['UserID' => 'user-7']]);
+        self::assertSame('user-7', $fromUser->getEmployeeID());
+    }
+
+    public function test_saving_an_expense_claim_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('without a bound client context');
+
+        (new ExpenseClaim())->status('DRAFT')->save();
     }
 }
