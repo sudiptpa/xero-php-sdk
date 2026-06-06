@@ -6,6 +6,7 @@ namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Accounting\Account\Account;
+use Sujip\Xero\Accounting\Payment\InvoiceReference;
 use Sujip\Xero\Accounting\Payment\Payment;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
@@ -113,5 +114,13 @@ final class PaymentsTest extends TestCase
 
         self::assertSame('/api.xro/2.0/Payments/payment-1', $request->path);
         self::assertSame(150.0, $payment->getAmount());
+    }
+
+    public function test_invoice_reference_hydrates_the_invoice_id(): void
+    {
+        $reference = (new InvoiceReference())->fill(['InvoiceID' => 'invoice-1']);
+
+        self::assertSame('invoice-1', $reference->getInvoiceID());
+        self::assertSame('invoice-2', $reference->setInvoiceID('invoice-2')->getInvoiceID());
     }
 }

@@ -13,8 +13,8 @@
 - **Branch:** `chore/dev-quality-parity`
 - **Base:** `main` (dcb3693 — Docs: Updated Projects Notes)
 - **Commits on branch:** 2 (`9b1b1fd` quality parity, `4feb8e8` code-review bug fixes) + Session 3 coverage WIP
-- **Tests:** 73 test files, 181 tests, 1089 assertions — all passing
-- **Coverage:** **77.97% lines** (6073/7789) / 72.66% methods / 22.71% classes (62/273) — 100% gate NOT yet passing; ~211 classes with gaps
+- **Tests:** 77 test files, 201 tests, 1121 assertions — all passing
+- **Coverage:** **78.35% lines** (6101/7787) / 73.13% methods / 24.54% classes (67/273) — 100% gate NOT yet passing; ~206 classes with gaps
 - **PHPStan:** level `max` — 0 errors
 - **Pint:** clean (`php` preset + `declare_strict_types`)
 - **CI:** pcov on PHP 8.3, formatter gate (`lint:check`), syntax lint (`lint`)
@@ -67,8 +67,17 @@ Clover uncovered-method/line one-liner:
 - [x] `WebhookVerifier` → 100% (extended test: null/empty sig, assertValid pass, header-array, blank/missing/array headers, assertValidHeaders)
 - [x] `WebhookEvent` + `WebhookPayload` → 100% (new `tests/Webhooks/WebhookPayloadTest`: getters, aggregators, filters, edge paths for occurredAt/path/resourceName)
 - [x] **Whole Webhooks namespace now 100%**
-- [x] Full suite green (181 tests, 1089 assertions), PHPStan max clean, Pint clean
-- Net: 161→181 tests; lines 77.70%→77.97%; classes 56→62 of 273
+- [x] Http core: `Request`, `Response`, `PendingRequest` → 100% (new RequestTest, ResponseTest, PendingRequestTest)
+- [x] `Support/Json` → 100% (new JsonTest; unreachable json-ext guard wrapped in `@codeCoverageIgnore`)
+- [x] `Payment/InvoiceReference` → 100% (added to PaymentsTest)
+- [x] **Source fix:** `PendingRequest::modifiedSince()` used `DateTimeInterface::RFC7231`, deprecated in PHP 8.5 (in CI matrix). Switched to `gmdate('D, d M Y H:i:s \G\M\T', ...)` — same RFC 7231 HTTP-date, no deprecation, timezone-safe.
+- [x] Full suite green (201 tests, 1121 assertions), PHPStan max clean, Pint clean
+
+**Coverage-ignore decision (owner: confirm):** truly-unreachable defensive guards (json extension missing in `Json::ensureAvailable`; will also hit `Model` "Missing method" `LogicException` throws and all of `NativeTransport`'s real-cURL body) cannot be exercised in tests. Used `@codeCoverageIgnoreStart/End` for the json guard. **NB:** the annotation token must be alone on its `//` line — trailing text (e.g. `// @codeCoverageIgnoreStart — note`) silently breaks parsing.
+
+**Still uncoverable without a strategy:** `NativeTransport` (entire class — real cURL, no network in tests; needs either a thin seam to inject a cURL-ish handle, or a blanket `@codeCoverageIgnore` on the class — owner call), `Model` defensive `LogicException` throws (need malformed-fixture models, or ignore).
+
+- Net so far: 161→201 tests; lines 77.70%→78.35%; classes 56→67 of 273
 
 ---
 

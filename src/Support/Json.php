@@ -106,8 +106,12 @@ final class Json
 
     public static function ensureAvailable(): void
     {
+        // The json extension is a hard requirement and cannot be unloaded at
+        // runtime, so this guard is unreachable in tests.
+        // @codeCoverageIgnoreStart
         if (! function_exists('json_encode') || ! function_exists('json_decode')) {
             throw new RuntimeException('The json extension is required for JSON request and response handling.');
         }
+        // @codeCoverageIgnoreEnd
     }
 }
