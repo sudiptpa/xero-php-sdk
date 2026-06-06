@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Auth;
 
 use PHPUnit\Framework\TestCase;
+use Sujip\Xero\Auth\InMemoryTokenRepository;
 use Sujip\Xero\Auth\OAuth2Client;
+use Sujip\Xero\Auth\Token;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 
@@ -81,4 +83,14 @@ final class OAuth2ClientTest extends TestCase
         self::assertSame('custom-connection-token', $token->getAccessToken());
     }
 
+    public function test_it_builds_a_connection_manager_bound_to_a_repository(): void
+    {
+        $oauth2 = new OAuth2Client('client-id', 'client-secret', 'https://example.com/callback', new FakeTransport());
+        $repository = new InMemoryTokenRepository();
+        $repository->put('primary', new Token('stored-token', 'refresh-token'));
+
+        $manager = $oauth2->manager($repository, 'primary');
+
+        self::assertSame('stored-token', $manager->storedToken()->getAccessToken());
+    }
 }
