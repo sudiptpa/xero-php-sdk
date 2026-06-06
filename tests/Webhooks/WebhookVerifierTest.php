@@ -162,4 +162,53 @@ final class WebhookVerifierTest extends TestCase
         self::assertSame('invoice-1', $parsedFirst->getResourceId());
         self::assertTrue($parsedFirst->isUpdate());
     }
+
+    public function test_it_rejects_null_and_empty_signatures(): void
+    {
+        $verifier = Xero::webhookVerifier('webhook-key');
+
+        self::assertFalse($verifier->verify('{"events":[]}', null));
+        self::assertFalse($verifier->verify('{"events":[]}', ''));
+    }
+
+    public function test_assert_valid_passes_for_a_matching_signature(): void
+    {
+        $verifier = Xero::webhookVerifier('webhook-key');
+        $payload = '{"events":[]}';
+
+        $verifier->assertValid($payload, $verifier->signatureFor($payload));
+
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function test_it_reads_signatures_from_header_arrays(): void
+    {
+        $verifier = Xero::webhookVerifier('webhook-key');
+
+        self::assertSame(
+            'sig-value',
+            $verifier->signatureFromHeaders(['X-Xero-Signature' => ['sig-value', 'ignored']])
+        );
+    }
+
+    public function test_it_returns_null_for_missing_or_blank_header_signatures(): void
+    {
+        $verifier = Xero::webhookVerifier('webhook-key');
+
+        self::assertNull($verifier->signatureFromHeaders(['Content-Type' => 'application/json']));
+        self::assertNull($verifier->signatureFromHeaders(['X-Xero-Signature' => '']));
+        self::assertNull($verifier->signatureFromHeaders(['X-Xero-Signature' => []]));
+    }
+
+    public function test_assert_valid_headers_enforces_the_signature(): void
+    {
+        $verifier = Xero::webhookVerifier('webhook-key');
+        $payload = '{"events":[]}';
+        $headers = ['X-Xero-Signature' => $verifier->signatureFor($payload)];
+
+        $verifier->assertValidHeaders($payload, $headers);
+
+        $this->expectException(InvalidWebhookSignatureException::class);
+        $verifier->assertValidHeaders($payload, ['X-Xero-Signature' => 'wrong']);
+    }
 }
