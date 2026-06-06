@@ -13,8 +13,8 @@
 - **Branch:** `chore/dev-quality-parity`
 - **Base:** `main` (dcb3693 — Docs: Updated Projects Notes)
 - **Commits on branch:** 2 (`9b1b1fd` quality parity, `4feb8e8` code-review bug fixes) + Session 3 coverage WIP
-- **Tests:** 78 test files, 213 tests, 1153 assertions — all passing
-- **Coverage:** **78.82% lines** (6138/7787) / 73.84% methods / 26.74% classes (73/273) — 100% gate NOT yet passing; ~200 classes with gaps
+- **Tests:** 79 test files, 218 tests, 1163 assertions — all passing
+- **Coverage:** **79.38% lines** (6173/7777) / 73.88% methods / 27.11% classes (74/273) — 100% gate NOT yet passing; ~199 classes with gaps
 - **PHPStan:** level `max` — 0 errors
 - **Pint:** clean (`php` preset + `declare_strict_types`)
 - **CI:** pcov on PHP 8.3, formatter gate (`lint:check`), syntax lint (`lint`)
@@ -84,16 +84,16 @@ Clover uncovered-method/line one-liner:
 
 - **Webhooks** (all 4 classes)
 - **Auth** (all classes)
-- **Http core**: `Request`, `Response`, `PendingRequest`, `ResponseErrorMapper` (NativeTransport still 0% — see decision below)
+- **Http** (entire namespace): `Request`, `Response`, `PendingRequest`, `ResponseErrorMapper`, **`NativeTransport`**, FakeTransport
 - **Support**: `Json`, `ScopeRequirements`, `Field`, `PaginatedCollection`, `ResourceCollection`, `Concerns/*`
 
-### NativeTransport — difficulty (owner asked)
+### NativeTransport — SOLVED (loopback integration test)
 
-[src/Http/NativeTransport.php](src/Http/NativeTransport.php) calls `curl_init`/`curl_setopt_array`/`curl_exec`/`curl_getinfo`/`curl_close` as global functions with no injectable seam, so `send()` does a real network call — untestable offline. Options:
-1. **Namespace function shadowing** — define `curl_*` in the `Sujip\Xero\Http` namespace inside the test (PHP resolves unqualified calls locally first). Covers real header/error/status logic, no source change, but global-ish/hacky.
-2. **Inject a seam** — extract a `protected function exec($handle)` (and maybe getinfo) so a test subclass fakes it. Small, clean source change; real coverage.
-3. **Blanket `@codeCoverageIgnore`** — treat as a thin I/O adapter, leave untested.
-Deferred to last; grinding pure model namespaces first.
+Resolved with `tests/Http/NativeTransportTest.php`. Rather than mock cURL globals (brittle) or refactor the `final` adapter, the test stands up a real throwaway loopback HTTP server (`php -S` in a `proc_open` child on an OS-assigned free port) and points the real `NativeTransport` at it. The code under test runs in the test process (so pcov instruments it normally); only the peer is external. Covers GET/POST-json/PUT-body, response-header parsing, 4xx→`ResponseErrorMapper`, and the connection-failure→`TransportException` branch (curl to a dead port). The 3 unreachable defensive guards (curl ext missing, `curl_init()===false`, non-string `RETURNTRANSFER` body) are `@codeCoverageIgnore`d. **NativeTransport now 100%.** This is the documented, deliberate exception to the "always FakeTransport" rule — you cannot cover the real adapter by substituting a fake for it.
+
+**Two real PHP 8.5 source fixes surfaced by these tests** (both were latent — only the new tests exercised the lines on 8.5, which is in the CI matrix):
+- `PendingRequest::modifiedSince()` — `DateTimeInterface::RFC7231` deprecated → `gmdate(...)`.
+- `NativeTransport` — `curl_close()` deprecated (and a no-op since PHP 8.0, so dead code on a `^8.2` package) → removed all three calls; the `CurlHandle` is freed by GC.
 
 ---
 
