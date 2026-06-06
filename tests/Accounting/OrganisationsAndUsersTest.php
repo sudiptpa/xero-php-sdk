@@ -36,6 +36,9 @@ final class OrganisationsAndUsersTest extends TestCase
         self::assertSame('/api.xro/2.0/Organisation', $transport->requests()[0]->path);
         self::assertInstanceOf(Organisation::class, $organisation);
         self::assertSame('Acme Pty Ltd', $organisation->getName());
+        self::assertSame('Acme Holdings Pty Ltd', $organisation->getLegalName());
+        self::assertSame('ACME', $organisation->getShortCode());
+        self::assertSame('AU', $organisation->getCountryCode());
     }
 
     public function test_it_can_query_users(): void
@@ -67,5 +70,19 @@ final class OrganisationsAndUsersTest extends TestCase
         self::assertSame('Wed, 25 Mar 2026 00:00:00 GMT', $transport->requests()[0]->query['If-Modified-Since']);
         self::assertInstanceOf(User::class, $users->first());
         self::assertSame('bruce@example.test', $users->first()->getEmailAddress());
+        self::assertSame('user-1', $users->first()->getUserID());
+        self::assertSame('Bruce', $users->first()->getFirstName());
+        self::assertSame('Banner', $users->first()->getLastName());
+        self::assertTrue($users->first()->getIsSubscriber());
+    }
+
+    public function test_organisations_and_users_expose_required_scopes(): void
+    {
+        $accounting = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->accounting();
+
+        self::assertNotSame([], $accounting->organisations()->scopes()->broad);
+        self::assertNotSame([], $accounting->users()->scopes()->broad);
     }
 }

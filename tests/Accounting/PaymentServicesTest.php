@@ -60,5 +60,19 @@ final class PaymentServicesTest extends TestCase
         self::assertSame('/api.xro/2.0/PaymentServices', $transport->requests()[0]->path);
         self::assertSame('service-key', $transport->requests()[0]->headers['Idempotency-Key']);
         self::assertSame('Stripe', $service->getPaymentServiceName());
+        self::assertSame('https://example.test/pay', $service->getPaymentServiceUrl());
+        self::assertSame('Pay online', $service->getPayNowText());
+    }
+
+    public function test_it_exposes_required_scopes(): void
+    {
+        $scopes = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->accounting()
+            ->paymentServices()
+            ->scopes();
+
+        self::assertSame(['paymentservices'], $scopes->broad);
+        self::assertSame([], $scopes->granular);
     }
 }

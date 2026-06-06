@@ -13,8 +13,8 @@
 - **Branch:** `chore/dev-quality-parity`
 - **Base:** `main` (dcb3693 — Docs: Updated Projects Notes)
 - **Commits on branch:** 2 (`9b1b1fd` quality parity, `4feb8e8` code-review bug fixes) + Session 3 coverage WIP
-- **Tests:** 80 test files, 230 tests, 1187 assertions, all passing
-- **Coverage:** **79.53% lines** (6185/7777) / 74.15% methods / 27.47% classes (75/273). 100% gate NOT yet passing; ~198 classes with gaps
+- **Tests:** 80 test files, 237 tests, 1216 assertions, all passing
+- **Coverage:** **80.10% lines** (6229/7777) / 74.98% methods / 31.87% classes (87/273). 100% gate NOT yet passing; ~186 classes with gaps
 - **PHPStan:** level `max` — 0 errors
 - **Pint:** clean (`php` preset + `declare_strict_types`)
 - **CI:** pcov on PHP 8.3, formatter gate (`lint:check`), syntax lint (`lint`)
@@ -88,6 +88,16 @@ Clover uncovered-method/line one-liner:
 - **Support** (entire namespace): `Model`, `Json`, `Field`, `ScopeRequirements`, `PaginatedCollection`, `ResourceCollection`, `Concerns/*`
 
 `Model` (the core hydrator) was covered with `tests/Support/ModelTest.php`, which defines small fixture models: one valid `GoodModel` exercising every field type plus the `singular()` pluralisation branches (ies/xes/s/none), and a set of deliberately-broken fixtures (missing setter, missing add method, target class without `fill()`) that trigger each `LogicException` guard.
+
+### Accounting (in progress, one resource cluster per commit)
+
+Done to 100%: **BrandingTheme, Currency, InvoiceReminder, Organisation, PaymentService, User** (extended the existing resource tests).
+
+Pattern for Accounting resources (the bulk of the remaining gap):
+- Unused model getters: assert them on the model returned by the existing `get()`/`find()` test (enrich the response body with the fields if needed).
+- Each resource has a `scopes()` method (from `DefinesScopes`) that is never called: add one assertion. Note some resources have empty `granular` by design (e.g. PaymentServices), so assert the actual shape, not just "non-empty".
+- Watch for error/fallback branches: model `save()` without a bound client throws; some `settings()`/`find()` readers have a second `?:` extract fallback for an alternate JSON key.
+- `ResourceCollection::first()` is non-nullable in these generic contexts, so do not use `?->` on it (PHPStan `nullsafe.neverNull`).
 
 ### NativeTransport — SOLVED (loopback integration test)
 
