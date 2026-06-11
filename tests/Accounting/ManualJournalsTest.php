@@ -213,4 +213,112 @@ final class ManualJournalsTest extends TestCase
         self::assertSame('Updated in app', $record->details);
         self::assertSame('Viewed from model', $modelHistory?->first()?->details);
     }
+
+    public function test_it_exposes_scopes(): void
+    {
+        $resource = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->accounting()
+            ->manualJournals();
+
+        $scopes = $resource->scopes();
+
+        self::assertSame(['accounting.transactions'], $scopes->broad);
+        self::assertSame(['accounting.transactions.read', 'accounting.transactions'], $scopes->granular);
+    }
+
+    public function test_it_can_paginate_manual_journals(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode(['ManualJournals' => []], JSON_THROW_ON_ERROR))
+        );
+
+        $page = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->manualJournals()
+            ->paginate(page: 2, perPage: 15);
+
+        self::assertSame(2, $transport->requests()[0]->query['page']);
+        self::assertSame(15, $transport->requests()[0]->query['pageSize']);
+        self::assertSame(2, $page->page);
+        self::assertSame(15, $page->perPage);
+    }
+
+    public function test_it_maps_journal_lines_directly(): void
+    {
+        $resource = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->accounting()
+            ->manualJournals();
+
+        $line = $resource->mapJournalLine([
+            'LineAmount' => 100,
+            'AccountCode' => '200',
+        ]);
+
+        self::assertSame('200', $line->getAccountCode());
+    }
+
+    public function test_payload_builder_methods_compose_the_request(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode([
+                'ManualJournals' => [['ManualJournalID' => 'mj-1']],
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->manualJournals()
+            ->update('mj-1')
+            ->narration('Year end adjustments')
+            ->line(100, '200', true)
+            ->line(100, '090', false)
+            ->save();
+
+        $json = $transport->requests()[0]->json ?? [];
+        $mj = Json::extractFirst($json, 'ManualJournals');
+        self::assertNotNull($mj);
+        self::assertSame('mj-1', $mj['ManualJournalID']);
+        self::assertSame('Year end adjustments', $mj['Narration']);
+        $lines = Json::extractList($mj, 'JournalLines');
+        self::assertCount(2, $lines);
+        self::assertSame('200', $lines[0]['AccountCode'] ?? null);
+    }
+
+    public function test_model_fluent_helpers_set_fields(): void
+    {
+        $journal = (new ManualJournal())
+            ->narration('Adjustment')
+            ->line(50, '200', true)
+            ->setJournalLines([
+                (new JournalLine())->setAccountCode('090'),
+            ]);
+
+        self::assertSame('Adjustment', $journal->getNarration());
+        self::assertSame('090', $journal->getJournalLines()[0]->getAccountCode());
+    }
+
+    public function test_saving_without_a_client_throws(): void
+    {
+        $this->expectException(\RuntimeException::class);
+
+        (new ManualJournal())->save();
+    }
+
+    public function test_attachments_without_a_client_throws(): void
+    {
+        $this->expectException(\RuntimeException::class);
+
+        (new ManualJournal())->attachments();
+    }
+
+    public function test_history_without_a_client_throws(): void
+    {
+        $this->expectException(\RuntimeException::class);
+
+        (new ManualJournal())->history();
+    }
 }
