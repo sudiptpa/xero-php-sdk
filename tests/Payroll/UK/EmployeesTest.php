@@ -19,35 +19,31 @@ final class EmployeesTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Employees' => [[
-                'EmployeeID' => 'employee-1',
-                'FirstName' => 'Ada',
-                'LastName' => 'Lovelace',
-                'Status' => 'ACTIVE',
+            'employees' => [[
+                'employeeID' => 'employee-1',
+                'firstName' => 'Ada',
+                'lastName' => 'Lovelace',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Employee' => [
-                'EmployeeID' => 'employee-1',
-                'FirstName' => 'Ada',
-                'LastName' => 'Lovelace',
-                'Status' => 'ACTIVE',
+            'employee' => [
+                'employeeID' => 'employee-1',
+                'firstName' => 'Ada',
+                'lastName' => 'Lovelace',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Employee' => [
-                'EmployeeID' => 'employee-2',
-                'FirstName' => 'Grace',
-                'LastName' => 'Hopper',
-                'Status' => 'ACTIVE',
+            'employee' => [
+                'employeeID' => 'employee-2',
+                'firstName' => 'Grace',
+                'lastName' => 'Hopper',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Employee' => [
-                'EmployeeID' => 'employee-2',
-                'FirstName' => 'Grace',
-                'LastName' => 'Hopper',
-                'Status' => 'ACTIVE',
+            'employee' => [
+                'employeeID' => 'employee-2',
+                'firstName' => 'Grace',
+                'lastName' => 'Hopper',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -189,7 +185,7 @@ final class EmployeesTest extends TestCase
     public function test_it_can_paginate_employees(): void
     {
         $transport = (new FakeTransport())->push(
-            new Response(200, body: json_encode(['Employees' => []], JSON_THROW_ON_ERROR))
+            new Response(200, body: json_encode(['employees' => []], JSON_THROW_ON_ERROR))
         );
 
         $page = Xero::withAccessToken('token', $transport)
@@ -208,39 +204,35 @@ final class EmployeesTest extends TestCase
     public function test_employee_exposes_all_fields(): void
     {
         $employee = (new Employee())->fill([
-            'EmployeeID' => 'employee-1',
-            'FirstName' => 'Ada',
-            'LastName' => 'Lovelace',
-            'EmailAddress' => 'ada@example.test',
-            'Status' => 'ACTIVE',
+            'employeeID' => 'employee-1',
+            'firstName' => 'Ada',
+            'lastName' => 'Lovelace',
+            'email' => 'ada@example.test',
         ]);
 
         self::assertSame('employee-1', $employee->getEmployeeID());
         self::assertSame('Ada', $employee->getFirstName());
         self::assertSame('Lovelace', $employee->getLastName());
         self::assertSame('ada@example.test', $employee->getEmailAddress());
-        self::assertSame('ACTIVE', $employee->getStatus());
     }
 
     public function test_it_can_save_a_found_employee(): void
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Employee' => [
-                'EmployeeID' => 'employee-1',
-                'FirstName' => 'Ada',
-                'LastName' => 'Lovelace',
-                'EmailAddress' => 'ada@example.test',
-                'Status' => 'ACTIVE',
+            'employee' => [
+                'employeeID' => 'employee-1',
+                'firstName' => 'Ada',
+                'lastName' => 'Lovelace',
+                'email' => 'ada@example.test',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Employee' => [
-                'EmployeeID' => 'employee-1',
-                'FirstName' => 'Ada',
-                'LastName' => 'King',
-                'EmailAddress' => 'ada@example.test',
-                'Status' => 'ACTIVE',
+            'employee' => [
+                'employeeID' => 'employee-1',
+                'firstName' => 'Ada',
+                'lastName' => 'King',
+                'email' => 'ada@example.test',
             ],
         ], JSON_THROW_ON_ERROR)));
 
@@ -249,15 +241,13 @@ final class EmployeesTest extends TestCase
         $employee = $client->payroll()->uk()->employees()->find('employee-1');
         $saved = $employee?->setLastName('King')->save();
 
-        self::assertSame('POST', $transport->requests()[1]->method);
+        self::assertSame('PUT', $transport->requests()[1]->method);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1', $transport->requests()[1]->path);
         self::assertSame([
-            'Employee' => [
-                'FirstName' => 'Ada',
-                'LastName' => 'King',
-                'EmailAddress' => 'ada@example.test',
-                'EmployeeID' => 'employee-1',
-            ],
+            'firstName' => 'Ada',
+            'lastName' => 'King',
+            'email' => 'ada@example.test',
+            'employeeID' => 'employee-1',
         ], $transport->requests()[1]->json);
         self::assertSame('King', $saved?->getLastName());
     }
@@ -350,11 +340,9 @@ final class EmployeesTest extends TestCase
 
         self::assertSame('key-123', $transport->requests()[0]->headers['Idempotency-Key']);
         self::assertSame([
-            'Employee' => [
-                'FirstName' => 'Ada',
-                'LastName' => 'Lovelace',
-                'DateOfBirth' => '1990-01-15',
-            ],
+            'firstName' => 'Ada',
+            'lastName' => 'Lovelace',
+            'dateOfBirth' => '1990-01-15',
         ], $transport->requests()[0]->json);
         self::assertNull($employee->getEmployeeID());
     }

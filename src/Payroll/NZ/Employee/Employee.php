@@ -16,7 +16,6 @@ final class Employee extends Model
     private ?string $firstName = null;
     private ?string $lastName = null;
     private ?string $emailAddress = null;
-    private ?string $status = null;
 
 
     public function __construct(
@@ -60,27 +59,16 @@ final class Employee extends Model
         $this->emailAddress = $emailAddress;
         return $this;
     }
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-    public function setStatus(?string $status): self
-    {
-        $this->status = $status;
-        return $this;
-    }
-
     /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
     {
         return [
-            'EmployeeID' => Field::string()->using('setEmployeeID'),
-            'FirstName' => Field::string()->using('setFirstName'),
-            'LastName' => Field::string()->using('setLastName'),
-            'EmailAddress' => Field::string()->using('setEmailAddress'),
-            'Status' => Field::string()->using('setStatus'),
+            'employeeID' => Field::string()->using('setEmployeeID'),
+            'firstName' => Field::string()->using('setFirstName'),
+            'lastName' => Field::string()->using('setLastName'),
+            'email' => Field::string()->using('setEmailAddress'),
         ];
     }
 

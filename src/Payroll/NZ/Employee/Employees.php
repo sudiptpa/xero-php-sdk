@@ -55,7 +55,7 @@ final class Employees implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_map(fn (array $employee): Employee => $this->mapEmployee($employee), Json::extractList($payload, 'Employees'));
+        $items = array_map(fn (array $employee): Employee => $this->mapEmployee($employee), Json::extractList($payload, 'employees'));
 
         return new ResourceCollection($items);
     }
@@ -85,7 +85,7 @@ final class Employees implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $employee = Json::extractFirst($payload, 'Employees') ?? Json::extractObject($payload, 'Employee') ?: null;
+        $employee = Json::extractFirst($payload, 'employees') ?? Json::extractObject($payload, 'employee') ?: null;
 
         return $employee !== null ? $this->mapEmployee($employee) : null;
     }

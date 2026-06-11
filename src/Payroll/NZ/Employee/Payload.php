@@ -34,7 +34,7 @@ final class Payload
     public function firstName(string $firstName): self
     {
         $clone = clone $this;
-        $clone->payload['FirstName'] = $firstName;
+        $clone->payload['firstName'] = $firstName;
 
         return $clone;
     }
@@ -42,7 +42,7 @@ final class Payload
     public function lastName(string $lastName): self
     {
         $clone = clone $this;
-        $clone->payload['LastName'] = $lastName;
+        $clone->payload['lastName'] = $lastName;
 
         return $clone;
     }
@@ -50,7 +50,7 @@ final class Payload
     public function emailAddress(string $emailAddress): self
     {
         $clone = clone $this;
-        $clone->payload['EmailAddress'] = $emailAddress;
+        $clone->payload['email'] = $emailAddress;
 
         return $clone;
     }
@@ -58,7 +58,7 @@ final class Payload
     public function dateOfBirth(string $dateOfBirth): self
     {
         $clone = clone $this;
-        $clone->payload['DateOfBirth'] = $dateOfBirth;
+        $clone->payload['dateOfBirth'] = $dateOfBirth;
 
         return $clone;
     }
@@ -75,19 +75,19 @@ final class Payload
     {
         $request = $this->employeeId === null
             ? $this->client->post('/payroll.xro/2.0/Employees')
-            : $this->client->post('/payroll.xro/2.0/Employees/' . $this->employeeId);
+            : $this->client->put('/payroll.xro/2.0/Employees/' . $this->employeeId);
 
         if ($this->employeeId !== null) {
-            $this->payload['EmployeeID'] = $this->employeeId;
+            $this->payload['employeeID'] = $this->employeeId;
         }
 
         $response = $request
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
-            ->withJson(['Employee' => $this->payload])
+            ->withJson($this->payload)
             ->send();
 
         $payload = $response->json();
-        $employee = Json::extractFirst($payload, 'Employees') ?? Json::extractObject($payload, 'Employee');
+        $employee = Json::extractFirst($payload, 'employees') ?? Json::extractObject($payload, 'employee');
 
         if ($employee === []) {
             return new Employee($this->client);
