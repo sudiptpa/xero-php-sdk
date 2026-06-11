@@ -69,6 +69,7 @@ final class LinkedTransactionsTest extends TestCase
             )
             ->save();
 
+        self::assertSame('PUT', $transport->requests()[0]->method);
         self::assertSame('/api.xro/2.0/LinkedTransactions', $transport->requests()[0]->path);
         $json0 = $transport->requests()[0]->json ?? [];
         self::assertSame('source-1', $json0['SourceTransactionID'] ?? null);

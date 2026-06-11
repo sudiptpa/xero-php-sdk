@@ -59,6 +59,7 @@ final class BankTransfersTest extends TestCase
         $json2 = $transport->requests()[2]->json ?? [];
         $bt2 = Json::extractFirst($json2, 'BankTransfers');
         self::assertNotNull($bt2);
+        self::assertSame('PUT', $transport->requests()[2]->method);
         self::assertSame('/api.xro/2.0/BankTransfers', $transport->requests()[2]->path);
         self::assertSame('bank-a', Json::extractObject($bt2, 'FromBankAccount')['AccountID']);
         self::assertSame('Sweep', $created->getReference());

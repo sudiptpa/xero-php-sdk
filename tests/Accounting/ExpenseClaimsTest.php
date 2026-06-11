@@ -74,6 +74,7 @@ final class ExpenseClaimsTest extends TestCase
         self::assertSame('Status == "SUBMITTED"', $transport->requests()[0]->query['where']);
         self::assertNotNull($claims->first());
         self::assertSame('/api.xro/2.0/ExpenseClaims/expense-1', $transport->requests()[1]->path);
+        self::assertSame('PUT', $transport->requests()[2]->method);
         self::assertSame('/api.xro/2.0/ExpenseClaims', $transport->requests()[2]->path);
         $json2 = $transport->requests()[2]->json ?? [];
         $ec2 = Json::extractFirst($json2, 'ExpenseClaims');
@@ -82,7 +83,8 @@ final class ExpenseClaimsTest extends TestCase
         $json3 = $transport->requests()[3]->json ?? [];
         $ec3 = Json::extractFirst($json3, 'ExpenseClaims');
         self::assertNotNull($ec3);
-        self::assertSame('/api.xro/2.0/ExpenseClaims', $transport->requests()[3]->path);
+        self::assertSame('POST', $transport->requests()[3]->method);
+        self::assertSame('/api.xro/2.0/ExpenseClaims/expense-2', $transport->requests()[3]->path);
         self::assertSame('expense-2', $ec3['ExpenseClaimID']);
         self::assertSame('SUBMITTED', $updated->getStatus());
         self::assertSame('employee-1', $updated->getEmployeeID());
@@ -90,7 +92,8 @@ final class ExpenseClaimsTest extends TestCase
         self::assertSame('expense-1', $claim?->getExpenseClaimID());
         self::assertSame(80, $claim->getTotal());
 
-        self::assertSame('/api.xro/2.0/ExpenseClaims', $transport->requests()[4]->path);
+        self::assertSame('POST', $transport->requests()[4]->method);
+        self::assertSame('/api.xro/2.0/ExpenseClaims/expense-2', $transport->requests()[4]->path);
         self::assertSame('expense-key', $transport->requests()[4]->headers['Idempotency-Key']);
         self::assertNotSame([], $client->accounting()->expenseClaims()->scopes()->broad);
 

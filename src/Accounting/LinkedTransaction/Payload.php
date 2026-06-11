@@ -55,7 +55,7 @@ final class Payload
     public function save(): LinkedTransaction
     {
         $response = $this->client
-            ->post('/api.xro/2.0/LinkedTransactions')
+            ->put('/api.xro/2.0/LinkedTransactions')
             ->withJson($this->linkedTransaction->toRequest())
             ->send();
 

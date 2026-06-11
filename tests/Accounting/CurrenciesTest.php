@@ -42,6 +42,7 @@ final class CurrenciesTest extends TestCase
 
         self::assertSame('/api.xro/2.0/Currencies', $transport->requests()[0]->path);
         self::assertNotNull($currencies->first());
+        self::assertSame('PUT', $transport->requests()[1]->method);
         self::assertSame('/api.xro/2.0/Currencies', $transport->requests()[1]->path);
         self::assertSame('currency-key', $transport->requests()[1]->headers['Idempotency-Key']);
         $json1 = $transport->requests()[1]->json ?? [];

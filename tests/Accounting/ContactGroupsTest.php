@@ -68,6 +68,7 @@ final class ContactGroupsTest extends TestCase
         self::assertSame('/api.xro/2.0/ContactGroups/group-1', $transport->requests()[1]->path);
         self::assertSame('/api.xro/2.0/ContactGroups', $transport->requests()[2]->path);
         self::assertSame('/api.xro/2.0/ContactGroups/group-2', $transport->requests()[3]->path);
+        self::assertSame('PUT', $transport->requests()[4]->method);
         self::assertSame('/api.xro/2.0/ContactGroups/group-2/Contacts', $transport->requests()[4]->path);
         $json4 = $transport->requests()[4]->json ?? [];
         $contact4 = Json::extractFirst($json4, 'Contacts');
