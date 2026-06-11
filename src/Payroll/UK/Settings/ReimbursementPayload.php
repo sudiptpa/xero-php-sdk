@@ -24,15 +24,15 @@ final class ReimbursementPayload
     public function name(string $name): self
     {
         $clone = clone $this;
-        $clone->payload['Name'] = $name;
+        $clone->payload['name'] = $name;
 
         return $clone;
     }
 
-    public function accountCode(string $accountCode): self
+    public function account(string $accountId): self
     {
         $clone = clone $this;
-        $clone->payload['AccountCode'] = $accountCode;
+        $clone->payload['accountID'] = $accountId;
 
         return $clone;
     }
@@ -54,7 +54,7 @@ final class ReimbursementPayload
             ->send()
             ->json();
 
-        $reimbursement = Json::extractFirst($payload, 'Reimbursements') ?? Json::extractObject($payload, 'Reimbursement') ?: null;
+        $reimbursement = Json::extractFirst($payload, 'reimbursements') ?? Json::extractObject($payload, 'reimbursement') ?: null;
 
         if ($reimbursement === null) {
             return new Reimbursement();

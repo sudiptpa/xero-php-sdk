@@ -9,7 +9,6 @@ use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\UK\Settings\Reimbursement;
 use Sujip\Xero\Payroll\UK\Settings\StatutoryLeaveSummary;
-use Sujip\Xero\Payroll\UK\Settings\TrackingCategory;
 use Sujip\Xero\Xero;
 
 final class SettingsTest extends TestCase
@@ -18,34 +17,38 @@ final class SettingsTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'TrackingCategories' => [[
+            'trackingCategories' => [
                 'employeeGroupsTrackingCategoryID' => 'employee-groups-1',
                 'timesheetTrackingCategoryID' => 'timesheet-1',
-            ]],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Reimbursements' => [[
-                'ReimbursementID' => 'reimbursement-1',
-                'Name' => 'Travel',
-            ]],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Reimbursement' => [
-                'ReimbursementID' => 'reimbursement-1',
-                'Name' => 'Travel',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'StatutoryLeaveSummary' => [
-                'EmployeeID' => 'employee-1',
-                'Units' => 'DAYS',
+            'reimbursements' => [[
+                'reimbursementID' => 'reimbursement-1',
+                'name' => 'Travel',
+                'accountID' => 'account-1',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'reimbursement' => [
+                'reimbursementID' => 'reimbursement-1',
+                'name' => 'Travel',
+                'accountID' => 'account-1',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Reimbursement' => [
-                'ReimbursementID' => 'reimbursement-2',
-                'Name' => 'Meals',
-                'AccountCode' => '400',
+            'statutoryLeaves' => [[
+                'statutoryLeaveID' => 'leave-1',
+                'employeeID' => 'employee-1',
+                'type' => 'Sick',
+                'isEntitled' => true,
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'reimbursement' => [
+                'reimbursementID' => 'reimbursement-2',
+                'name' => 'Meals',
+                'accountID' => 'account-2',
             ],
         ], JSON_THROW_ON_ERROR)));
 
@@ -58,10 +61,10 @@ final class SettingsTest extends TestCase
         $trackingCategories = $settings->trackingCategories();
         $reimbursements = $settings->reimbursements();
         $reimbursement = $settings->reimbursement('reimbursement-1');
-        $summary = $settings->statutoryLeaveSummary('employee-1');
+        $summaries = $settings->statutoryLeaveSummary('employee-1');
         $created = $settings->createReimbursement()
             ->name('Meals')
-            ->accountCode('400')
+            ->account('account-2')
             ->idempotencyKey('reimbursement-key')
             ->save();
 
@@ -71,15 +74,17 @@ final class SettingsTest extends TestCase
         self::assertSame('/payroll.xro/2.0/StatutoryLeaves/Summary/employee-1', $transport->requests()[3]->path);
         self::assertSame('/payroll.xro/2.0/Reimbursements', $transport->requests()[4]->path);
         self::assertSame('reimbursement-key', $transport->requests()[4]->headers['Idempotency-Key']);
-        $firstTc = $trackingCategories->first();
-        self::assertNotNull($firstTc);
-        self::assertSame('employee-groups-1', $firstTc->getEmployeeGroupsTrackingCategoryID());
-        self::assertSame('timesheet-1', $firstTc->getTimesheetTrackingCategoryID());
+        self::assertSame([
+            'name' => 'Meals',
+            'accountID' => 'account-2',
+        ], $transport->requests()[4]->json);
+        self::assertSame('employee-groups-1', $trackingCategories['employeeGroupsTrackingCategoryID'] ?? null);
+        self::assertSame('timesheet-1', $trackingCategories['timesheetTrackingCategoryID'] ?? null);
         $firstReimb = $reimbursements->first();
         self::assertNotNull($firstReimb);
         self::assertSame('Travel', $firstReimb->getName());
         self::assertSame('reimbursement-1', $reimbursement?->getReimbursementID());
-        self::assertSame('employee-1', $summary->getEmployeeID());
+        self::assertSame('employee-1', $summaries->first()?->getEmployeeID());
         self::assertSame('reimbursement-2', $created->getReimbursementID());
     }
 
@@ -96,19 +101,18 @@ final class SettingsTest extends TestCase
         self::assertSame(['payroll.settings.read', 'payroll.settings'], $scopes->granular);
     }
 
-    public function test_it_returns_blank_statutory_leave_summary_when_response_has_no_summary(): void
+    public function test_it_returns_empty_collection_when_response_has_no_statutory_leaves(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
 
-        $summary = Xero::withAccessToken('token', $transport)
+        $summaries = Xero::withAccessToken('token', $transport)
             ->tenant('tenant-123')
             ->payroll()
             ->uk()
             ->settings()
             ->statutoryLeaveSummary('employee-1');
 
-        self::assertNull($summary->getEmployeeID());
-        self::assertNull($summary->getUnits());
+        self::assertNull($summaries->first());
     }
 
     public function test_reimbursement_save_returns_blank_model_on_empty_response(): void
@@ -130,39 +134,36 @@ final class SettingsTest extends TestCase
     public function test_reimbursement_exposes_all_fields(): void
     {
         $reimbursement = (new Reimbursement())->fill([
-            'ReimbursementID' => 'reimbursement-1',
-            'Name' => 'Travel',
-            'AccountCode' => '400',
+            'reimbursementID' => 'reimbursement-1',
+            'name' => 'Travel',
+            'accountID' => 'account-1',
+            'currentRecord' => true,
         ]);
 
         self::assertSame('reimbursement-1', $reimbursement->getReimbursementID());
         self::assertSame('Travel', $reimbursement->getName());
-        self::assertSame('400', $reimbursement->getAccountCode());
+        self::assertSame('account-1', $reimbursement->getAccountID());
+        self::assertTrue($reimbursement->getCurrentRecord());
     }
 
     public function test_statutory_leave_summary_exposes_all_fields(): void
     {
         $summary = (new StatutoryLeaveSummary())->fill([
-            'EmployeeID' => 'employee-1',
-            'Units' => 'Hours',
+            'statutoryLeaveID' => 'leave-1',
+            'employeeID' => 'employee-1',
+            'type' => 'Sick',
+            'startDate' => '2026-04-01',
+            'endDate' => '2026-04-05',
+            'isEntitled' => true,
+            'status' => 'Pending',
         ]);
 
+        self::assertSame('leave-1', $summary->getStatutoryLeaveID());
         self::assertSame('employee-1', $summary->getEmployeeID());
-        self::assertSame('Hours', $summary->getUnits());
-    }
-
-    public function test_tracking_category_exposes_all_fields(): void
-    {
-        $trackingCategory = (new TrackingCategory())->fill([
-            'TrackingCategoryID' => 'tracking-1',
-            'Name' => 'Region',
-            'EmployeeGroupsTrackingCategoryID' => 'employee-groups-1',
-            'TimesheetTrackingCategoryID' => 'timesheet-1',
-        ]);
-
-        self::assertSame('tracking-1', $trackingCategory->getTrackingCategoryID());
-        self::assertSame('Region', $trackingCategory->getName());
-        self::assertSame('employee-groups-1', $trackingCategory->getEmployeeGroupsTrackingCategoryID());
-        self::assertSame('timesheet-1', $trackingCategory->getTimesheetTrackingCategoryID());
+        self::assertSame('Sick', $summary->getType());
+        self::assertSame('2026-04-01', $summary->getStartDate());
+        self::assertSame('2026-04-05', $summary->getEndDate());
+        self::assertTrue($summary->getIsEntitled());
+        self::assertSame('Pending', $summary->getStatus());
     }
 }
