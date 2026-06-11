@@ -18,10 +18,10 @@ final class PayRunsTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'PayRuns' => [[
-                'PayRunID' => 'payrun-1',
-                'PayrollCalendarID' => 'calendar-1',
-                'PayRunStatus' => 'DRAFT',
+            'payRuns' => [[
+                'payRunID' => 'payrun-1',
+                'payrollCalendarID' => 'calendar-1',
+                'payRunStatus' => 'Draft',
                 'periodStartDate' => '2026-03-01',
                 'periodEndDate' => '2026-03-31',
                 'totalCost' => 1500.25,
@@ -32,33 +32,40 @@ final class PayRunsTest extends TestCase
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'PayRun' => [
-                'PayRunID' => 'payrun-1',
-                'PayrollCalendarID' => 'calendar-1',
-                'PayRunStatus' => 'DRAFT',
+            'payRun' => [
+                'payRunID' => 'payrun-1',
+                'payrollCalendarID' => 'calendar-1',
+                'payRunStatus' => 'Draft',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'PayRun' => [
-                'PayRunID' => 'payrun-2',
-                'PayrollCalendarID' => 'calendar-1',
-                'PayRunStatus' => 'DRAFT',
+            'payRun' => [
+                'payRunID' => 'payrun-2',
+                'payrollCalendarID' => 'calendar-1',
+                'payRunStatus' => 'Draft',
             ],
         ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
-        $runs = $client->payroll()->uk()->payRuns()->status('draft')->page(2)->get();
+        $runs = $client->payroll()->uk()->payRuns()->status('Draft')->page(2)->get();
         $run = $client->payroll()->uk()->payRuns()->find('payrun-1');
-        $created = $client->payroll()->uk()->payRuns()->create()->payrollCalendar('calendar-1')->save();
+        $created = $client->payroll()->uk()->payRuns()->create()
+            ->payrollCalendar('calendar-1')
+            ->paymentDate('2026-04-05')
+            ->save();
 
         self::assertSame('/payroll.xro/2.0/PayRuns', $transport->requests()[0]->path);
-        self::assertSame('DRAFT', $transport->requests()[0]->query['status']);
+        self::assertSame('Draft', $transport->requests()[0]->query['status']);
         self::assertSame(2, $transport->requests()[0]->query['page']);
         $firstRun = $runs->first();
         self::assertNotNull($firstRun);
         self::assertSame('/payroll.xro/2.0/PayRuns/payrun-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/2.0/PayRuns', $transport->requests()[2]->path);
+        self::assertSame([
+            'payrollCalendarID' => 'calendar-1',
+            'paymentDate' => '2026-04-05',
+        ], $transport->requests()[2]->json);
         self::assertSame('payrun-1', $run?->getPayRunID());
         self::assertSame('payrun-2', $created->getPayRunID());
         self::assertSame('2026-03-01', $firstRun->getPeriodStartDate());
@@ -70,10 +77,10 @@ final class PayRunsTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'PayRun' => [
-                'PayRunID' => 'payrun-1',
-                'PayrollCalendarID' => 'calendar-1',
-                'PayRunStatus' => 'POSTED',
+            'payRun' => [
+                'payRunID' => 'payrun-1',
+                'payrollCalendarID' => 'calendar-1',
+                'payRunStatus' => 'Posted',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -134,7 +141,7 @@ final class PayRunsTest extends TestCase
     public function test_it_can_paginate_pay_runs(): void
     {
         $transport = (new FakeTransport())->push(
-            new Response(200, body: json_encode(['PayRuns' => []], JSON_THROW_ON_ERROR))
+            new Response(200, body: json_encode(['payRuns' => []], JSON_THROW_ON_ERROR))
         );
 
         $page = Xero::withAccessToken('token', $transport)
@@ -153,17 +160,17 @@ final class PayRunsTest extends TestCase
     public function test_pay_run_exposes_all_fields(): void
     {
         $payRun = (new PayRun())->fill([
-            'PayRunID' => 'payrun-1',
-            'PayrollCalendarID' => 'calendar-1',
-            'PayRunStatus' => 'Posted',
-            'PaymentDate' => '2026-04-05',
-            'PeriodStartDate' => '2026-03-01',
-            'PeriodEndDate' => '2026-03-31',
-            'TotalCost' => 1500.25,
-            'TotalPay' => 1200.55,
-            'PayRunType' => 'Scheduled',
-            'CalendarType' => 'Monthly',
-            'PostedDateTime' => '2026-03-31T12:00:00',
+            'payRunID' => 'payrun-1',
+            'payrollCalendarID' => 'calendar-1',
+            'payRunStatus' => 'Posted',
+            'paymentDate' => '2026-04-05',
+            'periodStartDate' => '2026-03-01',
+            'periodEndDate' => '2026-03-31',
+            'totalCost' => 1500.25,
+            'totalPay' => 1200.55,
+            'payRunType' => 'Scheduled',
+            'calendarType' => 'Monthly',
+            'postedDateTime' => '2026-03-31T12:00:00',
         ]);
 
         self::assertSame('payrun-1', $payRun->getPayRunID());

@@ -38,7 +38,7 @@ final class PayRuns implements PaginatesResults, DefinesScopes
     public function status(string $status): self
     {
         $clone = clone $this;
-        $clone->query['status'] = strtoupper($status);
+        $clone->query['status'] = $status;
 
         return $clone;
     }
@@ -56,7 +56,7 @@ final class PayRuns implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $items = array_map(
             fn (array $payRun): PayRun => $this->mapPayRun($payRun),
-            Json::extractList($payload, 'PayRuns')
+            Json::extractList($payload, 'payRuns')
         );
 
         return new ResourceCollection($items);
@@ -87,7 +87,7 @@ final class PayRuns implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $payRun = Json::extractFirst($payload, 'PayRuns') ?? Json::extractObject($payload, 'PayRun') ?: null;
+        $payRun = Json::extractFirst($payload, 'payRuns') ?? Json::extractObject($payload, 'payRun') ?: null;
 
         return $payRun !== null ? $this->mapPayRun($payRun) : null;
     }
