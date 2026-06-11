@@ -80,6 +80,52 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame(3, $page->page);
     }
 
+    public function test_payroll_calendars_expose_scopes(): void
+    {
+        $scopes = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->payroll()
+            ->au()
+            ->payrollCalendars()
+            ->scopes();
+
+        self::assertSame(['payroll.settings'], $scopes->broad);
+        self::assertSame(['payroll.settings.read', 'payroll.settings'], $scopes->granular);
+    }
+
+    public function test_payroll_calendar_exposes_all_fields(): void
+    {
+        $calendar = (new PayrollCalendar())->fill([
+            'PayrollCalendarID' => 'calendar-1',
+            'Name' => 'Weekly',
+            'CalendarType' => 'WEEKLY',
+            'StartDate' => '/Date(1572566400000+0000)/',
+            'PaymentDate' => '/Date(1573171200000+0000)/',
+        ]);
+
+        self::assertSame('calendar-1', $calendar->getPayrollCalendarID());
+        self::assertSame('Weekly', $calendar->getName());
+        self::assertSame('WEEKLY', $calendar->getCalendarType());
+        self::assertSame('/Date(1572566400000+0000)/', $calendar->getStartDate());
+        self::assertSame('/Date(1573171200000+0000)/', $calendar->getPaymentDate());
+    }
+
+    public function test_payroll_calendar_save_returns_blank_model_on_empty_response(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $calendar = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->au()
+            ->payrollCalendars()
+            ->create()
+            ->name('Weekly')
+            ->save();
+
+        self::assertNull($calendar->getPayrollCalendarID());
+    }
+
     public function test_it_can_load_super_funds(): void
     {
         $transport = new FakeTransport();
