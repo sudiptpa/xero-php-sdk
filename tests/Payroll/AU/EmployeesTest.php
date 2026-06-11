@@ -215,6 +215,33 @@ final class EmployeesTest extends TestCase
         self::assertSame('employee-1', $saved->getEmployeeID());
     }
 
+    public function test_create_sends_date_of_birth_and_idempotency_key_and_handles_empty_response(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $employee = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->au()
+            ->employees()
+            ->create()
+            ->firstName('Grace')
+            ->lastName('Hopper')
+            ->dateOfBirth('1990-01-15')
+            ->idempotencyKey('key-123')
+            ->save();
+
+        self::assertSame('key-123', $transport->requests()[0]->headers['Idempotency-Key']);
+        self::assertSame([
+            'Employee' => [
+                'FirstName' => 'Grace',
+                'LastName' => 'Hopper',
+                'DateOfBirth' => '1990-01-15',
+            ],
+        ], $transport->requests()[0]->json);
+        self::assertNull($employee->getEmployeeID());
+    }
+
     public function test_saving_without_a_client_throws(): void
     {
         $this->expectException(\RuntimeException::class);
