@@ -30,7 +30,7 @@ final class FinanceCoverageTest extends TestCase
         ], $finance->scopes()->granular);
         self::assertSame(['finance.accountingactivity.read'], $finance->accountingActivities()->scopes()->granular);
         self::assertSame(['finance.cashvalidation.read'], $finance->cashValidation()->scopes()->granular);
-        self::assertSame(['finance.cashvalidation.read'], $finance->bankStatementAccounting()->scopes()->granular);
+        self::assertSame(['finance.bankstatementsplus.read'], $finance->bankStatementAccounting()->scopes()->granular);
         self::assertSame(['finance.statements.read'], $finance->statements()->scopes()->granular);
     }
 

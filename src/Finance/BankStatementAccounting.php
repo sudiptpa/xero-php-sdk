@@ -22,34 +22,34 @@ final readonly class BankStatementAccounting implements DefinesScopes
     {
         return new ScopeRequirements(
             broad: [],
-            granular: ['finance.cashvalidation.read']
+            granular: ['finance.bankstatementsplus.read']
         );
     }
 
     /**
      * @return ResourceCollection<BankStatementEntry>
      */
-    public function get(?DateTimeInterface $balanceDate = null, ?DateTimeInterface $asAtSystemDate = null): ResourceCollection
+    public function get(string $bankAccountId, DateTimeInterface $fromDate, DateTimeInterface $toDate, ?bool $summaryOnly = null): ResourceCollection
     {
-        $query = [];
+        $query = [
+            'BankAccountID' => $bankAccountId,
+            'FromDate' => $fromDate->format('Y-m-d'),
+            'ToDate' => $toDate->format('Y-m-d'),
+        ];
 
-        if ($balanceDate !== null) {
-            $query['balanceDate'] = $balanceDate->format('Y-m-d');
-        }
-
-        if ($asAtSystemDate !== null) {
-            $query['asAtSystemDate'] = $asAtSystemDate->format('Y-m-d');
+        if ($summaryOnly !== null) {
+            $query['SummaryOnly'] = $summaryOnly;
         }
 
         $payload = $this->client
-            ->get('/finance.xro/1.0/BankStatementAccounting')
+            ->get('/finance.xro/1.0/BankStatementsPlus/statements')
             ->withQuery($query)
             ->send()
             ->json();
 
         $items = array_map(
             fn (array $entry): BankStatementEntry => $this->mapBankStatementEntry($entry),
-            Json::extractList($payload, 'Items') ?: Json::extractList($payload, 'BankStatementAccounting')
+            Json::extractList($payload, 'statements') ?: Json::extractList($payload, 'Statements')
         );
 
         return new ResourceCollection($items);
