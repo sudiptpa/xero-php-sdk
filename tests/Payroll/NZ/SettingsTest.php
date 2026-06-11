@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\NZ\Settings\PayrollSettings;
+use Sujip\Xero\Payroll\NZ\Settings\StatutoryDeduction;
 use Sujip\Xero\Xero;
 
 final class SettingsTest extends TestCase
@@ -16,21 +17,28 @@ final class SettingsTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Settings' => [
-                'Accounts' => [],
-                'TrackingCategories' => [],
+            'settings' => [
+                'accounts' => [
+                    ['accountID' => 'account-1', 'type' => 'WAGESPAYABLE', 'code' => '814', 'name' => 'Wages Payable'],
+                ],
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'StatutoryDeductions' => [[
-                'StatutoryDeductionID' => 'deduction-1',
-                'Name' => 'KiwiSaver',
+            'trackingCategories' => [
+                'employeeGroupsTrackingCategoryID' => 'tracking-1',
+                'timesheetTrackingCategoryID' => 'tracking-2',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'statutoryDeductions' => [[
+                'id' => 'deduction-1',
+                'name' => 'KiwiSaver',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'StatutoryDeduction' => [
-                'StatutoryDeductionID' => 'deduction-1',
-                'Name' => 'KiwiSaver',
+            'statutoryDeduction' => [
+                'id' => 'deduction-1',
+                'name' => 'KiwiSaver',
             ],
         ], JSON_THROW_ON_ERROR)));
 
@@ -40,20 +48,22 @@ final class SettingsTest extends TestCase
             ->nz()
             ->settings();
 
-        $settings = $client
-            ->get();
+        $settings = $client->get();
+        $trackingCategories = $client->trackingCategories();
         $deductions = $client->statutoryDeductions(page: 2);
         $deduction = $client->statutoryDeduction('deduction-1');
 
         self::assertSame('/payroll.xro/2.0/Settings', $transport->requests()[0]->path);
-        self::assertSame('/payroll.xro/2.0/StatutoryDeductions', $transport->requests()[1]->path);
-        self::assertSame(2, $transport->requests()[1]->query['page']);
-        self::assertSame('/payroll.xro/2.0/StatutoryDeductions/deduction-1', $transport->requests()[2]->path);
-        self::assertSame([], $settings->getAccounts());
+        self::assertSame('/payroll.xro/2.0/Settings/TrackingCategories', $transport->requests()[1]->path);
+        self::assertSame('/payroll.xro/2.0/StatutoryDeductions', $transport->requests()[2]->path);
+        self::assertSame(2, $transport->requests()[2]->query['page']);
+        self::assertSame('/payroll.xro/2.0/StatutoryDeductions/deduction-1', $transport->requests()[3]->path);
+        self::assertSame('account-1', $settings->getAccounts()[0]['accountID'] ?? null);
+        self::assertSame('tracking-1', $trackingCategories['employeeGroupsTrackingCategoryID'] ?? null);
         $firstDed = $deductions->first();
         self::assertNotNull($firstDed);
         self::assertSame('KiwiSaver', $firstDed->getName());
-        self::assertSame('deduction-1', $deduction?->getStatutoryDeductionID());
+        self::assertSame('deduction-1', $deduction?->getId());
     }
 
     public function test_it_exposes_scopes(): void
@@ -81,17 +91,31 @@ final class SettingsTest extends TestCase
             ->get();
 
         self::assertSame([], $settings->getAccounts());
-        self::assertSame([], $settings->getTrackingCategories());
     }
 
     public function test_payroll_settings_expose_all_fields(): void
     {
         $settings = (new PayrollSettings())->fill([
-            'Accounts' => [['AccountID' => 'account-1', 'Type' => 'WAGESPAYABLE']],
-            'TrackingCategories' => [['TrackingCategoryID' => 'tracking-1']],
+            'accounts' => [['accountID' => 'account-1', 'type' => 'WAGESPAYABLE']],
         ]);
 
-        self::assertSame('account-1', $settings->getAccounts()[0]['AccountID'] ?? null);
-        self::assertSame('tracking-1', $settings->getTrackingCategories()[0]['TrackingCategoryID'] ?? null);
+        self::assertSame('account-1', $settings->getAccounts()[0]['accountID'] ?? null);
+    }
+
+    public function test_statutory_deduction_exposes_all_fields(): void
+    {
+        $deduction = (new StatutoryDeduction())->fill([
+            'id' => 'deduction-1',
+            'name' => 'KiwiSaver',
+            'statutoryDeductionCategory' => 'KiwiSaver',
+            'liabilityAccountId' => 'account-9',
+            'currentRecord' => true,
+        ]);
+
+        self::assertSame('deduction-1', $deduction->getId());
+        self::assertSame('KiwiSaver', $deduction->getName());
+        self::assertSame('KiwiSaver', $deduction->getStatutoryDeductionCategory());
+        self::assertSame('account-9', $deduction->getLiabilityAccountId());
+        self::assertTrue($deduction->getCurrentRecord());
     }
 }

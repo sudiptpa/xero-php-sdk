@@ -33,13 +33,26 @@ final readonly class Settings implements DefinesScopes
             ->json();
 
         /** @var array<string, mixed>|null $settings */
-        $settings = $payload['Settings'] ?? null;
+        $settings = $payload['settings'] ?? null;
 
         if (! is_array($settings)) {
             return new PayrollSettings();
         }
 
         return $this->mapSettings($settings);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function trackingCategories(): array
+    {
+        $payload = $this->client
+            ->get('/payroll.xro/2.0/Settings/TrackingCategories')
+            ->send()
+            ->json();
+
+        return Json::extractObject($payload, 'trackingCategories');
     }
 
     /**
@@ -57,7 +70,7 @@ final readonly class Settings implements DefinesScopes
 
         $items = array_map(
             fn (array $deduction): StatutoryDeduction => $this->mapStatutoryDeduction($deduction),
-            Json::extractList($payload, 'StatutoryDeductions')
+            Json::extractList($payload, 'statutoryDeductions')
         );
 
         return new ResourceCollection($items);
@@ -70,7 +83,7 @@ final readonly class Settings implements DefinesScopes
             ->send()
             ->json();
 
-        $deduction = Json::extractFirst($payload, 'StatutoryDeductions') ?? Json::extractObject($payload, 'StatutoryDeduction') ?: null;
+        $deduction = Json::extractFirst($payload, 'statutoryDeductions') ?? Json::extractObject($payload, 'statutoryDeduction') ?: null;
 
         return $deduction !== null ? $this->mapStatutoryDeduction($deduction) : null;
     }
