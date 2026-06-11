@@ -117,7 +117,7 @@ final class Timesheets implements PaginatesResults, DefinesScopes
     public function revert(string $timesheetId): Timesheet
     {
         $response = $this->client
-            ->post('/payroll.xro/2.0/Timesheets/' . $timesheetId . '/Revert')
+            ->post('/payroll.xro/2.0/Timesheets/' . $timesheetId . '/RevertToDraft')
             ->send();
 
         $payload = $response->json();
