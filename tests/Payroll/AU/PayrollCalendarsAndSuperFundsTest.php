@@ -200,4 +200,64 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertNotNull($firstProduct);
         self::assertSame('product-1', $firstProduct->getSuperFundProductID());
     }
+
+    public function test_super_funds_and_products_expose_scopes(): void
+    {
+        $payroll = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->payroll()
+            ->au();
+
+        $fundScopes = $payroll->superFunds()->scopes();
+        $productScopes = $payroll->superFundProducts()->scopes();
+
+        self::assertSame(['payroll.settings'], $fundScopes->broad);
+        self::assertSame(['payroll.settings.read', 'payroll.settings'], $fundScopes->granular);
+        self::assertSame(['payroll.settings'], $productScopes->broad);
+        self::assertSame(['payroll.settings.read', 'payroll.settings'], $productScopes->granular);
+    }
+
+    public function test_super_fund_exposes_all_fields(): void
+    {
+        $fund = (new SuperFund())->fill([
+            'SuperFundID' => 'fund-1',
+            'Name' => 'AustralianSuper',
+            'Type' => 'REGULATED',
+        ]);
+
+        self::assertSame('fund-1', $fund->getSuperFundID());
+        self::assertSame('AustralianSuper', $fund->getName());
+        self::assertSame('REGULATED', $fund->getType());
+    }
+
+    public function test_super_fund_product_exposes_all_fields(): void
+    {
+        $product = (new Product())->fill([
+            'SuperFundProductID' => 'product-1',
+            'Name' => 'Balanced',
+            'USI' => 'OSF0001AU',
+            'ABN' => '40022701955',
+        ]);
+
+        self::assertSame('product-1', $product->getSuperFundProductID());
+        self::assertSame('Balanced', $product->getName());
+        self::assertSame('OSF0001AU', $product->getUSI());
+        self::assertSame('40022701955', $product->getABN());
+    }
+
+    public function test_super_fund_save_returns_blank_model_on_empty_response(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $fund = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->au()
+            ->superFunds()
+            ->create()
+            ->name('AustralianSuper')
+            ->save();
+
+        self::assertNull($fund->getSuperFundID());
+    }
 }
