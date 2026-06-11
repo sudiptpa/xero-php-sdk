@@ -6,15 +6,15 @@
 
 ## Last Updated
 
-2026-06-06 — Session 3 (test-coverage grind, 56 -> 126 classes at 100%) + Session 4 (feature-coverage audit plan + Xero MCP assessment recorded) — IN PROGRESS
+2026-06-11 — Session 6 (committed Session 5 WIP cleanly; Accounting namespace finished to 100%; Payroll AU started: Employee, LeaveApplication, PayItem to 100%) — IN PROGRESS (paused by owner mid Payroll AU)
 
 ## Repo State
 
 - **Branch:** `chore/dev-quality-parity`
 - **Base:** `main` (dcb3693 — Docs: Updated Projects Notes)
-- **Commits on branch:** 2 (`9b1b1fd` quality parity, `4feb8e8` code-review bug fixes) + Session 3 coverage WIP
-- **Tests:** 80 test files, 262 tests, 1364 assertions, all passing
-- **Coverage:** **83.95% lines** (6529/7777) / 79.83% methods / 46.15% classes (126/273). 100% gate NOT yet passing; ~147 classes with gaps
+- **Commits on branch:** 2 (`9b1b1fd` quality parity, `4feb8e8` code-review bug fixes) + Session 3-5 coverage WIP (uncommitted)
+- **Tests:** 386 tests, all passing (was 308 at start of Session 6)
+- **Coverage:** **95.10% lines** (7396/7777) / 93.57% methods / 78.75% classes (215/273). 100% gate NOT yet passing; only **Payroll** remains (AU partially done, NZ + UK untouched). **Accounting is now 100%.**
 - **PHPStan:** level `max` — 0 errors
 - **Pint:** clean (`php` preset + `declare_strict_types`)
 - **CI:** pcov on PHP 8.3, formatter gate (`lint:check`), syntax lint (`lint`)
@@ -31,28 +31,110 @@ Do NOT add as a composer script — local-only, absolute path (Homebrew PHP has 
 
 ## Resume (next session)
 
-**Start here:** Branch `chore/dev-quality-parity`, 2 commits ahead of `main`, not yet pushed (owner reviews locally first).
+**Start here:** Branch `chore/dev-quality-parity`. Not yet pushed (owner reviews locally first). **Only Payroll remains for the 100% gate.**
 
-**Immediate next task: get coverage to 100%.**
+**Immediate next task: finish the Payroll coverage grind.** Same proven loop: dump uncovered lines per file, extend the mirror test, commit per resource.
 
-Approach (proven in Session 3 — grind one namespace to 100%, commit, repeat):
-1. Run coverage baseline: `/opt/homebrew/bin/php vendor/bin/phpunit --configuration phpunit.xml.dist --do-not-cache-result --coverage-text --coverage-clover build/logs/clover.xml`
-2. Parse `build/logs/clover.xml` for exact uncovered methods/lines per file (see one-liner below)
-3. Write/extend the mirror test, hydrating models via `fill()` and asserting every getter + helper branch
-4. **Watch PHPStan:** `assertInstanceOf(X, $y)` where `$y`'s declared return type is already `X` triggers `staticMethod.alreadyNarrowedType`. Assert behaviour instead, or `assertSame(X::class, $y::class)` for fallback-type checks.
+### Preferred per-line uncovered dump (precise, used all of Session 6)
 
-**Done in Session 3:** Webhooks namespace fully covered (`Webhooks`, `WebhookVerifier`, `WebhookEvent`, `WebhookPayload` all 100%), plus `ScopeRequirements` + `ResponseErrorMapper` to 100%.
-
-**Next targets (still 0% or low):** `Payment/InvoiceReference`, `Support/Model` helper branches, `Support/Json` (`extractObject`/`decode`/`ensureAvailable`), then the big Accounting model-getter batch. `Xero.php` (50%), Http layer (`NativeTransport`, `PendingRequest`, `Request`), Auth internals.
-
-Clover uncovered-method/line one-liner:
 ```bash
-/opt/homebrew/bin/php -r '$x=new SimpleXMLElement(file_get_contents("build/logs/clover.xml"));foreach($x->xpath("//file") as $f){if(strpos((string)$f["name"],"YOURCLASS.php")===false)continue;foreach($f->line as $l){if((int)$l["count"]===0)echo $l["num"]." ".$l["name"]."\n";}}'
+# 1. produce the coverage object once
+/opt/homebrew/bin/php vendor/bin/phpunit --configuration phpunit.xml.dist --do-not-cache-result --coverage-php /tmp/xero.cov
+# 2. dump uncovered lines for a path substring (edit the strpos arg)
+/opt/homebrew/bin/php -r '
+require "vendor/autoload.php";
+$cov = require "/tmp/xero.cov";
+foreach ($cov->getData()->lineCoverage() as $file => $lines) {
+  if (strpos($file, "/Payroll/AU/PayRun/") === false) continue;   // <-- edit this
+  $un = [];
+  foreach ($lines as $ln => $t) { if (is_array($t) && count($t) === 0) $un[] = $ln; }
+  if ($un) echo basename($file).": ".implode(",", $un)."\n";
+}'
 ```
+(Homebrew PHP has pcov; the autoload require is mandatory or the .cov object is incomplete.)
 
-5. Once 100% passes: push branch, open PR, squash-merge.
+### Payroll remaining — exact next targets
+
+**Payroll AU (started, ~3 of ~10 done):** done = Employee, LeaveApplication, PayItem. **Next AU resources, in order, with their test files:**
+- **PayRun** (`tests/Payroll/AU/PayRunsTest.php`) — uncovered: `PayRuns` scopes/paginate; `PayRun` getters (getPayrollCalendarID/getPayRunStatus/getPaymentDate), `setPaymentDate`, `payslips()` throw, model `save()` body + no-client throw; `PayRun/Payload` `idempotencyKey()` + empty-response branch; `Payslip` getters (fill all 4 fields); `Payslips` `scopes()`.
+- **PayrollCalendar** (`tests/Payroll/AU/PayrollCalendarsAndSuperFundsTest.php`) — `PayrollCalendars` scopes/paginate, `PayrollCalendar` getters, `Payload` idempotency.
+- **Settings** (`tests/Payroll/AU/SettingsTest.php`) — `Settings` scopes (lines 20-23).
+- **SuperFund** (same combined test file) — `SuperFunds` scopes/paginate, `SuperFund`/`Product`/`Products` getters+scopes, `Payload` idempotency.
+- **Timesheet** (`tests/Payroll/AU/TimesheetsTest.php`) — `Timesheets` scopes/paginate; `Timesheet` getters + model save + throws; `Timesheet/Payload` idempotency + empty-response.
+- Plus `AU/Payload.php` (the Employee payload) leftover: `dateOfBirth()` (60-63), `idempotencyKey()` (66-72), empty-response branch (93). Cover via an `employees()->create()->dateOfBirth(...)->idempotencyKey(...)->save()` against a `'{}'` body.
+
+**Payroll NZ (untouched):** Employee, LeaveType, PayRun, PayRunCalendar, Settings, Timesheet — same shapes. Tests under `tests/Payroll/NZ/`.
+
+**Payroll UK (untouched):** Employee, PayRun, PayRunCalendar, Settings (Reimbursement/TrackingCategory/StatutoryLeaveSummary), Timesheet — same shapes. Tests under `tests/Payroll/UK/`.
+
+### Reusable patterns confirmed in Session 6 (apply verbatim)
+
+- **Resource `Xxxs.php`:** the two always-uncovered methods are `scopes()` and `paginate()`. Add (a) a `scopes()` test asserting `->broad` / `->granular` exact arrays, and (b) a `paginate(page:, perPage:)` test asserting `query['page']`/`query['pageSize']` and `$page->page`/`$page->perPage`. (AU scope strings differ per resource: employees/leave = `payroll.employees`, payitems/settings = `payroll.settings`, payruns/payslips = `payroll.payruns`.)
+- **Model getters not hit by `fill()`:** the response fixtures omit some keys, so their setters/getters never run. Build the model via `(new X())->fill([...all keys...])` and assert each getter. (Number fields keep `int`, e.g. `getTotal()` returns `80` not `80.0`; AU Payment `Amount` is cast to float.)
+- **Model `save()`:** existing tests drive the resource `create()/update()` Payload, never the model's own `save()`. Cover it by `find()`-ing a bound model, mutating it, then `->save()` (queue a 2nd response). Each model also has a no-client `save()` throw — one `expectException(RuntimeException)` test on `(new X())->save()`.
+- **`Payload` `idempotencyKey()` + empty-response:** chain `->idempotencyKey('k')->save()` against a `'{}'` body; assert `requests()[0]->headers['Idempotency-Key']` and that the returned model is the blank fallback (its id getter is null).
+- **Sub-resource accessors** (attachments/history/pdf/payslips/leaveBalances/approve/reject): success path covered by calling on a `find()`-ed bound model; the no-client/no-id throw needs `(new X())->method()` under `expectException`.
+- **PHPStan gotchas (still biting):** don't `assertInstanceOf`/`assertNotNull`/`assertSame(X::class,...)` on a value whose declared return type already says so — `staticMethod.alreadyNarrowedType` / `impossibleType`. Assert behaviour instead. Also avoid `?->` after a narrowing assertion on the same var (`nullsafe.neverNull`). Don't offset-access the `mixed` from `toRequest()` — assert via getters.
+- **Per-resource commit:** `test: cover Payroll AU <Resource> resource to 100%`. **NB the on-disk dir is `tests/Payroll/AU/` (uppercase) — `git add` with lowercase `Au` silently matches nothing on this case-insensitive FS.**
+
+Once 100% passes: push branch, open PR, squash-merge.
 
 **After coverage:** tackle Xero API feature gaps (Budgets resource, Invoice Email, Allocations).
+
+---
+
+## Session 6 — 2026-06-11
+
+### Done this session
+
+- [x] **Committed the Session 5 WIP cleanly.** The 7 finished namespaces (Http remainder, AppStore, Identity, Assets, Finance, Projects, Files) were sitting uncommitted/pre-staged; split them into one commit per namespace (`d3b1b13`..`ef8f36a`).
+- [x] **Finished the entire Accounting namespace to 100%** — one resource per commit:
+  - Contact, BankTransaction, CreditNote, Invoice, PurchaseOrder, Quote, Payment, ManualJournal, BatchPayment.
+  - Each followed the same recipe: resource `scopes()` + `paginate()`, model getters via `fill()`, `Payload` builder chain (contact/lineItem/reference/etc), model `save()` no-client throw, and sub-resource accessors (attachments/history/pdf) success-path + unbound throws.
+  - **Accounting is now 0 uncovered lines.**
+- [x] **Started Payroll AU:** Employee, LeaveApplication, PayItem to 100% (`fbf402b`, `7326623`, `9f0ad8c`).
+- [x] Full suite green throughout (386 tests at pause), PHPStan max clean, Pint clean.
+
+### Net for the session
+
+- Tests 308 -> 386; lines 88.38% -> **95.10%** (7396/7777); classes 187 -> 215 of 273 at 100%.
+- **Accounting fully covered. Only Payroll (AU partial, NZ + UK untouched) remains for the 100% gate.**
+- **Paused mid Payroll AU at owner's request** (other work to do). Next resource is AU PayRun — see the Resume section for the exact remaining AU/NZ/UK target list and the reusable patterns.
+
+---
+
+## Session 5 — 2026-06-11
+
+### Done this session
+
+Grind continued, one namespace to 100% per step (verified with a per-line pcov dump, not just the summary):
+
+- [x] **Http** remainder → 100%: `FakeTransport` (new `tests/Http/FakeTransportTest` — ordered dequeue, request recording, empty-queue `RuntimeException`); `PendingRequest` `withQuery`/`withJson`/`withBody` (added to `PendingRequestTest`).
+- [x] **AppStore** namespace → 100% (new `tests/AppStore/AppStoreTest`): `scopes()` on AppStore + Subscriptions, all remaining Subscription/UsageRecord getters, both unbound-context guards on `Subscription`, and the missing-item-id guard in `UsageRecordPayload::path()`.
+- [x] **Identity** namespace → 100% (extended `ConnectionsTest`): remaining `Connection` getters, the unbound-context `disconnect()` guard, and the `findByTenant()` no-match `return null`. (Webhooks was already 100%.)
+- [x] **Assets** namespace → 100% (new `tests/Assets/AssetsCoverageTest`): facade `scopes()`/`client()`, Asset getters + nested `AssetType` fill, `scopes()` on Asset/Type resources, Payload `warrantyExpiryDate`/`poolName` + empty-response `save()` + no-idempotency headers, Settings default-account getters + `fetch()` null branch, Type getters/setters.
+- [x] **Finance** namespace → 100% (new `tests/Finance/FinanceCoverageTest`): `scopes()` across all 5 endpoints, every model getter (AccountUsage/AccountingActivity/LockHistory/ReportHistory/UserActivity/BankStatementEntry/CashValidationResult/ContactStatement/Statement), and the empty-statement typed fallback in `FinancialStatements::statement()`.
+- [x] **Projects** namespace → 100% (new `tests/Projects/ProjectsCoverageTest`, 15 tests): facade delegation, all model getters/setters, nested `Contact`/`Rate` hydration, every `RuntimeException` guard on Project/Task/TimeEntry, resource builders (ids/contact/invoice/dateBeforeUtc/...), pagination, `update()`, the `single()` `many()[0]` fallback, empty-response `save()` branches, no-idempotency headers.
+- [x] **Files** namespace → 100% (new `tests/Files/FilesCoverageTest`, 10 tests): facade delegation + resource `client()`, File/Folder/Association/AssociationCount getters, nested `FolderId` hydration, all entity guards, Associations/ObjectAssociations `scopes()` + pagination, File/Folder Payload POST + idempotency + empty-response, no-folder Upload branch.
+- [x] Full suite green (308 tests, 1553 assertions), PHPStan max clean, Pint clean.
+
+### Net for the session
+
+- Tests 262 -> 308; lines 83.95% -> 88.38% (6873/7777); classes 126/273 -> 187/280 at 100%.
+- **Every namespace except Accounting and Payroll is now fully covered.**
+
+### Patterns reconfirmed / worth remembering
+
+- Local per-line uncovered dump (more precise than `--coverage-text` for targeting): run with `--coverage-php /tmp/x.cov`, then `require` it under the pcov-loaded CLI and walk `getData()->lineCoverage()` for `count === 0` lines. (Herd PHP has no pcov; load it explicitly: `php -d extension=/opt/homebrew/lib/php/pecl/20240924/pcov.so -d pcov.enabled=1 ...`.)
+- PHPStan `staticMethod.alreadyNarrowedType` keeps biting: `assertNotNull`/`assertInstanceOf` on a builder whose declared return type is already non-null/concrete. Fix by asserting behaviour instead — e.g. drive the returned `Payload` through `->save()` and assert the request method/path, or assert `->scopes()->broad`, rather than asserting the object exists.
+- Empty-response `save()` branches (`extractFirst(...) ?? []` then `=== []` -> blank model) are reachable with a `'{}'` or `'[]'` body.
+- `single()`'s `many()[0]` fallback needs a body whose object key is absent but a list key (Items) is present.
+
+### Fully-covered namespaces (100%) — updated
+
+- **Webhooks**, **Auth**, **Http**, **Support** (from Session 3)
+- **AppStore**, **Identity**, **Assets**, **Finance**, **Projects**, **Files** (Session 5)
+- Remaining with gaps: **Accounting** (large resources) and **Payroll** AU/NZ/UK only.
 
 ---
 
@@ -211,7 +293,7 @@ Resolved with `tests/Http/NativeTransportTest.php`. Rather than mock cURL global
 
 - [x] PHPStan max — clean (0 errors)
 - [x] Pint — clean (no formatting issues)
-- [ ] **100% test coverage** — currently 76.29%, major test-writing work needed
+- [ ] **100% test coverage** — currently 95.10% lines (215/273 classes); Accounting done, only Payroll remains (AU partial, NZ + UK untouched)
 - [ ] PHPDoc coverage — all public methods documented
 - [x] `/code-review` — 3 bugs fixed (ContactGroups, InvoiceReminders, PayItems)
 - [x] `/security-review` — clean
