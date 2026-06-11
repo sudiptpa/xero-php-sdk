@@ -496,4 +496,74 @@ final class EmployeesTest extends TestCase
 
         (new Employee())->workingPattern('pattern-1');
     }
+
+    public function test_leave_setup_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->leaveSetup();
+    }
+
+    public function test_opening_balances_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->openingBalances();
+    }
+
+    public function test_create_employment_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->createEmployment();
+    }
+
+    public function test_create_leave_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->createLeave();
+    }
+
+    public function test_create_payment_method_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->createPaymentMethod();
+    }
+
+    public function test_create_salary_and_wage_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->createSalaryAndWage();
+    }
+
+    public function test_create_working_pattern_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->createWorkingPattern();
+    }
+
+    public function test_employment_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->employment();
+    }
+
+    public function test_salary_and_wages_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->salaryAndWages();
+    }
+
+    public function test_salary_and_wage_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->salaryAndWage('wage-1');
+    }
 }

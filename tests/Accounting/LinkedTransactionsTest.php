@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Accounting\LinkedTransaction\LinkedTransaction;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
-use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class LinkedTransactionsTest extends TestCase

@@ -16,12 +16,33 @@ final class ReportHistory extends Model
     ) {
     }
 
-    public function getReportName(): ?string { return $this->reportName; }
-    public function setReportName(?string $reportName): self { $this->reportName = $reportName; return $this; }
-    public function getPublishedDateUTC(): ?string { return $this->publishedDateUTC; }
-    public function setPublishedDateUTC(?string $publishedDateUTC): self { $this->publishedDateUTC = $publishedDateUTC; return $this; }
-    public function getPublishedBy(): ?string { return $this->publishedBy; }
-    public function setPublishedBy(?string $publishedBy): self { $this->publishedBy = $publishedBy; return $this; }
+    public function getReportName(): ?string
+    {
+        return $this->reportName;
+    }
+    public function setReportName(?string $reportName): self
+    {
+        $this->reportName = $reportName;
+        return $this;
+    }
+    public function getPublishedDateUTC(): ?string
+    {
+        return $this->publishedDateUTC;
+    }
+    public function setPublishedDateUTC(?string $publishedDateUTC): self
+    {
+        $this->publishedDateUTC = $publishedDateUTC;
+        return $this;
+    }
+    public function getPublishedBy(): ?string
+    {
+        return $this->publishedBy;
+    }
+    public function setPublishedBy(?string $publishedBy): self
+    {
+        $this->publishedBy = $publishedBy;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>

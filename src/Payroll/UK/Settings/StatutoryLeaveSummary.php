@@ -17,10 +17,24 @@ final class StatutoryLeaveSummary extends Model
     ) {
     }
 
-    public function getEmployeeID(): ?string { return $this->employeeID; }
-    public function setEmployeeID(?string $employeeID): self { $this->employeeID = $employeeID; return $this; }
-    public function getUnits(): ?string { return $this->units; }
-    public function setUnits(?string $units): self { $this->units = $units; return $this; }
+    public function getEmployeeID(): ?string
+    {
+        return $this->employeeID;
+    }
+    public function setEmployeeID(?string $employeeID): self
+    {
+        $this->employeeID = $employeeID;
+        return $this;
+    }
+    public function getUnits(): ?string
+    {
+        return $this->units;
+    }
+    public function setUnits(?string $units): self
+    {
+        $this->units = $units;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>

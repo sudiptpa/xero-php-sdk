@@ -9,7 +9,6 @@ use DateTimeImmutable;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\AU\Employee;
-use Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication;
 use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 

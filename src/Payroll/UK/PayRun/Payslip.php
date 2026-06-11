@@ -19,14 +19,42 @@ final class Payslip extends Model
     ) {
     }
 
-    public function getPayslipID(): ?string { return $this->payslipID; }
-    public function setPayslipID(?string $payslipID): self { $this->payslipID = $payslipID; return $this; }
-    public function getEmployeeID(): ?string { return $this->employeeID; }
-    public function setEmployeeID(?string $employeeID): self { $this->employeeID = $employeeID; return $this; }
-    public function getPaymentDate(): ?string { return $this->paymentDate; }
-    public function setPaymentDate(?string $paymentDate): self { $this->paymentDate = $paymentDate; return $this; }
-    public function getNetPay(): ?string { return $this->netPay; }
-    public function setNetPay(?string $netPay): self { $this->netPay = $netPay; return $this; }
+    public function getPayslipID(): ?string
+    {
+        return $this->payslipID;
+    }
+    public function setPayslipID(?string $payslipID): self
+    {
+        $this->payslipID = $payslipID;
+        return $this;
+    }
+    public function getEmployeeID(): ?string
+    {
+        return $this->employeeID;
+    }
+    public function setEmployeeID(?string $employeeID): self
+    {
+        $this->employeeID = $employeeID;
+        return $this;
+    }
+    public function getPaymentDate(): ?string
+    {
+        return $this->paymentDate;
+    }
+    public function setPaymentDate(?string $paymentDate): self
+    {
+        $this->paymentDate = $paymentDate;
+        return $this;
+    }
+    public function getNetPay(): ?string
+    {
+        return $this->netPay;
+    }
+    public function setNetPay(?string $netPay): self
+    {
+        $this->netPay = $netPay;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>

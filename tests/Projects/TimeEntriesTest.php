@@ -8,8 +8,6 @@ use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
-use Sujip\Xero\Projects\TimeEntry\TimeEntry;
-use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class TimeEntriesTest extends TestCase

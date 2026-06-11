@@ -146,7 +146,7 @@ final class Payload
         $type = Json::extractFirst($payload, 'Items') ?? [];
 
         if ($type === []) {
-    return new Type();
+            return new Type();
         }
 
         return (new Types($this->client))->mapType($type);

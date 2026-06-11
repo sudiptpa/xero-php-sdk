@@ -18,12 +18,33 @@ final class SuperFund extends Model
     ) {
     }
 
-    public function getSuperFundID(): ?string { return $this->superFundID; }
-    public function setSuperFundID(?string $superFundID): self { $this->superFundID = $superFundID; return $this; }
-    public function getName(): ?string { return $this->name; }
-    public function setName(?string $name): self { $this->name = $name; return $this; }
-    public function getType(): ?string { return $this->type; }
-    public function setType(?string $type): self { $this->type = $type; return $this; }
+    public function getSuperFundID(): ?string
+    {
+        return $this->superFundID;
+    }
+    public function setSuperFundID(?string $superFundID): self
+    {
+        $this->superFundID = $superFundID;
+        return $this;
+    }
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+    public function setType(?string $type): self
+    {
+        $this->type = $type;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>

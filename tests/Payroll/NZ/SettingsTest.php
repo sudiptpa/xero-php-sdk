@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\NZ\Settings\PayrollSettings;
-use Sujip\Xero\Payroll\NZ\Settings\StatutoryDeduction;
 use Sujip\Xero\Xero;
 
 final class SettingsTest extends TestCase

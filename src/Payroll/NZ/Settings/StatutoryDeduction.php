@@ -17,10 +17,24 @@ final class StatutoryDeduction extends Model
     ) {
     }
 
-    public function getStatutoryDeductionID(): ?string { return $this->statutoryDeductionID; }
-    public function setStatutoryDeductionID(?string $statutoryDeductionID): self { $this->statutoryDeductionID = $statutoryDeductionID; return $this; }
-    public function getName(): ?string { return $this->name; }
-    public function setName(?string $name): self { $this->name = $name; return $this; }
+    public function getStatutoryDeductionID(): ?string
+    {
+        return $this->statutoryDeductionID;
+    }
+    public function setStatutoryDeductionID(?string $statutoryDeductionID): self
+    {
+        $this->statutoryDeductionID = $statutoryDeductionID;
+        return $this;
+    }
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>

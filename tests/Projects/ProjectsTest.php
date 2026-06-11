@@ -8,8 +8,6 @@ use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
-use Sujip\Xero\Projects\Project\Project;
-use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class ProjectsTest extends TestCase

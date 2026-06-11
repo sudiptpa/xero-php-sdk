@@ -16,12 +16,33 @@ final class LockHistory extends Model
     ) {
     }
 
-    public function getLockDate(): ?string { return $this->lockDate; }
-    public function setLockDate(?string $lockDate): self { $this->lockDate = $lockDate; return $this; }
-    public function getLockType(): ?string { return $this->lockType; }
-    public function setLockType(?string $lockType): self { $this->lockType = $lockType; return $this; }
-    public function getChangedDateUTC(): ?string { return $this->changedDateUTC; }
-    public function setChangedDateUTC(?string $changedDateUTC): self { $this->changedDateUTC = $changedDateUTC; return $this; }
+    public function getLockDate(): ?string
+    {
+        return $this->lockDate;
+    }
+    public function setLockDate(?string $lockDate): self
+    {
+        $this->lockDate = $lockDate;
+        return $this;
+    }
+    public function getLockType(): ?string
+    {
+        return $this->lockType;
+    }
+    public function setLockType(?string $lockType): self
+    {
+        $this->lockType = $lockType;
+        return $this;
+    }
+    public function getChangedDateUTC(): ?string
+    {
+        return $this->changedDateUTC;
+    }
+    public function setChangedDateUTC(?string $changedDateUTC): self
+    {
+        $this->changedDateUTC = $changedDateUTC;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>

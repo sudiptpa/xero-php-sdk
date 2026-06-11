@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\AppStore;
 
 use PHPUnit\Framework\TestCase;
-use Sujip\Xero\AppStore\Subscription\UsageRecord;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Xero;

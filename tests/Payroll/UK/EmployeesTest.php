@@ -269,6 +269,69 @@ final class EmployeesTest extends TestCase
         (new Employee())->save();
     }
 
+    public function test_leave_balances_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->leaveBalances();
+    }
+
+    public function test_statutory_leave_balance_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->statutoryLeaveBalance();
+    }
+
+    public function test_leaves_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->leaves();
+    }
+
+    public function test_leave_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->leave('leave-1');
+    }
+
+    public function test_payment_method_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->paymentMethod();
+    }
+
+    public function test_employment_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->employment();
+    }
+
+    public function test_leave_types_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->leaveTypes();
+    }
+
+    public function test_create_leave_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->createLeave();
+    }
+
+    public function test_create_leave_type_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->createLeaveType();
+    }
+
     public function test_create_sends_date_of_birth_and_idempotency_key_and_handles_empty_response(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: '{}'));

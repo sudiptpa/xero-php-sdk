@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Http;
 
-use RuntimeException;
 use Sujip\Xero\Support\Json;
 
 final readonly class Response

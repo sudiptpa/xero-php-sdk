@@ -6,7 +6,6 @@ namespace Sujip\Xero\Tests\Webhooks;
 
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Exceptions\InvalidWebhookSignatureException;
-use Sujip\Xero\Webhooks\WebhookPayload;
 use Sujip\Xero\Xero;
 
 final class WebhookVerifierTest extends TestCase

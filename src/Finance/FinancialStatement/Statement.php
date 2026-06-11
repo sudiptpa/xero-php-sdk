@@ -19,16 +19,30 @@ final class Statement extends Model
     ) {
     }
 
-    public function getType(): string { return $this->type; }
-    public function setType(string $type): self { $this->type = $type; return $this; }
+    public function getType(): string
+    {
+        return $this->type;
+    }
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+        return $this;
+    }
     /**
      * @return list<array<string, mixed>>
      */
-    public function getRows(): array { return $this->rows; }
+    public function getRows(): array
+    {
+        return $this->rows;
+    }
     /**
      * @param list<array<string, mixed>> $rows
      */
-    public function setRows(array $rows): self { $this->rows = $rows; return $this; }
+    public function setRows(array $rows): self
+    {
+        $this->rows = $rows;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>

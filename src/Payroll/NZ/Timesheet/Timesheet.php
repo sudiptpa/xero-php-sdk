@@ -19,7 +19,8 @@ final class Timesheet extends Model
 
     public function __construct(
         private ?Client $client = null
-    ) {}
+    ) {
+    }
 
     public function getTimesheetID(): ?string
     {

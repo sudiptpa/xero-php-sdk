@@ -16,12 +16,33 @@ final class AccountingActivity extends Model
     ) {
     }
 
-    public function getMonth(): ?string { return $this->month; }
-    public function setMonth(?string $month): self { $this->month = $month; return $this; }
-    public function getTotalIncome(): ?float { return $this->totalIncome; }
-    public function setTotalIncome(?float $totalIncome): self { $this->totalIncome = $totalIncome; return $this; }
-    public function getTotalExpense(): ?float { return $this->totalExpense; }
-    public function setTotalExpense(?float $totalExpense): self { $this->totalExpense = $totalExpense; return $this; }
+    public function getMonth(): ?string
+    {
+        return $this->month;
+    }
+    public function setMonth(?string $month): self
+    {
+        $this->month = $month;
+        return $this;
+    }
+    public function getTotalIncome(): ?float
+    {
+        return $this->totalIncome;
+    }
+    public function setTotalIncome(?float $totalIncome): self
+    {
+        $this->totalIncome = $totalIncome;
+        return $this;
+    }
+    public function getTotalExpense(): ?float
+    {
+        return $this->totalExpense;
+    }
+    public function setTotalExpense(?float $totalExpense): self
+    {
+        $this->totalExpense = $totalExpense;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>

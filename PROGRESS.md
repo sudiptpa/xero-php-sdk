@@ -15,7 +15,7 @@
 - **Tests:** 487 tests, 2028 assertions, all passing
 - **Coverage:** **100.00% lines (7777/7777), 100% elements (10311/10311)** — the `bin/coverage --min=100` clover parse passes. Verified per-line with the pcov dump (zero uncovered lines anywhere in `src/`).
 - **PHPStan:** level `max` — 0 errors
-- **Pint:** clean (`php` preset + `declare_strict_types`)
+- **Pint:** clean (`psr12` preset + `declare_strict_types`)
 - **CI:** pcov on PHP 8.3, formatter gate (`lint:check`), syntax lint (`lint`)
 
 ### Local coverage command
@@ -83,6 +83,7 @@ One resource per commit, each verified with the per-line pcov dump, PHPStan max,
 
 ### Notes for future sessions
 
+- **Pint gotcha (big one, found via CI):** Pint 1.29 detects AI-agent env vars (`AI_AGENT`/`CLAUDE_*`) and switches to a compact JSON output mode that reported `{"tool":"pint","result":"passed"}` even when the run was actually erroring. The Session 1 `pint.json` used a nonexistent `php` preset (valid presets: laravel, psr12, per, symfony, empty) and every local "Pint clean" up to Session 7 was masked by that bug. Fixed to `psr12` + `declare_strict_types`, ran the real formatter (57 files reformatted, mostly expanding one-line getters), and re-covered the 19 guard-throw lines the reformat split out. To get trustworthy Pint output locally, run it with a clean env: `env -i HOME="$HOME" PATH="/opt/homebrew/bin:/usr/bin:/bin" /opt/homebrew/bin/php vendor/laravel/pint/builds/pint --test` (or just trust CI).
 - One new PHPStan gotcha: a no-arg accessor called bare for coverage trips `method.resultUnused` — assert behaviour through the returned object instead (done for `Client::webhooks()` via a real HMAC verify round-trip).
 - `bin/coverage` hardcodes plain `php` (Herd, no pcov) so it warns "No code coverage driver available" locally; the clover parse stage is what CI enforces. Locally, generate clover with `/opt/homebrew/bin/php vendor/bin/phpunit ... --coverage-clover build/logs/clover.xml` and run the same simplexml parse to confirm the gate.
 - Fill-fixture values were taken from the Xero API docs shapes (AU payroll uses `/Date(...)/` MS-JSON dates, NZ/UK payroll v2 use ISO dates; AU scope strings differ per resource: employees/leave = `payroll.employees`, payitems/settings/calendars/superfunds = `payroll.settings`, payruns/payslips = `payroll.payruns`, timesheets = `payroll.timesheets`).

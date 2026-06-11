@@ -75,7 +75,7 @@ final class Payload
         $file = Json::extractFirst($payload, 'Items') ?? [];
 
         if ($file === []) {
-    return new File($this->client);
+            return new File($this->client);
         }
 
         return (new Files($this->client))->mapFile($file);

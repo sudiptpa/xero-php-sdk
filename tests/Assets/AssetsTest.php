@@ -5,12 +5,8 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Assets;
 
 use PHPUnit\Framework\TestCase;
-use Sujip\Xero\Assets\Asset\Asset;
-use Sujip\Xero\Assets\Settings\Settings;
-use Sujip\Xero\Assets\Type\Type;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
-use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class AssetsTest extends TestCase

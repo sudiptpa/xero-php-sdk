@@ -101,7 +101,7 @@ tests/                       # 71 PHPUnit test files mirroring src/
 ## Code Quality
 
 - PHPStan: level `max`, covers `src/` and `tests/`
-- Pint: `php` preset + `declare_strict_types: true`
+- Pint: `psr12` preset + `declare_strict_types: true`
 - Coverage: 100% enforced (`--min=100`), pcov in CI
 - CI matrix: PHP 8.2 / 8.3 / 8.4 / 8.5
 

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
-use Sujip\Xero\Accounting\CreditNote\Attachment;
-use Sujip\Xero\Accounting\CreditNote\HistoryRecord;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Support\Json;

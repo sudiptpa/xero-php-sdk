@@ -7,7 +7,6 @@ namespace Sujip\Xero\Tests\Projects;
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
-use Sujip\Xero\Projects\Task\Task;
 use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 

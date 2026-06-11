@@ -6,10 +6,6 @@ namespace Sujip\Xero\Tests\Finance;
 
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
-use Sujip\Xero\Finance\AccountingActivity\AccountUsage;
-use Sujip\Xero\Finance\FinancialStatement\ContactStatement;
-use Sujip\Xero\Finance\AccountingActivity\ReportHistory;
-use Sujip\Xero\Finance\FinancialStatement\Statement;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Xero;

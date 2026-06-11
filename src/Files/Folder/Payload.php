@@ -64,7 +64,7 @@ final class Payload
         $folder = Json::extractFirst($payload, 'Items') ?? [];
 
         if ($folder === []) {
-    return new Folder($this->client);
+            return new Folder($this->client);
         }
 
         return (new Folders($this->client))->mapFolder($folder);

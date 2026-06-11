@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Files;
 
 use PHPUnit\Framework\TestCase;
-use Sujip\Xero\Files\Folder\Folder;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
-use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class FoldersTest extends TestCase

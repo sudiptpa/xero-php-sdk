@@ -127,7 +127,7 @@ final class Payload
         $asset = Json::extractFirst($payload, 'Items') ?? [];
 
         if ($asset === []) {
-    return new Asset();
+            return new Asset();
         }
 
         return (new Assets($this->client))->mapAsset($asset);
