@@ -6,15 +6,14 @@
 
 ## Last Updated
 
-2026-06-11 — Session 6 (committed Session 5 WIP cleanly; Accounting namespace finished to 100%; Payroll AU started: Employee, LeaveApplication, PayItem to 100%) — IN PROGRESS (paused by owner mid Payroll AU)
+2026-06-11 — Session 7 (**100% coverage gate DONE**: Payroll AU finished, Payroll NZ + UK done to 100%, then Client/Context/Xero entry-point leftovers; gate parse confirms 10311/10311 elements)
 
 ## Repo State
 
 - **Branch:** `chore/dev-quality-parity`
 - **Base:** `main` (dcb3693 — Docs: Updated Projects Notes)
-- **Commits on branch:** 2 (`9b1b1fd` quality parity, `4feb8e8` code-review bug fixes) + Session 3-5 coverage WIP (uncommitted)
-- **Tests:** 386 tests, all passing (was 308 at start of Session 6)
-- **Coverage:** **95.10% lines** (7396/7777) / 93.57% methods / 78.75% classes (215/273). 100% gate NOT yet passing; only **Payroll** remains (AU partially done, NZ + UK untouched). **Accounting is now 100%.**
+- **Tests:** 487 tests, 2028 assertions, all passing
+- **Coverage:** **100.00% lines (7777/7777), 100% elements (10311/10311)** — the `bin/coverage --min=100` clover parse passes. Verified per-line with the pcov dump (zero uncovered lines anywhere in `src/`).
 - **PHPStan:** level `max` — 0 errors
 - **Pint:** clean (`php` preset + `declare_strict_types`)
 - **CI:** pcov on PHP 8.3, formatter gate (`lint:check`), syntax lint (`lint`)
@@ -31,9 +30,14 @@ Do NOT add as a composer script — local-only, absolute path (Homebrew PHP has 
 
 ## Resume (next session)
 
-**Start here:** Branch `chore/dev-quality-parity`. Not yet pushed (owner reviews locally first). **Only Payroll remains for the 100% gate.**
+**Start here:** Branch `chore/dev-quality-parity`. Not yet pushed (owner reviews locally first). **The 100% coverage gate is DONE — nothing left to cover.**
 
-**Immediate next task: finish the Payroll coverage grind.** Same proven loop: dump uncovered lines per file, extend the mirror test, commit per resource.
+**Next tasks, in order:**
+1. Owner reviews the branch locally, then push + PR + squash-merge (the no-push rule still applies until then).
+2. Xero API feature gaps: run the Phase 1 OpenAPI endpoint-coverage matrix (see "Feature Coverage Audit Plan" below), then implement the confirmed Accounting gaps (Budgets resource, Invoice Email, Overpayment/Prepayment Allocations, Contact History/Attachments, DELETE BatchPayments, OnlineInvoice).
+3. Remaining pre-release checklist items: PHPDoc coverage pass, CHANGELOG update, CI green on 8.2/8.3/8.4/8.5.
+
+The per-line uncovered dump below stays useful for keeping the gate green when adding those new endpoints.
 
 ### Preferred per-line uncovered dump (precise, used all of Session 6)
 
@@ -53,21 +57,7 @@ foreach ($cov->getData()->lineCoverage() as $file => $lines) {
 ```
 (Homebrew PHP has pcov; the autoload require is mandatory or the .cov object is incomplete.)
 
-### Payroll remaining — exact next targets
-
-**Payroll AU (started, ~3 of ~10 done):** done = Employee, LeaveApplication, PayItem. **Next AU resources, in order, with their test files:**
-- **PayRun** (`tests/Payroll/AU/PayRunsTest.php`) — uncovered: `PayRuns` scopes/paginate; `PayRun` getters (getPayrollCalendarID/getPayRunStatus/getPaymentDate), `setPaymentDate`, `payslips()` throw, model `save()` body + no-client throw; `PayRun/Payload` `idempotencyKey()` + empty-response branch; `Payslip` getters (fill all 4 fields); `Payslips` `scopes()`.
-- **PayrollCalendar** (`tests/Payroll/AU/PayrollCalendarsAndSuperFundsTest.php`) — `PayrollCalendars` scopes/paginate, `PayrollCalendar` getters, `Payload` idempotency.
-- **Settings** (`tests/Payroll/AU/SettingsTest.php`) — `Settings` scopes (lines 20-23).
-- **SuperFund** (same combined test file) — `SuperFunds` scopes/paginate, `SuperFund`/`Product`/`Products` getters+scopes, `Payload` idempotency.
-- **Timesheet** (`tests/Payroll/AU/TimesheetsTest.php`) — `Timesheets` scopes/paginate; `Timesheet` getters + model save + throws; `Timesheet/Payload` idempotency + empty-response.
-- Plus `AU/Payload.php` (the Employee payload) leftover: `dateOfBirth()` (60-63), `idempotencyKey()` (66-72), empty-response branch (93). Cover via an `employees()->create()->dateOfBirth(...)->idempotencyKey(...)->save()` against a `'{}'` body.
-
-**Payroll NZ (untouched):** Employee, LeaveType, PayRun, PayRunCalendar, Settings, Timesheet — same shapes. Tests under `tests/Payroll/NZ/`.
-
-**Payroll UK (untouched):** Employee, PayRun, PayRunCalendar, Settings (Reimbursement/TrackingCategory/StatutoryLeaveSummary), Timesheet — same shapes. Tests under `tests/Payroll/UK/`.
-
-### Reusable patterns confirmed in Session 6 (apply verbatim)
+### Reusable patterns confirmed in Sessions 6-7 (apply verbatim when adding new endpoints)
 
 - **Resource `Xxxs.php`:** the two always-uncovered methods are `scopes()` and `paginate()`. Add (a) a `scopes()` test asserting `->broad` / `->granular` exact arrays, and (b) a `paginate(page:, perPage:)` test asserting `query['page']`/`query['pageSize']` and `$page->page`/`$page->perPage`. (AU scope strings differ per resource: employees/leave = `payroll.employees`, payitems/settings = `payroll.settings`, payruns/payslips = `payroll.payruns`.)
 - **Model getters not hit by `fill()`:** the response fixtures omit some keys, so their setters/getters never run. Build the model via `(new X())->fill([...all keys...])` and assert each getter. (Number fields keep `int`, e.g. `getTotal()` returns `80` not `80.0`; AU Payment `Amount` is cast to float.)
@@ -77,9 +67,25 @@ foreach ($cov->getData()->lineCoverage() as $file => $lines) {
 - **PHPStan gotchas (still biting):** don't `assertInstanceOf`/`assertNotNull`/`assertSame(X::class,...)` on a value whose declared return type already says so — `staticMethod.alreadyNarrowedType` / `impossibleType`. Assert behaviour instead. Also avoid `?->` after a narrowing assertion on the same var (`nullsafe.neverNull`). Don't offset-access the `mixed` from `toRequest()` — assert via getters.
 - **Per-resource commit:** `test: cover Payroll AU <Resource> resource to 100%`. **NB the on-disk dir is `tests/Payroll/AU/` (uppercase) — `git add` with lowercase `Au` silently matches nothing on this case-insensitive FS.**
 
-Once 100% passes: push branch, open PR, squash-merge.
+---
 
-**After coverage:** tackle Xero API feature gaps (Budgets resource, Invoice Email, Allocations).
+## Session 7 — 2026-06-11
+
+### Done this session — **100% coverage gate achieved**
+
+One resource per commit, each verified with the per-line pcov dump, PHPStan max, and Pint before committing:
+
+- [x] **Payroll AU finished:** PayRun (`189afed`), PayrollCalendar (`76fce57`), Settings (`2d59fa4`), SuperFund (`bcc1ccc`), Timesheet (`456e247`), Employee payload leftovers (`81db241`). **AU = 0 uncovered lines.**
+- [x] **Payroll NZ done:** Employee (`d9fee67`, incl. the 9 multi-line unbound-guard throws + LeavePayload `title()`), LeaveType (`970c049`), PayRun (`e9ae720`), PayRunCalendar (`94fa57a`), Settings (`7a999c8`, incl. blank-settings `'{}'` fallback), Timesheet (`98a45f1`, incl. approve/revert/delete throws). **NZ = 0 uncovered lines.**
+- [x] **Payroll UK done:** Employee (`d3a3ac0`, incl. LeavePayload + LeaveTypePayload idempotency keys), PayRun (`9919722`, incl. the 11-field model fill), PayRunCalendar (`6e25de5`), Settings (`02e2c88`, Reimbursement/StatutoryLeaveSummary/TrackingCategory), Timesheet (`a0d24b2`). **UK = 0 uncovered lines.**
+- [x] **Top-level leftovers** not in the original Payroll-only estimate (`5a96bf1`): `Client::withToken()`/`webhooks()`, `Context::tenantHeaders()` empty branch, `Xero::authorizationUrl()/oauth2()/pkce()`.
+- [x] Final state: **487 tests, 2028 assertions, 7777/7777 lines, 10311/10311 clover elements (100%)**, PHPStan max clean, Pint clean.
+
+### Notes for future sessions
+
+- One new PHPStan gotcha: a no-arg accessor called bare for coverage trips `method.resultUnused` — assert behaviour through the returned object instead (done for `Client::webhooks()` via a real HMAC verify round-trip).
+- `bin/coverage` hardcodes plain `php` (Herd, no pcov) so it warns "No code coverage driver available" locally; the clover parse stage is what CI enforces. Locally, generate clover with `/opt/homebrew/bin/php vendor/bin/phpunit ... --coverage-clover build/logs/clover.xml` and run the same simplexml parse to confirm the gate.
+- Fill-fixture values were taken from the Xero API docs shapes (AU payroll uses `/Date(...)/` MS-JSON dates, NZ/UK payroll v2 use ISO dates; AU scope strings differ per resource: employees/leave = `payroll.employees`, payitems/settings/calendars/superfunds = `payroll.settings`, payruns/payslips = `payroll.payruns`, timesheets = `payroll.timesheets`).
 
 ---
 
@@ -293,7 +299,7 @@ Resolved with `tests/Http/NativeTransportTest.php`. Rather than mock cURL global
 
 - [x] PHPStan max — clean (0 errors)
 - [x] Pint — clean (no formatting issues)
-- [ ] **100% test coverage** — currently 95.10% lines (215/273 classes); Accounting done, only Payroll remains (AU partial, NZ + UK untouched)
+- [x] **100% test coverage** — 7777/7777 lines, 10311/10311 elements (Session 7)
 - [ ] PHPDoc coverage — all public methods documented
 - [x] `/code-review` — 3 bugs fixed (ContactGroups, InvoiceReminders, PayItems)
 - [x] `/security-review` — clean
