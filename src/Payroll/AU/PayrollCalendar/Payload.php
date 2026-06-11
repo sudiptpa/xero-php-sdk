@@ -16,7 +16,6 @@ final class Payload
 
     public function __construct(
         private readonly Client $client,
-        private readonly ?string $id = null,
     ) {
     }
 
@@ -54,11 +53,8 @@ final class Payload
 
     public function save(): PayrollCalendar
     {
-        $request = $this->id === null
-            ? $this->client->post('/payroll.xro/1.0/PayrollCalendars')
-            : $this->client->put('/payroll.xro/1.0/PayrollCalendars/' . $this->id);
-
-        $payload = $request
+        $payload = $this->client
+            ->post('/payroll.xro/1.0/PayrollCalendars')
             ->withJson($this->attributes)
             ->send()
             ->json();

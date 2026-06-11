@@ -14,7 +14,7 @@ use Sujip\Xero\Xero;
 
 final class PayrollCalendarsAndSuperFundsTest extends TestCase
 {
-    public function test_it_can_query_find_create_update_and_paginate_payroll_calendars(): void
+    public function test_it_can_query_find_create_and_paginate_payroll_calendars(): void
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
@@ -39,13 +39,6 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'PayrollCalendar' => [
-                'PayrollCalendarID' => 'calendar-2',
-                'Name' => 'Fortnightly',
-                'CalendarType' => 'FORTNIGHTLY',
-            ],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
             'PayrollCalendars' => [],
         ], JSON_THROW_ON_ERROR)));
 
@@ -59,24 +52,19 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
             ->startDate('2026-04-01')
             ->paymentDate('2026-04-08')
             ->save();
-        $updated = $client->payroll()->au()->payrollCalendars()->update('calendar-2')
-            ->name('Fortnightly')
-            ->calendarType('FORTNIGHTLY')
-            ->save();
         $page = $client->payroll()->au()->payrollCalendars()->paginate(page: 3, perPage: 25);
 
         self::assertSame('/payroll.xro/1.0/PayrollCalendars', $transport->requests()[0]->path);
         self::assertSame(2, $transport->requests()[0]->query['page']);
         self::assertSame('/payroll.xro/1.0/PayrollCalendars/calendar-1', $transport->requests()[1]->path);
+        self::assertSame('POST', $transport->requests()[2]->method);
         self::assertSame('/payroll.xro/1.0/PayrollCalendars', $transport->requests()[2]->path);
-        self::assertSame('/payroll.xro/1.0/PayrollCalendars/calendar-2', $transport->requests()[3]->path);
-        self::assertSame('/payroll.xro/1.0/PayrollCalendars', $transport->requests()[4]->path);
-        self::assertSame(3, $transport->requests()[4]->query['page']);
-        self::assertSame(25, $transport->requests()[4]->query['pageSize']);
+        self::assertSame('/payroll.xro/1.0/PayrollCalendars', $transport->requests()[3]->path);
+        self::assertSame(3, $transport->requests()[3]->query['page']);
+        self::assertSame(25, $transport->requests()[3]->query['pageSize']);
         self::assertNotNull($calendars->first());
         self::assertSame('calendar-1', $calendar?->getPayrollCalendarID());
         self::assertSame('calendar-2', $created->getPayrollCalendarID());
-        self::assertSame('calendar-2', $updated->getPayrollCalendarID());
         self::assertSame(3, $page->page);
     }
 
