@@ -255,6 +255,101 @@ final class ContactsTest extends TestCase
         self::assertSame('Acme Holdings Pty Ltd', $saved?->getName());
     }
 
+    public function test_it_exposes_contacts_scopes(): void
+    {
+        $contacts = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->accounting()
+            ->contacts();
+
+        $scopes = $contacts->scopes();
+
+        self::assertSame(['accounting.contacts'], $scopes->broad);
+        self::assertSame(['accounting.contacts.read', 'accounting.contacts'], $scopes->granular);
+    }
+
+    public function test_it_maps_addresses_and_phones_directly(): void
+    {
+        $contacts = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->accounting()
+            ->contacts();
+
+        $address = $contacts->mapAddress([
+            'AddressType' => 'STREET',
+            'AddressLine2' => 'Suite 5',
+            'Region' => 'NSW',
+        ]);
+        $phone = $contacts->mapPhone([
+            'PhoneType' => 'MOBILE',
+            'PhoneNumber' => '0400000000',
+        ]);
+
+        self::assertSame('Suite 5', $address->getAddressLine2());
+        self::assertSame('NSW', $address->getRegion());
+        self::assertSame('MOBILE', $phone->getPhoneType());
+    }
+
+    public function test_payload_fluent_helpers_set_all_name_fields(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode([
+                'Contacts' => [[
+                    'ContactID' => 'contact-1',
+                    'Name' => 'Acme Pty Ltd',
+                ]],
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->contacts()
+            ->create()
+            ->name('Acme Pty Ltd')
+            ->firstName('Ada')
+            ->lastName('Lovelace')
+            ->email('ada@acme.test')
+            ->save();
+
+        $request = $transport->requests()[0];
+        $json = $request->json ?? [];
+        $firstContact = Json::extractFirst($json, 'Contacts');
+        self::assertNotNull($firstContact);
+        self::assertSame('Acme Pty Ltd', $firstContact['Name']);
+        self::assertSame('Ada', $firstContact['FirstName']);
+        self::assertSame('Lovelace', $firstContact['LastName']);
+        self::assertSame('ada@acme.test', $firstContact['EmailAddress']);
+    }
+
+    public function test_contact_model_setters_serialise_addresses_and_phones(): void
+    {
+        $contact = (new Contact())
+            ->setFirstName('Ada')
+            ->setLastName('Lovelace')
+            ->setAddresses([
+                (new Address())
+                    ->setAddressLine2('Suite 5')
+                    ->setRegion('NSW'),
+            ])
+            ->setPhones([
+                (new Phone())->setPhoneNumber('0400000000'),
+            ]);
+
+        self::assertSame('Ada', $contact->getFirstName());
+        self::assertSame('Lovelace', $contact->getLastName());
+        self::assertSame('Suite 5', $contact->getAddresses()[0]->getAddressLine2());
+        self::assertSame('NSW', $contact->getAddresses()[0]->getRegion());
+        self::assertSame('0400000000', $contact->getPhones()[0]->getPhoneNumber());
+    }
+
+    public function test_saving_a_contact_without_a_client_throws(): void
+    {
+        $this->expectException(\RuntimeException::class);
+
+        (new Contact())->save();
+    }
+
     public function test_it_supports_up_to_date_query_modifiers(): void
     {
         $transport = (new FakeTransport())->push(
