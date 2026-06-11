@@ -82,4 +82,87 @@ final class SettingsTest extends TestCase
         self::assertSame('employee-1', $summary->getEmployeeID());
         self::assertSame('reimbursement-2', $created->getReimbursementID());
     }
+
+    public function test_it_exposes_scopes(): void
+    {
+        $scopes = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->settings()
+            ->scopes();
+
+        self::assertSame(['payroll.settings'], $scopes->broad);
+        self::assertSame(['payroll.settings.read', 'payroll.settings'], $scopes->granular);
+    }
+
+    public function test_it_returns_blank_statutory_leave_summary_when_response_has_no_summary(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $summary = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->settings()
+            ->statutoryLeaveSummary('employee-1');
+
+        self::assertNull($summary->getEmployeeID());
+        self::assertNull($summary->getUnits());
+    }
+
+    public function test_reimbursement_save_returns_blank_model_on_empty_response(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $reimbursement = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->settings()
+            ->createReimbursement()
+            ->name('Travel')
+            ->save();
+
+        self::assertNull($reimbursement->getReimbursementID());
+    }
+
+    public function test_reimbursement_exposes_all_fields(): void
+    {
+        $reimbursement = (new Reimbursement())->fill([
+            'ReimbursementID' => 'reimbursement-1',
+            'Name' => 'Travel',
+            'AccountCode' => '400',
+        ]);
+
+        self::assertSame('reimbursement-1', $reimbursement->getReimbursementID());
+        self::assertSame('Travel', $reimbursement->getName());
+        self::assertSame('400', $reimbursement->getAccountCode());
+    }
+
+    public function test_statutory_leave_summary_exposes_all_fields(): void
+    {
+        $summary = (new StatutoryLeaveSummary())->fill([
+            'EmployeeID' => 'employee-1',
+            'Units' => 'Hours',
+        ]);
+
+        self::assertSame('employee-1', $summary->getEmployeeID());
+        self::assertSame('Hours', $summary->getUnits());
+    }
+
+    public function test_tracking_category_exposes_all_fields(): void
+    {
+        $trackingCategory = (new TrackingCategory())->fill([
+            'TrackingCategoryID' => 'tracking-1',
+            'Name' => 'Region',
+            'EmployeeGroupsTrackingCategoryID' => 'employee-groups-1',
+            'TimesheetTrackingCategoryID' => 'timesheet-1',
+        ]);
+
+        self::assertSame('tracking-1', $trackingCategory->getTrackingCategoryID());
+        self::assertSame('Region', $trackingCategory->getName());
+        self::assertSame('employee-groups-1', $trackingCategory->getEmployeeGroupsTrackingCategoryID());
+        self::assertSame('timesheet-1', $trackingCategory->getTimesheetTrackingCategoryID());
+    }
 }
