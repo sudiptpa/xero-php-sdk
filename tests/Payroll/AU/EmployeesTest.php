@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Payroll\AU;
 
 use PHPUnit\Framework\TestCase;
+use DateTimeImmutable;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\AU\Employee;
@@ -156,5 +157,82 @@ final class EmployeesTest extends TestCase
         self::assertSame(50, $request->query['pageSize']);
         self::assertSame(3, $page->page);
         self::assertSame(50, $page->perPage);
+    }
+
+    public function test_it_filters_employees_modified_since(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode(['Employees' => []], JSON_THROW_ON_ERROR))
+        );
+
+        Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->au()
+            ->employees()
+            ->modifiedSince(new DateTimeImmutable('2026-03-25T00:00:00+00:00'))
+            ->get();
+
+        self::assertSame('2026-03-25T00:00:00+00:00', $transport->requests()[0]->query['If-Modified-Since']);
+    }
+
+    public function test_loaded_employee_exposes_getters_and_can_be_saved(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'Employee' => [
+                'EmployeeID' => 'employee-1',
+                'FirstName' => 'Jane',
+                'LastName' => 'Smith',
+                'EmailAddress' => 'jane@example.test',
+                'Status' => 'ACTIVE',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'Employee' => [
+                'EmployeeID' => 'employee-1',
+                'FirstName' => 'Janet',
+                'LastName' => 'Smithson',
+                'EmailAddress' => 'janet@example.test',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $employee = $client->payroll()->au()->employees()->find('employee-1');
+        self::assertNotNull($employee);
+        self::assertSame('Smith', $employee->getLastName());
+        self::assertSame('jane@example.test', $employee->getEmailAddress());
+        self::assertSame('ACTIVE', $employee->getStatus());
+
+        $saved = $employee
+            ->setFirstName('Janet')
+            ->setLastName('Smithson')
+            ->setEmailAddress('janet@example.test')
+            ->save();
+
+        self::assertSame('/payroll.xro/1.0/Employees/employee-1', $transport->requests()[1]->path);
+        self::assertSame('employee-1', $saved->getEmployeeID());
+    }
+
+    public function test_saving_without_a_client_throws(): void
+    {
+        $this->expectException(\RuntimeException::class);
+
+        (new Employee())->save();
+    }
+
+    public function test_leave_balances_without_a_client_throws(): void
+    {
+        $this->expectException(\RuntimeException::class);
+
+        (new Employee())->leaveBalances();
+    }
+
+    public function test_create_leave_application_without_a_client_throws(): void
+    {
+        $this->expectException(\RuntimeException::class);
+
+        (new Employee())->createLeaveApplication();
     }
 }
