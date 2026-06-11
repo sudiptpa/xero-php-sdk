@@ -37,6 +37,26 @@ final class PendingRequestTest extends TestCase
         self::assertSame('Wed, 25 Mar 2026 10:00:00 GMT', $request->headers['If-Modified-Since']);
     }
 
+    public function test_it_applies_query_json_and_body(): void
+    {
+        $transport = $this->transport();
+
+        Xero::withAccessToken('token')
+            ->tenant('tenant-1')
+            ->withTransport($transport)
+            ->post('/Invoices')
+            ->withQuery(['page' => 2])
+            ->withJson(['Status' => 'AUTHORISED'])
+            ->withBody('raw-body')
+            ->send();
+
+        $request = $transport->requests()[0];
+
+        self::assertSame(['page' => 2], $request->query);
+        self::assertSame(['Status' => 'AUTHORISED'], $request->json);
+        self::assertSame('raw-body', $request->body);
+    }
+
     public function test_it_can_omit_the_tenant_header(): void
     {
         $transport = $this->transport();
