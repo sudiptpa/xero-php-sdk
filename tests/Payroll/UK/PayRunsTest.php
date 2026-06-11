@@ -84,24 +84,24 @@ final class PayRunsTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Payslips' => [[
-                'PayslipID' => 'payslip-1',
-                'EmployeeID' => 'employee-1',
-                'NetPay' => 1200.55,
+            'paySlips' => [[
+                'paySlipID' => 'payslip-1',
+                'employeeID' => 'employee-1',
+                'totalPay' => 1200.55,
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Payslip' => [
-                'PayslipID' => 'payslip-1',
-                'EmployeeID' => 'employee-1',
-                'NetPay' => 1200.55,
+            'paySlip' => [
+                'paySlipID' => 'payslip-1',
+                'employeeID' => 'employee-1',
+                'totalPay' => 1200.55,
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Payslips' => [[
-                'PayslipID' => 'payslip-1',
-                'EmployeeID' => 'employee-1',
-                'NetPay' => 1200.55,
+            'paySlips' => [[
+                'paySlipID' => 'payslip-1',
+                'employeeID' => 'employee-1',
+                'totalPay' => 1200.55,
             ]],
         ], JSON_THROW_ON_ERROR)));
 
@@ -214,15 +214,41 @@ final class PayRunsTest extends TestCase
     public function test_payslip_exposes_all_fields(): void
     {
         $payslip = (new Payslip())->fill([
-            'PayslipID' => 'payslip-1',
-            'EmployeeID' => 'employee-1',
-            'PaymentDate' => '2026-04-05',
-            'NetPay' => '1200.55',
+            'paySlipID' => 'payslip-1',
+            'employeeID' => 'employee-1',
+            'payRunID' => 'payrun-1',
+            'lastEdited' => '2026-04-05T00:00:00',
+            'firstName' => 'Ada',
+            'lastName' => 'Lovelace',
+            'totalEarnings' => 1500.0,
+            'grossEarnings' => 1400.0,
+            'totalPay' => 1200.55,
+            'totalEmployerTaxes' => 90.0,
+            'totalEmployeeTaxes' => 110.0,
+            'totalDeductions' => 50.0,
+            'totalReimbursements' => 20.0,
+            'totalCourtOrders' => 10.0,
+            'totalBenefits' => 5.0,
+            'bacsHash' => 'hash-1',
+            'paymentMethod' => 'Electronically',
         ]);
 
         self::assertSame('payslip-1', $payslip->getPayslipID());
         self::assertSame('employee-1', $payslip->getEmployeeID());
-        self::assertSame('2026-04-05', $payslip->getPaymentDate());
-        self::assertSame('1200.55', $payslip->getNetPay());
+        self::assertSame('payrun-1', $payslip->getPayRunID());
+        self::assertSame('2026-04-05T00:00:00', $payslip->getLastEdited());
+        self::assertSame('Ada', $payslip->getFirstName());
+        self::assertSame('Lovelace', $payslip->getLastName());
+        self::assertSame(1500.0, $payslip->getTotalEarnings());
+        self::assertSame(1400.0, $payslip->getGrossEarnings());
+        self::assertSame(1200.55, $payslip->getTotalPay());
+        self::assertSame(90.0, $payslip->getTotalEmployerTaxes());
+        self::assertSame(110.0, $payslip->getTotalEmployeeTaxes());
+        self::assertSame(50.0, $payslip->getTotalDeductions());
+        self::assertSame(20.0, $payslip->getTotalReimbursements());
+        self::assertSame(10.0, $payslip->getTotalCourtOrders());
+        self::assertSame(5.0, $payslip->getTotalBenefits());
+        self::assertSame('hash-1', $payslip->getBacsHash());
+        self::assertSame('Electronically', $payslip->getPaymentMethod());
     }
 }
