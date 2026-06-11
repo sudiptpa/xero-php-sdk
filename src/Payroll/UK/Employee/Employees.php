@@ -166,17 +166,6 @@ final class Employees implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return array<string, mixed>
-     */
-    public function employment(string $employeeId): array
-    {
-        return $this->client
-            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/Employment')
-            ->send()
-            ->json();
-    }
-
-    /**
      * @return ResourceCollection<LeaveType>
      */
     public function leaveTypes(string $employeeId): ResourceCollection

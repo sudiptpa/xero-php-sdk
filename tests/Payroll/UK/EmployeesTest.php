@@ -76,11 +76,6 @@ final class EmployeesTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Employment' => [
-                'StartDate' => '2020-01-15',
-            ],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
             'LeaveTypes' => [[
                 'LeaveTypeID' => 'leave-type-1',
                 'Name' => 'Holiday',
@@ -119,7 +114,6 @@ final class EmployeesTest extends TestCase
         $leaves = $employee?->leaves();
         $leave = $employee?->leave('leave-1');
         $paymentMethod = $employee?->paymentMethod();
-        $employment = $employee?->employment();
         $leaveTypes = $employee?->leaveTypes();
         $createdLeave = $employee?->createLeave()
             ->leaveType('leave-type-1')
@@ -149,10 +143,9 @@ final class EmployeesTest extends TestCase
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[6]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave/leave-1', $transport->requests()[7]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/PaymentMethods', $transport->requests()[8]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Employment', $transport->requests()[9]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeaveTypes', $transport->requests()[10]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[11]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeaveTypes', $transport->requests()[12]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeaveTypes', $transport->requests()[9]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[10]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeaveTypes', $transport->requests()[11]->path);
         self::assertSame('employee-2', $created->getEmployeeID());
         self::assertSame('employee-2', $updated->getEmployeeID());
         self::assertSame('Holiday', (Json::extractList($leaveBalances ?? [], 'LeaveBalances')[0] ?? [])['Name'] ?? null);
@@ -160,7 +153,6 @@ final class EmployeesTest extends TestCase
         self::assertSame('leave-1', (Json::extractList($leaves ?? [], 'Leave')[0] ?? [])['LeaveID'] ?? null);
         self::assertSame('leave-1', Json::extractObject($leave ?? [], 'Leave')['LeaveID'] ?? null);
         self::assertSame('Electronically', Json::extractObject($paymentMethod ?? [], 'paymentMethod')['Name'] ?? null);
-        self::assertSame('2020-01-15', Json::extractObject($employment ?? [], 'Employment')['StartDate'] ?? null);
         self::assertNotNull($leaveTypes);
         $firstLt = $leaveTypes->first();
         self::assertNotNull($firstLt);
@@ -292,13 +284,6 @@ final class EmployeesTest extends TestCase
         $this->expectException(RuntimeException::class);
 
         (new Employee())->paymentMethod();
-    }
-
-    public function test_employment_without_a_client_throws(): void
-    {
-        $this->expectException(RuntimeException::class);
-
-        (new Employee())->employment();
     }
 
     public function test_leave_types_without_a_client_throws(): void

@@ -108,11 +108,6 @@ final class EmployeesTest extends TestCase
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Employment' => [
-                'StartDate' => '2020-01-15',
-            ],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
             'SalaryAndWages' => [[
                 'SalaryAndWagesID' => 'wage-1',
                 'PaymentType' => 'SALARY',
@@ -186,7 +181,6 @@ final class EmployeesTest extends TestCase
             ->grossEarnings(1730.77)
             ->idempotencyKey('opening-balances-key')
             ->save();
-        $employment = $employee?->employment();
         $salaryAndWages = $employee?->salaryAndWages(page: 2);
         $salaryAndWage = $employee?->salaryAndWage('wage-1');
         $createdEmployment = $employee?->createEmployment()
@@ -236,22 +230,21 @@ final class EmployeesTest extends TestCase
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Working-Patterns/pattern-1', $transport->requests()[12]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeaveSetup', $transport->requests()[13]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/OpeningBalances', $transport->requests()[14]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Employment', $transport->requests()[15]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages', $transport->requests()[16]->path);
-        self::assertSame(2, $transport->requests()[16]->query['page']);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages/wage-1', $transport->requests()[17]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Employment', $transport->requests()[18]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[19]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PaymentMethods', $transport->requests()[20]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages', $transport->requests()[21]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Working-Patterns', $transport->requests()[22]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages', $transport->requests()[15]->path);
+        self::assertSame(2, $transport->requests()[15]->query['page']);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages/wage-1', $transport->requests()[16]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Employment', $transport->requests()[17]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[18]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PaymentMethods', $transport->requests()[19]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages', $transport->requests()[20]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Working-Patterns', $transport->requests()[21]->path);
         self::assertSame('leave-setup-key', $transport->requests()[13]->headers['Idempotency-Key']);
         self::assertSame('opening-balances-key', $transport->requests()[14]->headers['Idempotency-Key']);
-        self::assertSame('employment-key', $transport->requests()[18]->headers['Idempotency-Key']);
-        self::assertSame('leave-key', $transport->requests()[19]->headers['Idempotency-Key']);
-        self::assertSame('payment-method-key', $transport->requests()[20]->headers['Idempotency-Key']);
-        self::assertSame('salary-key', $transport->requests()[21]->headers['Idempotency-Key']);
-        self::assertSame('working-pattern-key', $transport->requests()[22]->headers['Idempotency-Key']);
+        self::assertSame('employment-key', $transport->requests()[17]->headers['Idempotency-Key']);
+        self::assertSame('leave-key', $transport->requests()[18]->headers['Idempotency-Key']);
+        self::assertSame('payment-method-key', $transport->requests()[19]->headers['Idempotency-Key']);
+        self::assertSame('salary-key', $transport->requests()[20]->headers['Idempotency-Key']);
+        self::assertSame('working-pattern-key', $transport->requests()[21]->headers['Idempotency-Key']);
         self::assertSame('employee-1', $employee?->getEmployeeID());
         self::assertSame('employee-2', $created->getEmployeeID());
         self::assertSame('employee-2', $updated->getEmployeeID());
@@ -266,7 +259,6 @@ final class EmployeesTest extends TestCase
         self::assertSame('pattern-1', Json::extractObject($workingPattern ?? [], 'WorkingPattern')['EmployeeWorkingPatternID'] ?? null);
         self::assertSame('employee-1', Json::extractObject($leaveSetup ?? [], 'EmployeeLeaveSetup')['employeeID'] ?? null);
         self::assertSame('2026-03-31', (Json::extractList($openingBalances ?? [], 'EmployeeOpeningBalances')[0] ?? [])['PeriodEndDate'] ?? null);
-        self::assertSame('2020-01-15', Json::extractObject($employment ?? [], 'Employment')['StartDate'] ?? null);
         self::assertSame('wage-1', (Json::extractList($salaryAndWages ?? [], 'SalaryAndWages')[0] ?? [])['SalaryAndWagesID'] ?? null);
         self::assertSame('wage-1', Json::extractObject($salaryAndWage ?? [], 'SalaryAndWages')['SalaryAndWagesID'] ?? null);
         self::assertSame('2026-04-01', Json::extractObject($createdEmployment ?? [], 'Employment')['StartDate'] ?? null);
@@ -532,13 +524,6 @@ final class EmployeesTest extends TestCase
         $this->expectException(RuntimeException::class);
 
         (new Employee())->createWorkingPattern();
-    }
-
-    public function test_employment_without_a_client_throws(): void
-    {
-        $this->expectException(RuntimeException::class);
-
-        (new Employee())->employment();
     }
 
     public function test_salary_and_wages_without_a_client_throws(): void

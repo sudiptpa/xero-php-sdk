@@ -133,14 +133,6 @@ final class Employee extends Model
         }
         return (new Employees($this->client))->paymentMethod($this->employeeID);
     }
-    /** @return array<string, mixed> */
-    public function employment(): array
-    {
-        if ($this->client === null || $this->employeeID === null) {
-            throw new RuntimeException('Cannot load employee employment details without a bound client context and employee id.');
-        }
-        return (new Employees($this->client))->employment($this->employeeID);
-    }
     /** @return ResourceCollection<LeaveType> */
     public function leaveTypes(): ResourceCollection
     {

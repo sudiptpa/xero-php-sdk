@@ -248,17 +248,6 @@ final class Employees implements PaginatesResults, DefinesScopes
     /**
      * @return array<string, mixed>
      */
-    public function employment(string $employeeId): array
-    {
-        return $this->client
-            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/Employment')
-            ->send()
-            ->json();
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
     public function salaryAndWages(string $employeeId, int $page = 1): array
     {
         return $this->client
