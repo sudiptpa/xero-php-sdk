@@ -71,8 +71,8 @@ final class EmployeesTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'PaymentMethod' => [
-                'Name' => 'Main bank account',
+            'paymentMethod' => [
+                'Name' => 'Electronically',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -148,7 +148,7 @@ final class EmployeesTest extends TestCase
         self::assertSame('2026-03-27', $transport->requests()[5]->query['AsOfDate']);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[6]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave/leave-1', $transport->requests()[7]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PaymentMethod', $transport->requests()[8]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PaymentMethods', $transport->requests()[8]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Employment', $transport->requests()[9]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeaveTypes', $transport->requests()[10]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[11]->path);
@@ -159,7 +159,7 @@ final class EmployeesTest extends TestCase
         self::assertEquals(2.0, Json::extractObject($statutoryLeaveBalance ?? [], 'StatutoryLeaveBalance')['Balance'] ?? null);
         self::assertSame('leave-1', (Json::extractList($leaves ?? [], 'Leave')[0] ?? [])['LeaveID'] ?? null);
         self::assertSame('leave-1', Json::extractObject($leave ?? [], 'Leave')['LeaveID'] ?? null);
-        self::assertSame('Main bank account', Json::extractObject($paymentMethod ?? [], 'PaymentMethod')['Name'] ?? null);
+        self::assertSame('Electronically', Json::extractObject($paymentMethod ?? [], 'paymentMethod')['Name'] ?? null);
         self::assertSame('2020-01-15', Json::extractObject($employment ?? [], 'Employment')['StartDate'] ?? null);
         self::assertNotNull($leaveTypes);
         $firstLt = $leaveTypes->first();

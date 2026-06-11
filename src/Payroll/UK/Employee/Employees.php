@@ -160,7 +160,7 @@ final class Employees implements PaginatesResults, DefinesScopes
     public function paymentMethod(string $employeeId): array
     {
         return $this->client
-            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/PaymentMethod')
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/PaymentMethods')
             ->send()
             ->json();
     }
