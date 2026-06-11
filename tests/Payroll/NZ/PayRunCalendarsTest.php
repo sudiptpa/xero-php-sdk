@@ -41,4 +41,51 @@ final class PayRunCalendarsTest extends TestCase
         self::assertSame('/payroll.xro/2.0/PayRunCalendars/calendar-1', $transport->requests()[1]->path);
         self::assertSame('calendar-1', $calendar?->getPayrollCalendarID());
     }
+
+    public function test_it_exposes_scopes(): void
+    {
+        $scopes = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->payroll()
+            ->nz()
+            ->payRunCalendars()
+            ->scopes();
+
+        self::assertSame(['payroll.settings'], $scopes->broad);
+        self::assertSame(['payroll.settings.read', 'payroll.settings'], $scopes->granular);
+    }
+
+    public function test_it_can_paginate_pay_run_calendars(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode(['PayrollCalendars' => []], JSON_THROW_ON_ERROR))
+        );
+
+        $page = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->nz()
+            ->payRunCalendars()
+            ->paginate(page: 2, perPage: 25);
+
+        self::assertSame(2, $transport->requests()[0]->query['page']);
+        self::assertSame(25, $transport->requests()[0]->query['pageSize']);
+        self::assertSame(2, $page->page);
+        self::assertSame(25, $page->perPage);
+    }
+
+    public function test_pay_run_calendar_exposes_all_fields(): void
+    {
+        $calendar = (new PayRunCalendar())->fill([
+            'PayrollCalendarID' => 'calendar-1',
+            'Name' => 'Fortnightly',
+            'CalendarType' => 'FORTNIGHTLY',
+            'PeriodStartDate' => '2026-04-01',
+        ]);
+
+        self::assertSame('calendar-1', $calendar->getPayrollCalendarID());
+        self::assertSame('Fortnightly', $calendar->getName());
+        self::assertSame('FORTNIGHTLY', $calendar->getCalendarType());
+        self::assertSame('2026-04-01', $calendar->getPeriodStartDate());
+    }
 }
