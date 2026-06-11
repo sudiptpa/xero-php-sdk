@@ -13,87 +13,82 @@ use Sujip\Xero\Xero;
 
 final class TimesheetsTest extends TestCase
 {
-    public function test_it_can_query_find_create_update_approve_revert_and_delete_timesheets(): void
+    public function test_it_can_query_find_create_approve_revert_and_delete_timesheets(): void
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Timesheets' => [[
-                'TimesheetID' => 'timesheet-1',
-                'EmployeeID' => 'employee-1',
-                'Status' => 'DRAFT',
+            'timesheets' => [[
+                'timesheetID' => 'timesheet-1',
+                'employeeID' => 'employee-1',
+                'status' => 'Draft',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Timesheet' => [
-                'TimesheetID' => 'timesheet-1',
-                'EmployeeID' => 'employee-1',
-                'Status' => 'DRAFT',
+            'timesheet' => [
+                'timesheetID' => 'timesheet-1',
+                'employeeID' => 'employee-1',
+                'status' => 'Draft',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Timesheet' => [
-                'TimesheetID' => 'timesheet-2',
-                'EmployeeID' => 'employee-1',
-                'Status' => 'DRAFT',
+            'timesheet' => [
+                'timesheetID' => 'timesheet-2',
+                'employeeID' => 'employee-1',
+                'status' => 'Draft',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Timesheet' => [
-                'TimesheetID' => 'timesheet-2',
-                'EmployeeID' => 'employee-1',
-                'Status' => 'SUBMITTED',
+            'timesheet' => [
+                'timesheetID' => 'timesheet-2',
+                'employeeID' => 'employee-1',
+                'status' => 'Approved',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Timesheet' => [
-                'TimesheetID' => 'timesheet-2',
-                'EmployeeID' => 'employee-1',
-                'Status' => 'APPROVED',
-            ],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Timesheet' => [
-                'TimesheetID' => 'timesheet-2',
-                'EmployeeID' => 'employee-1',
-                'Status' => 'DRAFT',
+            'timesheet' => [
+                'timesheetID' => 'timesheet-2',
+                'employeeID' => 'employee-1',
+                'status' => 'Draft',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(204));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
-        $timesheets = $client->payroll()->nz()->timesheets()->status('draft')->page(2)->get();
+        $timesheets = $client->payroll()->nz()->timesheets()->status('Draft')->page(2)->get();
         $timesheet = $client->payroll()->nz()->timesheets()->find('timesheet-1');
         $created = $client->payroll()->nz()->timesheets()->create()
+            ->payrollCalendar('calendar-1')
             ->employee('employee-1')
             ->startDate('2026-03-23')
             ->endDate('2026-03-29')
-            ->status('DRAFT')
+            ->status('Draft')
             ->save();
-        $updated = $client->payroll()->nz()->timesheets()->update('timesheet-2')
-            ->employee('employee-1')
-            ->startDate('2026-03-23')
-            ->endDate('2026-03-29')
-            ->status('SUBMITTED')
-            ->save();
-        $approved = $updated->approve();
+        $approved = $created->approve();
         $reverted = $approved->revert();
         $deleted = $reverted->delete();
 
         self::assertSame('/payroll.xro/2.0/Timesheets', $transport->requests()[0]->path);
-        self::assertSame('DRAFT', $transport->requests()[0]->query['status']);
+        self::assertSame('Draft', $transport->requests()[0]->query['status']);
         self::assertSame(2, $transport->requests()[0]->query['page']);
         self::assertInstanceOf(Timesheet::class, $timesheets->first());
         self::assertSame('/payroll.xro/2.0/Timesheets/timesheet-1', $transport->requests()[1]->path);
+        self::assertSame('POST', $transport->requests()[2]->method);
         self::assertSame('/payroll.xro/2.0/Timesheets', $transport->requests()[2]->path);
-        self::assertSame('/payroll.xro/2.0/Timesheets/timesheet-2', $transport->requests()[3]->path);
-        self::assertSame('/payroll.xro/2.0/Timesheets/timesheet-2/Approve', $transport->requests()[4]->path);
-        self::assertSame('/payroll.xro/2.0/Timesheets/timesheet-2/RevertToDraft', $transport->requests()[5]->path);
-        self::assertSame('/payroll.xro/2.0/Timesheets/timesheet-2', $transport->requests()[6]->path);
+        self::assertSame([
+            'payrollCalendarID' => 'calendar-1',
+            'employeeID' => 'employee-1',
+            'startDate' => '2026-03-23',
+            'endDate' => '2026-03-29',
+            'status' => 'Draft',
+        ], $transport->requests()[2]->json);
+        self::assertSame('/payroll.xro/2.0/Timesheets/timesheet-2/Approve', $transport->requests()[3]->path);
+        self::assertSame('/payroll.xro/2.0/Timesheets/timesheet-2/RevertToDraft', $transport->requests()[4]->path);
+        self::assertSame('/payroll.xro/2.0/Timesheets/timesheet-2', $transport->requests()[5]->path);
         self::assertSame('timesheet-1', $timesheet?->getTimesheetID());
         self::assertSame('timesheet-2', $created->getTimesheetID());
-        self::assertSame('APPROVED', $approved->getStatus());
-        self::assertSame('DRAFT', $reverted->getStatus());
+        self::assertSame('Approved', $approved->getStatus());
+        self::assertSame('Draft', $reverted->getStatus());
         self::assertTrue($deleted);
     }
 
@@ -113,7 +108,7 @@ final class TimesheetsTest extends TestCase
     public function test_it_can_paginate_timesheets(): void
     {
         $transport = (new FakeTransport())->push(
-            new Response(200, body: json_encode(['Timesheets' => []], JSON_THROW_ON_ERROR))
+            new Response(200, body: json_encode(['timesheets' => []], JSON_THROW_ON_ERROR))
         );
 
         $page = Xero::withAccessToken('token', $transport)
@@ -132,59 +127,65 @@ final class TimesheetsTest extends TestCase
     public function test_timesheet_exposes_all_fields(): void
     {
         $timesheet = (new Timesheet())->fill([
-            'TimesheetID' => 'timesheet-1',
-            'EmployeeID' => 'employee-1',
-            'StartDate' => '2026-03-23',
-            'EndDate' => '2026-03-29',
-            'Status' => 'DRAFT',
+            'timesheetID' => 'timesheet-1',
+            'payrollCalendarID' => 'calendar-1',
+            'employeeID' => 'employee-1',
+            'startDate' => '2026-03-23',
+            'endDate' => '2026-03-29',
+            'status' => 'Draft',
+            'totalHours' => 17,
+            'updatedDateUTC' => '2026-03-29T00:00:00',
         ]);
 
         self::assertSame('timesheet-1', $timesheet->getTimesheetID());
+        self::assertSame('calendar-1', $timesheet->getPayrollCalendarID());
         self::assertSame('employee-1', $timesheet->getEmployeeID());
         self::assertSame('2026-03-23', $timesheet->getStartDate());
         self::assertSame('2026-03-29', $timesheet->getEndDate());
-        self::assertSame('DRAFT', $timesheet->getStatus());
+        self::assertSame('Draft', $timesheet->getStatus());
+        self::assertSame(17.0, $timesheet->getTotalHours());
+        self::assertSame('2026-03-29T00:00:00', $timesheet->getUpdatedDateUTC());
     }
 
     public function test_it_can_save_a_found_timesheet(): void
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Timesheet' => [
-                'TimesheetID' => 'timesheet-1',
-                'EmployeeID' => 'employee-1',
-                'StartDate' => '2026-03-23',
-                'EndDate' => '2026-03-29',
-                'Status' => 'DRAFT',
+            'timesheet' => [
+                'timesheetID' => 'timesheet-1',
+                'payrollCalendarID' => 'calendar-1',
+                'employeeID' => 'employee-1',
+                'startDate' => '2026-03-23',
+                'endDate' => '2026-03-29',
+                'status' => 'Draft',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Timesheet' => [
-                'TimesheetID' => 'timesheet-1',
-                'EmployeeID' => 'employee-1',
-                'StartDate' => '2026-03-23',
-                'EndDate' => '2026-03-29',
-                'Status' => 'SUBMITTED',
+            'timesheet' => [
+                'timesheetID' => 'timesheet-1',
+                'payrollCalendarID' => 'calendar-1',
+                'employeeID' => 'employee-1',
+                'startDate' => '2026-03-23',
+                'endDate' => '2026-03-29',
+                'status' => 'Approved',
             ],
         ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $timesheet = $client->payroll()->nz()->timesheets()->find('timesheet-1');
-        $saved = $timesheet?->setStatus('SUBMITTED')->save();
+        $saved = $timesheet?->setStatus('Approved')->save();
 
         self::assertSame('POST', $transport->requests()[1]->method);
-        self::assertSame('/payroll.xro/2.0/Timesheets/timesheet-1', $transport->requests()[1]->path);
+        self::assertSame('/payroll.xro/2.0/Timesheets', $transport->requests()[1]->path);
         self::assertSame([
-            'Timesheet' => [
-                'EmployeeID' => 'employee-1',
-                'StartDate' => '2026-03-23',
-                'EndDate' => '2026-03-29',
-                'Status' => 'SUBMITTED',
-                'TimesheetID' => 'timesheet-1',
-            ],
+            'payrollCalendarID' => 'calendar-1',
+            'employeeID' => 'employee-1',
+            'startDate' => '2026-03-23',
+            'endDate' => '2026-03-29',
+            'status' => 'Approved',
         ], $transport->requests()[1]->json);
-        self::assertSame('SUBMITTED', $saved?->getStatus());
+        self::assertSame('Approved', $saved?->getStatus());
     }
 
     public function test_saving_without_a_client_throws(): void

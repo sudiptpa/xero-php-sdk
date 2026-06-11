@@ -14,8 +14,6 @@ final class Payload
      */
     private array $payload = [];
 
-    private ?string $timesheetId = null;
-
     private ?string $idempotencyKey = null;
 
     public function __construct(
@@ -23,10 +21,10 @@ final class Payload
     ) {
     }
 
-    public function id(string $timesheetId): self
+    public function payrollCalendar(string $payrollCalendarId): self
     {
         $clone = clone $this;
-        $clone->timesheetId = $timesheetId;
+        $clone->payload['payrollCalendarID'] = $payrollCalendarId;
 
         return $clone;
     }
@@ -34,7 +32,7 @@ final class Payload
     public function employee(string $employeeId): self
     {
         $clone = clone $this;
-        $clone->payload['EmployeeID'] = $employeeId;
+        $clone->payload['employeeID'] = $employeeId;
 
         return $clone;
     }
@@ -42,7 +40,7 @@ final class Payload
     public function startDate(string $startDate): self
     {
         $clone = clone $this;
-        $clone->payload['StartDate'] = $startDate;
+        $clone->payload['startDate'] = $startDate;
 
         return $clone;
     }
@@ -50,7 +48,7 @@ final class Payload
     public function endDate(string $endDate): self
     {
         $clone = clone $this;
-        $clone->payload['EndDate'] = $endDate;
+        $clone->payload['endDate'] = $endDate;
 
         return $clone;
     }
@@ -58,7 +56,7 @@ final class Payload
     public function status(string $status): self
     {
         $clone = clone $this;
-        $clone->payload['Status'] = strtoupper($status);
+        $clone->payload['status'] = $status;
 
         return $clone;
     }
@@ -73,21 +71,14 @@ final class Payload
 
     public function save(): Timesheet
     {
-        $request = $this->timesheetId === null
-            ? $this->client->post('/payroll.xro/2.0/Timesheets')
-            : $this->client->post('/payroll.xro/2.0/Timesheets/' . $this->timesheetId);
-
-        if ($this->timesheetId !== null) {
-            $this->payload['TimesheetID'] = $this->timesheetId;
-        }
-
-        $response = $request
+        $response = $this->client
+            ->post('/payroll.xro/2.0/Timesheets')
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
-            ->withJson(['Timesheet' => $this->payload])
+            ->withJson($this->payload)
             ->send();
 
         $payload = $response->json();
-        $timesheet = Json::extractFirst($payload, 'Timesheets') ?? Json::extractObject($payload, 'Timesheet');
+        $timesheet = Json::extractFirst($payload, 'timesheets') ?? Json::extractObject($payload, 'timesheet');
 
         if ($timesheet === []) {
             return new Timesheet($this->client);
