@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Payroll\NZ;
 
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\NZ\Employee\Employee;
@@ -277,5 +278,222 @@ final class EmployeesTest extends TestCase
         self::assertSame('98-7654-1234567-00', Json::extractObject($createdPaymentMethod ?? [], 'PaymentMethod')['BankAccountNumber'] ?? null);
         self::assertSame('wage-2', Json::extractObject($createdSalaryAndWage ?? [], 'SalaryAndWages')['SalaryAndWagesID'] ?? null);
         self::assertSame('pattern-2', Json::extractObject($createdWorkingPattern ?? [], 'WorkingPattern')['EmployeeWorkingPatternID'] ?? null);
+    }
+
+    public function test_it_exposes_scopes(): void
+    {
+        $scopes = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->payroll()
+            ->nz()
+            ->employees()
+            ->scopes();
+
+        self::assertSame(['payroll.employees'], $scopes->broad);
+        self::assertSame(['payroll.employees.read', 'payroll.employees'], $scopes->granular);
+    }
+
+    public function test_it_can_paginate_employees(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode(['Employees' => []], JSON_THROW_ON_ERROR))
+        );
+
+        $page = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->nz()
+            ->employees()
+            ->paginate(page: 3, perPage: 50);
+
+        self::assertSame(3, $transport->requests()[0]->query['page']);
+        self::assertSame(50, $transport->requests()[0]->query['pageSize']);
+        self::assertSame(3, $page->page);
+        self::assertSame(50, $page->perPage);
+    }
+
+    public function test_employee_exposes_all_fields(): void
+    {
+        $employee = (new Employee())->fill([
+            'EmployeeID' => 'employee-1',
+            'FirstName' => 'Ada',
+            'LastName' => 'Lovelace',
+            'EmailAddress' => 'ada@example.test',
+            'Status' => 'ACTIVE',
+        ]);
+
+        self::assertSame('employee-1', $employee->getEmployeeID());
+        self::assertSame('Ada', $employee->getFirstName());
+        self::assertSame('Lovelace', $employee->getLastName());
+        self::assertSame('ada@example.test', $employee->getEmailAddress());
+        self::assertSame('ACTIVE', $employee->getStatus());
+    }
+
+    public function test_it_can_save_a_found_employee(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'Employee' => [
+                'EmployeeID' => 'employee-1',
+                'FirstName' => 'Ada',
+                'LastName' => 'Lovelace',
+                'EmailAddress' => 'ada@example.test',
+                'Status' => 'ACTIVE',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'Employee' => [
+                'EmployeeID' => 'employee-1',
+                'FirstName' => 'Ada',
+                'LastName' => 'King',
+                'EmailAddress' => 'ada@example.test',
+                'Status' => 'ACTIVE',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $employee = $client->payroll()->nz()->employees()->find('employee-1');
+        $saved = $employee?->setLastName('King')->save();
+
+        self::assertSame('POST', $transport->requests()[1]->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1', $transport->requests()[1]->path);
+        self::assertSame([
+            'Employee' => [
+                'FirstName' => 'Ada',
+                'LastName' => 'King',
+                'EmailAddress' => 'ada@example.test',
+                'EmployeeID' => 'employee-1',
+            ],
+        ], $transport->requests()[1]->json);
+        self::assertSame('King', $saved?->getLastName());
+    }
+
+    public function test_create_sends_date_of_birth_and_idempotency_key_and_handles_empty_response(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $employee = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->nz()
+            ->employees()
+            ->create()
+            ->firstName('Ada')
+            ->lastName('Lovelace')
+            ->dateOfBirth('1990-01-15')
+            ->idempotencyKey('key-123')
+            ->save();
+
+        self::assertSame('key-123', $transport->requests()[0]->headers['Idempotency-Key']);
+        self::assertSame([
+            'Employee' => [
+                'FirstName' => 'Ada',
+                'LastName' => 'Lovelace',
+                'DateOfBirth' => '1990-01-15',
+            ],
+        ], $transport->requests()[0]->json);
+        self::assertNull($employee->getEmployeeID());
+    }
+
+    public function test_leave_payload_sends_title(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'EmployeeLeave' => [
+                'LeaveID' => 'leave-1',
+                'Title' => 'Annual Leave',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+
+        $leave = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->nz()
+            ->employees()
+            ->createLeave('employee-1')
+            ->leaveType('leave-type-1')
+            ->title('Annual Leave')
+            ->startDate('2026-04-10')
+            ->endDate('2026-04-11')
+            ->save();
+
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[0]->path);
+        self::assertSame([
+            'LeaveTypeID' => 'leave-type-1',
+            'Title' => 'Annual Leave',
+            'StartDate' => '2026-04-10',
+            'EndDate' => '2026-04-11',
+        ], $transport->requests()[0]->json);
+        self::assertSame('Annual Leave', Json::extractObject($leave, 'EmployeeLeave')['Title'] ?? null);
+    }
+
+    public function test_saving_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->save();
+    }
+
+    public function test_leave_types_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->leaveTypes();
+    }
+
+    public function test_leave_periods_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->leavePeriods('2026-01-01', '2026-03-31');
+    }
+
+    public function test_leave_balances_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->leaveBalances();
+    }
+
+    public function test_leaves_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->leaves();
+    }
+
+    public function test_leave_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->leave('leave-1');
+    }
+
+    public function test_payment_method_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->paymentMethod();
+    }
+
+    public function test_tax_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->tax();
+    }
+
+    public function test_working_patterns_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->workingPatterns();
+    }
+
+    public function test_working_pattern_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->workingPattern('pattern-1');
     }
 }
