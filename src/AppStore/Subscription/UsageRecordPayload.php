@@ -88,9 +88,9 @@ final class UsageRecordPayload
         }
 
         if ($this->usageRecordId === null) {
-            return '/subscriptions/' . $this->subscriptionId . '/items/' . $itemId . '/usage-records';
+            return '/appstore/2.0/subscriptions/' . $this->subscriptionId . '/items/' . $itemId . '/usage-records';
         }
 
-        return '/subscriptions/' . $this->subscriptionId . '/items/' . $itemId . '/usage-records/' . $this->usageRecordId;
+        return '/appstore/2.0/subscriptions/' . $this->subscriptionId . '/items/' . $itemId . '/usage-records/' . $this->usageRecordId;
     }
 }

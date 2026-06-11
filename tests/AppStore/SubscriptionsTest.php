@@ -66,12 +66,12 @@ final class SubscriptionsTest extends TestCase
 
         $items = $subscription->getItems();
         self::assertSame('item-1', $items[0]['id'] ?? null);
-        self::assertSame('/subscriptions/subscription-1', $transport->requests()[0]->path);
+        self::assertSame('/appstore/2.0/subscriptions/subscription-1', $transport->requests()[0]->path);
         self::assertFalse($transport->requests()[0]->includeTenantHeader);
-        self::assertSame('/subscriptions/subscription-1/usage-records', $transport->requests()[1]->path);
+        self::assertSame('/appstore/2.0/subscriptions/subscription-1/usage-records', $transport->requests()[1]->path);
         self::assertFalse($transport->requests()[1]->includeTenantHeader);
-        self::assertSame('/subscriptions/subscription-1/items/item-1/usage-records', $transport->requests()[2]->path);
-        self::assertSame('/subscriptions/subscription-1/items/item-1/usage-records/usage-2', $transport->requests()[3]->path);
+        self::assertSame('/appstore/2.0/subscriptions/subscription-1/items/item-1/usage-records', $transport->requests()[2]->path);
+        self::assertSame('/appstore/2.0/subscriptions/subscription-1/items/item-1/usage-records/usage-2', $transport->requests()[3]->path);
         self::assertNotNull($usageRecords->first());
         self::assertSame('usage-2', $recorded->getUsageRecordID());
         self::assertSame(15.0, $updated->getQuantity());

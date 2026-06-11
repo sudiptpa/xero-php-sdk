@@ -28,7 +28,7 @@ final readonly class Subscriptions implements DefinesScopes
     public function find(string $subscriptionId): Subscription
     {
         $payload = $this->client
-            ->get('/subscriptions/' . $subscriptionId)
+            ->get('/appstore/2.0/subscriptions/' . $subscriptionId)
             ->withoutTenant()
             ->send()
             ->json();
@@ -42,7 +42,7 @@ final readonly class Subscriptions implements DefinesScopes
     public function usageRecords(string $subscriptionId): ResourceCollection
     {
         $payload = $this->client
-            ->get('/subscriptions/' . $subscriptionId . '/usage-records')
+            ->get('/appstore/2.0/subscriptions/' . $subscriptionId . '/usage-records')
             ->withoutTenant()
             ->send()
             ->json();
