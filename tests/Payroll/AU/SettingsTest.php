@@ -32,4 +32,17 @@ final class SettingsTest extends TestCase
         $settingsObj = Json::extractObject($settings, 'Settings');
         self::assertSame([], $settingsObj['EmployeeGroups'] ?? null);
     }
+
+    public function test_it_exposes_scopes(): void
+    {
+        $scopes = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->payroll()
+            ->au()
+            ->settings()
+            ->scopes();
+
+        self::assertSame(['payroll.settings'], $scopes->broad);
+        self::assertSame(['payroll.settings.read', 'payroll.settings'], $scopes->granular);
+    }
 }
