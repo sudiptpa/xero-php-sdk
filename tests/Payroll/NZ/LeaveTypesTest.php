@@ -42,4 +42,49 @@ final class LeaveTypesTest extends TestCase
         self::assertSame('/payroll.xro/2.0/LeaveTypes/leave-type-1', $transport->requests()[1]->path);
         self::assertSame('leave-type-1', $type?->getLeaveTypeID());
     }
+
+    public function test_it_exposes_scopes(): void
+    {
+        $scopes = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->payroll()
+            ->nz()
+            ->leaveTypes()
+            ->scopes();
+
+        self::assertSame(['payroll.settings'], $scopes->broad);
+        self::assertSame(['payroll.settings.read', 'payroll.settings'], $scopes->granular);
+    }
+
+    public function test_it_can_paginate_leave_types(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode(['LeaveTypes' => []], JSON_THROW_ON_ERROR))
+        );
+
+        $page = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->nz()
+            ->leaveTypes()
+            ->paginate(page: 2, perPage: 25);
+
+        self::assertSame(2, $transport->requests()[0]->query['page']);
+        self::assertSame(25, $transport->requests()[0]->query['pageSize']);
+        self::assertSame(2, $page->page);
+        self::assertSame(25, $page->perPage);
+    }
+
+    public function test_leave_type_exposes_all_fields(): void
+    {
+        $type = (new LeaveType())->fill([
+            'LeaveTypeID' => 'leave-type-1',
+            'Name' => 'Annual Leave',
+            'IsActive' => true,
+        ]);
+
+        self::assertSame('leave-type-1', $type->getLeaveTypeID());
+        self::assertSame('Annual Leave', $type->getName());
+        self::assertTrue($type->getIsActive());
+    }
 }
