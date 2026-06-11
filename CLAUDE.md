@@ -120,6 +120,8 @@ composer lint        # php -l syntax check
 
 **Never do these:**
 
+- Do not commit or push `PROGRESS.md` — it is a local working-notes file only. Keep it out of git (it is listed in `.git/info/exclude`, not `.gitignore`)
+
 - Do not add Laravel, Symfony, or any framework as a runtime dependency
 - Do not add Guzzle or any HTTP client library as a runtime dependency
 - Do not break the `Transport` abstraction — all HTTP goes through it
