@@ -41,7 +41,6 @@ final class ClientTest extends TestCase
     {
         $client = Xero::withAccessToken('token');
 
-        $this->expectNotToPerformAssertions();
         $client->accounting();
         $client->assets();
         $client->files();
@@ -50,6 +49,10 @@ final class ClientTest extends TestCase
         $client->identity();
         $client->finance();
         $client->appStore();
+
+        self::assertTrue(
+            $client->webhooks()->verifier('signing-key')->verify('payload', base64_encode(hash_hmac('sha256', 'payload', 'signing-key', true)))
+        );
     }
 
     public function test_it_can_swap_to_native_transport(): void
@@ -65,5 +68,41 @@ final class ClientTest extends TestCase
 
         self::assertSame('token-value', $client->context()->accessToken);
         self::assertSame('tenant-123', $client->context()->tenantId);
+    }
+
+    public function test_it_can_swap_token_on_an_existing_client(): void
+    {
+        $client = Xero::withAccessToken('old-token')
+            ->tenant('tenant-123')
+            ->withToken(new Token('new-token'));
+
+        self::assertSame('new-token', $client->context()->accessToken);
+        self::assertSame('tenant-123', $client->context()->tenantId);
+    }
+
+    public function test_context_tenant_headers_are_empty_without_a_tenant(): void
+    {
+        self::assertSame([], Context::make('token')->tenantHeaders());
+        self::assertSame([], Context::make('token', '')->tenantHeaders());
+    }
+
+    public function test_xero_exposes_oauth_helpers(): void
+    {
+        $url = Xero::authorizationUrl(
+            'client-id',
+            'https://app.test/callback',
+            ['accounting.contacts'],
+            'state-123'
+        );
+        $oauthUrl = Xero::oauth2('client-id', 'client-secret', 'https://app.test/callback')
+            ->authorizationUrl(['accounting.contacts'], 'state-123');
+        $pkce = Xero::pkce();
+        $verifier = $pkce::verifier();
+
+        self::assertStringContainsString('client_id=client-id', $url);
+        self::assertStringContainsString('state=state-123', $url);
+        self::assertStringContainsString('client_id=client-id', $oauthUrl);
+        self::assertSame(64, strlen($verifier));
+        self::assertSame(43, strlen($pkce::challenge($verifier)));
     }
 }
