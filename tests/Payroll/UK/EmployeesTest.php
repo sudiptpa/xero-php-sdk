@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Payroll\UK;
 
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\UK\Employee\Employee;
@@ -170,5 +171,172 @@ final class EmployeesTest extends TestCase
         self::assertSame('leave-type-1', $firstLt->getLeaveTypeID());
         self::assertSame('leave-2', Json::extractObject($createdLeave ?? [], 'EmployeeLeave')['LeaveID'] ?? null);
         self::assertSame('leave-type-2', Json::extractObject($createdLeaveType ?? [], 'EmployeeLeaveType')['LeaveTypeID'] ?? null);
+    }
+
+    public function test_it_exposes_scopes(): void
+    {
+        $scopes = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->employees()
+            ->scopes();
+
+        self::assertSame(['payroll.employees'], $scopes->broad);
+        self::assertSame(['payroll.employees.read', 'payroll.employees'], $scopes->granular);
+    }
+
+    public function test_it_can_paginate_employees(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode(['Employees' => []], JSON_THROW_ON_ERROR))
+        );
+
+        $page = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->employees()
+            ->paginate(page: 3, perPage: 50);
+
+        self::assertSame(3, $transport->requests()[0]->query['page']);
+        self::assertSame(50, $transport->requests()[0]->query['pageSize']);
+        self::assertSame(3, $page->page);
+        self::assertSame(50, $page->perPage);
+    }
+
+    public function test_employee_exposes_all_fields(): void
+    {
+        $employee = (new Employee())->fill([
+            'EmployeeID' => 'employee-1',
+            'FirstName' => 'Ada',
+            'LastName' => 'Lovelace',
+            'EmailAddress' => 'ada@example.test',
+            'Status' => 'ACTIVE',
+        ]);
+
+        self::assertSame('employee-1', $employee->getEmployeeID());
+        self::assertSame('Ada', $employee->getFirstName());
+        self::assertSame('Lovelace', $employee->getLastName());
+        self::assertSame('ada@example.test', $employee->getEmailAddress());
+        self::assertSame('ACTIVE', $employee->getStatus());
+    }
+
+    public function test_it_can_save_a_found_employee(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'Employee' => [
+                'EmployeeID' => 'employee-1',
+                'FirstName' => 'Ada',
+                'LastName' => 'Lovelace',
+                'EmailAddress' => 'ada@example.test',
+                'Status' => 'ACTIVE',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'Employee' => [
+                'EmployeeID' => 'employee-1',
+                'FirstName' => 'Ada',
+                'LastName' => 'King',
+                'EmailAddress' => 'ada@example.test',
+                'Status' => 'ACTIVE',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $employee = $client->payroll()->uk()->employees()->find('employee-1');
+        $saved = $employee?->setLastName('King')->save();
+
+        self::assertSame('POST', $transport->requests()[1]->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1', $transport->requests()[1]->path);
+        self::assertSame([
+            'Employee' => [
+                'FirstName' => 'Ada',
+                'LastName' => 'King',
+                'EmailAddress' => 'ada@example.test',
+                'EmployeeID' => 'employee-1',
+            ],
+        ], $transport->requests()[1]->json);
+        self::assertSame('King', $saved?->getLastName());
+    }
+
+    public function test_saving_without_a_client_throws(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Employee())->save();
+    }
+
+    public function test_create_sends_date_of_birth_and_idempotency_key_and_handles_empty_response(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $employee = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->employees()
+            ->create()
+            ->firstName('Ada')
+            ->lastName('Lovelace')
+            ->dateOfBirth('1990-01-15')
+            ->idempotencyKey('key-123')
+            ->save();
+
+        self::assertSame('key-123', $transport->requests()[0]->headers['Idempotency-Key']);
+        self::assertSame([
+            'Employee' => [
+                'FirstName' => 'Ada',
+                'LastName' => 'Lovelace',
+                'DateOfBirth' => '1990-01-15',
+            ],
+        ], $transport->requests()[0]->json);
+        self::assertNull($employee->getEmployeeID());
+    }
+
+    public function test_leave_type_exposes_all_fields(): void
+    {
+        $leaveType = (new LeaveType())->fill([
+            'LeaveTypeID' => 'leave-type-1',
+            'Name' => 'Holiday',
+            'IsActive' => true,
+        ]);
+
+        self::assertSame('leave-type-1', $leaveType->getLeaveTypeID());
+        self::assertSame('Holiday', $leaveType->getName());
+        self::assertTrue($leaveType->getIsActive());
+    }
+
+    public function test_leave_payloads_send_idempotency_keys(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'EmployeeLeave' => ['LeaveID' => 'leave-1'],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'EmployeeLeaveType' => ['LeaveTypeID' => 'leave-type-1'],
+        ], JSON_THROW_ON_ERROR)));
+
+        $employees = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->employees();
+
+        $employees->createLeave('employee-1')
+            ->leaveType('leave-type-1')
+            ->startDate('2026-04-01')
+            ->endDate('2026-04-03')
+            ->idempotencyKey('leave-key')
+            ->save();
+        $employees->createLeaveType('employee-1')
+            ->leaveType('leave-type-1')
+            ->idempotencyKey('leave-type-key')
+            ->save();
+
+        self::assertSame('leave-key', $transport->requests()[0]->headers['Idempotency-Key']);
+        self::assertSame('leave-type-key', $transport->requests()[1]->headers['Idempotency-Key']);
     }
 }
