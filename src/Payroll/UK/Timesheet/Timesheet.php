@@ -12,10 +12,13 @@ use Sujip\Xero\Support\Model;
 final class Timesheet extends Model
 {
     private ?string $timesheetID = null;
+    private ?string $payrollCalendarID = null;
     private ?string $employeeID = null;
     private ?string $startDate = null;
     private ?string $endDate = null;
     private ?string $status = null;
+    private ?float $totalHours = null;
+    private ?string $updatedDateUTC = null;
 
     public function __construct(
         private ?Client $client = null
@@ -30,6 +33,18 @@ final class Timesheet extends Model
     public function setTimesheetID(?string $timesheetID): self
     {
         $this->timesheetID = $timesheetID;
+
+        return $this;
+    }
+
+    public function getPayrollCalendarID(): ?string
+    {
+        return $this->payrollCalendarID;
+    }
+
+    public function setPayrollCalendarID(?string $payrollCalendarID): self
+    {
+        $this->payrollCalendarID = $payrollCalendarID;
 
         return $this;
     }
@@ -82,17 +97,44 @@ final class Timesheet extends Model
         return $this;
     }
 
+    public function getTotalHours(): ?float
+    {
+        return $this->totalHours;
+    }
+
+    public function setTotalHours(?float $totalHours): self
+    {
+        $this->totalHours = $totalHours;
+
+        return $this;
+    }
+
+    public function getUpdatedDateUTC(): ?string
+    {
+        return $this->updatedDateUTC;
+    }
+
+    public function setUpdatedDateUTC(?string $updatedDateUTC): self
+    {
+        $this->updatedDateUTC = $updatedDateUTC;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
     {
         return [
-            'TimesheetID' => Field::string()->using('setTimesheetID'),
-            'EmployeeID' => Field::string()->using('setEmployeeID'),
-            'StartDate' => Field::string()->using('setStartDate'),
-            'EndDate' => Field::string()->using('setEndDate'),
-            'Status' => Field::string()->using('setStatus'),
+            'timesheetID' => Field::string()->using('setTimesheetID'),
+            'payrollCalendarID' => Field::string()->using('setPayrollCalendarID'),
+            'employeeID' => Field::string()->using('setEmployeeID'),
+            'startDate' => Field::string()->using('setStartDate'),
+            'endDate' => Field::string()->using('setEndDate'),
+            'status' => Field::string()->using('setStatus'),
+            'totalHours' => Field::number()->using('setTotalHours'),
+            'updatedDateUTC' => Field::string()->using('setUpdatedDateUTC'),
         ];
     }
 
@@ -104,8 +146,8 @@ final class Timesheet extends Model
 
         $payload = new Payload($this->client);
 
-        if ($this->timesheetID !== null) {
-            $payload = $payload->id($this->timesheetID);
+        if ($this->payrollCalendarID !== null) {
+            $payload = $payload->payrollCalendar($this->payrollCalendarID);
         }
 
         if ($this->employeeID !== null) {
@@ -143,5 +185,14 @@ final class Timesheet extends Model
         }
 
         return (new Timesheets($this->client))->revert($this->timesheetID);
+    }
+
+    public function delete(): bool
+    {
+        if ($this->client === null || $this->timesheetID === null) {
+            throw new RuntimeException('Cannot delete a timesheet without a bound client context and timesheet id.');
+        }
+
+        return (new Timesheets($this->client))->delete($this->timesheetID);
     }
 }

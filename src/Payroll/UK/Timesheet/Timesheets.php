@@ -38,7 +38,7 @@ final class Timesheets implements PaginatesResults, DefinesScopes
     public function status(string $status): self
     {
         $clone = clone $this;
-        $clone->query['status'] = strtoupper($status);
+        $clone->query['status'] = $status;
 
         return $clone;
     }
@@ -56,7 +56,7 @@ final class Timesheets implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $items = array_map(
             fn (array $timesheet): Timesheet => $this->mapTimesheet($timesheet),
-            Json::extractList($payload, 'Timesheets')
+            Json::extractList($payload, 'timesheets')
         );
 
         return new ResourceCollection($items);
@@ -87,7 +87,7 @@ final class Timesheets implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $timesheet = Json::extractFirst($payload, 'Timesheets') ?? Json::extractObject($payload, 'Timesheet') ?: null;
+        $timesheet = Json::extractFirst($payload, 'timesheets') ?? Json::extractObject($payload, 'timesheet') ?: null;
 
         return $timesheet !== null ? $this->mapTimesheet($timesheet) : null;
     }
@@ -97,11 +97,6 @@ final class Timesheets implements PaginatesResults, DefinesScopes
         return new Payload($this->client);
     }
 
-    public function update(string $timesheetId): Payload
-    {
-        return (new Payload($this->client))->id($timesheetId);
-    }
-
     public function approve(string $timesheetId): Timesheet
     {
         $response = $this->client
@@ -109,7 +104,7 @@ final class Timesheets implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $timesheet = Json::extractFirst($payload, 'Timesheets') ?? Json::extractObject($payload, 'Timesheet');
+        $timesheet = Json::extractFirst($payload, 'timesheets') ?? Json::extractObject($payload, 'timesheet');
 
         return $timesheet !== [] ? $this->mapTimesheet($timesheet) : new Timesheet($this->client);
     }
@@ -121,9 +116,18 @@ final class Timesheets implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $timesheet = Json::extractFirst($payload, 'Timesheets') ?? Json::extractObject($payload, 'Timesheet');
+        $timesheet = Json::extractFirst($payload, 'timesheets') ?? Json::extractObject($payload, 'timesheet');
 
         return $timesheet !== [] ? $this->mapTimesheet($timesheet) : new Timesheet($this->client);
+    }
+
+    public function delete(string $timesheetId): bool
+    {
+        $this->client
+            ->delete('/payroll.xro/2.0/Timesheets/' . $timesheetId)
+            ->send();
+
+        return true;
     }
 
     /**
