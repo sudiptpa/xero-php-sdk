@@ -38,8 +38,9 @@ final class LinkedTransactionsTest extends TestCase
         self::assertSame('/api.xro/2.0/LinkedTransactions', $transport->requests()[0]->path);
         self::assertSame('source-1', $transport->requests()[0]->query['SourceTransactionID']);
         self::assertSame('ACTIVE', $transport->requests()[0]->query['Status']);
-        self::assertInstanceOf(LinkedTransaction::class, $linkedTransactions->first());
-        self::assertSame('source-1', $linkedTransactions->first()->getSourceTransactionID());
+        $firstLt = $linkedTransactions->first();
+        self::assertNotNull($firstLt);
+        self::assertSame('source-1', $firstLt->getSourceTransactionID());
     }
 
     public function test_it_can_create_linked_transactions(): void
@@ -69,7 +70,64 @@ final class LinkedTransactionsTest extends TestCase
             ->save();
 
         self::assertSame('/api.xro/2.0/LinkedTransactions', $transport->requests()[0]->path);
-        self::assertSame('source-1', $transport->requests()[0]->json['SourceTransactionID']);
+        $json0 = $transport->requests()[0]->json ?? [];
+        self::assertSame('source-1', $json0['SourceTransactionID'] ?? null);
         self::assertSame('target-1', $linkedTransaction->getTargetTransactionID());
+    }
+
+    public function test_it_filters_by_id_target_and_contact(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode([
+                'LinkedTransactions' => [[
+                    'LinkedTransactionID' => 'linked-1',
+                    'SourceTransactionID' => 'source-1',
+                    'TargetTransactionID' => 'target-1',
+                    'ContactID' => 'contact-1',
+                ]],
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        $linkedTransactions = Xero::withAccessToken('token', $transport)->tenant('tenant-123')->accounting()->linkedTransactions();
+
+        $linkedTransactions
+            ->linkedTransactionId('linked-1')
+            ->targetTransaction('target-1')
+            ->contact('contact-1')
+            ->get();
+
+        $query = $transport->requests()[0]->query;
+        self::assertSame('linked-1', $query['LinkedTransactionID']);
+        self::assertSame('target-1', $query['TargetTransactionID']);
+        self::assertSame('contact-1', $query['ContactID']);
+        self::assertNotSame([], $linkedTransactions->scopes()->broad);
+    }
+
+    public function test_it_creates_via_builder_methods(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode([
+                'LinkedTransactions' => [[
+                    'LinkedTransactionID' => 'linked-1',
+                    'SourceTransactionID' => 'source-1',
+                    'TargetTransactionID' => 'target-1',
+                    'ContactID' => 'contact-1',
+                ]],
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        $linkedTransaction = Xero::withAccessToken('token', $transport)->tenant('tenant-123')->accounting()
+            ->linkedTransactions()
+            ->create()
+            ->sourceTransaction('source-1')
+            ->targetTransaction('target-1')
+            ->contact('contact-1')
+            ->save();
+
+        $json = $transport->requests()[0]->json ?? [];
+        self::assertSame('source-1', $json['SourceTransactionID'] ?? null);
+        self::assertSame('target-1', $json['TargetTransactionID'] ?? null);
+        self::assertSame('contact-1', $json['ContactID'] ?? null);
+        self::assertSame('linked-1', $linkedTransaction->getLinkedTransactionID());
     }
 }

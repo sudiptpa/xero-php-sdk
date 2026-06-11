@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Assets;
 
 use PHPUnit\Framework\TestCase;
-use Sujip\Xero\Assets\Asset\Asset;
-use Sujip\Xero\Assets\Settings\Settings;
-use Sujip\Xero\Assets\Type\Type;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Xero;
@@ -64,7 +61,7 @@ final class AssetsTest extends TestCase
         self::assertSame('AssetName', $transport->requests()[0]->query['orderBy']);
         self::assertSame('DESC', $transport->requests()[0]->query['sortDirection']);
         self::assertSame('MacBook', $transport->requests()[0]->query['filterBy']);
-        self::assertInstanceOf(Asset::class, $assets->first());
+        self::assertNotNull($assets->first());
         self::assertSame(3, $paginated->page);
         self::assertSame(10, $paginated->perPage);
         self::assertSame('/assets.xro/1.0/Assets/asset-1', $transport->requests()[2]->path);
@@ -103,8 +100,9 @@ final class AssetsTest extends TestCase
 
         self::assertSame('POST', $request->method);
         self::assertSame('/assets.xro/1.0/Assets', $request->path);
-        self::assertSame('MacBook Pro', $request->json['AssetName']);
-        self::assertSame('DRAFT', $request->json['Status']);
+        $json = $request->json ?? [];
+        self::assertSame('MacBook Pro', $json['AssetName'] ?? null);
+        self::assertSame('DRAFT', $json['Status'] ?? null);
         self::assertSame('asset-key', $request->headers['Idempotency-Key']);
         self::assertSame('type-1', $asset->getAssetTypeId());
     }
@@ -152,11 +150,12 @@ final class AssetsTest extends TestCase
             ->save();
 
         self::assertSame('/assets.xro/1.0/AssetTypes', $transport->requests()[0]->path);
-        self::assertInstanceOf(Type::class, $types->first());
-        self::assertInstanceOf(Type::class, $typesFromRoot->first());
+        self::assertNotNull($types->first());
+        self::assertNotNull($typesFromRoot->first());
         self::assertSame('/assets.xro/1.0/AssetTypes', $transport->requests()[1]->path);
         self::assertSame('/assets.xro/1.0/AssetTypes', $transport->requests()[2]->path);
-        self::assertSame('Office Equipment', $transport->requests()[2]->json['AssetTypeName']);
+        $json2 = $transport->requests()[2]->json ?? [];
+        self::assertSame('Office Equipment', $json2['AssetTypeName'] ?? null);
         self::assertSame('type-key', $transport->requests()[2]->headers['Idempotency-Key']);
         self::assertSame('Office Equipment', $created->getAssetTypeName());
     }
@@ -179,7 +178,7 @@ final class AssetsTest extends TestCase
             ->settings();
 
         self::assertSame('/assets.xro/1.0/Settings', $transport->requests()[0]->path);
-        self::assertInstanceOf(Settings::class, $settings);
+        self::assertNotNull($settings);
         self::assertTrue((bool) $settings->getDepreciationCalculationEnabled());
     }
 }

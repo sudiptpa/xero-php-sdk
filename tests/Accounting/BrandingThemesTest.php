@@ -37,7 +37,21 @@ final class BrandingThemesTest extends TestCase
 
         self::assertSame('/api.xro/2.0/BrandingThemes', $transport->requests()[0]->path);
         self::assertInstanceOf(BrandingTheme::class, $themes->first());
+        self::assertSame('Standard', $themes->first()->getName());
+        self::assertSame('1', $themes->first()->getSortOrder());
         self::assertSame('/api.xro/2.0/BrandingThemes/branding-1', $transport->requests()[1]->path);
         self::assertSame('branding-1', $theme?->getBrandingThemeID());
+    }
+
+    public function test_it_exposes_required_scopes(): void
+    {
+        $scopes = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->accounting()
+            ->brandingThemes()
+            ->scopes();
+
+        self::assertNotSame([], $scopes->broad);
+        self::assertNotSame([], $scopes->granular);
     }
 }

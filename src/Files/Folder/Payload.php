@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Files\Folder;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -60,9 +61,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $folder = $payload['Items'][0] ?? [];
+        $folder = Json::extractFirst($payload, 'Items') ?? [];
 
-        if (! is_array($folder)) {
+        if ($folder === []) {
             return new Folder($this->client);
         }
 

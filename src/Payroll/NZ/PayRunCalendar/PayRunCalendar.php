@@ -19,14 +19,42 @@ final class PayRunCalendar extends Model
     ) {
     }
 
-    public function getPayrollCalendarID(): ?string { return $this->payrollCalendarID; }
-    public function setPayrollCalendarID(?string $payrollCalendarID): self { $this->payrollCalendarID = $payrollCalendarID; return $this; }
-    public function getName(): ?string { return $this->name; }
-    public function setName(?string $name): self { $this->name = $name; return $this; }
-    public function getCalendarType(): ?string { return $this->calendarType; }
-    public function setCalendarType(?string $calendarType): self { $this->calendarType = $calendarType; return $this; }
-    public function getPeriodStartDate(): ?string { return $this->periodStartDate; }
-    public function setPeriodStartDate(?string $periodStartDate): self { $this->periodStartDate = $periodStartDate; return $this; }
+    public function getPayrollCalendarID(): ?string
+    {
+        return $this->payrollCalendarID;
+    }
+    public function setPayrollCalendarID(?string $payrollCalendarID): self
+    {
+        $this->payrollCalendarID = $payrollCalendarID;
+        return $this;
+    }
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+    public function getCalendarType(): ?string
+    {
+        return $this->calendarType;
+    }
+    public function setCalendarType(?string $calendarType): self
+    {
+        $this->calendarType = $calendarType;
+        return $this;
+    }
+    public function getPeriodStartDate(): ?string
+    {
+        return $this->periodStartDate;
+    }
+    public function setPeriodStartDate(?string $periodStartDate): self
+    {
+        $this->periodStartDate = $periodStartDate;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>

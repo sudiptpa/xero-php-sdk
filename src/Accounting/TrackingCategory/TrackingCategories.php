@@ -10,6 +10,7 @@ use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class TrackingCategories implements DefinesScopes
 {
@@ -56,10 +57,10 @@ final class TrackingCategories implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $trackingCategory): TrackingCategory => $this->mapTrackingCategory($trackingCategory),
-            $payload['TrackingCategories'] ?? []
-        ));
+            Json::extractList($payload, 'TrackingCategories')
+        );
 
         return new ResourceCollection($items);
     }
@@ -71,9 +72,9 @@ final class TrackingCategories implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $trackingCategory = $payload['TrackingCategories'][0] ?? null;
+        $trackingCategory = Json::extractFirst($payload, 'TrackingCategories');
 
-        return is_array($trackingCategory) ? $this->mapTrackingCategory($trackingCategory) : null;
+        return $trackingCategory !== null ? $this->mapTrackingCategory($trackingCategory) : null;
     }
 
     public function create(): Payload

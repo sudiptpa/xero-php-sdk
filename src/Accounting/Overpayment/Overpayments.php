@@ -13,6 +13,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class Overpayments implements PaginatesResults, DefinesScopes
 {
@@ -52,10 +53,10 @@ final class Overpayments implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $overpayment): Overpayment => $this->mapOverpayment($overpayment),
-            $payload['Overpayments'] ?? []
-        ));
+            Json::extractList($payload, 'Overpayments')
+        );
 
         return new ResourceCollection($items);
     }
@@ -82,9 +83,9 @@ final class Overpayments implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $overpayment = $payload['Overpayments'][0] ?? null;
+        $overpayment = Json::extractFirst($payload, 'Overpayments');
 
-        return is_array($overpayment) ? $this->mapOverpayment($overpayment) : null;
+        return $overpayment !== null ? $this->mapOverpayment($overpayment) : null;
     }
 
     /**

@@ -11,6 +11,7 @@ use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Support\ScopeRequirements;
 
 final class TimeEntries implements PaginatesResults, DefinesScopes
@@ -169,9 +170,10 @@ final class TimeEntries implements PaginatesResults, DefinesScopes
      */
     public static function many(array $payload): array
     {
-        $items = $payload['TimeEntries'] ?? $payload['timeEntries'] ?? $payload['Items'] ?? $payload['items'] ?? [];
-
-        return array_values(array_filter($items, 'is_array'));
+        return Json::extractList($payload, 'TimeEntries')
+            ?: Json::extractList($payload, 'timeEntries')
+            ?: Json::extractList($payload, 'Items')
+            ?: Json::extractList($payload, 'items');
     }
 
     /**
@@ -180,9 +182,10 @@ final class TimeEntries implements PaginatesResults, DefinesScopes
      */
     public static function single(array $payload): ?array
     {
-        $item = $payload['TimeEntry'] ?? $payload['timeEntry'] ?? self::many($payload)[0] ?? null;
-
-        return is_array($item) ? $item : null;
+        return Json::extractObject($payload, 'TimeEntry')
+            ?: Json::extractObject($payload, 'timeEntry')
+            ?: self::many($payload)[0]
+            ?? null;
     }
 
     /**

@@ -16,12 +16,33 @@ final class UserActivity extends Model
     ) {
     }
 
-    public function getUserId(): ?string { return $this->userId; }
-    public function setUserId(?string $userId): self { $this->userId = $userId; return $this; }
-    public function getFullName(): ?string { return $this->fullName; }
-    public function setFullName(?string $fullName): self { $this->fullName = $fullName; return $this; }
-    public function getTransactionCount(): ?int { return $this->transactionCount; }
-    public function setTransactionCount(?int $transactionCount): self { $this->transactionCount = $transactionCount; return $this; }
+    public function getUserId(): ?string
+    {
+        return $this->userId;
+    }
+    public function setUserId(?string $userId): self
+    {
+        $this->userId = $userId;
+        return $this;
+    }
+    public function getFullName(): ?string
+    {
+        return $this->fullName;
+    }
+    public function setFullName(?string $fullName): self
+    {
+        $this->fullName = $fullName;
+        return $this;
+    }
+    public function getTransactionCount(): ?int
+    {
+        return $this->transactionCount;
+    }
+    public function setTransactionCount(?int $transactionCount): self
+    {
+        $this->transactionCount = $transactionCount;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>

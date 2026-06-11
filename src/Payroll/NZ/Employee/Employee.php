@@ -24,16 +24,51 @@ final class Employee extends Model
     ) {
     }
 
-    public function getEmployeeID(): ?string { return $this->employeeID; }
-    public function setEmployeeID(?string $employeeID): self { $this->employeeID = $employeeID; return $this; }
-    public function getFirstName(): ?string { return $this->firstName; }
-    public function setFirstName(?string $firstName): self { $this->firstName = $firstName; return $this; }
-    public function getLastName(): ?string { return $this->lastName; }
-    public function setLastName(?string $lastName): self { $this->lastName = $lastName; return $this; }
-    public function getEmailAddress(): ?string { return $this->emailAddress; }
-    public function setEmailAddress(?string $emailAddress): self { $this->emailAddress = $emailAddress; return $this; }
-    public function getStatus(): ?string { return $this->status; }
-    public function setStatus(?string $status): self { $this->status = $status; return $this; }
+    public function getEmployeeID(): ?string
+    {
+        return $this->employeeID;
+    }
+    public function setEmployeeID(?string $employeeID): self
+    {
+        $this->employeeID = $employeeID;
+        return $this;
+    }
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+    public function setFirstName(?string $firstName): self
+    {
+        $this->firstName = $firstName;
+        return $this;
+    }
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+    public function setLastName(?string $lastName): self
+    {
+        $this->lastName = $lastName;
+        return $this;
+    }
+    public function getEmailAddress(): ?string
+    {
+        return $this->emailAddress;
+    }
+    public function setEmailAddress(?string $emailAddress): self
+    {
+        $this->emailAddress = $emailAddress;
+        return $this;
+    }
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>
@@ -55,10 +90,18 @@ final class Employee extends Model
             throw new RuntimeException('Cannot save an employee without a bound client context.');
         }
         $payload = new Payload($this->client);
-        if ($this->employeeID !== null) { $payload = $payload->id($this->employeeID); }
-        if ($this->firstName !== null) { $payload = $payload->firstName($this->firstName); }
-        if ($this->lastName !== null) { $payload = $payload->lastName($this->lastName); }
-        if ($this->emailAddress !== null) { $payload = $payload->emailAddress($this->emailAddress); }
+        if ($this->employeeID !== null) {
+            $payload = $payload->id($this->employeeID);
+        }
+        if ($this->firstName !== null) {
+            $payload = $payload->firstName($this->firstName);
+        }
+        if ($this->lastName !== null) {
+            $payload = $payload->lastName($this->lastName);
+        }
+        if ($this->emailAddress !== null) {
+            $payload = $payload->emailAddress($this->emailAddress);
+        }
         return $payload->save();
     }
 
@@ -145,55 +188,75 @@ final class Employee extends Model
 
     public function leaveSetup(): LeaveSetupPayload
     {
-        if ($this->client === null || $this->employeeID === null) { throw new RuntimeException('Cannot create employee leave setup without a bound client context and employee id.'); }
+        if ($this->client === null || $this->employeeID === null) {
+            throw new RuntimeException('Cannot create employee leave setup without a bound client context and employee id.');
+        }
         return (new Employees($this->client))->leaveSetup($this->employeeID);
     }
     public function openingBalances(): OpeningBalancesPayload
     {
-        if ($this->client === null || $this->employeeID === null) { throw new RuntimeException('Cannot create employee opening balances without a bound client context and employee id.'); }
+        if ($this->client === null || $this->employeeID === null) {
+            throw new RuntimeException('Cannot create employee opening balances without a bound client context and employee id.');
+        }
         return (new Employees($this->client))->openingBalances($this->employeeID);
     }
     public function createEmployment(): EmploymentPayload
     {
-        if ($this->client === null || $this->employeeID === null) { throw new RuntimeException('Cannot create employee employment details without a bound client context and employee id.'); }
+        if ($this->client === null || $this->employeeID === null) {
+            throw new RuntimeException('Cannot create employee employment details without a bound client context and employee id.');
+        }
         return (new Employees($this->client))->createEmployment($this->employeeID);
     }
     public function createLeave(): LeavePayload
     {
-        if ($this->client === null || $this->employeeID === null) { throw new RuntimeException('Cannot create employee leave without a bound client context and employee id.'); }
+        if ($this->client === null || $this->employeeID === null) {
+            throw new RuntimeException('Cannot create employee leave without a bound client context and employee id.');
+        }
         return (new Employees($this->client))->createLeave($this->employeeID);
     }
     public function createPaymentMethod(): PaymentMethodPayload
     {
-        if ($this->client === null || $this->employeeID === null) { throw new RuntimeException('Cannot create employee payment methods without a bound client context and employee id.'); }
+        if ($this->client === null || $this->employeeID === null) {
+            throw new RuntimeException('Cannot create employee payment methods without a bound client context and employee id.');
+        }
         return (new Employees($this->client))->createPaymentMethod($this->employeeID);
     }
     public function createSalaryAndWage(): SalaryAndWagePayload
     {
-        if ($this->client === null || $this->employeeID === null) { throw new RuntimeException('Cannot create employee salary and wages without a bound client context and employee id.'); }
+        if ($this->client === null || $this->employeeID === null) {
+            throw new RuntimeException('Cannot create employee salary and wages without a bound client context and employee id.');
+        }
         return (new Employees($this->client))->createSalaryAndWage($this->employeeID);
     }
     public function createWorkingPattern(): WorkingPatternPayload
     {
-        if ($this->client === null || $this->employeeID === null) { throw new RuntimeException('Cannot create employee working patterns without a bound client context and employee id.'); }
+        if ($this->client === null || $this->employeeID === null) {
+            throw new RuntimeException('Cannot create employee working patterns without a bound client context and employee id.');
+        }
         return (new Employees($this->client))->createWorkingPattern($this->employeeID);
     }
     /** @return array<string, mixed> */
     public function employment(): array
     {
-        if ($this->client === null || $this->employeeID === null) { throw new RuntimeException('Cannot load employee employment details without a bound client context and employee id.'); }
+        if ($this->client === null || $this->employeeID === null) {
+            throw new RuntimeException('Cannot load employee employment details without a bound client context and employee id.');
+        }
         return (new Employees($this->client))->employment($this->employeeID);
     }
     /** @return array<string, mixed> */
     public function salaryAndWages(?int $page = null): array
     {
-        if ($this->client === null || $this->employeeID === null) { throw new RuntimeException('Cannot load employee salary and wages without a bound client context and employee id.'); }
+        if ($this->client === null || $this->employeeID === null) {
+            throw new RuntimeException('Cannot load employee salary and wages without a bound client context and employee id.');
+        }
         return (new Employees($this->client))->salaryAndWages($this->employeeID, $page ?? 1);
     }
     /** @return array<string, mixed> */
     public function salaryAndWage(string $salaryAndWagesId): array
     {
-        if ($this->client === null || $this->employeeID === null) { throw new RuntimeException('Cannot load a specific salary and wages record without a bound client context and employee id.'); }
+        if ($this->client === null || $this->employeeID === null) {
+            throw new RuntimeException('Cannot load a specific salary and wages record without a bound client context and employee id.');
+        }
         return (new Employees($this->client))->salaryAndWage($this->employeeID, $salaryAndWagesId);
     }
 }

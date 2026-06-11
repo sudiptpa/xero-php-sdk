@@ -9,6 +9,7 @@ use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class LinkedTransactions implements DefinesScopes
 {
@@ -83,10 +84,10 @@ final class LinkedTransactions implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $linkedTransaction): LinkedTransaction => $this->mapLinkedTransaction($linkedTransaction),
-            $payload['LinkedTransactions'] ?? []
-        ));
+            Json::extractList($payload, 'LinkedTransactions')
+        );
 
         return new ResourceCollection($items);
     }

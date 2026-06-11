@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Invoice;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Upload
 {
@@ -51,14 +52,12 @@ final class Upload
             ->send();
 
         $payload = $response->json();
-        $attachment = $payload['Attachments'][0] ?? [];
-
-        $attachment = is_array($attachment) ? $attachment : [];
+        $attachment = Json::extractFirst($payload, 'Attachments') ?? [];
 
         return new Attachment(
-            $attachment['AttachmentID'] ?? null,
-            $attachment['FileName'] ?? null,
-            $attachment['MimeType'] ?? null,
+            is_string($attachment['AttachmentID'] ?? null) ? $attachment['AttachmentID'] : null,
+            is_string($attachment['FileName'] ?? null) ? $attachment['FileName'] : null,
+            is_string($attachment['MimeType'] ?? null) ? $attachment['MimeType'] : null,
             isset($attachment['IncludeOnline']) ? (bool) $attachment['IncludeOnline'] : null,
             $attachment
         );

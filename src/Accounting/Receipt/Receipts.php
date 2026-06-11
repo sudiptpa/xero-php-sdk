@@ -11,6 +11,7 @@ use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class Receipts implements DefinesScopes
 {
@@ -49,10 +50,10 @@ final class Receipts implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $receipt): Receipt => $this->mapReceipt($receipt),
-            $payload['Receipts'] ?? []
-        ));
+            Json::extractList($payload, 'Receipts')
+        );
 
         return new ResourceCollection($items);
     }
@@ -64,9 +65,9 @@ final class Receipts implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $receipt = $payload['Receipts'][0] ?? null;
+        $receipt = Json::extractFirst($payload, 'Receipts');
 
-        return is_array($receipt) ? $this->mapReceipt($receipt) : null;
+        return $receipt !== null ? $this->mapReceipt($receipt) : null;
     }
 
     public function attachments(string $receiptId): Attachments

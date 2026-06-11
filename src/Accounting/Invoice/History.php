@@ -6,6 +6,7 @@ namespace Sujip\Xero\Accounting\Invoice;
 
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\ResourceCollection;
+use Sujip\Xero\Support\Json;
 
 final readonly class History
 {
@@ -25,15 +26,15 @@ final readonly class History
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             static fn (array $history): HistoryRecord => new HistoryRecord(
-                $history['Details'] ?? null,
-                $history['User'] ?? null,
-                $history['DateUTC'] ?? null,
+                is_string($history['Details'] ?? null) ? $history['Details'] : null,
+                is_string($history['User'] ?? null) ? $history['User'] : null,
+                is_string($history['DateUTC'] ?? null) ? $history['DateUTC'] : null,
                 $history
             ),
-            $payload['HistoryRecords'] ?? []
-        ));
+            Json::extractList($payload, 'HistoryRecords')
+        );
 
         return new ResourceCollection($items);
     }
@@ -50,14 +51,12 @@ final readonly class History
             ->send();
 
         $payload = $response->json();
-        $history = $payload['HistoryRecords'][0] ?? [];
-
-        $history = is_array($history) ? $history : [];
+        $history = Json::extractFirst($payload, 'HistoryRecords') ?? [];
 
         return new HistoryRecord(
-            $history['Details'] ?? null,
-            $history['User'] ?? null,
-            $history['DateUTC'] ?? null,
+            is_string($history['Details'] ?? null) ? $history['Details'] : null,
+            is_string($history['User'] ?? null) ? $history['User'] : null,
+            is_string($history['DateUTC'] ?? null) ? $history['DateUTC'] : null,
             $history
         );
     }

@@ -14,6 +14,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class ManualJournals implements PaginatesResults, DefinesScopes
 {
@@ -53,10 +54,10 @@ final class ManualJournals implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $manualJournal): ManualJournal => $this->mapManualJournal($manualJournal),
-            $payload['ManualJournals'] ?? []
-        ));
+            Json::extractList($payload, 'ManualJournals')
+        );
 
         return new ResourceCollection($items);
     }
@@ -83,9 +84,9 @@ final class ManualJournals implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $manualJournal = $payload['ManualJournals'][0] ?? null;
+        $manualJournal = Json::extractFirst($payload, 'ManualJournals');
 
-        return is_array($manualJournal) ? $this->mapManualJournal($manualJournal) : null;
+        return $manualJournal !== null ? $this->mapManualJournal($manualJournal) : null;
     }
 
     public function create(): Payload

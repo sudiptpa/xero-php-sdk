@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Files\File;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Upload
 {
@@ -66,9 +67,9 @@ final class Upload
             ->send();
 
         $payload = $response->json();
-        $file = $payload['Items'][0] ?? [];
+        $file = Json::extractFirst($payload, 'Items') ?? [];
 
-        if (! is_array($file)) {
+        if ($file === []) {
             return new File($this->client);
         }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Payroll\AU\LeaveApplication;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -94,9 +95,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $leaveApplication = $payload['LeaveApplications'][0] ?? $payload['LeaveApplication'] ?? [];
+        $leaveApplication = Json::extractFirst($payload, 'LeaveApplications') ?? Json::extractObject($payload, 'LeaveApplication');
 
-        if (! is_array($leaveApplication)) {
+        if ($leaveApplication === []) {
             return new LeaveApplication($this->client);
         }
 

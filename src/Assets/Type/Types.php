@@ -8,6 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class Types implements DefinesScopes
 {
@@ -36,7 +37,7 @@ final class Types implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(fn (array $type): Type => $this->mapType($type), $payload['Items'] ?? []));
+        $items = array_map(fn (array $type): Type => $this->mapType($type), Json::extractList($payload, 'Items'));
 
         return new ResourceCollection($items);
     }

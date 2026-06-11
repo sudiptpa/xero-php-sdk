@@ -7,6 +7,7 @@ namespace Sujip\Xero\Accounting\CreditNote;
 use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -87,9 +88,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $creditNote = $payload['CreditNotes'][0] ?? [];
+        $creditNote = Json::extractFirst($payload, 'CreditNotes') ?? [];
 
         return (new CreditNotes($this->client))
-            ->mapCreditNote(is_array($creditNote) ? $creditNote : []);
+            ->mapCreditNote($creditNote);
     }
 }

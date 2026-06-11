@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Item;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -81,8 +82,8 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $item = $payload['Items'][0] ?? [];
+        $item = Json::extractFirst($payload, 'Items') ?? [];
 
-        return (new Items($this->client))->mapItem(is_array($item) ? $item : []);
+        return (new Items($this->client))->mapItem($item);
     }
 }

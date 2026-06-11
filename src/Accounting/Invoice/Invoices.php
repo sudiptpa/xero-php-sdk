@@ -13,6 +13,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class Invoices implements PaginatesResults, DefinesScopes
 {
@@ -62,10 +63,10 @@ final class Invoices implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $invoice): Invoice => $this->mapInvoice($invoice),
-            $payload['Invoices'] ?? []
-        ));
+            Json::extractList($payload, 'Invoices')
+        );
 
         return new ResourceCollection($items);
     }
@@ -102,9 +103,9 @@ final class Invoices implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $invoice = $payload['Invoices'][0] ?? null;
+        $invoice = Json::extractFirst($payload, 'Invoices');
 
-        return is_array($invoice) ? $this->mapInvoice($invoice) : null;
+        return $invoice !== null ? $this->mapInvoice($invoice) : null;
     }
 
     public function attachments(string $invoiceId): Attachments

@@ -13,6 +13,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class CreditNotes implements PaginatesResults, DefinesScopes
 {
@@ -52,10 +53,10 @@ final class CreditNotes implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $creditNote): CreditNote => $this->mapCreditNote($creditNote),
-            $payload['CreditNotes'] ?? []
-        ));
+            Json::extractList($payload, 'CreditNotes')
+        );
 
         return new ResourceCollection($items);
     }
@@ -85,9 +86,9 @@ final class CreditNotes implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $creditNote = $payload['CreditNotes'][0] ?? null;
+        $creditNote = Json::extractFirst($payload, 'CreditNotes');
 
-        return is_array($creditNote) ? $this->mapCreditNote($creditNote) : null;
+        return $creditNote !== null ? $this->mapCreditNote($creditNote) : null;
     }
 
     public function create(): Payload

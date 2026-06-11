@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Payroll\AU\PayrollCalendar;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -62,10 +63,9 @@ final class Payload
             ->send()
             ->json();
 
-        /** @var array<string, mixed>|null $calendar */
-        $calendar = $payload['PayrollCalendars'][0] ?? $payload['PayrollCalendar'] ?? null;
+        $calendar = Json::extractFirst($payload, 'PayrollCalendars') ?? Json::extractObject($payload, 'PayrollCalendar') ?: null;
 
-        if (! is_array($calendar)) {
+        if ($calendar === null) {
             return new PayrollCalendar();
         }
 

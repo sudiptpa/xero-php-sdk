@@ -11,6 +11,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class Timesheets implements PaginatesResults, DefinesScopes
 {
@@ -53,10 +54,10 @@ final class Timesheets implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $timesheet): Timesheet => $this->mapTimesheet($timesheet),
-            $payload['Timesheets'] ?? []
-        ));
+            Json::extractList($payload, 'Timesheets')
+        );
 
         return new ResourceCollection($items);
     }
@@ -86,9 +87,9 @@ final class Timesheets implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $timesheet = $payload['Timesheets'][0] ?? $payload['Timesheet'] ?? null;
+        $timesheet = Json::extractFirst($payload, 'Timesheets') ?? Json::extractObject($payload, 'Timesheet') ?: null;
 
-        return is_array($timesheet) ? $this->mapTimesheet($timesheet) : null;
+        return $timesheet !== null ? $this->mapTimesheet($timesheet) : null;
     }
 
     public function create(): Payload
@@ -108,9 +109,9 @@ final class Timesheets implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $timesheet = $payload['Timesheets'][0] ?? $payload['Timesheet'] ?? [];
+        $timesheet = Json::extractFirst($payload, 'Timesheets') ?? Json::extractObject($payload, 'Timesheet');
 
-        return is_array($timesheet) ? $this->mapTimesheet($timesheet) : new Timesheet($this->client);
+        return $timesheet !== [] ? $this->mapTimesheet($timesheet) : new Timesheet($this->client);
     }
 
     public function revert(string $timesheetId): Timesheet
@@ -120,9 +121,9 @@ final class Timesheets implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $timesheet = $payload['Timesheets'][0] ?? $payload['Timesheet'] ?? [];
+        $timesheet = Json::extractFirst($payload, 'Timesheets') ?? Json::extractObject($payload, 'Timesheet');
 
-        return is_array($timesheet) ? $this->mapTimesheet($timesheet) : new Timesheet($this->client);
+        return $timesheet !== [] ? $this->mapTimesheet($timesheet) : new Timesheet($this->client);
     }
 
     public function delete(string $timesheetId): bool

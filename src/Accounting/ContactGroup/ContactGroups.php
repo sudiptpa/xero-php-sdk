@@ -10,6 +10,7 @@ use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class ContactGroups implements DefinesScopes
 {
@@ -48,10 +49,10 @@ final class ContactGroups implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $contactGroup): ContactGroup => $this->mapContactGroup($contactGroup),
-            $payload['ContactGroups'] ?? []
-        ));
+            Json::extractList($payload, 'ContactGroups')
+        );
 
         return new ResourceCollection($items);
     }
@@ -63,9 +64,10 @@ final class ContactGroups implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $contactGroup = $payload['ContactGroups'][0] ?? $payload['ContactGroup'] ?? null;
+        $raw = Json::extractObject($payload, 'ContactGroup');
+        $contactGroup = Json::extractFirst($payload, 'ContactGroups') ?? ($raw !== [] ? $raw : null);
 
-        return is_array($contactGroup) ? $this->mapContactGroup($contactGroup) : null;
+        return $contactGroup !== null ? $this->mapContactGroup($contactGroup) : null;
     }
 
     public function create(): Payload

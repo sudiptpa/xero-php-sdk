@@ -9,6 +9,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Json;
 
 final class Subscription extends Model
 {
@@ -25,22 +26,57 @@ final class Subscription extends Model
     ) {
     }
 
-    public function getSubscriptionID(): ?string { return $this->subscriptionID; }
-    public function setSubscriptionID(?string $subscriptionID): self { $this->subscriptionID = $subscriptionID; return $this; }
-    public function getPlanID(): ?string { return $this->planID; }
-    public function setPlanID(?string $planID): self { $this->planID = $planID; return $this; }
-    public function getStatus(): ?string { return $this->status; }
-    public function setStatus(?string $status): self { $this->status = $status; return $this; }
-    public function getCurrentPeriodEnd(): ?string { return $this->currentPeriodEnd; }
-    public function setCurrentPeriodEnd(?string $currentPeriodEnd): self { $this->currentPeriodEnd = $currentPeriodEnd; return $this; }
+    public function getSubscriptionID(): ?string
+    {
+        return $this->subscriptionID;
+    }
+    public function setSubscriptionID(?string $subscriptionID): self
+    {
+        $this->subscriptionID = $subscriptionID;
+        return $this;
+    }
+    public function getPlanID(): ?string
+    {
+        return $this->planID;
+    }
+    public function setPlanID(?string $planID): self
+    {
+        $this->planID = $planID;
+        return $this;
+    }
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
+    public function getCurrentPeriodEnd(): ?string
+    {
+        return $this->currentPeriodEnd;
+    }
+    public function setCurrentPeriodEnd(?string $currentPeriodEnd): self
+    {
+        $this->currentPeriodEnd = $currentPeriodEnd;
+        return $this;
+    }
     /**
      * @return list<array<string, mixed>>
      */
-    public function getItems(): array { return $this->items; }
+    public function getItems(): array
+    {
+        return $this->items;
+    }
     /**
      * @param list<array<string, mixed>> $items
      */
-    public function setItems(array $items): self { $this->items = $items; return $this; }
+    public function setItems(array $items): self
+    {
+        $this->items = $items;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>
@@ -63,7 +99,7 @@ final class Subscription extends Model
     {
         parent::fill($payload);
 
-        return $this->setItems(array_values(array_filter($payload['items'] ?? $payload['Items'] ?? [], 'is_array')));
+        return $this->setItems(Json::extractList($payload, 'items') ?: Json::extractList($payload, 'Items'));
     }
 
     /**

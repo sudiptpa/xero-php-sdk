@@ -10,6 +10,7 @@ use Sujip\Xero\Support\Concerns\InteractsWithBindings;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class TaxRates implements DefinesScopes
 {
@@ -48,10 +49,10 @@ final class TaxRates implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $taxRate): TaxRate => $this->mapTaxRate($taxRate),
-            $payload['TaxRates'] ?? []
-        ));
+            Json::extractList($payload, 'TaxRates')
+        );
 
         return new ResourceCollection($items);
     }
@@ -63,9 +64,9 @@ final class TaxRates implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $taxRate = $payload['TaxRates'][0] ?? null;
+        $taxRate = Json::extractFirst($payload, 'TaxRates');
 
-        return is_array($taxRate) ? $this->mapTaxRate($taxRate) : null;
+        return $taxRate !== null ? $this->mapTaxRate($taxRate) : null;
     }
 
     public function create(): Payload

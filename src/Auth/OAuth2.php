@@ -71,13 +71,13 @@ final class OAuth2
         }
 
         return new Token(
-            (string) ($payload['access_token'] ?? ''),
-            isset($payload['refresh_token']) ? (string) $payload['refresh_token'] : null,
+            is_string($payload['access_token'] ?? null) ? $payload['access_token'] : '',
+            is_string($payload['refresh_token'] ?? null) ? $payload['refresh_token'] : null,
             $expiresAt,
             $refreshTokenExpiresAt,
             $scopes,
-            isset($payload['id_token']) ? (string) $payload['id_token'] : null,
-            isset($payload['token_type']) ? (string) $payload['token_type'] : 'Bearer'
+            is_string($payload['id_token'] ?? null) ? $payload['id_token'] : null,
+            is_string($payload['token_type'] ?? null) ? $payload['token_type'] : 'Bearer'
         );
     }
 }

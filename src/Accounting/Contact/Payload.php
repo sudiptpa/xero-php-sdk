@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Contact;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -110,9 +111,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $contact = $payload['Contacts'][0] ?? [];
+        $contact = Json::extractFirst($payload, 'Contacts') ?? [];
 
         return (new Contacts($this->client))
-            ->mapContact(is_array($contact) ? $contact : []);
+            ->mapContact($contact);
     }
 }

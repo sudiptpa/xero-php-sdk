@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\ExpenseClaim;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -49,8 +50,9 @@ final class Payload
     public function receipt(string $receiptId): self
     {
         $clone = clone $this;
-        $clone->payload['Receipts'] ??= [];
-        $clone->payload['Receipts'][] = ['ReceiptID' => $receiptId];
+        $receipts = is_array($clone->payload['Receipts'] ?? null) ? $clone->payload['Receipts'] : [];
+        $receipts[] = ['ReceiptID' => $receiptId];
+        $clone->payload['Receipts'] = $receipts;
 
         return $clone;
     }
@@ -76,9 +78,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $expenseClaim = $payload['ExpenseClaims'][0] ?? [];
+        $expenseClaim = Json::extractFirst($payload, 'ExpenseClaims') ?? [];
 
         return (new ExpenseClaims($this->client))
-            ->mapExpenseClaim(is_array($expenseClaim) ? $expenseClaim : []);
+            ->mapExpenseClaim($expenseClaim);
     }
 }

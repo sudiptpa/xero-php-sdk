@@ -9,6 +9,7 @@ use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class Files implements DefinesScopes
 {
@@ -77,7 +78,7 @@ final class Files implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(fn (array $file): File => $this->mapFile($file), $payload['Items'] ?? []));
+        $items = array_map(fn (array $file): File => $this->mapFile($file), Json::extractList($payload, 'Items'));
 
         return new ResourceCollection($items);
     }
@@ -112,9 +113,9 @@ final class Files implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $file = $payload['Items'][0] ?? null;
+        $file = Json::extractFirst($payload, 'Items');
 
-        return is_array($file) ? $this->mapFile($file) : null;
+        return $file !== null ? $this->mapFile($file) : null;
     }
 
     public function content(string $fileId): string

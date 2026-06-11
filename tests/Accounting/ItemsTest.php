@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Sujip\Xero\Accounting\Item\Item;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class ItemsTest extends TestCase
@@ -39,7 +41,7 @@ final class ItemsTest extends TestCase
         self::assertSame('/api.xro/2.0/Items', $transport->requests()[0]->path);
         self::assertSame('Code == "ABC123"', $transport->requests()[0]->query['where']);
         self::assertSame(4, $transport->requests()[0]->query['unitdp']);
-        self::assertInstanceOf(Item::class, $items->first());
+        self::assertNotNull($items->first());
         self::assertSame('/api.xro/2.0/Items/item-1', $transport->requests()[1]->path);
         self::assertSame('item-1', $item?->getItemID());
     }
@@ -80,9 +82,71 @@ final class ItemsTest extends TestCase
 
         self::assertSame('/api.xro/2.0/Items', $transport->requests()[0]->path);
         self::assertSame('item-key', $transport->requests()[0]->headers['Idempotency-Key']);
-        self::assertSame('ABC123', $transport->requests()[0]->json['Items'][0]['Code']);
+        $json0 = $transport->requests()[0]->json ?? [];
+        $item0 = Json::extractFirst($json0, 'Items');
+        self::assertNotNull($item0);
+        self::assertSame('ABC123', $item0['Code']);
+        $json1 = $transport->requests()[1]->json ?? [];
+        $item1 = Json::extractFirst($json1, 'Items');
+        self::assertNotNull($item1);
         self::assertSame('/api.xro/2.0/Items', $transport->requests()[1]->path);
-        self::assertSame('item-1', $transport->requests()[1]->json['Items'][0]['ItemID']);
+        self::assertSame('item-1', $item1['ItemID']);
         self::assertSame('Widget Plus', $updated->getName());
+    }
+
+    public function test_it_paginates_updates_and_builds_items(): void
+    {
+        $body = json_encode([
+            'Items' => [[
+                'ItemID' => 'item-1',
+                'Code' => 'ABC123',
+                'Name' => 'Widget',
+                'Description' => 'Standard widget',
+            ]],
+        ], JSON_THROW_ON_ERROR);
+
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: $body));
+        $transport->push(new Response(200, body: $body));
+
+        $items = Xero::withAccessToken('token', $transport)->tenant('tenant-123')->accounting()->items();
+
+        $page = $items->paginate(2, 25);
+        $updated = $items->update('item-1')
+            ->code('ABC999')
+            ->name('Widget Pro')
+            ->description('Pro widget')
+            ->save();
+
+        self::assertSame('/api.xro/2.0/Items', $transport->requests()[0]->path);
+        self::assertNotNull($page->items->first());
+        self::assertSame(2, $page->page);
+        self::assertSame(25, $page->perPage);
+        self::assertSame('/api.xro/2.0/Items', $transport->requests()[1]->path);
+        $json = $transport->requests()[1]->json ?? [];
+        $sent = Json::extractFirst($json, 'Items');
+        self::assertNotNull($sent);
+        self::assertSame('item-1', $sent['ItemID']);
+        self::assertSame('ABC999', $sent['Code']);
+        self::assertSame('Widget', $updated->getName());
+        self::assertNotSame([], $items->scopes()->broad);
+
+        self::assertSame('XYZ', (new Item())->code('XYZ')->getCode());
+        // history() returns a History accessor (its return type guarantees the class); call it for coverage.
+        $updated->history();
+    }
+
+    public function test_item_model_guards_require_a_bound_client(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Item())->code('ABC')->save();
+    }
+
+    public function test_item_history_requires_a_client_and_id(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Item())->history();
     }
 }

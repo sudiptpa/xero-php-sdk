@@ -22,18 +22,60 @@ final class Connection extends Model
     ) {
     }
 
-    public function getId(): ?string { return $this->id; }
-    public function setId(?string $id): self { $this->id = $id; return $this; }
-    public function getTenantId(): ?string { return $this->tenantId; }
-    public function setTenantId(?string $tenantId): self { $this->tenantId = $tenantId; return $this; }
-    public function getTenantName(): ?string { return $this->tenantName; }
-    public function setTenantName(?string $tenantName): self { $this->tenantName = $tenantName; return $this; }
-    public function getTenantType(): ?string { return $this->tenantType; }
-    public function setTenantType(?string $tenantType): self { $this->tenantType = $tenantType; return $this; }
-    public function getCreatedDateUtc(): ?string { return $this->createdDateUtc; }
-    public function setCreatedDateUtc(?string $createdDateUtc): self { $this->createdDateUtc = $createdDateUtc; return $this; }
-    public function getUpdatedDateUtc(): ?string { return $this->updatedDateUtc; }
-    public function setUpdatedDateUtc(?string $updatedDateUtc): self { $this->updatedDateUtc = $updatedDateUtc; return $this; }
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
+    public function setId(?string $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+    public function getTenantId(): ?string
+    {
+        return $this->tenantId;
+    }
+    public function setTenantId(?string $tenantId): self
+    {
+        $this->tenantId = $tenantId;
+        return $this;
+    }
+    public function getTenantName(): ?string
+    {
+        return $this->tenantName;
+    }
+    public function setTenantName(?string $tenantName): self
+    {
+        $this->tenantName = $tenantName;
+        return $this;
+    }
+    public function getTenantType(): ?string
+    {
+        return $this->tenantType;
+    }
+    public function setTenantType(?string $tenantType): self
+    {
+        $this->tenantType = $tenantType;
+        return $this;
+    }
+    public function getCreatedDateUtc(): ?string
+    {
+        return $this->createdDateUtc;
+    }
+    public function setCreatedDateUtc(?string $createdDateUtc): self
+    {
+        $this->createdDateUtc = $createdDateUtc;
+        return $this;
+    }
+    public function getUpdatedDateUtc(): ?string
+    {
+        return $this->updatedDateUtc;
+    }
+    public function setUpdatedDateUtc(?string $updatedDateUtc): self
+    {
+        $this->updatedDateUtc = $updatedDateUtc;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>

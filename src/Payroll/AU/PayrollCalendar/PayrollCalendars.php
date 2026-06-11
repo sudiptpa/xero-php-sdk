@@ -11,6 +11,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class PayrollCalendars implements PaginatesResults, DefinesScopes
 {
@@ -40,10 +41,10 @@ final class PayrollCalendars implements PaginatesResults, DefinesScopes
             ->send()
             ->json();
 
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $calendar): PayrollCalendar => $this->mapPayrollCalendar($calendar),
-            $payload['PayrollCalendars'] ?? []
-        ));
+            Json::extractList($payload, 'PayrollCalendars')
+        );
 
         return new ResourceCollection($items);
     }
@@ -73,9 +74,9 @@ final class PayrollCalendars implements PaginatesResults, DefinesScopes
             ->send()
             ->json();
 
-        $calendar = $payload['PayrollCalendars'][0] ?? $payload['PayrollCalendar'] ?? null;
+        $calendar = Json::extractFirst($payload, 'PayrollCalendars') ?? Json::extractObject($payload, 'PayrollCalendar') ?: null;
 
-        return is_array($calendar) ? $this->mapPayrollCalendar($calendar) : null;
+        return $calendar !== null ? $this->mapPayrollCalendar($calendar) : null;
     }
 
     public function create(): Payload

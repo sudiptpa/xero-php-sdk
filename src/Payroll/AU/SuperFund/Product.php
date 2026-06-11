@@ -19,14 +19,42 @@ final class Product extends Model
     ) {
     }
 
-    public function getSuperFundProductID(): ?string { return $this->superFundProductID; }
-    public function setSuperFundProductID(?string $superFundProductID): self { $this->superFundProductID = $superFundProductID; return $this; }
-    public function getName(): ?string { return $this->name; }
-    public function setName(?string $name): self { $this->name = $name; return $this; }
-    public function getUSI(): ?string { return $this->uSI; }
-    public function setUSI(?string $uSI): self { $this->uSI = $uSI; return $this; }
-    public function getABN(): ?string { return $this->aBN; }
-    public function setABN(?string $aBN): self { $this->aBN = $aBN; return $this; }
+    public function getSuperFundProductID(): ?string
+    {
+        return $this->superFundProductID;
+    }
+    public function setSuperFundProductID(?string $superFundProductID): self
+    {
+        $this->superFundProductID = $superFundProductID;
+        return $this;
+    }
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+    public function getUSI(): ?string
+    {
+        return $this->uSI;
+    }
+    public function setUSI(?string $uSI): self
+    {
+        $this->uSI = $uSI;
+        return $this;
+    }
+    public function getABN(): ?string
+    {
+        return $this->aBN;
+    }
+    public function setABN(?string $aBN): self
+    {
+        $this->aBN = $aBN;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>

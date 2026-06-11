@@ -11,9 +11,21 @@ fi
 
 mkdir -p build/logs
 
-exec env XDEBUG_MODE=coverage "$PHP_BIN" vendor/bin/phpunit \
+"$PHP_BIN" vendor/bin/phpunit \
     --configuration phpunit.xml.dist \
     --do-not-cache-result \
     --coverage-text \
     --coverage-clover build/logs/clover.xml \
     "$@"
+
+"$PHP_BIN" -r '
+$xml = simplexml_load_file("build/logs/clover.xml");
+$metrics = $xml->project->metrics;
+$elements = (int)$metrics["elements"];
+$covered  = (int)$metrics["coveredelements"];
+if ($elements === 0) { echo "No coverable elements found.\n"; exit(1); }
+$pct = round(($covered / $elements) * 100, 2);
+echo "\nCoverage: {$pct}% ({$covered}/{$elements} elements)\n";
+if ($pct < 100) { echo "FAIL: Coverage is below 100%\n"; exit(1); }
+echo "OK: Coverage is 100%\n";
+'

@@ -13,6 +13,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class Accounts implements PaginatesResults, DefinesScopes
 {
@@ -52,10 +53,10 @@ final class Accounts implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $account): Account => $this->mapAccount($account),
-            $payload['Accounts'] ?? []
-        ));
+            Json::extractList($payload, 'Accounts')
+        );
 
         return new ResourceCollection($items);
     }
@@ -90,9 +91,9 @@ final class Accounts implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $account = $payload['Accounts'][0] ?? null;
+        $account = Json::extractFirst($payload, 'Accounts');
 
-        return is_array($account) ? $this->mapAccount($account) : null;
+        return $account !== null ? $this->mapAccount($account) : null;
     }
 
     public function create(): Payload

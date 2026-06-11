@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Invoice;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Draft
 {
@@ -104,9 +105,9 @@ final class Draft
             ->send();
 
         $payload = $response->json();
-        $invoice = $payload['Invoices'][0] ?? [];
+        $invoice = Json::extractFirst($payload, 'Invoices') ?? [];
 
         return (new Invoices($this->client))
-            ->mapInvoice(is_array($invoice) ? $invoice : []);
+            ->mapInvoice($invoice);
     }
 }

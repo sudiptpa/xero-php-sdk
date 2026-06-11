@@ -99,10 +99,10 @@ final class Asset extends Model
     {
         parent::fill($payload);
 
-        $assetType = $payload['AssetType'] ?? null;
+        $assetType = is_array($payload['AssetType'] ?? null) ? $payload['AssetType'] : [];
 
-        if (is_array($assetType) && isset($assetType['AssetTypeId'])) {
-            $this->setAssetTypeId(is_scalar($assetType['AssetTypeId']) ? (string) $assetType['AssetTypeId'] : null);
+        if (isset($assetType['AssetTypeId'])) {
+            $this->setAssetTypeId(is_string($assetType['AssetTypeId']) ? $assetType['AssetTypeId'] : null);
         }
 
         return $this;

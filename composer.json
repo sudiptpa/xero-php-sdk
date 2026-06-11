@@ -21,7 +21,9 @@
         "php": ">=8.2 <8.6"
     },
     "require-dev": {
-        "phpstan/phpstan": "^2.1",
+        "laravel/pint": "^1.0",
+        "phpstan/phpstan": "^2.2",
+        "phpstan/phpstan-phpunit": "^2.0",
         "phpunit/phpunit": "^11.5"
     },
     "autoload": {
@@ -35,11 +37,14 @@
         }
     },
     "scripts": {
-        "lint": "bash bin/test --testsuite default",
+        "test": "bash bin/test",
         "stan": "bash bin/stan",
         "analyse": "@composer stan",
-        "test": "bash bin/test",
-        "coverage": "bash bin/coverage"
+        "coverage": "bash bin/coverage",
+        "format": "vendor/bin/pint",
+        "lint": "find src tests -name '*.php' -print0 | xargs -0 -n1 php -l",
+        "lint:fix": "vendor/bin/pint",
+        "lint:check": "vendor/bin/pint --test"
     },
     "config": {
         "sort-packages": true

@@ -9,6 +9,7 @@ use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class Journals implements DefinesScopes
 {
@@ -54,10 +55,10 @@ final class Journals implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $journal): Journal => $this->mapJournal($journal),
-            $payload['Journals'] ?? []
-        ));
+            Json::extractList($payload, 'Journals')
+        );
 
         return new ResourceCollection($items);
     }
@@ -69,9 +70,9 @@ final class Journals implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $journal = $payload['Journals'][0] ?? null;
+        $journal = Json::extractFirst($payload, 'Journals');
 
-        return is_array($journal) ? $this->mapJournal($journal) : null;
+        return $journal !== null ? $this->mapJournal($journal) : null;
     }
 
     public function number(int $journalNumber): ?Journal
@@ -81,9 +82,9 @@ final class Journals implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $journal = $payload['Journals'][0] ?? null;
+        $journal = Json::extractFirst($payload, 'Journals');
 
-        return is_array($journal) ? $this->mapJournal($journal) : null;
+        return $journal !== null ? $this->mapJournal($journal) : null;
     }
 
     /**

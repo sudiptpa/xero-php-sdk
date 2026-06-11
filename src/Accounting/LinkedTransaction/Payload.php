@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\LinkedTransaction;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -59,8 +60,8 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $linkedTransaction = $payload['LinkedTransactions'][0] ?? $payload['LinkedTransaction'] ?? [];
+        $linkedTransaction = Json::extractFirst($payload, 'LinkedTransactions') ?? Json::extractObject($payload, 'LinkedTransaction');
 
-        return (new LinkedTransactions($this->client))->mapLinkedTransaction(is_array($linkedTransaction) ? $linkedTransaction : []);
+        return (new LinkedTransactions($this->client))->mapLinkedTransaction($linkedTransaction);
     }
 }

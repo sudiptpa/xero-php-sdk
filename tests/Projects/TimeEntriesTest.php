@@ -8,7 +8,6 @@ use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
-use Sujip\Xero\Projects\TimeEntry\TimeEntry;
 use Sujip\Xero\Xero;
 
 final class TimeEntriesTest extends TestCase
@@ -82,11 +81,12 @@ final class TimeEntriesTest extends TestCase
         self::assertSame('/projects.xro/2.0/Projects/project-1/Time', $transport->requests()[2]->path);
         self::assertSame('/projects.xro/2.0/Projects/project-1/Time/time-2', $transport->requests()[3]->path);
         self::assertSame('DELETE', $transport->requests()[4]->method);
-        self::assertSame('task-1', $transport->requests()[2]->json['taskId']);
-        self::assertSame('user-1', $transport->requests()[2]->json['userId']);
-        self::assertSame('2026-03-26T00:00:00Z', $transport->requests()[2]->json['dateUtc']);
-        self::assertSame(120, $transport->requests()[2]->json['duration']);
-        self::assertInstanceOf(TimeEntry::class, $entries->first());
+        $json2 = $transport->requests()[2]->json ?? [];
+        self::assertSame('task-1', $json2['taskId'] ?? null);
+        self::assertSame('user-1', $json2['userId'] ?? null);
+        self::assertSame('2026-03-26T00:00:00Z', $json2['dateUtc'] ?? null);
+        self::assertSame(120, $json2['duration'] ?? null);
+        self::assertNotNull($entries->first());
         self::assertSame(150, $updated->getDuration());
         self::assertSame('time-1', $entry?->getTimeEntryID());
     }

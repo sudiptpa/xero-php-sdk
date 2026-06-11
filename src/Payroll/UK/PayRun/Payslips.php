@@ -8,6 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final readonly class Payslips implements DefinesScopes
 {
@@ -35,10 +36,10 @@ final readonly class Payslips implements DefinesScopes
             ->send()
             ->json();
 
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $payslip): Payslip => $this->mapPayslip($payslip),
-            $payload['Payslips'] ?? []
-        ));
+            Json::extractList($payload, 'Payslips')
+        );
 
         return new ResourceCollection($items);
     }
@@ -50,9 +51,9 @@ final readonly class Payslips implements DefinesScopes
             ->send()
             ->json();
 
-        $payslip = $payload['Payslips'][0] ?? $payload['Payslip'] ?? null;
+        $payslip = Json::extractFirst($payload, 'Payslips') ?? Json::extractObject($payload, 'Payslip') ?: null;
 
-        return is_array($payslip) ? $this->mapPayslip($payslip) : null;
+        return $payslip !== null ? $this->mapPayslip($payslip) : null;
     }
 
     /**

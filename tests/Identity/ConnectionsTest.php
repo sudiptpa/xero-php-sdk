@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Identity;
 
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use Sujip\Xero\Identity\Connection;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
-use Sujip\Xero\Identity\Connection;
 use Sujip\Xero\Xero;
 
 final class ConnectionsTest extends TestCase
@@ -37,8 +38,9 @@ final class ConnectionsTest extends TestCase
 
         self::assertSame('/connections', $request->path);
         self::assertArrayNotHasKey('Xero-Tenant-Id', $request->headers);
-        self::assertInstanceOf(Connection::class, $connections->first());
-        self::assertSame('tenant-1', $connections->first()->getTenantId());
+        $firstConn = $connections->first();
+        self::assertNotNull($firstConn);
+        self::assertSame('tenant-1', $firstConn->getTenantId());
     }
 
     public function test_it_can_find_a_connection_by_tenant(): void
@@ -63,8 +65,48 @@ final class ConnectionsTest extends TestCase
             ->connections()
             ->findByTenant('tenant-2');
 
+        self::assertNotNull($connection);
         self::assertSame('connection-2', $connection->getId());
         self::assertSame('Beta Pty Ltd', $connection->getTenantName());
+    }
+
+    public function test_it_returns_null_when_no_connection_matches_the_tenant(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode([
+                [
+                    'id' => 'connection-1',
+                    'tenantId' => 'tenant-1',
+                ],
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        $connection = Xero::withAccessToken('token', $transport)
+            ->identity()
+            ->connections()
+            ->findByTenant('tenant-unknown');
+
+        self::assertNull($connection);
+    }
+
+    public function test_connection_exposes_all_hydrated_fields(): void
+    {
+        $connection = (new Connection())
+            ->setTenantType('ORGANISATION')
+            ->setCreatedDateUtc('2026-03-25T00:00:00')
+            ->setUpdatedDateUtc('2026-03-26T00:00:00');
+
+        self::assertSame('ORGANISATION', $connection->getTenantType());
+        self::assertSame('2026-03-25T00:00:00', $connection->getCreatedDateUtc());
+        self::assertSame('2026-03-26T00:00:00', $connection->getUpdatedDateUtc());
+    }
+
+    public function test_disconnect_requires_a_bound_client_context(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Cannot disconnect a connection without a bound client context and connection id.');
+
+        (new Connection())->disconnect();
     }
 
     public function test_it_can_disconnect_a_connection_without_sending_a_tenant_header(): void
@@ -104,7 +146,7 @@ final class ConnectionsTest extends TestCase
             ->get()
             ->first();
 
-        self::assertInstanceOf(Connection::class, $connection);
+        self::assertNotNull($connection);
         self::assertTrue($connection->disconnect());
     }
 }

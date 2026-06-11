@@ -81,11 +81,10 @@ final class Report extends Model
     {
         parent::fill($payload);
 
-        return $this->setTitle(
-            isset($payload['ReportTitles'][0]) && is_string($payload['ReportTitles'][0])
-                ? $payload['ReportTitles'][0]
-                : null
-        );
+        $reportTitles = is_array($payload['ReportTitles'] ?? null) ? $payload['ReportTitles'] : [];
+        $firstTitle = $reportTitles[0] ?? null;
+
+        return $this->setTitle(is_string($firstTitle) ? $firstTitle : null);
     }
 
 }

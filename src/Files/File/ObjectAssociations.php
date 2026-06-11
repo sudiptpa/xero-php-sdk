@@ -9,6 +9,7 @@ use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class ObjectAssociations implements DefinesScopes
 {
@@ -72,10 +73,10 @@ final class ObjectAssociations implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $file): File => (new Files($this->client))->mapFile($file),
-            $payload['Items'] ?? []
-        ));
+            Json::extractList($payload, 'Items')
+        );
 
         return new ResourceCollection($items);
     }

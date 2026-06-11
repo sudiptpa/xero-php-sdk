@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Assets\Asset;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -123,9 +124,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $asset = $payload['Items'][0] ?? [];
+        $asset = Json::extractFirst($payload, 'Items') ?? [];
 
-        if (! is_array($asset)) {
+        if ($asset === []) {
             return new Asset();
         }
 

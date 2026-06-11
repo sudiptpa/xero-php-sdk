@@ -150,9 +150,15 @@ final class File extends Model
 
         $folder = $payload['FolderId'] ?? null;
 
-        return $this->setFolderId(
-            is_array($folder) ? (($folder['Id'] ?? null) !== null ? (string) $folder['Id'] : null) : (is_scalar($folder) ? (string) $folder : null)
-        );
+        if (is_array($folder)) {
+            $folderId = is_string($folder['Id'] ?? null) ? $folder['Id'] : null;
+        } elseif (is_string($folder)) {
+            $folderId = $folder;
+        } else {
+            $folderId = null;
+        }
+
+        return $this->setFolderId($folderId);
     }
 
     public function rename(string $name): self

@@ -73,11 +73,57 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('/payroll.xro/1.0/PayrollCalendars', $transport->requests()[4]->path);
         self::assertSame(3, $transport->requests()[4]->query['page']);
         self::assertSame(25, $transport->requests()[4]->query['pageSize']);
-        self::assertInstanceOf(PayrollCalendar::class, $calendars->first());
+        self::assertNotNull($calendars->first());
         self::assertSame('calendar-1', $calendar?->getPayrollCalendarID());
         self::assertSame('calendar-2', $created->getPayrollCalendarID());
         self::assertSame('calendar-2', $updated->getPayrollCalendarID());
         self::assertSame(3, $page->page);
+    }
+
+    public function test_payroll_calendars_expose_scopes(): void
+    {
+        $scopes = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->payroll()
+            ->au()
+            ->payrollCalendars()
+            ->scopes();
+
+        self::assertSame(['payroll.settings'], $scopes->broad);
+        self::assertSame(['payroll.settings.read', 'payroll.settings'], $scopes->granular);
+    }
+
+    public function test_payroll_calendar_exposes_all_fields(): void
+    {
+        $calendar = (new PayrollCalendar())->fill([
+            'PayrollCalendarID' => 'calendar-1',
+            'Name' => 'Weekly',
+            'CalendarType' => 'WEEKLY',
+            'StartDate' => '/Date(1572566400000+0000)/',
+            'PaymentDate' => '/Date(1573171200000+0000)/',
+        ]);
+
+        self::assertSame('calendar-1', $calendar->getPayrollCalendarID());
+        self::assertSame('Weekly', $calendar->getName());
+        self::assertSame('WEEKLY', $calendar->getCalendarType());
+        self::assertSame('/Date(1572566400000+0000)/', $calendar->getStartDate());
+        self::assertSame('/Date(1573171200000+0000)/', $calendar->getPaymentDate());
+    }
+
+    public function test_payroll_calendar_save_returns_blank_model_on_empty_response(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $calendar = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->au()
+            ->payrollCalendars()
+            ->create()
+            ->name('Weekly')
+            ->save();
+
+        self::assertNull($calendar->getPayrollCalendarID());
     }
 
     public function test_it_can_load_super_funds(): void
@@ -121,8 +167,9 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('/payroll.xro/1.0/SuperFunds/fund-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/1.0/SuperFunds', $transport->requests()[2]->path);
         self::assertSame('superfund-key', $transport->requests()[2]->headers['Idempotency-Key']);
-        self::assertSame('40022701955002', $transport->requests()[2]->json['USI']);
-        self::assertInstanceOf(SuperFund::class, $funds->first());
+        $json2 = $transport->requests()[2]->json ?? [];
+        self::assertSame('40022701955002', $json2['USI'] ?? null);
+        self::assertNotNull($funds->first());
         self::assertSame('fund-1', $fund?->getSuperFundID());
         self::assertSame('fund-2', $created->getSuperFundID());
     }
@@ -149,7 +196,68 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('/payroll.xro/1.0/SuperFundProducts', $transport->requests()[0]->path);
         self::assertSame('40022701955', $transport->requests()[0]->query['ABN']);
         self::assertSame('OSF0001AU', $transport->requests()[0]->query['USI']);
-        self::assertInstanceOf(Product::class, $products->first());
-        self::assertSame('product-1', $products->first()->getSuperFundProductID());
+        $firstProduct = $products->first();
+        self::assertNotNull($firstProduct);
+        self::assertSame('product-1', $firstProduct->getSuperFundProductID());
+    }
+
+    public function test_super_funds_and_products_expose_scopes(): void
+    {
+        $payroll = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->payroll()
+            ->au();
+
+        $fundScopes = $payroll->superFunds()->scopes();
+        $productScopes = $payroll->superFundProducts()->scopes();
+
+        self::assertSame(['payroll.settings'], $fundScopes->broad);
+        self::assertSame(['payroll.settings.read', 'payroll.settings'], $fundScopes->granular);
+        self::assertSame(['payroll.settings'], $productScopes->broad);
+        self::assertSame(['payroll.settings.read', 'payroll.settings'], $productScopes->granular);
+    }
+
+    public function test_super_fund_exposes_all_fields(): void
+    {
+        $fund = (new SuperFund())->fill([
+            'SuperFundID' => 'fund-1',
+            'Name' => 'AustralianSuper',
+            'Type' => 'REGULATED',
+        ]);
+
+        self::assertSame('fund-1', $fund->getSuperFundID());
+        self::assertSame('AustralianSuper', $fund->getName());
+        self::assertSame('REGULATED', $fund->getType());
+    }
+
+    public function test_super_fund_product_exposes_all_fields(): void
+    {
+        $product = (new Product())->fill([
+            'SuperFundProductID' => 'product-1',
+            'Name' => 'Balanced',
+            'USI' => 'OSF0001AU',
+            'ABN' => '40022701955',
+        ]);
+
+        self::assertSame('product-1', $product->getSuperFundProductID());
+        self::assertSame('Balanced', $product->getName());
+        self::assertSame('OSF0001AU', $product->getUSI());
+        self::assertSame('40022701955', $product->getABN());
+    }
+
+    public function test_super_fund_save_returns_blank_model_on_empty_response(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $fund = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->au()
+            ->superFunds()
+            ->create()
+            ->name('AustralianSuper')
+            ->save();
+
+        self::assertNull($fund->getSuperFundID());
     }
 }

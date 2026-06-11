@@ -7,6 +7,7 @@ namespace Sujip\Xero\Finance\CashValidation;
 use DateTimeInterface;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Support\ScopeRequirements;
 
 final readonly class CashValidation implements DefinesScopes
@@ -34,11 +35,7 @@ final readonly class CashValidation implements DefinesScopes
             ->send()
             ->json();
 
-        $result = $payload['CashValidation'] ?? $payload;
-
-        if (! is_array($result)) {
-            return new CashValidationResult();
-        }
+        $result = Json::extractObject($payload, 'CashValidation') ?: $payload;
 
         return (new CashValidationResult())->fill($result);
     }

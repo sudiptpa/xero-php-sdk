@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\TrackingCategory;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -78,9 +79,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $trackingCategory = $payload['TrackingCategories'][0] ?? $payload['TrackingCategory'] ?? [];
+        $trackingCategory = Json::extractFirst($payload, 'TrackingCategories') ?? Json::extractObject($payload, 'TrackingCategory');
 
         return (new TrackingCategories($this->client))
-            ->mapTrackingCategory(is_array($trackingCategory) ? $trackingCategory : []);
+            ->mapTrackingCategory($trackingCategory);
     }
 }

@@ -14,6 +14,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class PurchaseOrders implements PaginatesResults, DefinesScopes
 {
@@ -53,10 +54,10 @@ final class PurchaseOrders implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $purchaseOrder): PurchaseOrder => $this->mapPurchaseOrder($purchaseOrder),
-            $payload['PurchaseOrders'] ?? []
-        ));
+            Json::extractList($payload, 'PurchaseOrders')
+        );
 
         return new ResourceCollection($items);
     }
@@ -84,9 +85,9 @@ final class PurchaseOrders implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $purchaseOrder = $payload['PurchaseOrders'][0] ?? null;
+        $purchaseOrder = Json::extractFirst($payload, 'PurchaseOrders');
 
-        return is_array($purchaseOrder) ? $this->mapPurchaseOrder($purchaseOrder) : null;
+        return $purchaseOrder !== null ? $this->mapPurchaseOrder($purchaseOrder) : null;
     }
 
     public function create(): Payload

@@ -11,6 +11,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class LeaveTypes implements PaginatesResults, DefinesScopes
 {
@@ -53,10 +54,10 @@ final class LeaveTypes implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $leaveType): LeaveType => $this->mapLeaveType($leaveType),
-            $payload['LeaveTypes'] ?? []
-        ));
+            Json::extractList($payload, 'LeaveTypes')
+        );
 
         return new ResourceCollection($items);
     }
@@ -86,9 +87,9 @@ final class LeaveTypes implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $leaveType = $payload['LeaveTypes'][0] ?? $payload['LeaveType'] ?? null;
+        $leaveType = Json::extractFirst($payload, 'LeaveTypes') ?? Json::extractObject($payload, 'LeaveType') ?: null;
 
-        return is_array($leaveType) ? $this->mapLeaveType($leaveType) : null;
+        return $leaveType !== null ? $this->mapLeaveType($leaveType) : null;
     }
 
     /**

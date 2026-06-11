@@ -14,6 +14,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class BatchPayments implements PaginatesResults, DefinesScopes
 {
@@ -53,10 +54,10 @@ final class BatchPayments implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $batchPayment): BatchPayment => $this->mapBatchPayment($batchPayment),
-            $payload['BatchPayments'] ?? []
-        ));
+            Json::extractList($payload, 'BatchPayments')
+        );
 
         return new ResourceCollection($items);
     }
@@ -83,9 +84,9 @@ final class BatchPayments implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $batchPayment = $payload['BatchPayments'][0] ?? null;
+        $batchPayment = Json::extractFirst($payload, 'BatchPayments');
 
-        return is_array($batchPayment) ? $this->mapBatchPayment($batchPayment) : null;
+        return $batchPayment !== null ? $this->mapBatchPayment($batchPayment) : null;
     }
 
     public function create(): Payload

@@ -7,6 +7,7 @@ namespace Sujip\Xero\Accounting\PurchaseOrder;
 use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -78,9 +79,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $purchaseOrder = $payload['PurchaseOrders'][0] ?? [];
+        $purchaseOrder = Json::extractFirst($payload, 'PurchaseOrders') ?? [];
 
         return (new PurchaseOrders($this->client))
-            ->mapPurchaseOrder(is_array($purchaseOrder) ? $purchaseOrder : []);
+            ->mapPurchaseOrder($purchaseOrder);
     }
 }

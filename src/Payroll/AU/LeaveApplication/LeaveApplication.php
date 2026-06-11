@@ -21,22 +21,72 @@ final class LeaveApplication extends Model
 
     public function __construct(
         private ?Client $client = null
-    ) {}
+    ) {
+    }
 
-    public function getLeaveApplicationID(): ?string { return $this->leaveApplicationID; }
-    public function setLeaveApplicationID(?string $leaveApplicationID): self { $this->leaveApplicationID = $leaveApplicationID; return $this; }
-    public function getEmployeeID(): ?string { return $this->employeeID; }
-    public function setEmployeeID(?string $employeeID): self { $this->employeeID = $employeeID; return $this; }
-    public function getLeaveTypeID(): ?string { return $this->leaveTypeID; }
-    public function setLeaveTypeID(?string $leaveTypeID): self { $this->leaveTypeID = $leaveTypeID; return $this; }
-    public function getTitle(): ?string { return $this->title; }
-    public function setTitle(?string $title): self { $this->title = $title; return $this; }
-    public function getStartDate(): ?string { return $this->startDate; }
-    public function setStartDate(?string $startDate): self { $this->startDate = $startDate; return $this; }
-    public function getEndDate(): ?string { return $this->endDate; }
-    public function setEndDate(?string $endDate): self { $this->endDate = $endDate; return $this; }
-    public function getStatus(): ?string { return $this->status; }
-    public function setStatus(?string $status): self { $this->status = $status; return $this; }
+    public function getLeaveApplicationID(): ?string
+    {
+        return $this->leaveApplicationID;
+    }
+    public function setLeaveApplicationID(?string $leaveApplicationID): self
+    {
+        $this->leaveApplicationID = $leaveApplicationID;
+        return $this;
+    }
+    public function getEmployeeID(): ?string
+    {
+        return $this->employeeID;
+    }
+    public function setEmployeeID(?string $employeeID): self
+    {
+        $this->employeeID = $employeeID;
+        return $this;
+    }
+    public function getLeaveTypeID(): ?string
+    {
+        return $this->leaveTypeID;
+    }
+    public function setLeaveTypeID(?string $leaveTypeID): self
+    {
+        $this->leaveTypeID = $leaveTypeID;
+        return $this;
+    }
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+    public function setTitle(?string $title): self
+    {
+        $this->title = $title;
+        return $this;
+    }
+    public function getStartDate(): ?string
+    {
+        return $this->startDate;
+    }
+    public function setStartDate(?string $startDate): self
+    {
+        $this->startDate = $startDate;
+        return $this;
+    }
+    public function getEndDate(): ?string
+    {
+        return $this->endDate;
+    }
+    public function setEndDate(?string $endDate): self
+    {
+        $this->endDate = $endDate;
+        return $this;
+    }
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
     public function status(string $status): self
     {
         $this->status = strtoupper($status);

@@ -8,6 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final readonly class Subscriptions implements DefinesScopes
 {
@@ -46,10 +47,10 @@ final readonly class Subscriptions implements DefinesScopes
             ->send()
             ->json();
 
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $usageRecord): UsageRecord => $this->mapUsageRecord($usageRecord),
-            $payload['items'] ?? $payload['usageRecords'] ?? []
-        ));
+            Json::extractList($payload, 'items') ?: Json::extractList($payload, 'usageRecords')
+        );
 
         return new ResourceCollection($items);
     }

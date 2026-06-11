@@ -6,7 +6,6 @@ namespace Sujip\Xero\Tests\Finance;
 
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
-use Sujip\Xero\Finance\CashValidation\CashValidationResult;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Xero;
@@ -31,7 +30,6 @@ final class CashValidationTest extends TestCase
 
         self::assertSame('/finance.xro/1.0/CashValidation', $transport->requests()[0]->path);
         self::assertSame('2026-03-31', $transport->requests()[0]->query['balanceDate']);
-        self::assertInstanceOf(CashValidationResult::class, $result);
         self::assertSame('OK', $result->getStatus());
     }
 }

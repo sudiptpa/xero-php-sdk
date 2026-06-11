@@ -106,7 +106,7 @@ final class ContactGroup extends Model
 
         $contactIds = [];
 
-        foreach ($payload['Contacts'] ?? [] as $contact) {
+        foreach (is_array($payload['Contacts'] ?? null) ? $payload['Contacts'] : [] as $contact) {
             if (is_array($contact) && isset($contact['ContactID']) && is_string($contact['ContactID'])) {
                 $contactIds[] = $contact['ContactID'];
             }

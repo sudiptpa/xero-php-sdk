@@ -8,6 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class Folders implements DefinesScopes
 {
@@ -47,7 +48,7 @@ final class Folders implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(fn (array $folder): Folder => $this->mapFolder($folder), $payload['Items'] ?? []));
+        $items = array_map(fn (array $folder): Folder => $this->mapFolder($folder), Json::extractList($payload, 'Items'));
 
         return new ResourceCollection($items);
     }
@@ -59,9 +60,9 @@ final class Folders implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $folder = $payload['Items'][0] ?? null;
+        $folder = Json::extractFirst($payload, 'Items');
 
-        return is_array($folder) ? $this->mapFolder($folder) : null;
+        return $folder !== null ? $this->mapFolder($folder) : null;
     }
 
     public function inbox(): ?Folder
@@ -71,9 +72,9 @@ final class Folders implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $folder = $payload['Items'][0] ?? null;
+        $folder = Json::extractFirst($payload, 'Items');
 
-        return is_array($folder) ? $this->mapFolder($folder) : null;
+        return $folder !== null ? $this->mapFolder($folder) : null;
     }
 
     public function create(): Payload

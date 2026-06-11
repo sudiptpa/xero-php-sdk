@@ -6,6 +6,7 @@ namespace Sujip\Xero\Accounting\ManualJournal;
 
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\ResourceCollection;
+use Sujip\Xero\Support\Json;
 
 final readonly class Attachments
 {
@@ -25,14 +26,14 @@ final readonly class Attachments
             ->send()
             ->json();
 
-        $items = array_values(array_map(
+        $items = array_map(
             static fn (array $attachment): Attachment => new Attachment(
-                isset($attachment['FileName']) ? (string) $attachment['FileName'] : null,
-                isset($attachment['Url']) ? (string) $attachment['Url'] : null,
+                is_string($attachment['FileName'] ?? null) ? $attachment['FileName'] : null,
+                is_string($attachment['Url'] ?? null) ? $attachment['Url'] : null,
                 $attachment
             ),
-            $payload['Attachments'] ?? []
-        ));
+            Json::extractList($payload, 'Attachments')
+        );
 
         return new ResourceCollection($items);
     }

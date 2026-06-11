@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\RepeatingInvoice;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -55,12 +56,13 @@ final class Payload
     public function lineItem(string $description, int|float $quantity, int|float $unitAmount): self
     {
         $clone = clone $this;
-        $clone->payload['LineItems'] ??= [];
-        $clone->payload['LineItems'][] = [
+        $lineItems = is_array($clone->payload['LineItems'] ?? null) ? $clone->payload['LineItems'] : [];
+        $lineItems[] = [
             'Description' => $description,
             'Quantity' => $quantity,
             'UnitAmount' => $unitAmount,
         ];
+        $clone->payload['LineItems'] = $lineItems;
 
         return $clone;
     }
@@ -77,9 +79,9 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $repeatingInvoice = $payload['RepeatingInvoices'][0] ?? [];
+        $repeatingInvoice = Json::extractFirst($payload, 'RepeatingInvoices') ?? [];
 
         return (new RepeatingInvoices($this->client))
-            ->mapRepeatingInvoice(is_array($repeatingInvoice) ? $repeatingInvoice : []);
+            ->mapRepeatingInvoice($repeatingInvoice);
     }
 }

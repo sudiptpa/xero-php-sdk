@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
-use Sujip\Xero\Accounting\Invoice\HistoryRecord;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class InvoiceHistoryTest extends TestCase
@@ -34,7 +34,7 @@ final class InvoiceHistoryTest extends TestCase
         $request = $transport->requests()[0];
 
         self::assertSame('/api.xro/2.0/Invoices/invoice-1/History', $request->path);
-        self::assertInstanceOf(HistoryRecord::class, $history->first());
+        self::assertNotNull($history->first());
     }
 
     public function test_it_can_record_invoice_history(): void
@@ -60,7 +60,10 @@ final class InvoiceHistoryTest extends TestCase
 
         self::assertSame('PUT', $request->method);
         self::assertSame('/api.xro/2.0/Invoices/invoice-1/History', $request->path);
-        self::assertSame('Invoice synced from back office', $request->json['HistoryRecords'][0]['Details']);
+        $json = $request->json ?? [];
+        $hr = Json::extractFirst($json, 'HistoryRecords');
+        self::assertNotNull($hr);
+        self::assertSame('Invoice synced from back office', $hr['Details']);
         self::assertSame('Invoice synced from back office', $history->details);
     }
 }

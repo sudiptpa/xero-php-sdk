@@ -16,12 +16,33 @@ final class CashValidationResult extends Model
     ) {
     }
 
-    public function getStatus(): ?string { return $this->status; }
-    public function setStatus(?string $status): self { $this->status = $status; return $this; }
-    public function getBalance(): ?float { return $this->balance; }
-    public function setBalance(?float $balance): self { $this->balance = $balance; return $this; }
-    public function getCurrency(): ?string { return $this->currency; }
-    public function setCurrency(?string $currency): self { $this->currency = $currency; return $this; }
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
+    public function getBalance(): ?float
+    {
+        return $this->balance;
+    }
+    public function setBalance(?float $balance): self
+    {
+        $this->balance = $balance;
+        return $this;
+    }
+    public function getCurrency(): ?string
+    {
+        return $this->currency;
+    }
+    public function setCurrency(?string $currency): self
+    {
+        $this->currency = $currency;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>

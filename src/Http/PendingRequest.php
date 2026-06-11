@@ -88,8 +88,10 @@ final class PendingRequest
 
     public function modifiedSince(DateTimeInterface $date): self
     {
+        // RFC 7231 HTTP-date is always GMT; gmdate() keeps PHP 8.5 from
+        // deprecating DateTimeInterface::RFC7231 and ignores the source timezone.
         return $this->withHeaders([
-            'If-Modified-Since' => $date->format(DateTimeInterface::RFC7231),
+            'If-Modified-Since' => gmdate('D, d M Y H:i:s \G\M\T', $date->getTimestamp()),
         ]);
     }
 

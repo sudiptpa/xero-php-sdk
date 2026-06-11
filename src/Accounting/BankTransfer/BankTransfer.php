@@ -102,14 +102,16 @@ final class BankTransfer extends Model
     {
         parent::fill($payload);
 
+        $fromBankAccount = is_array($payload['FromBankAccount'] ?? null) ? $payload['FromBankAccount'] : [];
         $this->setFromBankAccountID(
-            isset($payload['FromBankAccount']['AccountID']) && is_string($payload['FromBankAccount']['AccountID'])
-                ? $payload['FromBankAccount']['AccountID']
+            isset($fromBankAccount['AccountID']) && is_string($fromBankAccount['AccountID'])
+                ? $fromBankAccount['AccountID']
                 : null
         );
+        $toBankAccount = is_array($payload['ToBankAccount'] ?? null) ? $payload['ToBankAccount'] : [];
         $this->setToBankAccountID(
-            isset($payload['ToBankAccount']['AccountID']) && is_string($payload['ToBankAccount']['AccountID'])
-                ? $payload['ToBankAccount']['AccountID']
+            isset($toBankAccount['AccountID']) && is_string($toBankAccount['AccountID'])
+                ? $toBankAccount['AccountID']
                 : null
         );
 

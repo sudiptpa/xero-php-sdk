@@ -14,6 +14,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Json;
 
 final class BankTransactions implements PaginatesResults, DefinesScopes
 {
@@ -53,10 +54,10 @@ final class BankTransactions implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $bankTransaction): BankTransaction => $this->mapBankTransaction($bankTransaction),
-            $payload['BankTransactions'] ?? []
-        ));
+            Json::extractList($payload, 'BankTransactions')
+        );
 
         return new ResourceCollection($items);
     }
@@ -86,9 +87,9 @@ final class BankTransactions implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $bankTransaction = $payload['BankTransactions'][0] ?? null;
+        $bankTransaction = Json::extractFirst($payload, 'BankTransactions');
 
-        return is_array($bankTransaction) ? $this->mapBankTransaction($bankTransaction) : null;
+        return $bankTransaction !== null ? $this->mapBankTransaction($bankTransaction) : null;
     }
 
     public function create(): Payload

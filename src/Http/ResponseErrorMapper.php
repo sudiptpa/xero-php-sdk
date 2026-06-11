@@ -14,7 +14,7 @@ final class ResponseErrorMapper
 {
     public static function map(Response $response): RequestException
     {
-        $wwwAuthenticate = strtolower($response->header('WWW-Authenticate', ''));
+        $wwwAuthenticate = strtolower($response->header('WWW-Authenticate', '') ?? '');
 
         if (
             $response->status === 401

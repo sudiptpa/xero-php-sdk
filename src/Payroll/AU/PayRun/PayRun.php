@@ -18,7 +18,8 @@ final class PayRun extends Model
 
     public function __construct(
         private ?Client $client = null
-    ) {}
+    ) {
+    }
 
     public function getPayRunID(): ?string
     {

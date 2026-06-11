@@ -20,16 +20,51 @@ final class PayrollCalendar extends Model
     ) {
     }
 
-    public function getPayrollCalendarID(): ?string { return $this->payrollCalendarID; }
-    public function setPayrollCalendarID(?string $payrollCalendarID): self { $this->payrollCalendarID = $payrollCalendarID; return $this; }
-    public function getName(): ?string { return $this->name; }
-    public function setName(?string $name): self { $this->name = $name; return $this; }
-    public function getCalendarType(): ?string { return $this->calendarType; }
-    public function setCalendarType(?string $calendarType): self { $this->calendarType = $calendarType; return $this; }
-    public function getStartDate(): ?string { return $this->startDate; }
-    public function setStartDate(?string $startDate): self { $this->startDate = $startDate; return $this; }
-    public function getPaymentDate(): ?string { return $this->paymentDate; }
-    public function setPaymentDate(?string $paymentDate): self { $this->paymentDate = $paymentDate; return $this; }
+    public function getPayrollCalendarID(): ?string
+    {
+        return $this->payrollCalendarID;
+    }
+    public function setPayrollCalendarID(?string $payrollCalendarID): self
+    {
+        $this->payrollCalendarID = $payrollCalendarID;
+        return $this;
+    }
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+    public function getCalendarType(): ?string
+    {
+        return $this->calendarType;
+    }
+    public function setCalendarType(?string $calendarType): self
+    {
+        $this->calendarType = $calendarType;
+        return $this;
+    }
+    public function getStartDate(): ?string
+    {
+        return $this->startDate;
+    }
+    public function setStartDate(?string $startDate): self
+    {
+        $this->startDate = $startDate;
+        return $this;
+    }
+    public function getPaymentDate(): ?string
+    {
+        return $this->paymentDate;
+    }
+    public function setPaymentDate(?string $paymentDate): self
+    {
+        $this->paymentDate = $paymentDate;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>

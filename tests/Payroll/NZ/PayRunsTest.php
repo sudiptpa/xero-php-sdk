@@ -52,4 +52,69 @@ final class PayRunsTest extends TestCase
         self::assertSame('payrun-1', $run?->getPayRunID());
         self::assertSame('payrun-2', $created->getPayRunID());
     }
+
+    public function test_it_exposes_scopes(): void
+    {
+        $scopes = Xero::withAccessToken('token', new FakeTransport())
+            ->tenant('tenant-123')
+            ->payroll()
+            ->nz()
+            ->payRuns()
+            ->scopes();
+
+        self::assertSame(['payroll.payruns'], $scopes->broad);
+        self::assertSame(['payroll.payruns.read', 'payroll.payruns'], $scopes->granular);
+    }
+
+    public function test_it_can_paginate_pay_runs(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode(['PayRuns' => []], JSON_THROW_ON_ERROR))
+        );
+
+        $page = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->nz()
+            ->payRuns()
+            ->paginate(page: 2, perPage: 25);
+
+        self::assertSame(2, $transport->requests()[0]->query['page']);
+        self::assertSame(25, $transport->requests()[0]->query['pageSize']);
+        self::assertSame(2, $page->page);
+        self::assertSame(25, $page->perPage);
+    }
+
+    public function test_pay_run_exposes_all_fields(): void
+    {
+        $payRun = (new PayRun())->fill([
+            'PayRunID' => 'payrun-1',
+            'PayrollCalendarID' => 'calendar-1',
+            'PayRunStatus' => 'POSTED',
+            'PaymentDate' => '2026-04-08',
+        ]);
+
+        self::assertSame('payrun-1', $payRun->getPayRunID());
+        self::assertSame('calendar-1', $payRun->getPayrollCalendarID());
+        self::assertSame('POSTED', $payRun->getPayRunStatus());
+        self::assertSame('2026-04-08', $payRun->getPaymentDate());
+    }
+
+    public function test_it_sends_idempotency_key_and_returns_blank_pay_run_on_empty_response(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $payRun = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->nz()
+            ->payRuns()
+            ->create()
+            ->payrollCalendar('calendar-1')
+            ->idempotencyKey('key-123')
+            ->save();
+
+        self::assertSame('key-123', $transport->requests()[0]->headers['Idempotency-Key']);
+        self::assertNull($payRun->getPayRunID());
+    }
 }

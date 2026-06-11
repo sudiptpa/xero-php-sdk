@@ -26,7 +26,8 @@ trait InteractsWithBindings
             is_bool($value) => $value ? 'true' : 'false',
             is_int($value), is_float($value) => (string) $value,
             $value === null => 'null',
-            default => '"' . str_replace('"', '\"', (string) $value) . '"',
+            is_string($value) => '"' . str_replace('"', '\"', $value) . '"',
+            default => '"' . str_replace('"', '\"', json_encode($value, JSON_THROW_ON_ERROR) ?: '') . '"',
         };
     }
 }

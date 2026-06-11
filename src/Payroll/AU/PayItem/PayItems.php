@@ -11,6 +11,7 @@ use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Support\ScopeRequirements;
 
 final class PayItems implements PaginatesResults, DefinesScopes
@@ -70,11 +71,10 @@ final class PayItems implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $payItems = $payload['PayItems'] ?? [];
-        $items = array_values(array_map(
+        $items = array_map(
             fn (array $payItem): PayItem => $this->mapPayItem($payItem),
-            $payItems === [] ? [$payload] : $payItems
-        ));
+            Json::extractList($payload, 'PayItems')
+        );
 
         return new ResourceCollection($items);
     }

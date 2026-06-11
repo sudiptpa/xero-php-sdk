@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\ContactGroup;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final readonly class ContactAssignments
 {
@@ -27,10 +28,10 @@ final readonly class ContactAssignments
             ->send();
 
         $payload = $response->json();
-        $contactGroup = $payload['ContactGroups'][0] ?? $payload['ContactGroup'] ?? [];
+        $contactGroup = Json::extractFirst($payload, 'ContactGroups') ?? Json::extractObject($payload, 'ContactGroup');
 
         return (new ContactGroups($this->client))
-            ->mapContactGroup(is_array($contactGroup) ? $contactGroup : []);
+            ->mapContactGroup($contactGroup);
     }
 
     public function remove(string $contactId): bool

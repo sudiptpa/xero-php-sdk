@@ -17,6 +17,9 @@ final class NativeTransport implements Transport
 
     public function send(Request $request): Response
     {
+        // @codeCoverageIgnoreStart
+        // The curl extension is a hard requirement and curl_init() effectively
+        // never returns false on a supported build, so these guards are unreachable in tests.
         if (!function_exists('curl_init')) {
             throw new TransportException('The curl extension is required for NativeTransport.');
         }
@@ -26,6 +29,7 @@ final class NativeTransport implements Transport
         if ($handle === false) {
             throw new TransportException('Unable to initialize curl.');
         }
+        // @codeCoverageIgnoreEnd
 
         $headers = [];
 
@@ -69,20 +73,22 @@ final class NativeTransport implements Transport
 
         if ($body === false) {
             $message = curl_error($handle);
-            curl_close($handle);
 
             throw new TransportException($message !== '' ? $message : 'Unknown transport error.');
         }
 
+        // @codeCoverageIgnoreStart
+        // CURLOPT_RETURNTRANSFER guarantees a string on success, so a non-string,
+        // non-false body is unreachable on a sane PHP+curl build.
         if (! is_string($body)) {
-            curl_close($handle);
-
             throw new TransportException('Unexpected curl response body type.');
         }
+        // @codeCoverageIgnoreEnd
 
         $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
-        curl_close($handle);
 
+        // curl_close() has been a no-op since PHP 8.0 (the CurlHandle is freed by
+        // the garbage collector) and is deprecated from 8.5, so it is intentionally omitted.
         $response = new Response($status, $responseHeaders, $body);
 
         if ($status >= 400) {

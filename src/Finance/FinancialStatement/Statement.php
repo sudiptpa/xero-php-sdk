@@ -6,6 +6,7 @@ namespace Sujip\Xero\Finance\FinancialStatement;
 
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Json;
 
 final class Statement extends Model
 {
@@ -18,16 +19,30 @@ final class Statement extends Model
     ) {
     }
 
-    public function getType(): string { return $this->type; }
-    public function setType(string $type): self { $this->type = $type; return $this; }
+    public function getType(): string
+    {
+        return $this->type;
+    }
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+        return $this;
+    }
     /**
      * @return list<array<string, mixed>>
      */
-    public function getRows(): array { return $this->rows; }
+    public function getRows(): array
+    {
+        return $this->rows;
+    }
     /**
      * @param list<array<string, mixed>> $rows
      */
-    public function setRows(array $rows): self { $this->rows = $rows; return $this; }
+    public function setRows(array $rows): self
+    {
+        $this->rows = $rows;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>
@@ -43,6 +58,6 @@ final class Statement extends Model
     {
         parent::fill($payload);
 
-        return $this->setRows(array_values(array_filter($payload['Rows'] ?? $payload['rows'] ?? [], 'is_array')));
+        return $this->setRows(Json::extractList($payload, 'Rows') ?: Json::extractList($payload, 'rows'));
     }
 }

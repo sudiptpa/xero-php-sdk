@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Currency;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -61,8 +62,8 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $currency = $payload['Currencies'][0] ?? $payload['Currency'] ?? [];
+        $currency = Json::extractFirst($payload, 'Currencies') ?? Json::extractObject($payload, 'Currency');
 
-        return (new Currencies($this->client))->mapCurrency(is_array($currency) ? $currency : []);
+        return (new Currencies($this->client))->mapCurrency($currency);
     }
 }
