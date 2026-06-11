@@ -9,7 +9,7 @@ use RuntimeException;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\UK\Employee\Employee;
-use Sujip\Xero\Payroll\UK\Employee\LeaveType;
+use Sujip\Xero\Payroll\UK\Employee\EmployeeLeaveType;
 use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
@@ -76,10 +76,10 @@ final class EmployeesTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'LeaveTypes' => [[
-                'LeaveTypeID' => 'leave-type-1',
-                'Name' => 'Holiday',
-                'IsActive' => true,
+            'leaveTypes' => [[
+                'leaveTypeID' => 'leave-type-1',
+                'scheduleOfAccrual' => 'OnAnniversaryDate',
+                'openingBalance' => 40,
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -89,9 +89,9 @@ final class EmployeesTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'EmployeeLeaveType' => [
-                'LeaveTypeID' => 'leave-type-2',
-                'OpeningBalance' => 12.5,
+            'leaveType' => [
+                'leaveTypeID' => 'leave-type-2',
+                'openingBalance' => 12.5,
             ],
         ], JSON_THROW_ON_ERROR)));
 
@@ -158,7 +158,7 @@ final class EmployeesTest extends TestCase
         self::assertNotNull($firstLt);
         self::assertSame('leave-type-1', $firstLt->getLeaveTypeID());
         self::assertSame('leave-2', Json::extractObject($createdLeave ?? [], 'EmployeeLeave')['LeaveID'] ?? null);
-        self::assertSame('leave-type-2', Json::extractObject($createdLeaveType ?? [], 'EmployeeLeaveType')['LeaveTypeID'] ?? null);
+        self::assertSame('leave-type-2', Json::extractObject($createdLeaveType ?? [], 'leaveType')['leaveTypeID'] ?? null);
     }
 
     public function test_it_exposes_scopes(): void
@@ -334,15 +334,23 @@ final class EmployeesTest extends TestCase
 
     public function test_leave_type_exposes_all_fields(): void
     {
-        $leaveType = (new LeaveType())->fill([
-            'LeaveTypeID' => 'leave-type-1',
-            'Name' => 'Holiday',
-            'IsActive' => true,
+        $leaveType = (new EmployeeLeaveType())->fill([
+            'leaveTypeID' => 'leave-type-1',
+            'scheduleOfAccrual' => 'OnAnniversaryDate',
+            'hoursAccruedAnnually' => 200,
+            'maximumToAccrue' => 80,
+            'openingBalance' => 72,
+            'rateAccruedHourly' => 0.25,
+            'scheduleOfAccrualDate' => '2026-04-01',
         ]);
 
         self::assertSame('leave-type-1', $leaveType->getLeaveTypeID());
-        self::assertSame('Holiday', $leaveType->getName());
-        self::assertTrue($leaveType->getIsActive());
+        self::assertSame('OnAnniversaryDate', $leaveType->getScheduleOfAccrual());
+        self::assertSame(200.0, $leaveType->getHoursAccruedAnnually());
+        self::assertSame(80.0, $leaveType->getMaximumToAccrue());
+        self::assertSame(72.0, $leaveType->getOpeningBalance());
+        self::assertSame(0.25, $leaveType->getRateAccruedHourly());
+        self::assertSame('2026-04-01', $leaveType->getScheduleOfAccrualDate());
     }
 
     public function test_leave_payloads_send_idempotency_keys(): void
@@ -352,7 +360,7 @@ final class EmployeesTest extends TestCase
             'EmployeeLeave' => ['LeaveID' => 'leave-1'],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'EmployeeLeaveType' => ['LeaveTypeID' => 'leave-type-1'],
+            'leaveType' => ['leaveTypeID' => 'leave-type-1'],
         ], JSON_THROW_ON_ERROR)));
 
         $employees = Xero::withAccessToken('token', $transport)

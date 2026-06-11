@@ -133,7 +133,7 @@ final class Employee extends Model
         }
         return (new Employees($this->client))->paymentMethod($this->employeeID);
     }
-    /** @return ResourceCollection<LeaveType> */
+    /** @return ResourceCollection<EmployeeLeaveType> */
     public function leaveTypes(): ResourceCollection
     {
         if ($this->client === null || $this->employeeID === null) {

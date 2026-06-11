@@ -166,7 +166,7 @@ final class Employees implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return ResourceCollection<LeaveType>
+     * @return ResourceCollection<EmployeeLeaveType>
      */
     public function leaveTypes(string $employeeId): ResourceCollection
     {
@@ -176,8 +176,8 @@ final class Employees implements PaginatesResults, DefinesScopes
             ->json();
 
         $items = array_map(
-            fn (array $leaveType): LeaveType => $this->mapLeaveType($leaveType),
-            Json::extractList($payload, 'LeaveTypes')
+            fn (array $leaveType): EmployeeLeaveType => $this->mapLeaveType($leaveType),
+            Json::extractList($payload, 'leaveTypes')
         );
 
         return new ResourceCollection($items);
@@ -204,8 +204,8 @@ final class Employees implements PaginatesResults, DefinesScopes
     /**
      * @param array<string, mixed> $leaveType
      */
-    public function mapLeaveType(array $leaveType): LeaveType
+    public function mapLeaveType(array $leaveType): EmployeeLeaveType
     {
-        return (new LeaveType())->fill($leaveType);
+        return (new EmployeeLeaveType())->fill($leaveType);
     }
 }
