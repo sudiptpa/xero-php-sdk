@@ -93,7 +93,7 @@ final class Employee extends Model
         return $payload->save();
     }
 
-    /** @return ResourceCollection<\Sujip\Xero\Payroll\NZ\LeaveType\LeaveType> */
+    /** @return ResourceCollection<EmployeeLeaveType> */
     public function leaveTypes(): ResourceCollection
     {
         if ($this->client === null || $this->employeeID === null) {

@@ -9,6 +9,7 @@ use RuntimeException;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\NZ\Employee\Employee;
+use Sujip\Xero\Payroll\NZ\Employee\EmployeeLeaveType;
 use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
@@ -46,10 +47,10 @@ final class EmployeesTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'LeaveTypes' => [[
-                'LeaveTypeID' => 'leave-type-1',
-                'Name' => 'Annual Leave',
-                'IsActive' => true,
+            'leaveTypes' => [[
+                'leaveTypeID' => 'leave-type-1',
+                'scheduleOfAccrual' => 'AnnuallyAfter6Months',
+                'openingBalance' => 100,
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -248,7 +249,7 @@ final class EmployeesTest extends TestCase
         self::assertSame('employee-1', $employee?->getEmployeeID());
         self::assertSame('employee-2', $created->getEmployeeID());
         self::assertSame('employee-2', $updated->getEmployeeID());
-        self::assertSame('Annual Leave', $leaveTypes?->first()?->getName());
+        self::assertSame('AnnuallyAfter6Months', $leaveTypes?->first()?->getScheduleOfAccrual());
         self::assertSame('2026-01-01', (Json::extractList($leavePeriods ?? [], 'LeavePeriods')[0] ?? [])['StartDate'] ?? null);
         self::assertEquals(24.5, (Json::extractList($leaveBalances ?? [], 'LeaveBalances')[0] ?? [])['Balance'] ?? null);
         self::assertSame('leave-1', (Json::extractList($leaves ?? [], 'Leave')[0] ?? [])['LeaveID'] ?? null);
@@ -538,5 +539,38 @@ final class EmployeesTest extends TestCase
         $this->expectException(RuntimeException::class);
 
         (new Employee())->salaryAndWage('wage-1');
+    }
+
+    public function test_employee_leave_type_exposes_all_fields(): void
+    {
+        $leaveType = (new EmployeeLeaveType())->fill([
+            'leaveTypeID' => 'leave-type-1',
+            'scheduleOfAccrual' => 'AnnuallyAfter6Months',
+            'unitsAccruedAnnually' => 10,
+            'typeOfUnitsToAccrue' => 'Hours',
+            'maximumToAccrue' => 80,
+            'openingBalance' => 100,
+            'openingBalanceTypeOfUnits' => 'Hours',
+            'rateAccruedHourly' => 0.5,
+            'percentageOfGrossEarnings' => 8,
+            'includeHolidayPayEveryPay' => true,
+            'showAnnualLeaveInAdvance' => false,
+            'annualLeaveTotalAmountPaid' => 250.75,
+            'scheduleOfAccrualDate' => '2026-04-01',
+        ]);
+
+        self::assertSame('leave-type-1', $leaveType->getLeaveTypeID());
+        self::assertSame('AnnuallyAfter6Months', $leaveType->getScheduleOfAccrual());
+        self::assertSame(10.0, $leaveType->getUnitsAccruedAnnually());
+        self::assertSame('Hours', $leaveType->getTypeOfUnitsToAccrue());
+        self::assertSame(80.0, $leaveType->getMaximumToAccrue());
+        self::assertSame(100.0, $leaveType->getOpeningBalance());
+        self::assertSame('Hours', $leaveType->getOpeningBalanceTypeOfUnits());
+        self::assertSame(0.5, $leaveType->getRateAccruedHourly());
+        self::assertSame(8.0, $leaveType->getPercentageOfGrossEarnings());
+        self::assertTrue($leaveType->getIncludeHolidayPayEveryPay());
+        self::assertFalse($leaveType->getShowAnnualLeaveInAdvance());
+        self::assertSame(250.75, $leaveType->getAnnualLeaveTotalAmountPaid());
+        self::assertSame('2026-04-01', $leaveType->getScheduleOfAccrualDate());
     }
 }
