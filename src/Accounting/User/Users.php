@@ -57,6 +57,18 @@ final class Users implements DefinesScopes
         return new ResourceCollection($items);
     }
 
+    public function find(string $userId): ?User
+    {
+        $response = $this->client
+            ->get('/api.xro/2.0/Users/' . $userId)
+            ->send();
+
+        $payload = $response->json();
+        $user = Json::extractFirst($payload, 'Users');
+
+        return $user !== null ? $this->mapUser($user) : null;
+    }
+
     /**
      * @param array<string, mixed> $payload
      */

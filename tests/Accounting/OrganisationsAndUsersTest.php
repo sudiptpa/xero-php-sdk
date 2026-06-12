@@ -76,6 +76,80 @@ final class OrganisationsAndUsersTest extends TestCase
         self::assertTrue($users->first()->getIsSubscriber());
     }
 
+    public function test_it_can_find_a_user(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'Users' => [['UserID' => 'user-1', 'EmailAddress' => 'test@email.com', 'FirstName' => 'Test']],
+        ], JSON_THROW_ON_ERROR)));
+
+        $user = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->users()
+            ->find('user-1');
+
+        self::assertSame('/api.xro/2.0/Users/user-1', $transport->requests()[0]->path);
+        self::assertNotNull($user);
+        self::assertSame('test@email.com', $user->getEmailAddress());
+    }
+
+    public function test_find_returns_null_when_user_is_missing(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $user = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->users()
+            ->find('missing');
+
+        self::assertNull($user);
+    }
+
+    public function test_it_lists_organisation_actions(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'Actions' => [
+                ['Name' => 'CreateApprovedInvoice', 'Status' => 'ALLOWED'],
+                ['Name' => 'UseMulticurrency', 'Status' => 'NOT-ALLOWED'],
+            ],
+        ], JSON_THROW_ON_ERROR)));
+
+        $actions = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->organisations()
+            ->actions();
+
+        self::assertSame('/api.xro/2.0/Organisation/Actions', $transport->requests()[0]->path);
+        self::assertCount(2, $actions);
+        $first = $actions->first();
+        self::assertNotNull($first);
+        self::assertSame('CreateApprovedInvoice', $first->name);
+        self::assertTrue($first->isAllowed());
+        self::assertFalse($actions->all()[1]->isAllowed());
+    }
+
+    public function test_it_fetches_organisation_cis_settings(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'CISSettings' => [['CISContractorEnabled' => true, 'CISSubContractorEnabled' => false, 'Rate' => 10]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $settings = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->organisations()
+            ->cisSettings('org-1');
+
+        self::assertSame('/api.xro/2.0/Organisation/org-1/CISSettings', $transport->requests()[0]->path);
+        $setting = $settings->first();
+        self::assertNotNull($setting);
+        self::assertTrue($setting->cisContractorEnabled);
+        self::assertFalse($setting->cisSubContractorEnabled);
+        self::assertSame(10.0, $setting->rate);
+    }
+
     public function test_organisations_and_users_expose_required_scopes(): void
     {
         $accounting = Xero::withAccessToken('token', new FakeTransport())

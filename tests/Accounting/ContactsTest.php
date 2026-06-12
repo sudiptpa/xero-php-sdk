@@ -343,6 +343,43 @@ final class ContactsTest extends TestCase
         self::assertSame('0400000000', $contact->getPhones()[0]->getPhoneNumber());
     }
 
+    public function test_it_fetches_contact_cis_settings(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'CISSettings' => [['CISEnabled' => true, 'Rate' => 20]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $settings = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->contacts()
+            ->cisSettings('contact-1');
+
+        self::assertSame('/api.xro/2.0/Contacts/contact-1/CISSettings', $transport->requests()[0]->path);
+        $setting = $settings->first();
+        self::assertNotNull($setting);
+        self::assertTrue($setting->cisEnabled);
+        self::assertSame(20.0, $setting->rate);
+    }
+
+    public function test_contact_cis_settings_accepts_the_singular_wrapper(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'CISSetting' => [['CISEnabled' => false]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $settings = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->contacts()
+            ->cisSettings('contact-1');
+
+        $setting = $settings->first();
+        self::assertNotNull($setting);
+        self::assertFalse($setting->cisEnabled);
+        self::assertNull($setting->rate);
+    }
+
     public function test_saving_a_contact_without_a_client_throws(): void
     {
         $this->expectException(\RuntimeException::class);

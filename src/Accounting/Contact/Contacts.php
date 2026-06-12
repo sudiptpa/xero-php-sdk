@@ -139,6 +139,35 @@ final class Contacts implements PaginatesResults, DefinesScopes
     }
 
     /**
+     * @return ResourceCollection<CisSetting>
+     */
+    public function cisSettings(string $contactId): ResourceCollection
+    {
+        $payload = $this->client
+            ->get('/api.xro/2.0/Contacts/' . $contactId . '/CISSettings')
+            ->send()
+            ->json();
+
+        // The spec example wraps the list as "CISSetting" while the schema
+        // declares "CISSettings" — accept both spellings.
+        $settings = Json::extractList($payload, 'CISSettings');
+        if ($settings === []) {
+            $settings = Json::extractList($payload, 'CISSetting');
+        }
+
+        $items = array_map(
+            static fn (array $setting): CisSetting => new CisSetting(
+                isset($setting['CISEnabled']) ? (bool) $setting['CISEnabled'] : null,
+                is_numeric($setting['Rate'] ?? null) ? (float) $setting['Rate'] : null,
+                $setting
+            ),
+            $settings
+        );
+
+        return new ResourceCollection($items);
+    }
+
+    /**
      * @param array<string, mixed> $payload
      */
     public function mapContact(array $payload): Contact
