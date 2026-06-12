@@ -130,6 +130,39 @@ final class Timesheets implements PaginatesResults, DefinesScopes
         return true;
     }
 
+    public function createLine(string $timesheetId, TimesheetLine $line, ?string $idempotencyKey = null): TimesheetLine
+    {
+        $payload = $this->client
+            ->post('/payroll.xro/2.0/Timesheets/' . $timesheetId . '/Lines')
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withJson($line->toRequest())
+            ->send()
+            ->json();
+
+        return (new TimesheetLine())->fill(Json::extractObject($payload, 'timesheetLine'));
+    }
+
+    public function updateLine(string $timesheetId, string $timesheetLineId, TimesheetLine $line, ?string $idempotencyKey = null): TimesheetLine
+    {
+        $payload = $this->client
+            ->put('/payroll.xro/2.0/Timesheets/' . $timesheetId . '/Lines/' . $timesheetLineId)
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withJson($line->toRequest())
+            ->send()
+            ->json();
+
+        return (new TimesheetLine())->fill(Json::extractObject($payload, 'timesheetLine'));
+    }
+
+    public function deleteLine(string $timesheetId, string $timesheetLineId): bool
+    {
+        $this->client
+            ->delete('/payroll.xro/2.0/Timesheets/' . $timesheetId . '/Lines/' . $timesheetLineId)
+            ->send();
+
+        return true;
+    }
+
     /**
      * @param array<string, mixed> $timesheet
      */

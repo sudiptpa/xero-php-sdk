@@ -9,6 +9,7 @@ use RuntimeException;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\NZ\Timesheet\Timesheet;
+use Sujip\Xero\Payroll\NZ\Timesheet\TimesheetLine;
 use Sujip\Xero\Xero;
 
 final class TimesheetsTest extends TestCase
@@ -232,5 +233,66 @@ final class TimesheetsTest extends TestCase
 
         self::assertSame('key-123', $transport->requests()[0]->headers['Idempotency-Key']);
         self::assertNull($timesheet->getTimesheetID());
+    }
+
+    public function test_it_creates_updates_and_deletes_timesheet_lines(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'timesheetLine' => [
+                'timesheetLineID' => 'line-1',
+                'date' => '2020-08-03T00:00:00',
+                'earningsRateID' => 'rate-1',
+                'trackingItemID' => 'tracking-1',
+                'numberOfUnits' => 8,
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'timesheetLine' => ['timesheetLineID' => 'line-1', 'numberOfUnits' => 6],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: '{}'));
+
+        $timesheets = Xero::withAccessToken('token', $transport)->tenant('tenant-123')
+            ->payroll()->nz()->timesheets();
+
+        $created = $timesheets->createLine(
+            'timesheet-1',
+            (new TimesheetLine())
+                ->setDate('2020-08-03')
+                ->setEarningsRateID('rate-1')
+                ->setNumberOfUnits(8.0),
+            'line-key'
+        );
+        $updated = $timesheets->updateLine(
+            'timesheet-1',
+            'line-1',
+            (new TimesheetLine())->setDate('2020-08-03')->setEarningsRateID('rate-1')->setNumberOfUnits(6.0)
+        );
+        $deleted = $timesheets->deleteLine('timesheet-1', 'line-1');
+
+        $createRequest = $transport->requests()[0];
+        self::assertSame('POST', $createRequest->method);
+        self::assertSame('/payroll.xro/2.0/Timesheets/timesheet-1/Lines', $createRequest->path);
+        self::assertSame('line-key', $createRequest->headers['Idempotency-Key']);
+        self::assertSame([
+            'date' => '2020-08-03',
+            'earningsRateID' => 'rate-1',
+            'numberOfUnits' => 8.0,
+        ], $createRequest->json);
+        self::assertSame('line-1', $created->getTimesheetLineID());
+        self::assertSame('2020-08-03T00:00:00', $created->getDate());
+        self::assertSame('rate-1', $created->getEarningsRateID());
+        self::assertSame('tracking-1', $created->getTrackingItemID());
+        self::assertSame(8.0, $created->getNumberOfUnits());
+
+        $updateRequest = $transport->requests()[1];
+        self::assertSame('PUT', $updateRequest->method);
+        self::assertSame('/payroll.xro/2.0/Timesheets/timesheet-1/Lines/line-1', $updateRequest->path);
+        self::assertArrayNotHasKey('Idempotency-Key', $updateRequest->headers);
+        self::assertSame(6.0, $updated->getNumberOfUnits());
+
+        self::assertSame('DELETE', $transport->requests()[2]->method);
+        self::assertSame('/payroll.xro/2.0/Timesheets/timesheet-1/Lines/line-1', $transport->requests()[2]->path);
+        self::assertTrue($deleted);
     }
 }
