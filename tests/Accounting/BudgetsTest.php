@@ -7,6 +7,8 @@ namespace Sujip\Xero\Tests\Accounting;
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Accounting\Budget\Budget;
 use Sujip\Xero\Accounting\Budget\BudgetBalance;
+use Sujip\Xero\Accounting\Budget\BudgetLine;
+use Sujip\Xero\Accounting\TrackingCategory\TrackingCategory;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Xero;
@@ -108,6 +110,21 @@ final class BudgetsTest extends TestCase
 
         self::assertSame([], $scopes->broad);
         self::assertSame(['accounting.budgets.read'], $scopes->granular);
+    }
+
+    public function test_budget_collections_can_be_replaced_wholesale(): void
+    {
+        $line = (new BudgetLine())->setBudgetBalances([
+            (new BudgetBalance())->setPeriod('2019-09'),
+        ]);
+
+        $budget = (new Budget())
+            ->setBudgetLines([$line])
+            ->setTracking([new TrackingCategory()]);
+
+        self::assertCount(1, $budget->getBudgetLines());
+        self::assertCount(1, $budget->getTracking());
+        self::assertSame('2019-09', $line->getBudgetBalances()[0]->getPeriod());
     }
 
     public function test_budget_balance_exposes_unit_amount(): void
