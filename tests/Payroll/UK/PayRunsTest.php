@@ -113,9 +113,11 @@ final class PayRunsTest extends TestCase
         $modelPayslips = $payRun?->payslips();
 
         self::assertSame('/payroll.xro/2.0/PayRuns/payrun-1', $transport->requests()[0]->path);
-        self::assertSame('/payroll.xro/2.0/PayRuns/payrun-1/Payslips', $transport->requests()[1]->path);
-        self::assertSame('/payroll.xro/2.0/PayRuns/payrun-1/Payslips/payslip-1', $transport->requests()[2]->path);
-        self::assertSame('/payroll.xro/2.0/PayRuns/payrun-1/Payslips', $transport->requests()[3]->path);
+        self::assertSame('/payroll.xro/2.0/Payslips', $transport->requests()[1]->path);
+        self::assertSame('payrun-1', $transport->requests()[1]->query['PayRunID']);
+        self::assertSame('/payroll.xro/2.0/Payslips/payslip-1', $transport->requests()[2]->path);
+        self::assertSame('/payroll.xro/2.0/Payslips', $transport->requests()[3]->path);
+        self::assertSame('payrun-1', $transport->requests()[3]->query['PayRunID']);
         self::assertNotNull($payslips->first());
         self::assertSame('payslip-1', $payslip?->getPayslipID());
         self::assertSame('payslip-1', $modelPayslips?->first()?->getPayslipID());

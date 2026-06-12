@@ -32,7 +32,8 @@ final readonly class Payslips implements DefinesScopes
     public function get(): ResourceCollection
     {
         $payload = $this->client
-            ->get('/payroll.xro/2.0/PayRuns/' . $this->payRunId . '/Payslips')
+            ->get('/payroll.xro/2.0/Payslips')
+            ->withQuery(['PayRunID' => $this->payRunId])
             ->send()
             ->json();
 
@@ -47,7 +48,7 @@ final readonly class Payslips implements DefinesScopes
     public function find(string $payslipId): ?Payslip
     {
         $payload = $this->client
-            ->get('/payroll.xro/2.0/PayRuns/' . $this->payRunId . '/Payslips/' . $payslipId)
+            ->get('/payroll.xro/2.0/Payslips/' . $payslipId)
             ->send()
             ->json();
 
