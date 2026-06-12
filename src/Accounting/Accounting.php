@@ -32,6 +32,7 @@ use Sujip\Xero\Accounting\Quote\Quotes as QuotesResource;
 use Sujip\Xero\Accounting\Receipt\Receipts as ReceiptsResource;
 use Sujip\Xero\Accounting\RepeatingInvoice\RepeatingInvoices as RepeatingInvoicesResource;
 use Sujip\Xero\Accounting\Report\Reports as ReportsResource;
+use Sujip\Xero\Accounting\Setup\Payload as SetupPayload;
 use Sujip\Xero\Accounting\TaxRate\TaxRates as TaxRatesResource;
 use Sujip\Xero\Accounting\TrackingCategory\TrackingCategories as TrackingCategoriesResource;
 use Sujip\Xero\Accounting\User\Users as UsersResource;
@@ -197,5 +198,10 @@ final readonly class Accounting
     public function budgets(): BudgetsResource
     {
         return new BudgetsResource($this->client);
+    }
+
+    public function setup(): SetupPayload
+    {
+        return new SetupPayload($this->client);
     }
 }
