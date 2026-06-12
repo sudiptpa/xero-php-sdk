@@ -6,6 +6,9 @@ namespace Sujip\Xero\Payroll\NZ;
 
 use Sujip\Xero\Payroll\NZ\Employee\Employees;
 use Sujip\Xero\Payroll\NZ\LeaveType\LeaveTypes;
+use Sujip\Xero\Payroll\NZ\PayItem\Deductions;
+use Sujip\Xero\Payroll\NZ\PayItem\EarningsRates;
+use Sujip\Xero\Payroll\NZ\PayItem\Superannuations;
 use Sujip\Xero\Payroll\NZ\PayRun\PayRuns;
 use Sujip\Xero\Payroll\NZ\PayRunCalendar\PayRunCalendars;
 use Sujip\Xero\Payroll\NZ\Settings\Settings;
@@ -22,6 +25,21 @@ final readonly class PayrollNZ extends PayrollRegion
     public function leaveTypes(): LeaveTypes
     {
         return new LeaveTypes($this->client);
+    }
+
+    public function deductions(): Deductions
+    {
+        return new Deductions($this->client);
+    }
+
+    public function earningsRates(): EarningsRates
+    {
+        return new EarningsRates($this->client);
+    }
+
+    public function superannuations(): Superannuations
+    {
+        return new Superannuations($this->client);
     }
 
     public function payRunCalendars(): PayRunCalendars
