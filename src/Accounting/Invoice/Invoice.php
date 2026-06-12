@@ -238,4 +238,22 @@ final class Invoice extends Model implements SerializesRequest
 
         return (new Invoices($this->client))->pdf($this->invoiceID);
     }
+
+    public function email(?string $idempotencyKey = null): void
+    {
+        if ($this->client === null || $this->invoiceID === null) {
+            throw new RuntimeException('Cannot email an invoice without a bound client context and invoice id.');
+        }
+
+        (new Invoices($this->client))->email($this->invoiceID, $idempotencyKey);
+    }
+
+    public function onlineInvoiceUrl(): ?string
+    {
+        if ($this->client === null || $this->invoiceID === null) {
+            throw new RuntimeException('Cannot access the online invoice URL without a bound client context and invoice id.');
+        }
+
+        return (new Invoices($this->client))->onlineInvoiceUrl($this->invoiceID);
+    }
 }

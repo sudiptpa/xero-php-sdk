@@ -320,6 +320,92 @@ final class InvoicesTest extends TestCase
         self::assertSame('/api.xro/2.0/Invoices/invoice-1/pdf', $transport->requests()[1]->path);
     }
 
+    public function test_it_can_email_an_invoice(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'Invoices' => [['InvoiceID' => 'invoice-1', 'LineItems' => []]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(204, body: ''));
+
+        $invoice = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->invoices()
+            ->find('invoice-1');
+
+        self::assertNotNull($invoice);
+        $invoice->email('email-key');
+
+        $request = $transport->requests()[1];
+        self::assertSame('POST', $request->method);
+        self::assertSame('/api.xro/2.0/Invoices/invoice-1/Email', $request->path);
+        self::assertSame('{}', $request->body);
+        self::assertSame('application/json', $request->headers['Content-Type']);
+        self::assertSame('email-key', $request->headers['Idempotency-Key']);
+    }
+
+    public function test_it_can_email_an_invoice_without_an_idempotency_key(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(204, body: ''));
+
+        Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->invoices()
+            ->email('invoice-1');
+
+        self::assertArrayNotHasKey('Idempotency-Key', $transport->requests()[0]->headers);
+    }
+
+    public function test_it_can_fetch_the_online_invoice_url(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'Invoices' => [['InvoiceID' => 'invoice-1', 'LineItems' => []]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'OnlineInvoices' => [['OnlineInvoiceUrl' => 'https://in.xero.com/abc123']],
+        ], JSON_THROW_ON_ERROR)));
+
+        $invoice = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->invoices()
+            ->find('invoice-1');
+
+        self::assertNotNull($invoice);
+        self::assertSame('https://in.xero.com/abc123', $invoice->onlineInvoiceUrl());
+        self::assertSame('/api.xro/2.0/Invoices/invoice-1/OnlineInvoice', $transport->requests()[1]->path);
+    }
+
+    public function test_online_invoice_url_is_null_when_absent(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $url = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->invoices()
+            ->onlineInvoiceUrl('invoice-1');
+
+        self::assertNull($url);
+    }
+
+    public function test_email_without_a_client_throws(): void
+    {
+        $this->expectException(\RuntimeException::class);
+
+        (new Invoice())->email();
+    }
+
+    public function test_online_invoice_url_without_a_client_throws(): void
+    {
+        $this->expectException(\RuntimeException::class);
+
+        (new Invoice())->onlineInvoiceUrl();
+    }
+
     public function test_saving_without_a_client_throws(): void
     {
         $this->expectException(\RuntimeException::class);
