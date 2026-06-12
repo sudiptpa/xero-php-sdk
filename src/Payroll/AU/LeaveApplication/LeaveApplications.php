@@ -80,6 +80,27 @@ final class LeaveApplications implements PaginatesResults, DefinesScopes
     }
 
     /**
+     * Includes leave requests in addition to approved leave applications.
+     *
+     * @return ResourceCollection<LeaveApplication>
+     */
+    public function v2(): ResourceCollection
+    {
+        $response = $this->client
+            ->get('/payroll.xro/1.0/LeaveApplications/v2')
+            ->withQuery(array_merge($this->query, $this->paginationQuery()))
+            ->send();
+
+        $payload = $response->json();
+        $items = array_map(
+            fn (array $leaveApplication): LeaveApplication => $this->mapLeaveApplication($leaveApplication),
+            Json::extractList($payload, 'LeaveApplications')
+        );
+
+        return new ResourceCollection($items);
+    }
+
+    /**
      * @return PaginatedCollection<LeaveApplication>
      */
     public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection

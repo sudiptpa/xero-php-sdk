@@ -115,6 +115,32 @@ final class LeaveApplicationsTest extends TestCase
         self::assertSame(['payroll.employees.read', 'payroll.employees'], $scopes->granular);
     }
 
+    public function test_it_queries_v2_leave_applications_including_requests(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode([
+                'LeaveApplications' => [[
+                    'LeaveApplicationID' => 'leave-1',
+                    'EmployeeID' => 'employee-1',
+                    'Status' => 'SCHEDULED',
+                ]],
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        $applications = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->au()
+            ->leaveApplications()
+            ->where('Status=="SCHEDULED"')
+            ->v2();
+
+        $request = $transport->requests()[0];
+        self::assertSame('/payroll.xro/1.0/LeaveApplications/v2', $request->path);
+        self::assertSame('Status=="SCHEDULED"', $request->query['where']);
+        self::assertSame('leave-1', $applications->first()?->getLeaveApplicationID());
+    }
+
     public function test_it_can_paginate_leave_applications(): void
     {
         $transport = (new FakeTransport())->push(
