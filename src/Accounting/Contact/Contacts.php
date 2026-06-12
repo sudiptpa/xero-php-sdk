@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Contact;
 
+use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
@@ -124,6 +125,11 @@ final class Contacts implements PaginatesResults, DefinesScopes
     public function update(string $contactId): Payload
     {
         return (new Payload($this->client))->id($contactId);
+    }
+
+    public function history(string $contactId): History
+    {
+        return new History($this->client, '/api.xro/2.0/Contacts/' . $contactId . '/History');
     }
 
     /**

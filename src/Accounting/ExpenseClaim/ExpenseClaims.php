@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\ExpenseClaim;
 
+use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
@@ -77,6 +78,11 @@ final class ExpenseClaims implements DefinesScopes
     public function update(string $expenseClaimId): Payload
     {
         return (new Payload($this->client))->id($expenseClaimId);
+    }
+
+    public function history(string $expenseClaimId): History
+    {
+        return new History($this->client, '/api.xro/2.0/ExpenseClaims/' . $expenseClaimId . '/History');
     }
 
     /**

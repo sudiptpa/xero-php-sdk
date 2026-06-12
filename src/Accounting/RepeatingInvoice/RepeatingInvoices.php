@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\RepeatingInvoice;
 
+use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\InteractsWithBindings;
@@ -77,6 +78,11 @@ final class RepeatingInvoices implements DefinesScopes
     public function update(string $repeatingInvoiceId): Payload
     {
         return (new Payload($this->client))->id($repeatingInvoiceId);
+    }
+
+    public function history(string $repeatingInvoiceId): History
+    {
+        return new History($this->client, '/api.xro/2.0/RepeatingInvoices/' . $repeatingInvoiceId . '/History');
     }
 
     /**

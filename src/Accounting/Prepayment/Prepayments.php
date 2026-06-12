@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Prepayment;
 
 use Sujip\Xero\Accounting\Allocations;
+use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
@@ -92,6 +93,11 @@ final class Prepayments implements PaginatesResults, DefinesScopes
     public function allocations(string $prepaymentId): Allocations
     {
         return new Allocations($this->client, '/api.xro/2.0/Prepayments/' . $prepaymentId . '/Allocations');
+    }
+
+    public function history(string $prepaymentId): History
+    {
+        return new History($this->client, '/api.xro/2.0/Prepayments/' . $prepaymentId . '/History');
     }
 
     /**

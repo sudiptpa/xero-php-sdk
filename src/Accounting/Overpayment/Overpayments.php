@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Overpayment;
 
 use Sujip\Xero\Accounting\Allocations;
+use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
@@ -92,6 +93,11 @@ final class Overpayments implements PaginatesResults, DefinesScopes
     public function allocations(string $overpaymentId): Allocations
     {
         return new Allocations($this->client, '/api.xro/2.0/Overpayments/' . $overpaymentId . '/Allocations');
+    }
+
+    public function history(string $overpaymentId): History
+    {
+        return new History($this->client, '/api.xro/2.0/Overpayments/' . $overpaymentId . '/History');
     }
 
     /**
