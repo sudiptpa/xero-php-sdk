@@ -10,6 +10,7 @@ use Sujip\Xero\Payroll\NZ\PayItem\Deductions;
 use Sujip\Xero\Payroll\NZ\PayItem\EarningsRates;
 use Sujip\Xero\Payroll\NZ\PayItem\Superannuations;
 use Sujip\Xero\Payroll\NZ\PayRun\PayRuns;
+use Sujip\Xero\Payroll\NZ\PaySlip\PaySlips;
 use Sujip\Xero\Payroll\NZ\PayRunCalendar\PayRunCalendars;
 use Sujip\Xero\Payroll\NZ\Settings\Settings;
 use Sujip\Xero\Payroll\NZ\Timesheet\Timesheets;
@@ -50,6 +51,11 @@ final readonly class PayrollNZ extends PayrollRegion
     public function payRuns(): PayRuns
     {
         return new PayRuns($this->client);
+    }
+
+    public function paySlips(): PaySlips
+    {
+        return new PaySlips($this->client);
     }
 
     public function timesheets(): Timesheets
