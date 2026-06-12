@@ -9,6 +9,7 @@ use Sujip\Xero\Accounting\BankTransaction\BankTransactions as BankTransactionsRe
 use Sujip\Xero\Accounting\BankTransfer\BankTransfers as BankTransfersResource;
 use Sujip\Xero\Accounting\BatchPayment\BatchPayments as BatchPaymentsResource;
 use Sujip\Xero\Accounting\BrandingTheme\BrandingThemes as BrandingThemesResource;
+use Sujip\Xero\Accounting\Budget\Budgets as BudgetsResource;
 use Sujip\Xero\Accounting\Contact\Contacts as ContactsResource;
 use Sujip\Xero\Accounting\ContactGroup\ContactGroups as ContactGroupsResource;
 use Sujip\Xero\Accounting\CreditNote\CreditNotes as CreditNotesResource;
@@ -191,5 +192,10 @@ final readonly class Accounting
     public function payments(): PaymentsResource
     {
         return new PaymentsResource($this->client);
+    }
+
+    public function budgets(): BudgetsResource
+    {
+        return new BudgetsResource($this->client);
     }
 }
