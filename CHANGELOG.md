@@ -2,6 +2,70 @@
 
 All notable changes to this package should be documented here.
 
+## Unreleased
+
+### Fixed (breaking wire-contract corrections, see UPGRADE.md)
+
+An audit against the official Xero OpenAPI specs found that a number of
+endpoints, request bodies, and response shapes did not match the documented
+contracts. These are bug fixes (the affected calls would 404, return empty
+data, or send a payload Xero ignores), but they change method signatures and
+serialized payloads, so they are listed as breaking. See `UPGRADE.md` for the
+full list of affected methods.
+
+- `AppStore`: every call now goes to `https://api.xero.com/appstore/2.0/...`
+  (was `https://api.xero.com/subscriptions/...`, a 404 for every request)
+- `Finance`: `bankStatementAccounting()` now calls
+  `/finance.xro/1.0/BankStatementsPlus/statements` with the documented
+  `BankAccountID`/`FromDate`/`ToDate`/`SummaryOnly` parameters
+- `Payroll NZ` and `Payroll UK`:
+  - `Timesheets`: revert now calls `RevertToDraft` (was `Revert`, a 404);
+    removed the phantom `update()` (no such endpoint); UK gained `delete()`
+  - `Employees`: update is now `PUT` (was `POST`), request/response bodies
+    are bare camelCase, `email` replaces `EmailAddress`, removed the
+    non-existent `Status` field
+  - `Employees`: removed the phantom `employment()` reader (the API only
+    supports `POST .../Employment` to create, no `GET`)
+  - `PayRuns`: request/response bodies are bare camelCase, full schema
+    exposed (`periodStartDate`, `periodEndDate`, `totalCost`, `totalPay`,
+    `payRunType`, `calendarType`, `postedDateTime`), added `paymentDate()`
+    builder for create
+  - `PayRunCalendars`: response unwraps from camelCase
+    `payRunCalendars`/`payRunCalendar`, full schema exposed
+    (`periodEndDate`, `paymentDate`, `updatedDateUTC`)
+- `Payroll UK`:
+  - `Employees`: payment methods endpoint is `/PaymentMethods` (plural, was
+    singular)
+  - `Employees`: leave types now return `EmployeeLeaveType` (was
+    incorrectly mapped to a generic `LeaveType`)
+  - `Settings`: `trackingCategories()` now returns the single
+    `trackingCategories` object (was modelled as a list with invented
+    fields); `Reimbursement` corrected to `accountID`/`currentRecord`;
+    `statutoryLeaveSummary()` now returns a collection of
+    `EmployeeStatutoryLeaveSummary`
+  - `Payslips`: unwrap from `paySlips`/`paySlip`, corrected to the real
+    schema (`paySlipID`, `employeeID`, `payRunID`, `lastEdited`,
+    `firstName`, `lastName`, total* money fields)
+- `Payroll NZ`:
+  - `LeaveTypes`: standalone resource unwraps from camelCase
+    `leaveTypes`/`leaveType` with the full schema; employee leave types now
+    return a dedicated `EmployeeLeaveType`
+  - `Settings`: `GET /Settings` unwraps from camelCase `settings`;
+    `trackingCategories()` moved to its own
+    `GET /Settings/TrackingCategories` call; `StatutoryDeduction` corrected
+    to `id`/`statutoryDeductionCategory`/`liabilityAccountId`/`currentRecord`
+- `Payroll AU`:
+  - removed the phantom `PayrollCalendars` `update()` (only `GET`/`POST`
+    exist)
+  - `PayRun.payslips()` now returns embedded `PayslipSummary[]` from the
+    pay run response; added `PayRuns.payslip($id)` for the full `Payslip`
+    via `GET /Payslip/{id}`; removed the phantom `Payslips` collection and
+    `Employee.leaveBalances()`/`Employees.leaveBalances()` (404 endpoint)
+- `Accounting`: `BankTransfers`, `Currencies`, `ExpenseClaims` (create),
+  `LinkedTransactions`, `PaymentServices`, and `ContactGroups/{id}/Contacts`
+  are now created with `PUT` (was `POST`, which Xero rejects/ignores for
+  these resources); `ExpenseClaims` update remains `POST /{id}`
+
 ## 1.0.0 - 2026-03-31
 
 ### Release Highlights
