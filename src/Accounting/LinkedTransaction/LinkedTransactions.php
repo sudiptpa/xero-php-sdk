@@ -92,9 +92,33 @@ final class LinkedTransactions implements DefinesScopes
         return new ResourceCollection($items);
     }
 
+    public function find(string $linkedTransactionId): ?LinkedTransaction
+    {
+        $response = $this->client
+            ->get('/api.xro/2.0/LinkedTransactions/' . $linkedTransactionId)
+            ->send();
+
+        $payload = $response->json();
+        $linkedTransaction = Json::extractFirst($payload, 'LinkedTransactions');
+
+        return $linkedTransaction !== null ? $this->mapLinkedTransaction($linkedTransaction) : null;
+    }
+
     public function create(): Payload
     {
         return new Payload($this->client);
+    }
+
+    public function update(string $linkedTransactionId): Payload
+    {
+        return (new Payload($this->client))->id($linkedTransactionId);
+    }
+
+    public function delete(string $linkedTransactionId): void
+    {
+        $this->client
+            ->delete('/api.xro/2.0/LinkedTransactions/' . $linkedTransactionId)
+            ->send();
     }
 
     /**

@@ -11,10 +11,20 @@ final class Payload
 {
     private LinkedTransaction $linkedTransaction;
 
+    private ?string $id = null;
+
     public function __construct(
         private readonly Client $client
     ) {
         $this->linkedTransaction = new LinkedTransaction();
+    }
+
+    public function id(string $id): self
+    {
+        $clone = clone $this;
+        $clone->id = $id;
+
+        return $clone;
     }
 
     public function sourceTransaction(string $id): self
@@ -54,8 +64,11 @@ final class Payload
 
     public function save(): LinkedTransaction
     {
-        $response = $this->client
-            ->put('/api.xro/2.0/LinkedTransactions')
+        $request = $this->id === null
+            ? $this->client->put('/api.xro/2.0/LinkedTransactions')
+            : $this->client->post('/api.xro/2.0/LinkedTransactions/' . $this->id);
+
+        $response = $request
             ->withJson($this->linkedTransaction->toRequest())
             ->send();
 

@@ -131,4 +131,62 @@ final class LinkedTransactionsTest extends TestCase
         self::assertSame('contact-1', $json['ContactID'] ?? null);
         self::assertSame('linked-1', $linkedTransaction->getLinkedTransactionID());
     }
+
+    public function test_it_can_find_a_linked_transaction(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'LinkedTransactions' => [['LinkedTransactionID' => 'linked-1', 'Status' => 'DRAFT']],
+        ], JSON_THROW_ON_ERROR)));
+
+        $linkedTransaction = Xero::withAccessToken('token', $transport)->tenant('tenant-123')->accounting()
+            ->linkedTransactions()
+            ->find('linked-1');
+
+        self::assertSame('/api.xro/2.0/LinkedTransactions/linked-1', $transport->requests()[0]->path);
+        self::assertSame('GET', $transport->requests()[0]->method);
+        self::assertNotNull($linkedTransaction);
+        self::assertSame('DRAFT', $linkedTransaction->getStatus());
+    }
+
+    public function test_find_returns_null_when_linked_transaction_is_missing(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $linkedTransaction = Xero::withAccessToken('token', $transport)->tenant('tenant-123')->accounting()
+            ->linkedTransactions()
+            ->find('missing');
+
+        self::assertNull($linkedTransaction);
+    }
+
+    public function test_it_updates_a_linked_transaction_with_post(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'LinkedTransactions' => [['LinkedTransactionID' => 'linked-1', 'TargetTransactionID' => 'target-2']],
+        ], JSON_THROW_ON_ERROR)));
+
+        $linkedTransaction = Xero::withAccessToken('token', $transport)->tenant('tenant-123')->accounting()
+            ->linkedTransactions()
+            ->update('linked-1')
+            ->targetTransaction('target-2')
+            ->save();
+
+        $request = $transport->requests()[0];
+        self::assertSame('POST', $request->method);
+        self::assertSame('/api.xro/2.0/LinkedTransactions/linked-1', $request->path);
+        self::assertSame('target-2', ($request->json ?? [])['TargetTransactionID'] ?? null);
+        self::assertSame('target-2', $linkedTransaction->getTargetTransactionID());
+    }
+
+    public function test_it_deletes_a_linked_transaction(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(204, body: ''));
+
+        Xero::withAccessToken('token', $transport)->tenant('tenant-123')->accounting()
+            ->linkedTransactions()
+            ->delete('linked-1');
+
+        self::assertSame('DELETE', $transport->requests()[0]->method);
+        self::assertSame('/api.xro/2.0/LinkedTransactions/linked-1', $transport->requests()[0]->path);
+    }
 }
