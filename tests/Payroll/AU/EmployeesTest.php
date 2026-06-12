@@ -9,7 +9,6 @@ use DateTimeImmutable;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\AU\Employee;
-use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class EmployeesTest extends TestCase
@@ -90,7 +89,7 @@ final class EmployeesTest extends TestCase
         self::assertSame('employee-2', $updated->getEmployeeID());
     }
 
-    public function test_it_can_load_payroll_au_employee_leave_balances(): void
+    public function test_it_can_create_a_leave_application_for_an_employee(): void
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
@@ -99,12 +98,6 @@ final class EmployeesTest extends TestCase
                 'FirstName' => 'Jane',
                 'LastName' => 'Smith',
             ],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'LeaveBalances' => [[
-                'LeaveName' => 'Annual Leave',
-                'Balance' => 18.25,
-            ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'LeaveApplication' => [
@@ -117,7 +110,6 @@ final class EmployeesTest extends TestCase
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $employee = $client->payroll()->au()->employees()->find('employee-1');
-        $leaveBalances = $employee?->leaveBalances();
         $leaveApplication = $employee?->createLeaveApplication()
             ->leaveType('leave-type-1')
             ->title('Annual Leave')
@@ -126,11 +118,7 @@ final class EmployeesTest extends TestCase
             ->save();
 
         self::assertSame('/payroll.xro/1.0/Employees/employee-1', $transport->requests()[0]->path);
-        self::assertSame('/payroll.xro/1.0/Employees/employee-1/LeaveBalances', $transport->requests()[1]->path);
-        self::assertSame('/payroll.xro/1.0/LeaveApplications', $transport->requests()[2]->path);
-        $lb = Json::extractFirst($leaveBalances ?? [], 'LeaveBalances');
-        self::assertNotNull($lb);
-        self::assertEquals(18.25, $lb['Balance']);
+        self::assertSame('/payroll.xro/1.0/LeaveApplications', $transport->requests()[1]->path);
         self::assertNotNull($leaveApplication);
         self::assertSame('employee-1', $leaveApplication->getEmployeeID());
     }
@@ -246,13 +234,6 @@ final class EmployeesTest extends TestCase
         $this->expectException(\RuntimeException::class);
 
         (new Employee())->save();
-    }
-
-    public function test_leave_balances_without_a_client_throws(): void
-    {
-        $this->expectException(\RuntimeException::class);
-
-        (new Employee())->leaveBalances();
     }
 
     public function test_create_leave_application_without_a_client_throws(): void

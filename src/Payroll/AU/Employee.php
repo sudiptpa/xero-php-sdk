@@ -117,16 +117,6 @@ final class Employee extends Model
         return $payload->save();
     }
 
-    /** @return array<string, mixed> */
-    public function leaveBalances(): array
-    {
-        if ($this->client === null || $this->employeeID === null) {
-            throw new RuntimeException('Cannot load leave balances without a bound client context and employee id.');
-        }
-
-        return (new Employees($this->client))->leaveBalances($this->employeeID);
-    }
-
     public function createLeaveApplication(): LeaveApplicationPayload
     {
         if ($this->client === null || $this->employeeID === null) {

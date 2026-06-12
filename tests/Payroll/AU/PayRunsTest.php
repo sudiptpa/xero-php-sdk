@@ -11,6 +11,7 @@ use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\AU\PayRun\PayRun;
 use Sujip\Xero\Payroll\AU\PayRun\Payslip;
+use Sujip\Xero\Payroll\AU\PayRun\PayslipSummary;
 use Sujip\Xero\Xero;
 
 final class PayRunsTest extends TestCase
@@ -72,7 +73,7 @@ final class PayRunsTest extends TestCase
         self::assertSame('payrun-2', $created->getPayRunID());
     }
 
-    public function test_it_can_load_payrun_payslips(): void
+    public function test_it_can_load_embedded_payrun_payslip_summaries_and_a_single_payslip(): void
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
@@ -80,44 +81,49 @@ final class PayRunsTest extends TestCase
                 'PayRunID' => 'payrun-1',
                 'PayrollCalendarID' => 'calendar-1',
                 'PayRunStatus' => 'POSTED',
+                'Payslips' => [[
+                    'PayslipID' => 'payslip-1',
+                    'EmployeeID' => 'employee-1',
+                    'FirstName' => 'Jane',
+                    'LastName' => 'Smith',
+                    'NetPay' => '1200.55',
+                ]],
             ],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Payslips' => [[
-                'PayslipID' => 'payslip-1',
-                'EmployeeID' => 'employee-1',
-                'NetPay' => 1200.55,
-            ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'Payslip' => [
                 'PayslipID' => 'payslip-1',
                 'EmployeeID' => 'employee-1',
-                'NetPay' => 1200.55,
+                'NetPay' => '1200.55',
+                'EarningsLines' => [['EarningsRateID' => 'rate-1', 'Amount' => 1200.55]],
             ],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Payslips' => [[
-                'PayslipID' => 'payslip-1',
-                'EmployeeID' => 'employee-1',
-                'NetPay' => 1200.55,
-            ]],
         ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $payRun = $client->payroll()->au()->payRuns()->find('payrun-1');
-        $payslips = $client->payroll()->au()->payRuns()->payslips('payrun-1')->get();
-        $payslip = $client->payroll()->au()->payRuns()->payslips('payrun-1')->find('payslip-1');
-        $modelPayslips = $payRun?->payslips();
+        $payslipSummaries = $payRun?->payslips();
+        $payslip = $client->payroll()->au()->payRuns()->payslip('payslip-1');
 
         self::assertSame('/payroll.xro/1.0/PayRuns/payrun-1', $transport->requests()[0]->path);
-        self::assertSame('/payroll.xro/1.0/PayRuns/payrun-1/Payslips', $transport->requests()[1]->path);
-        self::assertSame('/payroll.xro/1.0/PayRuns/payrun-1/Payslips/payslip-1', $transport->requests()[2]->path);
-        self::assertSame('/payroll.xro/1.0/PayRuns/payrun-1/Payslips', $transport->requests()[3]->path);
-        self::assertInstanceOf(Payslip::class, $payslips->first());
-        self::assertSame('payslip-1', $payslip?->getPayslipID());
-        self::assertSame('payslip-1', $modelPayslips?->first()?->getPayslipID());
+        self::assertSame('/payroll.xro/1.0/Payslip/payslip-1', $transport->requests()[1]->path);
+        $summary = $payslipSummaries?->first();
+
+        self::assertInstanceOf(PayslipSummary::class, $summary);
+        self::assertSame('payslip-1', $summary->getPayslipID());
+        self::assertSame('Jane', $summary->getFirstName());
+        self::assertInstanceOf(Payslip::class, $payslip);
+        self::assertSame('payslip-1', $payslip->getPayslipID());
+        self::assertSame([['EarningsRateID' => 'rate-1', 'Amount' => 1200.55]], $payslip->getEarningsLines());
+    }
+
+    public function test_it_returns_null_when_payslip_not_found(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        self::assertNull($client->payroll()->au()->payRuns()->payslip('missing'));
     }
 
     public function test_it_exposes_scopes(): void
@@ -129,12 +135,9 @@ final class PayRunsTest extends TestCase
             ->payRuns();
 
         $scopes = $payRuns->scopes();
-        $payslipScopes = $payRuns->payslips('payrun-1')->scopes();
 
         self::assertSame(['payroll.payruns'], $scopes->broad);
         self::assertSame(['payroll.payruns.read', 'payroll.payruns'], $scopes->granular);
-        self::assertSame(['payroll.payruns'], $payslipScopes->broad);
-        self::assertSame(['payroll.payruns.read', 'payroll.payruns'], $payslipScopes->granular);
     }
 
     public function test_it_can_paginate_pay_runs(): void
@@ -212,11 +215,9 @@ final class PayRunsTest extends TestCase
         (new PayRun())->save();
     }
 
-    public function test_pay_run_payslips_require_client_and_pay_run_id(): void
+    public function test_pay_run_payslips_default_to_empty_collection(): void
     {
-        $this->expectException(RuntimeException::class);
-
-        (new PayRun())->payslips();
+        self::assertSame(0, (new PayRun())->payslips()->count());
     }
 
     public function test_it_sends_idempotency_key_and_returns_blank_pay_run_on_empty_response(): void
@@ -242,13 +243,68 @@ final class PayRunsTest extends TestCase
         $payslip = (new Payslip())->fill([
             'PayslipID' => 'payslip-1',
             'EmployeeID' => 'employee-1',
-            'PaymentDate' => '/Date(1573430400000+0000)/',
+            'FirstName' => 'Jane',
+            'LastName' => 'Smith',
+            'LastEdited' => '/Date(1573430400000+0000)/',
+            'Tax' => '100.00',
             'NetPay' => '1200.55',
+            'UpdatedDateUTC' => '/Date(1573430400000+0000)/',
+            'EarningsLines' => [['EarningsRateID' => 'rate-1', 'Amount' => 1200.55]],
+            'LeaveEarningsLines' => [['LeaveTypeID' => 'leave-1', 'Amount' => 0]],
+            'TimesheetEarningsLines' => [['EarningsRateID' => 'rate-2', 'Amount' => 50]],
+            'DeductionLines' => [['DeductionTypeID' => 'deduction-1', 'Amount' => 10]],
+            'LeaveAccrualLines' => [['LeaveTypeID' => 'leave-1', 'NumberOfUnits' => 0.5]],
+            'ReimbursementLines' => [['ReimbursementTypeID' => 'reimbursement-1', 'Amount' => 5]],
+            'SuperannuationLines' => [['SuperannuationTypeID' => 'super-1', 'Amount' => 120]],
+            'TaxLines' => [['TaxType' => 'PAYG', 'Amount' => 100]],
         ]);
 
         self::assertSame('payslip-1', $payslip->getPayslipID());
         self::assertSame('employee-1', $payslip->getEmployeeID());
-        self::assertSame('/Date(1573430400000+0000)/', $payslip->getPaymentDate());
+        self::assertSame('Jane', $payslip->getFirstName());
+        self::assertSame('Smith', $payslip->getLastName());
+        self::assertSame('/Date(1573430400000+0000)/', $payslip->getLastEdited());
+        self::assertSame('100.00', $payslip->getTax());
         self::assertSame('1200.55', $payslip->getNetPay());
+        self::assertSame('/Date(1573430400000+0000)/', $payslip->getUpdatedDateUTC());
+        self::assertSame([['EarningsRateID' => 'rate-1', 'Amount' => 1200.55]], $payslip->getEarningsLines());
+        self::assertSame([['LeaveTypeID' => 'leave-1', 'Amount' => 0]], $payslip->getLeaveEarningsLines());
+        self::assertSame([['EarningsRateID' => 'rate-2', 'Amount' => 50]], $payslip->getTimesheetEarningsLines());
+        self::assertSame([['DeductionTypeID' => 'deduction-1', 'Amount' => 10]], $payslip->getDeductionLines());
+        self::assertSame([['LeaveTypeID' => 'leave-1', 'NumberOfUnits' => 0.5]], $payslip->getLeaveAccrualLines());
+        self::assertSame([['ReimbursementTypeID' => 'reimbursement-1', 'Amount' => 5]], $payslip->getReimbursementLines());
+        self::assertSame([['SuperannuationTypeID' => 'super-1', 'Amount' => 120]], $payslip->getSuperannuationLines());
+        self::assertSame([['TaxType' => 'PAYG', 'Amount' => 100]], $payslip->getTaxLines());
+    }
+
+    public function test_payslip_summary_exposes_all_fields(): void
+    {
+        $summary = (new PayslipSummary())->fill([
+            'EmployeeID' => 'employee-1',
+            'PayslipID' => 'payslip-1',
+            'FirstName' => 'Jane',
+            'LastName' => 'Smith',
+            'LastEdited' => '/Date(1573430400000+0000)/',
+            'Wages' => '1000.00',
+            'Deductions' => '10.00',
+            'Tax' => '100.00',
+            'Super' => '120.00',
+            'Reimbursements' => '5.00',
+            'NetPay' => '1200.55',
+            'UpdatedDateUTC' => '/Date(1573430400000+0000)/',
+        ]);
+
+        self::assertSame('employee-1', $summary->getEmployeeID());
+        self::assertSame('payslip-1', $summary->getPayslipID());
+        self::assertSame('Jane', $summary->getFirstName());
+        self::assertSame('Smith', $summary->getLastName());
+        self::assertSame('/Date(1573430400000+0000)/', $summary->getLastEdited());
+        self::assertSame('1000.00', $summary->getWages());
+        self::assertSame('10.00', $summary->getDeductions());
+        self::assertSame('100.00', $summary->getTax());
+        self::assertSame('120.00', $summary->getSuper());
+        self::assertSame('5.00', $summary->getReimbursements());
+        self::assertSame('1200.55', $summary->getNetPay());
+        self::assertSame('/Date(1573430400000+0000)/', $summary->getUpdatedDateUTC());
     }
 }

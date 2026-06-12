@@ -8,6 +8,7 @@ use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\ResourceCollection;
 
 final class PayRun extends Model
 {
@@ -15,6 +16,9 @@ final class PayRun extends Model
     private ?string $payrollCalendarID = null;
     private ?string $payRunStatus = null;
     private ?string $paymentDate = null;
+
+    /** @var list<PayslipSummary> */
+    private array $payslips = [];
 
     public function __construct(
         private ?Client $client = null
@@ -69,6 +73,13 @@ final class PayRun extends Model
         return $this;
     }
 
+    public function addPayslipSummary(PayslipSummary $payslip): self
+    {
+        $this->payslips[] = $payslip;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -80,19 +91,16 @@ final class PayRun extends Model
             'PayRunStatus' => Field::string()->using('setPayRunStatus'),
             'Status' => Field::string()->using('setPayRunStatus'),
             'PaymentDate' => Field::string()->using('setPaymentDate'),
+            'Payslips' => Field::many(PayslipSummary::class)->using('addPayslipSummary'),
         ];
     }
 
     /**
-     * @return \Sujip\Xero\Support\ResourceCollection<Payslip>
+     * @return ResourceCollection<PayslipSummary>
      */
-    public function payslips(): \Sujip\Xero\Support\ResourceCollection
+    public function payslips(): ResourceCollection
     {
-        if ($this->client === null || $this->payRunID === null) {
-            throw new RuntimeException('Cannot load payslips without a bound client context and pay run id.');
-        }
-
-        return (new PayRuns($this->client))->payslips($this->payRunID)->get();
+        return new ResourceCollection($this->payslips);
     }
 
     public function save(): self
