@@ -121,6 +121,48 @@ final class TrackingCategoriesTest extends TestCase
         self::assertSame('ACTIVE', $opt->getStatus());
     }
 
+    public function test_it_manages_tracking_options_via_dedicated_endpoints(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'Options' => [['TrackingOptionID' => 'option-1', 'Name' => 'North', 'Status' => 'ACTIVE']],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'Options' => [['TrackingOptionID' => 'option-1', 'Name' => 'North Island', 'Status' => 'ACTIVE']],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'Options' => [['TrackingOptionID' => 'option-1', 'Name' => 'North Island', 'Status' => 'DELETED']],
+        ], JSON_THROW_ON_ERROR)));
+
+        $trackingCategories = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->trackingCategories();
+
+        $created = $trackingCategories->createOption('category-1', 'North', 'option-key');
+        $updated = $trackingCategories->updateOption('category-1', 'option-1', 'North Island');
+        $deleted = $trackingCategories->deleteOption('category-1', 'option-1');
+
+        $createRequest = $transport->requests()[0];
+        self::assertSame('PUT', $createRequest->method);
+        self::assertSame('/api.xro/2.0/TrackingCategories/category-1/Options', $createRequest->path);
+        self::assertSame(['Name' => 'North'], $createRequest->json);
+        self::assertSame('option-key', $createRequest->headers['Idempotency-Key']);
+        self::assertSame('North', $created->first()?->getName());
+
+        $updateRequest = $transport->requests()[1];
+        self::assertSame('POST', $updateRequest->method);
+        self::assertSame('/api.xro/2.0/TrackingCategories/category-1/Options/option-1', $updateRequest->path);
+        self::assertSame(['Name' => 'North Island'], $updateRequest->json);
+        self::assertArrayNotHasKey('Idempotency-Key', $updateRequest->headers);
+        self::assertSame('North Island', $updated->first()?->getName());
+
+        $deleteRequest = $transport->requests()[2];
+        self::assertSame('DELETE', $deleteRequest->method);
+        self::assertSame('/api.xro/2.0/TrackingCategories/category-1/Options/option-1', $deleteRequest->path);
+        self::assertSame('DELETED', $deleted->first()?->getStatus());
+    }
+
     public function test_saving_a_tracking_category_without_a_client_throws(): void
     {
         $this->expectException(RuntimeException::class);

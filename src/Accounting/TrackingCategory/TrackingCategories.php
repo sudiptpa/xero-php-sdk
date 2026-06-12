@@ -88,6 +88,49 @@ final class TrackingCategories implements DefinesScopes
     }
 
     /**
+     * @return ResourceCollection<Option>
+     */
+    public function createOption(string $trackingCategoryId, string $name, ?string $idempotencyKey = null): ResourceCollection
+    {
+        $payload = $this->client
+            ->put('/api.xro/2.0/TrackingCategories/' . $trackingCategoryId . '/Options')
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withJson(['Name' => $name])
+            ->send()
+            ->json();
+
+        return $this->mapOptions($payload);
+    }
+
+    /**
+     * @return ResourceCollection<Option>
+     */
+    public function updateOption(string $trackingCategoryId, string $trackingOptionId, string $name, ?string $idempotencyKey = null): ResourceCollection
+    {
+        $payload = $this->client
+            ->post('/api.xro/2.0/TrackingCategories/' . $trackingCategoryId . '/Options/' . $trackingOptionId)
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withJson(['Name' => $name])
+            ->send()
+            ->json();
+
+        return $this->mapOptions($payload);
+    }
+
+    /**
+     * @return ResourceCollection<Option>
+     */
+    public function deleteOption(string $trackingCategoryId, string $trackingOptionId): ResourceCollection
+    {
+        $payload = $this->client
+            ->delete('/api.xro/2.0/TrackingCategories/' . $trackingCategoryId . '/Options/' . $trackingOptionId)
+            ->send()
+            ->json();
+
+        return $this->mapOptions($payload);
+    }
+
+    /**
      * @param array<string, mixed> $payload
      */
     public function mapTrackingCategory(array $payload): TrackingCategory
@@ -101,5 +144,19 @@ final class TrackingCategories implements DefinesScopes
     public function mapOption(array $payload): Option
     {
         return (new Option())->fill($payload);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return ResourceCollection<Option>
+     */
+    private function mapOptions(array $payload): ResourceCollection
+    {
+        $items = array_map(
+            fn (array $option): Option => $this->mapOption($option),
+            Json::extractList($payload, 'Options')
+        );
+
+        return new ResourceCollection($items);
     }
 }
