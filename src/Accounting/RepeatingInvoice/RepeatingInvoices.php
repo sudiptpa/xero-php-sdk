@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\RepeatingInvoice;
 
+use Sujip\Xero\Accounting\Attachments;
 use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
@@ -83,6 +84,11 @@ final class RepeatingInvoices implements DefinesScopes
     public function history(string $repeatingInvoiceId): History
     {
         return new History($this->client, '/api.xro/2.0/RepeatingInvoices/' . $repeatingInvoiceId . '/History');
+    }
+
+    public function attachments(string $repeatingInvoiceId): Attachments
+    {
+        return new Attachments($this->client, '/api.xro/2.0/RepeatingInvoices/' . $repeatingInvoiceId . '/Attachments');
     }
 
     /**

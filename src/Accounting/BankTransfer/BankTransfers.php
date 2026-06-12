@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\BankTransfer;
 
+use Sujip\Xero\Accounting\Attachments;
 use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
@@ -78,6 +79,11 @@ final class BankTransfers implements DefinesScopes
     public function history(string $bankTransferId): History
     {
         return new History($this->client, '/api.xro/2.0/BankTransfers/' . $bankTransferId . '/History');
+    }
+
+    public function attachments(string $bankTransferId): Attachments
+    {
+        return new Attachments($this->client, '/api.xro/2.0/BankTransfers/' . $bankTransferId . '/Attachments');
     }
 
     /**

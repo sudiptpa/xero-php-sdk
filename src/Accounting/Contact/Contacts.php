@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Contact;
 
+use Sujip\Xero\Accounting\Attachments;
 use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
@@ -130,6 +131,11 @@ final class Contacts implements PaginatesResults, DefinesScopes
     public function history(string $contactId): History
     {
         return new History($this->client, '/api.xro/2.0/Contacts/' . $contactId . '/History');
+    }
+
+    public function attachments(string $contactId): Attachments
+    {
+        return new Attachments($this->client, '/api.xro/2.0/Contacts/' . $contactId . '/Attachments');
     }
 
     /**
