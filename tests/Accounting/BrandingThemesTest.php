@@ -43,6 +43,52 @@ final class BrandingThemesTest extends TestCase
         self::assertSame('branding-1', $theme?->getBrandingThemeID());
     }
 
+    public function test_it_lists_branding_theme_payment_services(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'PaymentServices' => [[
+                'PaymentServiceID' => 'service-1',
+                'PaymentServiceName' => 'ACME Payment',
+                'PaymentServiceUrl' => 'https://www.payupnow.com/',
+                'PaymentServiceType' => 'Custom',
+                'PayNowText' => 'Pay Now',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $services = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->brandingThemes()
+            ->paymentServices('branding-1');
+
+        self::assertSame('/api.xro/2.0/BrandingThemes/branding-1/PaymentServices', $transport->requests()[0]->path);
+        $service = $services->first();
+        self::assertNotNull($service);
+        self::assertSame('service-1', $service->getPaymentServiceID());
+        self::assertSame('Custom', $service->getPaymentServiceType());
+        self::assertSame('ACME Payment', $service->getPaymentServiceName());
+    }
+
+    public function test_it_applies_a_payment_service_to_a_branding_theme(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'PaymentServices' => [['PaymentServiceID' => 'service-1', 'PaymentServiceName' => 'ACME Payment']],
+        ], JSON_THROW_ON_ERROR)));
+
+        $services = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->brandingThemes()
+            ->applyPaymentService('branding-1', 'service-1', 'service-key');
+
+        $request = $transport->requests()[0];
+        self::assertSame('POST', $request->method);
+        self::assertSame('/api.xro/2.0/BrandingThemes/branding-1/PaymentServices', $request->path);
+        self::assertSame(['PaymentServices' => [['PaymentServiceID' => 'service-1']]], $request->json);
+        self::assertSame('service-key', $request->headers['Idempotency-Key']);
+        self::assertSame('service-1', $services->first()?->getPaymentServiceID());
+    }
+
     public function test_it_exposes_required_scopes(): void
     {
         $scopes = Xero::withAccessToken('token', new FakeTransport())
