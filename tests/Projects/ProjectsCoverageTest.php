@@ -202,18 +202,18 @@ final class ProjectsCoverageTest extends TestCase
     public function test_project_user_model_getters(): void
     {
         $user = (new ProjectUser())
-            ->setUserID('user-1')
+            ->setUserId('user-1')
             ->setName('Jane')
-            ->setEmailAddress('jane@example.com');
+            ->setEmail('jane@example.com');
 
-        self::assertSame('user-1', $user->getUserID());
+        self::assertSame('user-1', $user->getUserId());
         self::assertSame('Jane', $user->getName());
-        self::assertSame('jane@example.com', $user->getEmailAddress());
+        self::assertSame('jane@example.com', $user->getEmail());
     }
 
     public function test_project_users_scopes_and_pagination(): void
     {
-        $transport = (new FakeTransport())->push(new Response(200, body: '{"Items":[{"UserId":"user-1"}]}'));
+        $transport = (new FakeTransport())->push(new Response(200, body: '{"items":[{"userId":"user-1"}]}'));
 
         $users = $this->client($transport)->projects()->users();
 
@@ -322,20 +322,20 @@ final class ProjectsCoverageTest extends TestCase
     public function test_time_entry_model_getters_and_setters(): void
     {
         $entry = (new TimeEntry())
-            ->setTaskID('t-1')
-            ->setUserID('user-1')
-            ->setDateUTC('2026-03-01T00:00:00Z')
+            ->setTaskId('t-1')
+            ->setUserId('user-1')
+            ->setDateUtc('2026-03-01T00:00:00Z')
             ->setStatus('active')
-            ->setProjectID('p-1')
-            ->setDateEnteredUTC('2026-03-02T00:00:00Z')
+            ->setProjectId('p-1')
+            ->setDateEnteredUtc('2026-03-02T00:00:00Z')
             ->setDescription('Worked');
 
-        self::assertSame('t-1', $entry->getTaskID());
-        self::assertSame('user-1', $entry->getUserID());
-        self::assertSame('2026-03-01T00:00:00Z', $entry->getDateUTC());
+        self::assertSame('t-1', $entry->getTaskId());
+        self::assertSame('user-1', $entry->getUserId());
+        self::assertSame('2026-03-01T00:00:00Z', $entry->getDateUtc());
         self::assertSame('ACTIVE', $entry->getStatus());
-        self::assertSame('p-1', $entry->getProjectID());
-        self::assertSame('2026-03-02T00:00:00Z', $entry->getDateEnteredUTC());
+        self::assertSame('p-1', $entry->getProjectId());
+        self::assertSame('2026-03-02T00:00:00Z', $entry->getDateEnteredUtc());
         self::assertSame('Worked', $entry->getDescription());
     }
 
@@ -356,28 +356,29 @@ final class ProjectsCoverageTest extends TestCase
         }
 
         $transport = new FakeTransport();
-        $transport->push(new Response(200, body: '{"TimeEntry":{"TimeEntryId":"te-1"}}')); // find
-        $transport->push(new Response(200, body: '{"TimeEntry":{"TimeEntryId":"te-1"}}')); // save
+        $transport->push(new Response(200, body: '{"timeEntryId":"te-1"}')); // find
+        $transport->push(new Response(204)); // save (PUT, 204 No Content)
 
         $found = $this->client($transport)->projects()->timeEntries('p-1')->find('te-1');
         self::assertNotNull($found);
 
         $saved = $found
-            ->setTaskID('t-1')
-            ->setUserID('user-1')
-            ->setDateUTC('2026-03-01T00:00:00Z')
+            ->setTaskId('t-1')
+            ->setUserId('user-1')
+            ->setDateUtc('2026-03-01T00:00:00Z')
             ->durationMinutes(30)
             ->save();
 
-        self::assertSame('te-1', $saved->getTimeEntryID());
+        self::assertSame('te-1', $saved->getTimeEntryId());
+        self::assertSame(30, $saved->getDuration());
     }
 
     public function test_time_entries_resource_builders_pagination_update_and_find_fallback(): void
     {
         $transport = new FakeTransport();
-        $transport->push(new Response(200, body: '{"Items":[]}')); // paginate -> get
-        $transport->push(new Response(200, body: '{"TimeEntry":{"TimeEntryId":"te-1"}}')); // update -> save (PUT)
-        $transport->push(new Response(200, body: '{"Items":[{"TimeEntryId":"te-1"}]}')); // find via many fallback
+        $transport->push(new Response(200, body: '{"items":[]}')); // paginate -> get
+        $transport->push(new Response(204)); // update -> save (PUT, 204 No Content)
+        $transport->push(new Response(200, body: '{"timeEntryId":"te-1"}')); // find (unwrapped TimeEntry)
 
         $entries = $this->client($transport)->projects()->timeEntries('p-1');
 
@@ -394,12 +395,12 @@ final class ProjectsCoverageTest extends TestCase
         self::assertSame('PUT', $transport->requests()[1]->method);
 
         $found = $entries->find('te-1');
-        self::assertSame('te-1', $found?->getTimeEntryID());
+        self::assertSame('te-1', $found?->getTimeEntryId());
     }
 
     public function test_time_entry_payload_supports_all_builders_and_empty_response(): void
     {
-        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+        $transport = (new FakeTransport())->push(new Response(204));
 
         $entry = $this->client($transport)->projects()->timeEntries('p-1')
             ->create()
@@ -414,6 +415,7 @@ final class ProjectsCoverageTest extends TestCase
         $request = $transport->requests()[0];
         self::assertSame('key-4', $request->headers['Idempotency-Key']);
         self::assertSame('Worked', $request->json['description'] ?? null);
-        self::assertSame('p-1', $entry->getProjectID());
+        self::assertSame('p-1', $entry->getProjectId());
+        self::assertSame(45, $entry->getDuration());
     }
 }

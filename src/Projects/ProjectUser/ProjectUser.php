@@ -9,20 +9,20 @@ use Sujip\Xero\Support\Model;
 
 final class ProjectUser extends Model
 {
-    private ?string $userID = null;
+    private ?string $userId = null;
 
     private ?string $name = null;
 
-    private ?string $emailAddress = null;
+    private ?string $email = null;
 
-    public function getUserID(): ?string
+    public function getUserId(): ?string
     {
-        return $this->userID;
+        return $this->userId;
     }
 
-    public function setUserID(?string $userID): self
+    public function setUserId(?string $userId): self
     {
-        $this->userID = $userID;
+        $this->userId = $userId;
 
         return $this;
     }
@@ -39,14 +39,14 @@ final class ProjectUser extends Model
         return $this;
     }
 
-    public function getEmailAddress(): ?string
+    public function getEmail(): ?string
     {
-        return $this->emailAddress;
+        return $this->email;
     }
 
-    public function setEmailAddress(?string $emailAddress): self
+    public function setEmail(?string $email): self
     {
-        $this->emailAddress = $emailAddress;
+        $this->email = $email;
 
         return $this;
     }
@@ -57,15 +57,9 @@ final class ProjectUser extends Model
     protected static function getDefinitions(): array
     {
         return [
-            'UserID' => Field::string()->using('setUserID'),
-            'UserId' => Field::string()->using('setUserID'),
-            'userId' => Field::string()->using('setUserID'),
-            'Name' => Field::string(),
-            'name' => Field::string()->using('setName'),
-            'EmailAddress' => Field::string()->using('setEmailAddress'),
-            'Email' => Field::string()->using('setEmailAddress'),
-            'email' => Field::string()->using('setEmailAddress'),
+            'userId' => Field::string(),
+            'name' => Field::string(),
+            'email' => Field::string(),
         ];
     }
-
 }

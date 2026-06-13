@@ -41,9 +41,7 @@ final class ProjectUsers implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = Json::extractList($payload, 'Users')
-            ?: Json::extractList($payload, 'ProjectUsers')
-            ?: Json::extractList($payload, 'Items');
+        $items = Json::extractList($payload, 'items');
 
         return new ResourceCollection(array_map(
             fn (array $user): ProjectUser => $this->mapProjectUser($user),

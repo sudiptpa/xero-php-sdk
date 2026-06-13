@@ -170,10 +170,7 @@ final class TimeEntries implements PaginatesResults, DefinesScopes
      */
     public static function many(array $payload): array
     {
-        return Json::extractList($payload, 'TimeEntries')
-            ?: Json::extractList($payload, 'timeEntries')
-            ?: Json::extractList($payload, 'Items')
-            ?: Json::extractList($payload, 'items');
+        return Json::extractList($payload, 'items');
     }
 
     /**
@@ -182,10 +179,11 @@ final class TimeEntries implements PaginatesResults, DefinesScopes
      */
     public static function single(array $payload): ?array
     {
-        return Json::extractObject($payload, 'TimeEntry')
-            ?: Json::extractObject($payload, 'timeEntry')
-            ?: self::many($payload)[0]
-            ?? null;
+        if (array_key_exists('timeEntryId', $payload)) {
+            return $payload;
+        }
+
+        return self::many($payload)[0] ?? null;
     }
 
     /**
@@ -195,6 +193,6 @@ final class TimeEntries implements PaginatesResults, DefinesScopes
     {
         return (new TimeEntry($this->client))
             ->fill($timeEntry)
-            ->setProjectID($this->projectId);
+            ->setProjectId($this->projectId);
     }
 }

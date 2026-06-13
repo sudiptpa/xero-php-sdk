@@ -15,10 +15,16 @@ final class ProjectUsersTest extends TestCase
     public function test_it_can_list_project_users(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
-            'Users' => [[
-                'UserID' => 'user-1',
-                'Name' => 'Natasha Romanoff',
-                'Email' => 'natasha@example.test',
+            'pagination' => [
+                'page' => 2,
+                'pageSize' => 100,
+                'pageCount' => 1,
+                'itemCount' => 1,
+            ],
+            'items' => [[
+                'userId' => 'user-1',
+                'name' => 'Natasha Romanoff',
+                'email' => 'natasha@example.test',
             ]],
         ], JSON_THROW_ON_ERROR)));
 
@@ -33,6 +39,10 @@ final class ProjectUsersTest extends TestCase
         self::assertSame('/projects.xro/2.0/ProjectsUsers', $transport->requests()[0]->path);
         self::assertSame(2, $transport->requests()[0]->query['page']);
         self::assertSame(100, $transport->requests()[0]->query['pageSize']);
-        self::assertInstanceOf(ProjectUser::class, $users->first());
+        $user = $users->first();
+        self::assertInstanceOf(ProjectUser::class, $user);
+        self::assertSame('user-1', $user->getUserId());
+        self::assertSame('Natasha Romanoff', $user->getName());
+        self::assertSame('natasha@example.test', $user->getEmail());
     }
 }
