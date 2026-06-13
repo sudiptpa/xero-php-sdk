@@ -63,7 +63,7 @@ final class ObjectAssociations implements DefinesScopes
     }
 
     /**
-     * @return ResourceCollection<File>
+     * @return ResourceCollection<Association>
      */
     public function get(): ResourceCollection
     {
@@ -72,17 +72,16 @@ final class ObjectAssociations implements DefinesScopes
             ->withQuery($this->query())
             ->send();
 
-        $payload = $response->json();
         $items = array_map(
-            fn (array $file): File => (new Files($this->client))->mapFile($file),
-            Json::extractList($payload, 'Items')
+            fn (array $association): Association => (new Association())->fill($association),
+            Json::extractRows($response->json())
         );
 
         return new ResourceCollection($items);
     }
 
     /**
-     * @return PaginatedCollection<File>
+     * @return PaginatedCollection<Association>
      */
     public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {

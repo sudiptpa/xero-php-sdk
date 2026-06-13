@@ -129,19 +129,15 @@ final class FilesTest extends TestCase
     public function test_it_can_list_and_create_file_associations(): void
     {
         $transport = new FakeTransport();
-        $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'ObjectId' => 'invoice-1',
-                'ObjectType' => 'Invoice',
-                'ObjectGroup' => 'Invoices',
-            ]],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'ObjectId' => 'invoice-2',
-                'ObjectType' => 'Invoice',
-                'ObjectGroup' => 'Invoices',
-            ]],
+        $transport->push(new Response(200, body: json_encode([[
+            'ObjectId' => 'invoice-1',
+            'ObjectType' => 'Invoice',
+            'ObjectGroup' => 'Invoices',
+        ]], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(201, body: json_encode([
+            'ObjectId' => 'invoice-2',
+            'ObjectType' => 'Invoice',
+            'ObjectGroup' => 'Invoices',
         ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
@@ -162,18 +158,19 @@ final class FilesTest extends TestCase
     public function test_it_can_list_files_associated_with_an_object_and_delete_an_association(): void
     {
         $transport = new FakeTransport();
-        $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'file-1',
-                'Name' => 'invoice.pdf',
-                'MimeType' => 'application/pdf',
-            ]],
-        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([[
+            'FileId' => 'file-1',
+            'ObjectId' => 'invoice-1',
+            'ObjectGroup' => 'Invoices',
+            'ObjectType' => 'Invoice',
+            'Name' => 'invoice.pdf',
+            'Size' => 1024,
+        ]], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(204));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
-        $files = $client->files()
+        $associations = $client->files()
             ->forObject('invoice-1')
             ->orderBy('CreatedDateUTC', 'DESC')
             ->page(2)
@@ -189,7 +186,10 @@ final class FilesTest extends TestCase
         self::assertSame('DESC', $transport->requests()[0]->query['direction']);
         self::assertSame(2, $transport->requests()[0]->query['page']);
         self::assertSame(25, $transport->requests()[0]->query['pagesize']);
-        self::assertNotNull($files->first());
+        $association = $associations->first();
+        self::assertNotNull($association);
+        self::assertSame('file-1', $association->getFileId());
+        self::assertSame('invoice.pdf', $association->getName());
         self::assertSame('/files.xro/1.0/Files/file-1/Associations/invoice-1', $transport->requests()[1]->path);
         self::assertTrue($deleted);
     }
@@ -197,10 +197,8 @@ final class FilesTest extends TestCase
     public function test_it_can_get_association_counts_for_objects(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'ObjectId' => 'invoice-1',
-                'Count' => 3,
-            ]],
+            'invoice-1' => 3,
+            'invoice-2' => 1,
         ], JSON_THROW_ON_ERROR)));
 
         $counts = Xero::withAccessToken('token', $transport)
@@ -211,7 +209,10 @@ final class FilesTest extends TestCase
 
         self::assertSame('/files.xro/1.0/Associations/Count', $transport->requests()[0]->path);
         self::assertSame('invoice-1,invoice-2', $transport->requests()[0]->query['ObjectIds']);
-        self::assertSame(3, $counts->first()?->getCount());
+        $count = $counts->first();
+        self::assertNotNull($count);
+        self::assertSame('invoice-1', $count->getObjectId());
+        self::assertSame(3, $count->getCount());
     }
 
     public function test_loaded_file_can_be_deleted(): void

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Sujip\Xero\Files\File;
 
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Json;
 
 final class AssociationPayload
 {
@@ -16,6 +15,8 @@ final class AssociationPayload
     private ?string $objectType = null;
 
     private ?string $objectGroup = null;
+
+    private ?string $idempotencyKey = null;
 
     public function __construct(
         private readonly Client $client,
@@ -47,10 +48,19 @@ final class AssociationPayload
         return $clone;
     }
 
+    public function idempotencyKey(string $key): self
+    {
+        $clone = clone $this;
+        $clone->idempotencyKey = $key;
+
+        return $clone;
+    }
+
     public function save(): Association
     {
         $response = $this->client
             ->post(self::BASE_PATH . '/' . $this->fileId . '/Associations')
+            ->withHeaders($this->headers())
             ->withJson(array_filter([
                 'ObjectId' => $this->objectId,
                 'ObjectType' => $this->objectType,
@@ -58,10 +68,19 @@ final class AssociationPayload
             ], static fn (?string $value): bool => $value !== null))
             ->send();
 
-        $payload = $response->json();
-        $association = Json::extractFirst($payload, 'Items') ?? [];
-
         return (new Associations($this->client, $this->fileId))
-            ->mapAssociation($association);
+            ->mapAssociation($response->json());
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function headers(): array
+    {
+        if ($this->idempotencyKey === null) {
+            return [];
+        }
+
+        return ['Idempotency-Key' => $this->idempotencyKey];
     }
 }
