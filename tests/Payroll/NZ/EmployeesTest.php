@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Payroll\NZ\Employee\EarningsTemplate;
 use Sujip\Xero\Payroll\NZ\Employee\Employee;
 use Sujip\Xero\Payroll\NZ\Employee\EmployeeLeaveType;
 use Sujip\Xero\Support\Json;
@@ -572,5 +573,148 @@ final class EmployeesTest extends TestCase
         self::assertFalse($leaveType->getShowAnnualLeaveInAdvance());
         self::assertSame(250.75, $leaveType->getAnnualLeaveTotalAmountPaid());
         self::assertSame('2026-04-01', $leaveType->getScheduleOfAccrualDate());
+    }
+
+    public function test_it_manages_employee_pay_template_earnings(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'payTemplate' => [
+                'employeeID' => 'employee-1',
+                'earningTemplates' => [[
+                    'payTemplateEarningID' => 'earning-1',
+                    'ratePerUnit' => 20,
+                    'numberOfUnits' => 8,
+                    'fixedAmount' => null,
+                    'earningsRateID' => 'rate-1',
+                    'name' => 'Ordinary Time',
+                ]],
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'earningTemplate' => [
+                'payTemplateEarningID' => 'earning-2',
+                'ratePerUnit' => 25,
+                'numberOfUnits' => 4,
+                'earningsRateID' => 'rate-1',
+                'name' => 'Overtime',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'earningTemplate' => [
+                'payTemplateEarningID' => 'earning-2',
+                'ratePerUnit' => 30,
+                'numberOfUnits' => 4,
+                'earningsRateID' => 'rate-1',
+                'name' => 'Overtime',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: '{}'));
+        $transport->push(new Response(200, body: json_encode([
+            'earningTemplates' => [
+                ['payTemplateEarningID' => 'earning-3', 'earningsRateID' => 'rate-2', 'name' => 'Salary'],
+                ['payTemplateEarningID' => 'earning-4', 'earningsRateID' => 'rate-3', 'name' => 'Bonus'],
+            ],
+        ], JSON_THROW_ON_ERROR)));
+
+        $employees = Xero::withAccessToken('token', $transport)->tenant('tenant-123')
+            ->payroll()->nz()->employees();
+
+        $templates = $employees->payTemplate('employee-1');
+        $created = $employees->createEarningsTemplate(
+            'employee-1',
+            (new EarningsTemplate())->setRatePerUnit(25.0)->setNumberOfUnits(4.0)->setEarningsRateID('rate-1'),
+            'create-key'
+        );
+        $updated = $employees->updateEarningsTemplate(
+            'employee-1',
+            'earning-2',
+            (new EarningsTemplate())->setRatePerUnit(30.0)->setNumberOfUnits(4.0)->setEarningsRateID('rate-1')
+        );
+        $deleted = $employees->deleteEarningsTemplate('employee-1', 'earning-2');
+        $bulk = $employees->createEarningsTemplates(
+            'employee-1',
+            [
+                (new EarningsTemplate())->setEarningsRateID('rate-2')->setNumberOfUnits(8.0),
+                (new EarningsTemplate())->setEarningsRateID('rate-3')->setNumberOfUnits(8.0),
+            ],
+            'bulk-key'
+        );
+
+        self::assertCount(1, $templates->all());
+        $firstTemplate = $templates->first();
+        self::assertNotNull($firstTemplate);
+        self::assertSame('earning-1', $firstTemplate->getPayTemplateEarningID());
+        self::assertSame(20.0, $firstTemplate->getRatePerUnit());
+        self::assertSame('Ordinary Time', $firstTemplate->getName());
+
+        $getRequest = $transport->requests()[0];
+        self::assertSame('GET', $getRequest->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PayTemplates', $getRequest->path);
+
+        $createRequest = $transport->requests()[1];
+        self::assertSame('POST', $createRequest->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PayTemplates/Earnings', $createRequest->path);
+        self::assertSame('create-key', $createRequest->headers['Idempotency-Key']);
+        self::assertSame([
+            'ratePerUnit' => 25.0,
+            'numberOfUnits' => 4.0,
+            'earningsRateID' => 'rate-1',
+        ], $createRequest->json);
+        self::assertSame('earning-2', $created->getPayTemplateEarningID());
+
+        $updateRequest = $transport->requests()[2];
+        self::assertSame('PUT', $updateRequest->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PayTemplates/Earnings/earning-2', $updateRequest->path);
+        self::assertArrayNotHasKey('Idempotency-Key', $updateRequest->headers);
+        self::assertSame(30.0, $updated->getRatePerUnit());
+
+        self::assertSame('DELETE', $transport->requests()[3]->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PayTemplates/Earnings/earning-2', $transport->requests()[3]->path);
+        self::assertTrue($deleted);
+
+        $bulkRequest = $transport->requests()[4];
+        self::assertSame('POST', $bulkRequest->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PayTemplateEarnings', $bulkRequest->path);
+        self::assertSame('application/json', $bulkRequest->headers['Content-Type']);
+        self::assertSame('bulk-key', $bulkRequest->headers['Idempotency-Key']);
+        self::assertSame(
+            json_encode([
+                ['numberOfUnits' => 8.0, 'earningsRateID' => 'rate-2'],
+                ['numberOfUnits' => 8.0, 'earningsRateID' => 'rate-3'],
+            ], JSON_THROW_ON_ERROR),
+            $bulkRequest->body
+        );
+        self::assertCount(2, $bulk->all());
+        $firstBulk = $bulk->first();
+        self::assertNotNull($firstBulk);
+        self::assertSame('earning-3', $firstBulk->getPayTemplateEarningID());
+    }
+
+    public function test_it_hydrates_every_earnings_template_field(): void
+    {
+        $template = (new EarningsTemplate())->fill([
+            'payTemplateEarningID' => 'earning-1',
+            'ratePerUnit' => 20.5,
+            'numberOfUnits' => 8,
+            'fixedAmount' => 50,
+            'earningsRateID' => 'rate-1',
+            'name' => 'Ordinary Time',
+        ]);
+
+        self::assertSame('earning-1', $template->getPayTemplateEarningID());
+        self::assertSame(20.5, $template->getRatePerUnit());
+        self::assertSame(8.0, $template->getNumberOfUnits());
+        self::assertSame(50.0, $template->getFixedAmount());
+        self::assertSame('rate-1', $template->getEarningsRateID());
+        self::assertSame('Ordinary Time', $template->getName());
+        self::assertSame([
+            'payTemplateEarningID' => 'earning-1',
+            'ratePerUnit' => 20.5,
+            'numberOfUnits' => 8.0,
+            'fixedAmount' => 50.0,
+            'earningsRateID' => 'rate-1',
+            'name' => 'Ordinary Time',
+        ], $template->toRequest());
     }
 }

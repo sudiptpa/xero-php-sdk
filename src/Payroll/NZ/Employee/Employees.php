@@ -100,6 +100,83 @@ final class Employees implements PaginatesResults, DefinesScopes
     }
 
     /**
+     * @return ResourceCollection<EarningsTemplate>
+     */
+    public function payTemplate(string $employeeId): ResourceCollection
+    {
+        $response = $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/PayTemplates')
+            ->send();
+
+        $payTemplate = Json::extractObject($response->json(), 'payTemplate');
+        $items = array_map(
+            fn (array $template): EarningsTemplate => $this->mapEarningsTemplate($template),
+            Json::extractList($payTemplate, 'earningTemplates')
+        );
+
+        return new ResourceCollection($items);
+    }
+
+    public function createEarningsTemplate(string $employeeId, EarningsTemplate $template, ?string $idempotencyKey = null): EarningsTemplate
+    {
+        $payload = $this->client
+            ->post('/payroll.xro/2.0/Employees/' . $employeeId . '/PayTemplates/Earnings')
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withJson($template->toRequest())
+            ->send()
+            ->json();
+
+        return $this->mapEarningsTemplate(Json::extractObject($payload, 'earningTemplate'));
+    }
+
+    public function updateEarningsTemplate(string $employeeId, string $payTemplateEarningId, EarningsTemplate $template, ?string $idempotencyKey = null): EarningsTemplate
+    {
+        $payload = $this->client
+            ->put('/payroll.xro/2.0/Employees/' . $employeeId . '/PayTemplates/Earnings/' . $payTemplateEarningId)
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withJson($template->toRequest())
+            ->send()
+            ->json();
+
+        return $this->mapEarningsTemplate(Json::extractObject($payload, 'earningTemplate'));
+    }
+
+    public function deleteEarningsTemplate(string $employeeId, string $payTemplateEarningId): bool
+    {
+        $this->client
+            ->delete('/payroll.xro/2.0/Employees/' . $employeeId . '/PayTemplates/Earnings/' . $payTemplateEarningId)
+            ->send();
+
+        return true;
+    }
+
+    /**
+     * @param list<EarningsTemplate> $templates
+     * @return ResourceCollection<EarningsTemplate>
+     */
+    public function createEarningsTemplates(string $employeeId, array $templates, ?string $idempotencyKey = null): ResourceCollection
+    {
+        $body = array_map(static fn (EarningsTemplate $template): array => $template->toRequest(), $templates);
+
+        $payload = $this->client
+            ->post('/payroll.xro/2.0/Employees/' . $employeeId . '/PayTemplateEarnings')
+            ->withHeaders(array_merge(
+                ['Content-Type' => 'application/json'],
+                $idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey]
+            ))
+            ->withBody(Json::encodeList($body))
+            ->send()
+            ->json();
+
+        $items = array_map(
+            fn (array $template): EarningsTemplate => $this->mapEarningsTemplate($template),
+            Json::extractList($payload, 'earningTemplates')
+        );
+
+        return new ResourceCollection($items);
+    }
+
+    /**
      * @return ResourceCollection<EmployeeLeaveType>
      */
     public function leaveTypes(string $employeeId): ResourceCollection
@@ -281,5 +358,13 @@ final class Employees implements PaginatesResults, DefinesScopes
     public function mapLeaveType(array $leaveType): EmployeeLeaveType
     {
         return (new EmployeeLeaveType())->fill($leaveType);
+    }
+
+    /**
+     * @param array<string, mixed> $template
+     */
+    public function mapEarningsTemplate(array $template): EarningsTemplate
+    {
+        return (new EarningsTemplate())->fill($template);
     }
 }

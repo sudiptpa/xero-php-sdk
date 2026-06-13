@@ -8,8 +8,10 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Payroll\UK\Employee\EarningsTemplate;
 use Sujip\Xero\Payroll\UK\Employee\Employee;
 use Sujip\Xero\Payroll\UK\Employee\EmployeeLeaveType;
+use Sujip\Xero\Payroll\UK\Employee\EmployeeOpeningBalances;
 use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
@@ -382,5 +384,213 @@ final class EmployeesTest extends TestCase
 
         self::assertSame('leave-key', $transport->requests()[0]->headers['Idempotency-Key']);
         self::assertSame('leave-type-key', $transport->requests()[1]->headers['Idempotency-Key']);
+    }
+
+    public function test_it_manages_employee_pay_template_earnings(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'payTemplate' => [
+                'employeeID' => 'employee-1',
+                'earningTemplates' => [[
+                    'payTemplateEarningID' => 'earning-1',
+                    'ratePerUnit' => 25,
+                    'numberOfUnits' => 10,
+                    'fixedAmount' => null,
+                    'earningsRateID' => 'rate-1',
+                    'name' => 'Regular Hours',
+                ]],
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'earningTemplate' => [
+                'payTemplateEarningID' => 'earning-2',
+                'ratePerUnit' => 30,
+                'numberOfUnits' => 5,
+                'earningsRateID' => 'rate-1',
+                'name' => 'Overtime',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'earningTemplate' => [
+                'payTemplateEarningID' => 'earning-2',
+                'ratePerUnit' => 35,
+                'numberOfUnits' => 5,
+                'earningsRateID' => 'rate-1',
+                'name' => 'Overtime',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: '{}'));
+        $transport->push(new Response(200, body: json_encode([
+            'earningTemplates' => [
+                ['payTemplateEarningID' => 'earning-3', 'earningsRateID' => 'rate-2', 'name' => 'Regular Hours'],
+                ['payTemplateEarningID' => 'earning-4', 'earningsRateID' => 'rate-3', 'name' => 'Overtime Hours'],
+            ],
+        ], JSON_THROW_ON_ERROR)));
+
+        $employees = Xero::withAccessToken('token', $transport)->tenant('tenant-123')
+            ->payroll()->uk()->employees();
+
+        $templates = $employees->payTemplate('employee-1');
+        $created = $employees->createEarningsTemplate(
+            'employee-1',
+            (new EarningsTemplate())->setRatePerUnit(30.0)->setNumberOfUnits(5.0)->setEarningsRateID('rate-1'),
+            'create-key'
+        );
+        $updated = $employees->updateEarningsTemplate(
+            'employee-1',
+            'earning-2',
+            (new EarningsTemplate())->setRatePerUnit(35.0)->setNumberOfUnits(5.0)->setEarningsRateID('rate-1')
+        );
+        $deleted = $employees->deleteEarningsTemplate('employee-1', 'earning-2');
+        $bulk = $employees->createEarningsTemplates(
+            'employee-1',
+            [
+                (new EarningsTemplate())->setEarningsRateID('rate-2')->setNumberOfUnits(8.0),
+                (new EarningsTemplate())->setEarningsRateID('rate-3')->setNumberOfUnits(8.0),
+            ],
+            'bulk-key'
+        );
+
+        self::assertCount(1, $templates->all());
+        $firstTemplate = $templates->first();
+        self::assertNotNull($firstTemplate);
+        self::assertSame('earning-1', $firstTemplate->getPayTemplateEarningID());
+        self::assertSame(25.0, $firstTemplate->getRatePerUnit());
+        self::assertSame('Regular Hours', $firstTemplate->getName());
+
+        $getRequest = $transport->requests()[0];
+        self::assertSame('GET', $getRequest->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PayTemplates', $getRequest->path);
+
+        $createRequest = $transport->requests()[1];
+        self::assertSame('POST', $createRequest->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PayTemplates/earnings', $createRequest->path);
+        self::assertSame('create-key', $createRequest->headers['Idempotency-Key']);
+        self::assertSame([
+            'ratePerUnit' => 30.0,
+            'numberOfUnits' => 5.0,
+            'earningsRateID' => 'rate-1',
+        ], $createRequest->json);
+        self::assertSame('earning-2', $created->getPayTemplateEarningID());
+
+        $updateRequest = $transport->requests()[2];
+        self::assertSame('PUT', $updateRequest->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PayTemplates/earnings/earning-2', $updateRequest->path);
+        self::assertArrayNotHasKey('Idempotency-Key', $updateRequest->headers);
+        self::assertSame(35.0, $updated->getRatePerUnit());
+
+        self::assertSame('DELETE', $transport->requests()[3]->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PayTemplates/earnings/earning-2', $transport->requests()[3]->path);
+        self::assertTrue($deleted);
+
+        $bulkRequest = $transport->requests()[4];
+        self::assertSame('POST', $bulkRequest->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/paytemplateearnings', $bulkRequest->path);
+        self::assertSame('application/json', $bulkRequest->headers['Content-Type']);
+        self::assertSame('bulk-key', $bulkRequest->headers['Idempotency-Key']);
+        self::assertSame(
+            json_encode([
+                ['numberOfUnits' => 8.0, 'earningsRateID' => 'rate-2'],
+                ['numberOfUnits' => 8.0, 'earningsRateID' => 'rate-3'],
+            ], JSON_THROW_ON_ERROR),
+            $bulkRequest->body
+        );
+        self::assertCount(2, $bulk->all());
+        $firstBulk = $bulk->first();
+        self::assertNotNull($firstBulk);
+        self::assertSame('earning-3', $firstBulk->getPayTemplateEarningID());
+    }
+
+    public function test_it_hydrates_every_earnings_template_field(): void
+    {
+        $template = (new EarningsTemplate())->fill([
+            'payTemplateEarningID' => 'earning-1',
+            'ratePerUnit' => 25.5,
+            'numberOfUnits' => 10,
+            'fixedAmount' => 100,
+            'earningsRateID' => 'rate-1',
+            'name' => 'Regular Hours',
+        ]);
+
+        self::assertSame('earning-1', $template->getPayTemplateEarningID());
+        self::assertSame(25.5, $template->getRatePerUnit());
+        self::assertSame(10.0, $template->getNumberOfUnits());
+        self::assertSame(100.0, $template->getFixedAmount());
+        self::assertSame('rate-1', $template->getEarningsRateID());
+        self::assertSame('Regular Hours', $template->getName());
+        self::assertSame([
+            'payTemplateEarningID' => 'earning-1',
+            'ratePerUnit' => 25.5,
+            'numberOfUnits' => 10.0,
+            'fixedAmount' => 100.0,
+            'earningsRateID' => 'rate-1',
+            'name' => 'Regular Hours',
+        ], $template->toRequest());
+    }
+
+    public function test_it_reads_creates_and_updates_opening_balances(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'openingBalances' => [
+                'statutoryAdoptionPay' => 10,
+                'statutoryMaternityPay' => 10,
+                'statutoryPaternityPay' => 10,
+                'statutorySharedParentalPay' => 10,
+                'statutorySickPay' => 10,
+                'priorEmployeeNumber' => 10,
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'openingBalances' => null,
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'openingBalances' => [
+                'statutorySickPay' => 20,
+            ],
+        ], JSON_THROW_ON_ERROR)));
+
+        $employees = Xero::withAccessToken('token', $transport)->tenant('tenant-123')
+            ->payroll()->uk()->employees();
+
+        $balances = $employees->openingBalances('employee-1');
+        $created = $employees->createOpeningBalances(
+            'employee-1',
+            (new EmployeeOpeningBalances())->setStatutorySickPay(10.0)->setStatutoryMaternityPay(10.0),
+            'create-key'
+        );
+        $updated = $employees->updateOpeningBalances(
+            'employee-1',
+            (new EmployeeOpeningBalances())->setStatutorySickPay(20.0)
+        );
+
+        self::assertSame(10.0, $balances->getStatutoryAdoptionPay());
+        self::assertSame(10.0, $balances->getStatutoryMaternityPay());
+        self::assertSame(10.0, $balances->getStatutoryPaternityPay());
+        self::assertSame(10.0, $balances->getStatutorySharedParentalPay());
+        self::assertSame(10.0, $balances->getStatutorySickPay());
+        self::assertSame(10.0, $balances->getPriorEmployeeNumber());
+
+        $getRequest = $transport->requests()[0];
+        self::assertSame('GET', $getRequest->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/ukopeningbalances', $getRequest->path);
+
+        $createRequest = $transport->requests()[1];
+        self::assertSame('POST', $createRequest->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/ukopeningbalances', $createRequest->path);
+        self::assertSame('create-key', $createRequest->headers['Idempotency-Key']);
+        self::assertSame([
+            'statutoryMaternityPay' => 10.0,
+            'statutorySickPay' => 10.0,
+        ], $createRequest->json);
+        self::assertNull($created->getStatutorySickPay());
+
+        $updateRequest = $transport->requests()[2];
+        self::assertSame('PUT', $updateRequest->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/ukopeningbalances', $updateRequest->path);
+        self::assertArrayNotHasKey('Idempotency-Key', $updateRequest->headers);
+        self::assertSame(['statutorySickPay' => 20.0], $updateRequest->json);
+        self::assertSame(20.0, $updated->getStatutorySickPay());
     }
 }

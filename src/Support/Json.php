@@ -19,6 +19,16 @@ final class Json
     }
 
     /**
+     * @param list<array<string, mixed>> $value
+     */
+    public static function encodeList(array $value): string
+    {
+        self::ensureAvailable();
+
+        return json_encode($value, JSON_THROW_ON_ERROR);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public static function decodeObject(string $value): array
