@@ -35,8 +35,8 @@ $asset = $xero->assets()
 ```php
 $asset = $xero->assets()->find('asset-id');
 
-$status = $asset?->getStatus();
-$assetTypeId = $asset?->getAssetTypeId();
+$status = $asset->getAssetStatus();
+$assetTypeId = $asset->getAssetTypeId();
 ```
 
 ```php

@@ -38,8 +38,8 @@ final class AssetsCoverageTest extends TestCase
         self::assertSame('FA-1001', $asset->getAssetNumber());
 
         $hydrated = (new Asset())->fill([
-            'AssetId' => 'asset-2',
-            'AssetType' => ['AssetTypeId' => 'type-9'],
+            'assetId' => 'asset-2',
+            'assetTypeId' => 'type-9',
         ]);
 
         self::assertSame('type-9', $hydrated->getAssetTypeId());
@@ -47,7 +47,7 @@ final class AssetsCoverageTest extends TestCase
 
     public function test_creating_an_asset_without_idempotency_and_empty_response(): void
     {
-        $transport = (new FakeTransport())->push(new Response(200, body: '{"Items":[]}'));
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
 
         $asset = Xero::withAccessToken('token', $transport)
             ->tenant('tenant-1')
@@ -60,7 +60,7 @@ final class AssetsCoverageTest extends TestCase
         $request = $transport->requests()[0];
 
         self::assertArrayNotHasKey('Idempotency-Key', $request->headers);
-        self::assertSame('2030-01-01', $request->json['WarrantyExpiryDate'] ?? null);
+        self::assertSame('2030-01-01', $request->json['warrantyExpiryDate'] ?? null);
         self::assertNull($asset->getAssetId());
     }
 

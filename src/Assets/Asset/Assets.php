@@ -92,7 +92,7 @@ final class Assets implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_map(fn (array $asset): Asset => $this->mapAsset($asset), Json::extractList($payload, 'Items'));
+        $items = array_map(fn (array $asset): Asset => $this->mapAsset($asset), Json::extractList($payload, 'items'));
 
         return new ResourceCollection($items);
     }
@@ -120,16 +120,13 @@ final class Assets implements DefinesScopes
         );
     }
 
-    public function find(string $assetId): ?Asset
+    public function find(string $assetId): Asset
     {
         $response = $this->client
             ->get(self::BASE_PATH . '/' . $assetId)
             ->send();
 
-        $payload = $response->json();
-        $asset = Json::extractFirst($payload, 'Items');
-
-        return $asset !== null ? $this->mapAsset($asset) : null;
+        return $this->mapAsset($response->json());
     }
 
     public function create(): Payload

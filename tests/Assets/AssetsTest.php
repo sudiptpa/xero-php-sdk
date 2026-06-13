@@ -15,28 +15,38 @@ final class AssetsTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'AssetId' => 'asset-1',
-                'AssetName' => 'MacBook Pro',
-                'AssetNumber' => 'FA-1001',
-                'Status' => 'DRAFT',
+            'pagination' => [
+                'page' => 1,
+                'pageSize' => 10,
+                'pageCount' => 1,
+                'itemCount' => 1,
+            ],
+            'items' => [[
+                'assetId' => 'asset-1',
+                'assetName' => 'MacBook Pro',
+                'assetNumber' => 'FA-1001',
+                'assetStatus' => 'Draft',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'AssetId' => 'asset-1',
-                'AssetName' => 'MacBook Pro',
-                'AssetNumber' => 'FA-1001',
-                'Status' => 'REGISTERED',
+            'pagination' => [
+                'page' => 3,
+                'pageSize' => 10,
+                'pageCount' => 1,
+                'itemCount' => 1,
+            ],
+            'items' => [[
+                'assetId' => 'asset-1',
+                'assetName' => 'MacBook Pro',
+                'assetNumber' => 'FA-1001',
+                'assetStatus' => 'Registered',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'AssetId' => 'asset-1',
-                'AssetName' => 'MacBook Pro',
-                'AssetNumber' => 'FA-1001',
-                'Status' => 'REGISTERED',
-            ]],
+            'assetId' => 'asset-1',
+            'assetName' => 'MacBook Pro',
+            'assetNumber' => 'FA-1001',
+            'assetStatus' => 'Registered',
         ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
@@ -65,20 +75,18 @@ final class AssetsTest extends TestCase
         self::assertSame(3, $paginated->page);
         self::assertSame(10, $paginated->perPage);
         self::assertSame('/assets.xro/1.0/Assets/asset-1', $transport->requests()[2]->path);
-        self::assertSame('REGISTERED', $asset?->getStatus());
+        self::assertSame('Registered', $asset->getAssetStatus());
     }
 
     public function test_it_can_create_an_asset(): void
     {
         $transport = (new FakeTransport())->push(
             new Response(200, body: json_encode([
-                'Items' => [[
-                    'AssetId' => 'asset-1',
-                    'AssetName' => 'MacBook Pro',
-                    'AssetNumber' => 'FA-1001',
-                    'Status' => 'DRAFT',
-                    'AssetTypeId' => 'type-1',
-                ]],
+                'assetId' => 'asset-1',
+                'assetName' => 'MacBook Pro',
+                'assetNumber' => 'FA-1001',
+                'assetStatus' => 'Draft',
+                'assetTypeId' => 'type-1',
             ], JSON_THROW_ON_ERROR))
         );
 
@@ -101,8 +109,8 @@ final class AssetsTest extends TestCase
         self::assertSame('POST', $request->method);
         self::assertSame('/assets.xro/1.0/Assets', $request->path);
         $json = $request->json ?? [];
-        self::assertSame('MacBook Pro', $json['AssetName'] ?? null);
-        self::assertSame('DRAFT', $json['Status'] ?? null);
+        self::assertSame('MacBook Pro', $json['assetName'] ?? null);
+        self::assertSame('Draft', $json['assetStatus'] ?? null);
         self::assertSame('asset-key', $request->headers['Idempotency-Key']);
         self::assertSame('type-1', $asset->getAssetTypeId());
     }

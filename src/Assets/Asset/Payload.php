@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Sujip\Xero\Assets\Asset;
 
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -53,7 +52,7 @@ final class Payload
     public function status(string $status): self
     {
         $clone = clone $this;
-        $clone->status = strtoupper($status);
+        $clone->status = ucfirst(strtolower($status));
 
         return $clone;
     }
@@ -112,25 +111,18 @@ final class Payload
             ->post(self::BASE_PATH)
             ->withHeaders($this->headers())
             ->withJson(array_filter([
-                'AssetName' => $this->name,
-                'AssetNumber' => $this->number,
-                'Status' => $this->status,
-                'AssetTypeId' => $this->assetTypeId,
-                'PurchaseDate' => $this->purchaseDate,
-                'PurchasePrice' => $this->purchasePrice,
-                'SerialNumber' => $this->serialNumber,
-                'WarrantyExpiryDate' => $this->warrantyExpiryDate,
+                'assetName' => $this->name,
+                'assetNumber' => $this->number,
+                'assetStatus' => $this->status,
+                'assetTypeId' => $this->assetTypeId,
+                'purchaseDate' => $this->purchaseDate,
+                'purchasePrice' => $this->purchasePrice,
+                'serialNumber' => $this->serialNumber,
+                'warrantyExpiryDate' => $this->warrantyExpiryDate,
             ], static fn (mixed $value): bool => $value !== null))
             ->send();
 
-        $payload = $response->json();
-        $asset = Json::extractFirst($payload, 'Items') ?? [];
-
-        if ($asset === []) {
-            return new Asset();
-        }
-
-        return (new Assets($this->client))->mapAsset($asset);
+        return (new Assets($this->client))->mapAsset($response->json());
     }
 
     /**
