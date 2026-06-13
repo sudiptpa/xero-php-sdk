@@ -7,9 +7,7 @@ namespace Sujip\Xero\Finance\FinancialStatement;
 use DateTimeInterface;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
-use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
-use Sujip\Xero\Support\Json;
 
 final readonly class FinancialStatements implements DefinesScopes
 {
@@ -72,46 +70,58 @@ final readonly class FinancialStatements implements DefinesScopes
 
     /**
      * @param list<string> $contactIds
-     * @return ResourceCollection<ContactStatement>
      */
-    public function contactExpenses(array $contactIds = [], ?DateTimeInterface $startDate = null, ?DateTimeInterface $endDate = null): ResourceCollection
-    {
-        return $this->contactStatementCollection(
+    public function contactExpenses(
+        array $contactIds = [],
+        ?DateTimeInterface $startDate = null,
+        ?DateTimeInterface $endDate = null,
+        ?bool $includeManualJournals = null
+    ): IncomeByContact {
+        return $this->incomeByContact(
             '/finance.xro/1.0/FinancialStatements/contacts/expense',
             $contactIds,
             $startDate,
-            $endDate
+            $endDate,
+            $includeManualJournals
         );
     }
 
     /**
      * @param list<string> $contactIds
-     * @return ResourceCollection<ContactStatement>
      */
-    public function contactRevenue(array $contactIds = [], ?DateTimeInterface $startDate = null, ?DateTimeInterface $endDate = null): ResourceCollection
-    {
-        return $this->contactStatementCollection(
+    public function contactRevenue(
+        array $contactIds = [],
+        ?DateTimeInterface $startDate = null,
+        ?DateTimeInterface $endDate = null,
+        ?bool $includeManualJournals = null
+    ): IncomeByContact {
+        return $this->incomeByContact(
             '/finance.xro/1.0/FinancialStatements/contacts/revenue',
             $contactIds,
             $startDate,
-            $endDate
+            $endDate,
+            $includeManualJournals
         );
     }
 
     /**
      * @param list<string> $contactIds
-     * @return ResourceCollection<ContactStatement>
      */
-    private function contactStatementCollection(
+    private function incomeByContact(
         string $path,
         array $contactIds,
         ?DateTimeInterface $startDate,
-        ?DateTimeInterface $endDate
-    ): ResourceCollection {
+        ?DateTimeInterface $endDate,
+        ?bool $includeManualJournals
+    ): IncomeByContact {
         $query = $this->dateRange($startDate, $endDate);
 
         if ($contactIds !== []) {
             $query['contactIds'] = $contactIds;
+        }
+
+        if ($includeManualJournals !== null) {
+            $query['includeManualJournals'] = $includeManualJournals ? 'true' : 'false';
         }
 
         $payload = $this->client
@@ -120,12 +130,7 @@ final readonly class FinancialStatements implements DefinesScopes
             ->send()
             ->json();
 
-        $items = array_map(
-            fn (array $statement): ContactStatement => $this->mapContactStatement($statement),
-            Json::extractList($payload, 'Items') ?: Json::extractList($payload, 'Contacts')
-        );
-
-        return new ResourceCollection($items);
+        return (new IncomeByContact())->fill($payload);
     }
 
     /**
@@ -144,13 +149,5 @@ final readonly class FinancialStatements implements DefinesScopes
         }
 
         return $query;
-    }
-
-    /**
-     * @param array<string, mixed> $statement
-     */
-    private function mapContactStatement(array $statement): ContactStatement
-    {
-        return (new ContactStatement())->fill($statement);
     }
 }

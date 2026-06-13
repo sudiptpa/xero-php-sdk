@@ -160,17 +160,49 @@ final class FinancialStatementsTest extends TestCase
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'ContactID' => 'contact-1',
-                'Name' => 'Acme',
-                'Total' => 120,
+            'startDate' => '2019-10-17',
+            'endDate' => '2020-10-16',
+            'total' => 1200,
+            'totalDetail' => [
+                'totalPaid' => 400,
+                'totalOutstanding' => 1000,
+                'totalCreditedUnApplied' => 200,
+            ],
+            'totalOther' => [
+                'totalOutstandingAged' => 1000,
+                'totalVoided' => 150,
+                'totalCredited' => 10,
+            ],
+            'contacts' => [[
+                'contactId' => 'contact-1',
+                'name' => 'Acme',
+                'total' => 120,
+                'totalDetail' => [
+                    'totalPaid' => 400,
+                    'totalOutstanding' => 1000,
+                    'totalCreditedUnApplied' => 0,
+                ],
+                'totalOther' => [
+                    'totalOutstandingAged' => 1000,
+                    'totalVoided' => 150,
+                    'totalCredited' => 0,
+                    'transactionCount' => 3,
+                ],
+                'accountCodes' => ['090', '200'],
             ]],
+            'manualJournals' => [
+                'total' => -100,
+            ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'ContactID' => 'contact-2',
-                'Name' => 'Globex',
-                'Total' => 450,
+            'startDate' => '2019-10-17',
+            'endDate' => '2020-10-16',
+            'total' => 450,
+            'contacts' => [[
+                'contactId' => 'contact-2',
+                'name' => 'Globex',
+                'total' => 450,
+                'accountCodes' => ['900'],
             ]],
         ], JSON_THROW_ON_ERROR)));
 
@@ -251,8 +283,17 @@ final class FinancialStatementsTest extends TestCase
         $movement = $accountMovement->getMovement();
         self::assertNotNull($movement);
         self::assertSame(123, $movement->getValue());
-        self::assertNotNull($expenses->first());
-        self::assertNotNull($contactRevenue->first());
+        self::assertSame(1200, $expenses->getTotal());
+        $expenseContact = $expenses->getContacts()[0];
+        self::assertSame('Acme', $expenseContact->getName());
+        self::assertSame(['090', '200'], $expenseContact->getAccountCodes());
+        $expenseTotalOther = $expenseContact->getTotalOther();
+        self::assertNotNull($expenseTotalOther);
+        self::assertSame(3, $expenseTotalOther->getTransactionCount());
+        $manualJournals = $expenses->getManualJournals();
+        self::assertNotNull($manualJournals);
+        self::assertSame(-100, $manualJournals->getTotal());
+        self::assertSame('Globex', $contactRevenue->getContacts()[0]->getName());
     }
 
     public function test_it_can_get_finance_account_usage_and_report_history(): void

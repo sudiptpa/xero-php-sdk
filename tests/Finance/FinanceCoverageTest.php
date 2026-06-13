@@ -12,7 +12,7 @@ use Sujip\Xero\Finance\AccountingActivity\ReportHistory;
 use Sujip\Xero\Finance\AccountingActivity\UserActivity;
 use Sujip\Xero\Finance\BankStatementEntry;
 use Sujip\Xero\Finance\CashValidation\CashValidationResult;
-use Sujip\Xero\Finance\FinancialStatement\ContactStatement;
+use Sujip\Xero\Finance\FinancialStatement\ContactDetail;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Xero;
@@ -102,12 +102,12 @@ final class FinanceCoverageTest extends TestCase
         self::assertSame('account-1', $cash->getAccountId());
         self::assertSame('2026-03-01', $cash->getStatementBalanceDate());
 
-        $contact = (new ContactStatement())
-            ->setContactID('contact-1')
+        $contact = (new ContactDetail())
+            ->setContactId('contact-1')
             ->setName('Acme')
             ->setTotal(750.0);
 
-        self::assertSame('contact-1', $contact->getContactID());
+        self::assertSame('contact-1', $contact->getContactId());
         self::assertSame('Acme', $contact->getName());
         self::assertSame(750.0, $contact->getTotal());
     }
