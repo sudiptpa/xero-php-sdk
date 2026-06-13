@@ -94,8 +94,42 @@ final class FinancialStatementsTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'FinancialStatement' => [
-                'Rows' => [['Title' => 'Profit and Loss']],
+            'startDate' => '2020-07-01',
+            'endDate' => '2021-06-30',
+            'netProfitLoss' => 123,
+            'revenue' => [
+                'total' => 20922.46,
+                'accountTypes' => [
+                    [
+                        'total' => 20825.41,
+                        'title' => 'Trading Income',
+                        'accounts' => [[
+                            'accountID' => 'abcdefab-2006-43c2-a5da-3c0e5f43b452',
+                            'accountType' => 'REVENUE',
+                            'code' => '200',
+                            'name' => 'Sales',
+                            'reportingCode' => 'REV',
+                            'total' => 20825.41,
+                        ]],
+                    ],
+                ],
+            ],
+            'expense' => [
+                'total' => 1234.56,
+                'accountTypes' => [
+                    [
+                        'total' => 1234.56,
+                        'title' => 'Operating Expenses',
+                        'accounts' => [[
+                            'accountID' => 'abcdefab-1111-43c2-a5da-3c0e5f43b452',
+                            'accountType' => 'EXPENSE',
+                            'code' => '400',
+                            'name' => 'Advertising',
+                            'reportingCode' => 'EXP',
+                            'total' => 1234.56,
+                        ]],
+                    ],
+                ],
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -126,7 +160,7 @@ final class FinancialStatementsTest extends TestCase
         $profitAndLoss = $statements->profitAndLoss(new DateTimeImmutable('2026-03-01'), new DateTimeImmutable('2026-03-31'));
         $trialBalance = $statements->trialBalance(new DateTimeImmutable('2026-03-31'));
         $expenses = $statements->contactExpenses(['contact-1'], new DateTimeImmutable('2026-03-01'), new DateTimeImmutable('2026-03-31'));
-        $revenue = $statements->contactRevenue(['contact-2'], new DateTimeImmutable('2026-03-01'), new DateTimeImmutable('2026-03-31'));
+        $contactRevenue = $statements->contactRevenue(['contact-2'], new DateTimeImmutable('2026-03-01'), new DateTimeImmutable('2026-03-31'));
 
         self::assertSame('/finance.xro/1.0/FinancialStatements/BalanceSheet', $transport->requests()[0]->path);
         self::assertSame('2026-03-31', $transport->requests()[0]->query['balanceDate']);
@@ -167,10 +201,22 @@ final class FinancialStatementsTest extends TestCase
         self::assertSame('Receipts from customers', $type->getName());
         self::assertSame('Cellar Door - Till Variance', $type->getAccounts()[0]->getName());
         self::assertSame('REVENUE', $type->getAccounts()[0]->getAccountClass());
-        self::assertNotEmpty($profitAndLoss->getRows());
+        self::assertSame('2020-07-01', $profitAndLoss->getStartDate());
+        self::assertSame('2021-06-30', $profitAndLoss->getEndDate());
+        self::assertSame(123, $profitAndLoss->getNetProfitLoss());
+        $revenue = $profitAndLoss->getRevenue();
+        self::assertNotNull($revenue);
+        self::assertSame(20922.46, $revenue->getTotal());
+        $tradingIncome = $revenue->getAccountTypes()[0];
+        self::assertSame('Trading Income', $tradingIncome->getTitle());
+        self::assertSame('Sales', $tradingIncome->getAccounts()[0]->getName());
+        self::assertSame('REV', $tradingIncome->getAccounts()[0]->getReportingCode());
+        $expense = $profitAndLoss->getExpense();
+        self::assertNotNull($expense);
+        self::assertSame('Advertising', $expense->getAccountTypes()[0]->getAccounts()[0]->getName());
         self::assertNotEmpty($trialBalance->getRows());
         self::assertNotNull($expenses->first());
-        self::assertNotNull($revenue->first());
+        self::assertNotNull($contactRevenue->first());
     }
 
     public function test_it_can_get_finance_account_usage_and_report_history(): void

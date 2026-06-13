@@ -48,9 +48,15 @@ final readonly class FinancialStatements implements DefinesScopes
         return (new Cashflow())->fill($payload);
     }
 
-    public function profitAndLoss(?DateTimeInterface $startDate = null, ?DateTimeInterface $endDate = null): Statement
+    public function profitAndLoss(?DateTimeInterface $startDate = null, ?DateTimeInterface $endDate = null): ProfitAndLoss
     {
-        return $this->statement('/finance.xro/1.0/FinancialStatements/ProfitAndLoss', 'profit_and_loss', $this->dateRange($startDate, $endDate));
+        $payload = $this->client
+            ->get('/finance.xro/1.0/FinancialStatements/ProfitAndLoss')
+            ->withQuery($this->dateRange($startDate, $endDate))
+            ->send()
+            ->json();
+
+        return (new ProfitAndLoss())->fill($payload);
     }
 
     public function trialBalance(?DateTimeInterface $balanceDate = null): Statement
