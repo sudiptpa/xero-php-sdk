@@ -46,11 +46,9 @@ final class FilesTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'file-1',
-                'Name' => 'contract.pdf',
-                'MimeType' => 'application/pdf',
-            ]],
+            'Id' => 'file-1',
+            'Name' => 'contract.pdf',
+            'MimeType' => 'application/pdf',
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: 'pdf-binary-content'));
 
@@ -105,18 +103,14 @@ final class FilesTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'file-1',
-                'Name' => 'contract.pdf',
-                'FolderId' => 'folder-1',
-            ]],
+            'Id' => 'file-1',
+            'Name' => 'contract.pdf',
+            'FolderId' => 'folder-1',
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'file-1',
-                'Name' => 'contract-v2.pdf',
-                'FolderId' => 'folder-2',
-            ]],
+            'Id' => 'file-1',
+            'Name' => 'contract-v2.pdf',
+            'FolderId' => 'folder-2',
         ], JSON_THROW_ON_ERROR)));
 
         $file = Xero::withAccessToken('token', $transport)
@@ -227,10 +221,8 @@ final class FilesTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'file-1',
-                'Name' => 'contract.pdf',
-            ]],
+            'Id' => 'file-1',
+            'Name' => 'contract.pdf',
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(204));
 

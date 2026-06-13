@@ -30,7 +30,7 @@ final class FilesCoverageTest extends TestCase
         $transport->push(new Response(200, body: '{"Items":[]}')); // paginate -> get
         $transport->push(new Response(200, body: 'binary-content')); // content
         $transport->push(new Response(204)); // delete
-        $transport->push(new Response(200, body: '{"Items":[{"Id":"file-1","Name":"Renamed"}]}')); // update -> save
+        $transport->push(new Response(200, body: '{"Id":"file-1","Name":"Renamed"}')); // update -> save
 
         $client = $this->client($transport);
         $facade = $client->files();
@@ -97,10 +97,13 @@ final class FilesCoverageTest extends TestCase
             }
         }
 
-        $transport = (new FakeTransport())->push(new Response(200, body: '{"Items":[{"Id":"file-1"}]}'));
+        $transport = (new FakeTransport())->push(new Response(200, body: '{"Id":"file-1"}'));
         $file = $this->client($transport)->files()->find('file-1');
         self::assertNotNull($file);
         self::assertSame(['files'], $file->associations()->scopes()->broad);
+
+        $missing = (new FakeTransport())->push(new Response(200, body: '{}'));
+        self::assertNull($this->client($missing)->files()->find('missing'));
     }
 
     public function test_file_payload_supports_post_idempotency_and_empty_response(): void

@@ -113,9 +113,8 @@ final class Files implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $file = Json::extractFirst($payload, 'Items');
 
-        return $file !== null ? $this->mapFile($file) : null;
+        return $payload === [] ? null : $this->mapFile($payload);
     }
 
     public function content(string $fileId): string
