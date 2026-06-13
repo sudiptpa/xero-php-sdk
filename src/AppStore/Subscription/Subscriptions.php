@@ -49,7 +49,7 @@ final readonly class Subscriptions implements DefinesScopes
 
         $items = array_map(
             fn (array $usageRecord): UsageRecord => $this->mapUsageRecord($usageRecord),
-            Json::extractList($payload, 'items') ?: Json::extractList($payload, 'usageRecords')
+            Json::extractList($payload, 'usageRecords')
         );
 
         return new ResourceCollection($items);
