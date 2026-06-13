@@ -133,9 +133,31 @@ final class FinancialStatementsTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'FinancialStatement' => [
-                'Rows' => [['Title' => 'Trial Balance']],
-            ],
+            'startDate' => '2020-07-01',
+            'endDate' => '2021-06-30',
+            'accounts' => [[
+                'accountId' => 'abcdefab-3bbf-4f2a-9e4c-20ec7b8e6b41',
+                'accountType' => 'ASSET',
+                'accountCode' => 'ASS',
+                'accountClass' => 'BANK',
+                'status' => 'ACTIVE',
+                'reportingCode' => 'ASS',
+                'accountName' => 'Everyday transactions',
+                'balance' => [
+                    'value' => 100,
+                    'entryType' => 'DEBIT',
+                ],
+                'signedBalance' => -23,
+                'accountMovement' => [
+                    'debits' => 0,
+                    'credits' => 0,
+                    'movement' => [
+                        'value' => 123,
+                        'entryType' => 'CREDIT',
+                    ],
+                    'signedMovement' => 0,
+                ],
+            ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'Items' => [[
@@ -167,6 +189,7 @@ final class FinancialStatementsTest extends TestCase
         self::assertSame('/finance.xro/1.0/FinancialStatements/Cashflow', $transport->requests()[1]->path);
         self::assertSame('/finance.xro/1.0/FinancialStatements/ProfitAndLoss', $transport->requests()[2]->path);
         self::assertSame('/finance.xro/1.0/FinancialStatements/TrialBalance', $transport->requests()[3]->path);
+        self::assertSame('2026-03-31', $transport->requests()[3]->query['endDate']);
         self::assertSame('/finance.xro/1.0/FinancialStatements/contacts/expense', $transport->requests()[4]->path);
         self::assertSame(['contact-1'], $transport->requests()[4]->query['contactIds']);
         self::assertSame('/finance.xro/1.0/FinancialStatements/contacts/revenue', $transport->requests()[5]->path);
@@ -214,7 +237,20 @@ final class FinancialStatementsTest extends TestCase
         $expense = $profitAndLoss->getExpense();
         self::assertNotNull($expense);
         self::assertSame('Advertising', $expense->getAccountTypes()[0]->getAccounts()[0]->getName());
-        self::assertNotEmpty($trialBalance->getRows());
+        self::assertSame('2020-07-01', $trialBalance->getStartDate());
+        self::assertSame('2021-06-30', $trialBalance->getEndDate());
+        $account = $trialBalance->getAccounts()[0];
+        self::assertSame('Everyday transactions', $account->getAccountName());
+        $balance = $account->getBalance();
+        self::assertNotNull($balance);
+        self::assertSame(100, $balance->getValue());
+        self::assertSame('DEBIT', $balance->getEntryType());
+        self::assertSame(-23, $account->getSignedBalance());
+        $accountMovement = $account->getAccountMovement();
+        self::assertNotNull($accountMovement);
+        $movement = $accountMovement->getMovement();
+        self::assertNotNull($movement);
+        self::assertSame(123, $movement->getValue());
         self::assertNotNull($expenses->first());
         self::assertNotNull($contactRevenue->first());
     }

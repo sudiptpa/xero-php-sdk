@@ -59,13 +59,15 @@ final readonly class FinancialStatements implements DefinesScopes
         return (new ProfitAndLoss())->fill($payload);
     }
 
-    public function trialBalance(?DateTimeInterface $balanceDate = null): Statement
+    public function trialBalance(?DateTimeInterface $endDate = null): TrialBalance
     {
-        return $this->statement(
-            '/finance.xro/1.0/FinancialStatements/TrialBalance',
-            'trial_balance',
-            $balanceDate === null ? [] : ['balanceDate' => $balanceDate->format('Y-m-d')]
-        );
+        $payload = $this->client
+            ->get('/finance.xro/1.0/FinancialStatements/TrialBalance')
+            ->withQuery($endDate === null ? [] : ['endDate' => $endDate->format('Y-m-d')])
+            ->send()
+            ->json();
+
+        return (new TrialBalance())->fill($payload);
     }
 
     /**
@@ -94,29 +96,6 @@ final readonly class FinancialStatements implements DefinesScopes
             $startDate,
             $endDate
         );
-    }
-
-    /**
-     * @param array<string, scalar|array<int, scalar>|null> $query
-     */
-    private function statement(string $path, string $type, array $query): Statement
-    {
-        $payload = $this->client
-            ->get($path)
-            ->withQuery($query)
-            ->send()
-            ->json();
-
-        $statement = Json::extractObject($payload, 'FinancialStatement')
-            ?: Json::extractObject($payload, 'Report')
-            ?: $payload;
-
-        if ($statement === []) {
-            return new Statement($type);
-        }
-
-        return (new Statement())
-            ->fill(['Type' => $type] + $statement);
     }
 
     /**
