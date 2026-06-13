@@ -68,12 +68,10 @@ final class FilesTest extends TestCase
     {
         $transport = (new FakeTransport())->push(
             new Response(200, body: json_encode([
-                'Items' => [[
-                    'Id' => 'file-1',
-                    'Name' => 'contract.pdf',
-                    'MimeType' => 'application/pdf',
-                    'FolderId' => 'folder-1',
-                ]],
+                'Id' => 'file-1',
+                'Name' => 'contract.pdf',
+                'MimeType' => 'application/pdf',
+                'FolderId' => 'folder-1',
             ], JSON_THROW_ON_ERROR))
         );
 
@@ -90,12 +88,11 @@ final class FilesTest extends TestCase
 
         self::assertSame('POST', $request->method);
         self::assertSame('/files.xro/1.0/Files/folder-1', $request->path);
-        self::assertSame('contract.pdf', $request->query['name']);
-        self::assertSame('contract.pdf', $request->query['filename']);
-        self::assertSame('application/pdf', $request->query['mimeType']);
-        self::assertSame('application/pdf', $request->headers['Content-Type']);
+        self::assertStringStartsWith('multipart/form-data; boundary=', $request->headers['Content-Type']);
         self::assertSame('upload-key', $request->headers['Idempotency-Key']);
-        self::assertSame('binary-data', $request->body);
+        self::assertStringContainsString('Content-Disposition: form-data; name="contract.pdf"; filename="contract.pdf"', $request->body ?? '');
+        self::assertStringContainsString('Content-Type: application/pdf', $request->body ?? '');
+        self::assertStringContainsString('binary-data', $request->body ?? '');
         self::assertSame('folder-1', $file->getFolderId());
     }
 

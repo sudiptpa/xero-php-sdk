@@ -157,15 +157,11 @@ final class File extends Model
 
     public function save(): self
     {
-        if ($this->client === null) {
-            throw new RuntimeException('Cannot save a file without a bound client context.');
+        if ($this->client === null || $this->id === null) {
+            throw new RuntimeException('Cannot save a file without a bound client context and file id. Use upload() to create a new file.');
         }
 
-        $payload = new Payload($this->client);
-
-        if ($this->id !== null) {
-            $payload = $payload->id($this->id);
-        }
+        $payload = (new Payload($this->client))->id($this->id);
 
         if ($this->name !== null) {
             $payload = $payload->name($this->name);

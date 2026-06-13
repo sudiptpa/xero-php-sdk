@@ -82,7 +82,7 @@ final class FilesCoverageTest extends TestCase
     public function test_file_entity_guards_and_association_navigation(): void
     {
         $guards = [
-            ['save', 'Cannot save a file without a bound client context.'],
+            ['save', 'Cannot save a file without a bound client context and file id. Use upload() to create a new file.'],
             ['content', 'Cannot fetch file content without a bound client context and file id.'],
             ['associations', 'Cannot access file associations without a bound client context and file id.'],
             ['delete', 'Cannot delete a file without a bound client context and file id.'],
@@ -106,20 +106,32 @@ final class FilesCoverageTest extends TestCase
         self::assertNull($this->client($missing)->files()->find('missing'));
     }
 
-    public function test_file_payload_supports_post_idempotency_and_empty_response(): void
+    public function test_file_payload_supports_put_idempotency_and_empty_response(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
 
         $file = (new FilePayload($this->client($transport)))
+            ->id('file-1')
             ->name('contract.pdf')
             ->folder('folder-1')
             ->idempotencyKey('key-1')
             ->save();
 
         $request = $transport->requests()[0];
-        self::assertSame('POST', $request->method);
+        self::assertSame('PUT', $request->method);
+        self::assertSame('/files.xro/1.0/Files/file-1', $request->path);
         self::assertSame('key-1', $request->headers['Idempotency-Key']);
         self::assertNull($file->getId());
+    }
+
+    public function test_file_payload_requires_a_file_id_to_save(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Cannot update a file without a file id.');
+
+        (new FilePayload($this->client(new FakeTransport())))
+            ->name('contract.pdf')
+            ->save();
     }
 
     public function test_upload_without_folder_and_empty_response(): void

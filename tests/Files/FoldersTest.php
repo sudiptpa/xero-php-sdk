@@ -111,11 +111,9 @@ final class FoldersTest extends TestCase
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'file-2',
-                'Name' => 'terms.pdf',
-                'FolderId' => 'folder-1',
-            ]],
+            'Id' => 'file-2',
+            'Name' => 'terms.pdf',
+            'FolderId' => 'folder-1',
         ], JSON_THROW_ON_ERROR)));
 
         $folder = Xero::withAccessToken('token', $transport)

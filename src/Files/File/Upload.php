@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Sujip\Xero\Files\File;
 
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Json;
 
 final class Upload
 {
@@ -55,37 +54,42 @@ final class Upload
             ? self::BASE_PATH
             : self::BASE_PATH . '/' . $this->folderId;
 
+        $boundary = bin2hex(random_bytes(16));
+
         $response = $this->client
             ->post($path)
-            ->withHeaders($this->headers())
-            ->withQuery(array_filter([
-                'name' => $this->name,
-                'filename' => $this->filename ?? $this->name,
-                'mimeType' => $this->mimeType,
-            ], static fn (?string $value): bool => $value !== null && $value !== ''))
-            ->withBody($this->content)
+            ->withHeaders($this->headers($boundary))
+            ->withBody($this->multipartBody($boundary))
             ->send();
 
-        $payload = $response->json();
-        $file = Json::extractFirst($payload, 'Items') ?? [];
+        return (new Files($this->client))->mapFile($response->json());
+    }
 
-        if ($file === []) {
-            return new File($this->client);
+    private function multipartBody(string $boundary): string
+    {
+        $filename = $this->filename ?? $this->name;
+
+        $body = "--{$boundary}\r\n";
+        $body .= "Content-Disposition: form-data; name=\"{$filename}\"; filename=\"{$filename}\"\r\n";
+
+        if ($this->mimeType !== null) {
+            $body .= "Content-Type: {$this->mimeType}\r\n";
         }
 
-        return (new Files($this->client))->mapFile($file);
+        $body .= "\r\n{$this->content}\r\n";
+        $body .= "--{$boundary}--\r\n";
+
+        return $body;
     }
 
     /**
      * @return array<string, string>
      */
-    private function headers(): array
+    private function headers(string $boundary): array
     {
-        $headers = [];
-
-        if ($this->mimeType !== null) {
-            $headers['Content-Type'] = $this->mimeType;
-        }
+        $headers = [
+            'Content-Type' => "multipart/form-data; boundary={$boundary}",
+        ];
 
         if ($this->idempotencyKey !== null) {
             $headers['Idempotency-Key'] = $this->idempotencyKey;
