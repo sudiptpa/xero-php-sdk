@@ -4,6 +4,47 @@ All notable changes to this package should be documented here.
 
 ## Unreleased
 
+### Added
+
+New endpoints and resources that fill gaps against the Xero API. These are
+additive and do not change the signatures of existing methods.
+
+- `Accounting`:
+  - `Budgets`: `budgets()` with `get()`, `find()`, and `dateFrom`/`dateTo`
+    filters, under the `accounting.budgets.read` scope
+  - `Invoices`: `email()` to send an invoice to the contact and
+    `onlineInvoiceUrl()` for the shareable link, on both the `Invoices`
+    resource and a bound `Invoice`
+  - `Allocations` on credit notes, overpayments, and prepayments (create
+    with `PUT`, remove with `DELETE`)
+  - `attachments()` on accounts, bank transactions, bank transfers,
+    contacts, quotes, and repeating invoices (list, download by file name
+    or attachment id, create, update)
+  - `history()` on contacts, bank transfers, expense claims, quotes,
+    overpayments, prepayments, and repeating invoices
+  - `LinkedTransactions`: `find()`, `update()`, and `delete()` by id
+  - `TrackingCategories`: add, rename, and delete options
+  - `Users::find()` by id, `Organisations::actions()`, and the contact and
+    organisation CIS settings reads
+  - `BrandingThemes`: list and add payment services
+  - `Accounting::setup()` to post the conversion date and opening balances
+- `Payroll AU`:
+  - `LeaveApplications::v2()`, which also returns pending leave requests
+- `Payroll NZ`:
+  - `Deductions`, `EarningsRates`, and `Superannuations` pay items (list,
+    find, create)
+  - `PaySlips`: list by pay run, find by id, and update line items
+- `Payroll UK`:
+  - `Deductions`, `EarningsRates`, `Benefits`, and `EarningsOrders` pay
+    items (`EarningsOrders` is read only)
+  - employee opening balances: `openingBalances()`,
+    `createOpeningBalances()`, `updateOpeningBalances()`
+  - statutory sick leave: `statutoryLeaves()->findSick()` and `createSick()`
+- `Payroll NZ` and `Payroll UK`:
+  - timesheet lines: create, update, and delete a line on a timesheet
+  - employee pay template earnings: list, create, update, delete, and bulk
+    create
+
 ### Fixed (breaking wire-contract corrections, see UPGRADE.md)
 
 An audit against the official Xero OpenAPI specs found that a number of
@@ -45,7 +86,10 @@ full list of affected methods.
     `EmployeeStatutoryLeaveSummary`
   - `Payslips`: unwrap from `paySlips`/`paySlip`, corrected to the real
     schema (`paySlipID`, `employeeID`, `payRunID`, `lastEdited`,
-    `firstName`, `lastName`, total* money fields)
+    `firstName`, `lastName`, total* money fields); payslip access now hits
+    the real `GET /Payslips?PayRunID=` and `GET /Payslips/{id}` endpoints
+    (the `/PayRuns/{id}/Payslips` path does not exist), with no change to
+    the public API
 - `Payroll NZ`:
   - `LeaveTypes`: standalone resource unwraps from camelCase
     `leaveTypes`/`leaveType` with the full schema; employee leave types now
