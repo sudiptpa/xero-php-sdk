@@ -96,11 +96,11 @@ final class FinanceCoverageTest extends TestCase
         self::assertSame(2500.0, $entry->getStatementBalance());
 
         $cash = (new CashValidationResult())
-            ->setBalance(1500.0)
-            ->setCurrency('AUD');
+            ->setAccountId('account-1')
+            ->setStatementBalanceDate('2026-03-01');
 
-        self::assertSame(1500.0, $cash->getBalance());
-        self::assertSame('AUD', $cash->getCurrency());
+        self::assertSame('account-1', $cash->getAccountId());
+        self::assertSame('2026-03-01', $cash->getStatementBalanceDate());
 
         $contact = (new ContactStatement())
             ->setContactID('contact-1')

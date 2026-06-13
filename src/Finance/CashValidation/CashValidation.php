@@ -8,6 +8,7 @@ use DateTimeInterface;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Json;
+use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 
 final readonly class CashValidation implements DefinesScopes
@@ -25,18 +26,39 @@ final readonly class CashValidation implements DefinesScopes
         );
     }
 
-    public function get(DateTimeInterface $balanceDate): CashValidationResult
-    {
+    /**
+     * @return ResourceCollection<CashValidationResult>
+     */
+    public function get(
+        ?DateTimeInterface $balanceDate = null,
+        ?DateTimeInterface $asAtSystemDate = null,
+        ?DateTimeInterface $beginDate = null
+    ): ResourceCollection {
+        $query = [];
+
+        if ($balanceDate !== null) {
+            $query['balanceDate'] = $balanceDate->format('Y-m-d');
+        }
+
+        if ($asAtSystemDate !== null) {
+            $query['asAtSystemDate'] = $asAtSystemDate->format('Y-m-d');
+        }
+
+        if ($beginDate !== null) {
+            $query['beginDate'] = $beginDate->format('Y-m-d');
+        }
+
         $payload = $this->client
             ->get('/finance.xro/1.0/CashValidation')
-            ->withQuery([
-                'balanceDate' => $balanceDate->format('Y-m-d'),
-            ])
+            ->withQuery($query)
             ->send()
             ->json();
 
-        $result = Json::extractObject($payload, 'CashValidation') ?: $payload;
+        $items = array_map(
+            fn (array $item): CashValidationResult => (new CashValidationResult())->fill($item),
+            Json::extractRows($payload)
+        );
 
-        return (new CashValidationResult())->fill($result);
+        return new ResourceCollection($items);
     }
 }

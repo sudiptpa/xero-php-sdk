@@ -9,38 +9,73 @@ use Sujip\Xero\Support\Model;
 
 final class CashValidationResult extends Model
 {
-    public function __construct(
-        private ?string $status = null,
-        private ?float $balance = null,
-        private ?string $currency = null
-    ) {
+    private ?string $accountId = null;
+
+    private ?StatementBalance $statementBalance = null;
+
+    private ?string $statementBalanceDate = null;
+
+    private ?BankStatement $bankStatement = null;
+
+    private ?CashAccount $cashAccount = null;
+
+    public function getAccountId(): ?string
+    {
+        return $this->accountId;
     }
 
-    public function getStatus(): ?string
+    public function setAccountId(?string $accountId): self
     {
-        return $this->status;
-    }
-    public function setStatus(?string $status): self
-    {
-        $this->status = $status;
+        $this->accountId = $accountId;
+
         return $this;
     }
-    public function getBalance(): ?float
+
+    public function getStatementBalance(): ?StatementBalance
     {
-        return $this->balance;
+        return $this->statementBalance;
     }
-    public function setBalance(?float $balance): self
+
+    public function setStatementBalance(?StatementBalance $statementBalance): self
     {
-        $this->balance = $balance;
+        $this->statementBalance = $statementBalance;
+
         return $this;
     }
-    public function getCurrency(): ?string
+
+    public function getStatementBalanceDate(): ?string
     {
-        return $this->currency;
+        return $this->statementBalanceDate;
     }
-    public function setCurrency(?string $currency): self
+
+    public function setStatementBalanceDate(?string $statementBalanceDate): self
     {
-        $this->currency = $currency;
+        $this->statementBalanceDate = $statementBalanceDate;
+
+        return $this;
+    }
+
+    public function getBankStatement(): ?BankStatement
+    {
+        return $this->bankStatement;
+    }
+
+    public function setBankStatement(?BankStatement $bankStatement): self
+    {
+        $this->bankStatement = $bankStatement;
+
+        return $this;
+    }
+
+    public function getCashAccount(): ?CashAccount
+    {
+        return $this->cashAccount;
+    }
+
+    public function setCashAccount(?CashAccount $cashAccount): self
+    {
+        $this->cashAccount = $cashAccount;
+
         return $this;
     }
 
@@ -50,9 +85,11 @@ final class CashValidationResult extends Model
     protected static function getDefinitions(): array
     {
         return [
-            'Status' => Field::string()->using('setStatus'),
-            'Balance' => Field::number()->using('setBalance'),
-            'Currency' => Field::string()->using('setCurrency'),
+            'accountId' => Field::string(),
+            'statementBalance' => Field::object(StatementBalance::class),
+            'statementBalanceDate' => Field::string(),
+            'bankStatement' => Field::object(BankStatement::class),
+            'cashAccount' => Field::object(CashAccount::class),
         ];
     }
 }
