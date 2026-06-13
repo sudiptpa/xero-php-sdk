@@ -18,11 +18,12 @@ final readonly class Connections
     /**
      * @return ResourceCollection<Connection>
      */
-    public function get(): ResourceCollection
+    public function get(?string $authEventId = null): ResourceCollection
     {
         $response = $this->client
             ->get('/connections')
             ->withoutTenant()
+            ->withQuery(['authEventId' => $authEventId])
             ->send();
 
         $decoded = Json::decode($response->body);

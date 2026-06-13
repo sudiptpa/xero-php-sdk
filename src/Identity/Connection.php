@@ -14,6 +14,7 @@ final class Connection extends Model
     public function __construct(
         private ?Client $client = null,
         private ?string $id = null,
+        private ?string $authEventId = null,
         private ?string $tenantId = null,
         private ?string $tenantName = null,
         private ?string $tenantType = null,
@@ -29,6 +30,15 @@ final class Connection extends Model
     public function setId(?string $id): self
     {
         $this->id = $id;
+        return $this;
+    }
+    public function getAuthEventId(): ?string
+    {
+        return $this->authEventId;
+    }
+    public function setAuthEventId(?string $authEventId): self
+    {
+        $this->authEventId = $authEventId;
         return $this;
     }
     public function getTenantId(): ?string
@@ -84,6 +94,7 @@ final class Connection extends Model
     {
         return [
             'id' => Field::string()->using('setId'),
+            'authEventId' => Field::string()->using('setAuthEventId'),
             'tenantId' => Field::string()->using('setTenantId'),
             'tenantName' => Field::string()->using('setTenantName'),
             'tenantType' => Field::string()->using('setTenantType'),
