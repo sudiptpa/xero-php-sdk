@@ -64,8 +64,33 @@ final class FinancialStatementsTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'FinancialStatement' => [
-                'Rows' => [['Title' => 'Cash flow']],
+            'startDate' => '2018-07-01',
+            'endDate' => '2019-06-30',
+            'cashBalance' => [
+                'openingCashBalance' => 5000,
+                'closingCashBalance' => -50000,
+                'netCashMovement' => -55000,
+            ],
+            'cashflowActivities' => [
+                [
+                    'name' => 'Operating Activities',
+                    'total' => -41000,
+                    'cashflowTypes' => [
+                        [
+                            'name' => 'Receipts from customers',
+                            'total' => 34000,
+                            'accounts' => [[
+                                'accountId' => 'abcdefab-4d1e-4d1a-9e4c-68b2c2a278e2',
+                                'accountType' => 'REVENUE',
+                                'accountClass' => 'REVENUE',
+                                'code' => '455',
+                                'name' => 'Cellar Door - Till Variance',
+                                'reportingCode' => 'EXP',
+                                'total' => -1000,
+                            ]],
+                        ],
+                    ],
+                ],
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -131,7 +156,17 @@ final class FinancialStatementsTest extends TestCase
         self::assertSame(14.81, $equity->getTotal());
         self::assertSame('Current Year Earnings', $equity->getAccountTypes()[0]->getAccounts()[0]->getName());
 
-        self::assertNotEmpty($cashflow->getRows());
+        self::assertSame('2018-07-01', $cashflow->getStartDate());
+        self::assertSame('2019-06-30', $cashflow->getEndDate());
+        $cashBalance = $cashflow->getCashBalance();
+        self::assertNotNull($cashBalance);
+        self::assertSame(-55000, $cashBalance->getNetCashMovement());
+        $activity = $cashflow->getCashflowActivities()[0];
+        self::assertSame('Operating Activities', $activity->getName());
+        $type = $activity->getCashflowTypes()[0];
+        self::assertSame('Receipts from customers', $type->getName());
+        self::assertSame('Cellar Door - Till Variance', $type->getAccounts()[0]->getName());
+        self::assertSame('REVENUE', $type->getAccounts()[0]->getAccountClass());
         self::assertNotEmpty($profitAndLoss->getRows());
         self::assertNotEmpty($trialBalance->getRows());
         self::assertNotNull($expenses->first());
