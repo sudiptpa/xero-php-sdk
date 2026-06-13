@@ -2,3 +2,8 @@
 /.phpunit.cache/
 /coverage/
 /.vscode/
+
+# Local Xero credentials and tokens (never commit)
+/.mcp.json
+/.xero-*.php
+/.xero-*.json
