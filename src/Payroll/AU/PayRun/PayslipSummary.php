@@ -14,12 +14,12 @@ final class PayslipSummary extends Model
     private ?string $firstName = null;
     private ?string $lastName = null;
     private ?string $lastEdited = null;
-    private ?string $wages = null;
-    private ?string $deductions = null;
-    private ?string $tax = null;
-    private ?string $super = null;
-    private ?string $reimbursements = null;
-    private ?string $netPay = null;
+    private ?float $wages = null;
+    private ?float $deductions = null;
+    private ?float $tax = null;
+    private ?float $super = null;
+    private ?float $reimbursements = null;
+    private ?float $netPay = null;
     private ?string $updatedDateUTC = null;
 
     public function getPayslipID(): ?string
@@ -82,72 +82,72 @@ final class PayslipSummary extends Model
         return $this;
     }
 
-    public function getWages(): ?string
+    public function getWages(): ?float
     {
         return $this->wages;
     }
 
-    public function setWages(?string $wages): self
+    public function setWages(?float $wages): self
     {
         $this->wages = $wages;
 
         return $this;
     }
 
-    public function getDeductions(): ?string
+    public function getDeductions(): ?float
     {
         return $this->deductions;
     }
 
-    public function setDeductions(?string $deductions): self
+    public function setDeductions(?float $deductions): self
     {
         $this->deductions = $deductions;
 
         return $this;
     }
 
-    public function getTax(): ?string
+    public function getTax(): ?float
     {
         return $this->tax;
     }
 
-    public function setTax(?string $tax): self
+    public function setTax(?float $tax): self
     {
         $this->tax = $tax;
 
         return $this;
     }
 
-    public function getSuper(): ?string
+    public function getSuper(): ?float
     {
         return $this->super;
     }
 
-    public function setSuper(?string $super): self
+    public function setSuper(?float $super): self
     {
         $this->super = $super;
 
         return $this;
     }
 
-    public function getReimbursements(): ?string
+    public function getReimbursements(): ?float
     {
         return $this->reimbursements;
     }
 
-    public function setReimbursements(?string $reimbursements): self
+    public function setReimbursements(?float $reimbursements): self
     {
         $this->reimbursements = $reimbursements;
 
         return $this;
     }
 
-    public function getNetPay(): ?string
+    public function getNetPay(): ?float
     {
         return $this->netPay;
     }
 
-    public function setNetPay(?string $netPay): self
+    public function setNetPay(?float $netPay): self
     {
         $this->netPay = $netPay;
 
@@ -177,12 +177,12 @@ final class PayslipSummary extends Model
             'FirstName' => Field::string()->using('setFirstName'),
             'LastName' => Field::string()->using('setLastName'),
             'LastEdited' => Field::string()->using('setLastEdited'),
-            'Wages' => Field::string()->using('setWages'),
-            'Deductions' => Field::string()->using('setDeductions'),
-            'Tax' => Field::string()->using('setTax'),
-            'Super' => Field::string()->using('setSuper'),
-            'Reimbursements' => Field::string()->using('setReimbursements'),
-            'NetPay' => Field::string()->using('setNetPay'),
+            'Wages' => Field::number()->using('setWages'),
+            'Deductions' => Field::number()->using('setDeductions'),
+            'Tax' => Field::number()->using('setTax'),
+            'Super' => Field::number()->using('setSuper'),
+            'Reimbursements' => Field::number()->using('setReimbursements'),
+            'NetPay' => Field::number()->using('setNetPay'),
             'UpdatedDateUTC' => Field::string()->using('setUpdatedDateUTC'),
         ];
     }

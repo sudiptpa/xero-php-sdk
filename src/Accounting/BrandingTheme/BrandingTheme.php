@@ -13,7 +13,7 @@ final class BrandingTheme extends Model
 
     private ?string $name = null;
 
-    private ?string $sortOrder = null;
+    private ?int $sortOrder = null;
 
     public function getBrandingThemeID(): ?string
     {
@@ -39,12 +39,12 @@ final class BrandingTheme extends Model
         return $this;
     }
 
-    public function getSortOrder(): ?string
+    public function getSortOrder(): ?int
     {
         return $this->sortOrder;
     }
 
-    public function setSortOrder(?string $sortOrder): self
+    public function setSortOrder(?int $sortOrder): self
     {
         $this->sortOrder = $sortOrder;
 
@@ -59,7 +59,7 @@ final class BrandingTheme extends Model
         return [
             'BrandingThemeID' => Field::string(),
             'Name' => Field::string(),
-            'SortOrder' => Field::string(),
+            'SortOrder' => Field::number(),
         ];
     }
 }

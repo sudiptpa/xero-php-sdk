@@ -38,7 +38,7 @@ final class BrandingThemesTest extends TestCase
         self::assertSame('/api.xro/2.0/BrandingThemes', $transport->requests()[0]->path);
         self::assertInstanceOf(BrandingTheme::class, $themes->first());
         self::assertSame('Standard', $themes->first()->getName());
-        self::assertSame('1', $themes->first()->getSortOrder());
+        self::assertSame(1, $themes->first()->getSortOrder());
         self::assertSame('/api.xro/2.0/BrandingThemes/branding-1', $transport->requests()[1]->path);
         self::assertSame('branding-1', $theme?->getBrandingThemeID());
     }

@@ -246,8 +246,12 @@ final class PayRunsTest extends TestCase
             'FirstName' => 'Jane',
             'LastName' => 'Smith',
             'LastEdited' => '/Date(1573430400000+0000)/',
-            'Tax' => '100.00',
-            'NetPay' => '1200.55',
+            'Wages' => 1000.00,
+            'Deductions' => 10.00,
+            'Tax' => 100.00,
+            'Super' => 120.00,
+            'Reimbursements' => 5.00,
+            'NetPay' => 1200.55,
             'UpdatedDateUTC' => '/Date(1573430400000+0000)/',
             'EarningsLines' => [['EarningsRateID' => 'rate-1', 'Amount' => 1200.55]],
             'LeaveEarningsLines' => [['LeaveTypeID' => 'leave-1', 'Amount' => 0]],
@@ -264,8 +268,12 @@ final class PayRunsTest extends TestCase
         self::assertSame('Jane', $payslip->getFirstName());
         self::assertSame('Smith', $payslip->getLastName());
         self::assertSame('/Date(1573430400000+0000)/', $payslip->getLastEdited());
-        self::assertSame('100.00', $payslip->getTax());
-        self::assertSame('1200.55', $payslip->getNetPay());
+        self::assertSame(1000.00, $payslip->getWages());
+        self::assertSame(10.00, $payslip->getDeductions());
+        self::assertSame(100.00, $payslip->getTax());
+        self::assertSame(120.00, $payslip->getSuper());
+        self::assertSame(5.00, $payslip->getReimbursements());
+        self::assertSame(1200.55, $payslip->getNetPay());
         self::assertSame('/Date(1573430400000+0000)/', $payslip->getUpdatedDateUTC());
         self::assertSame([['EarningsRateID' => 'rate-1', 'Amount' => 1200.55]], $payslip->getEarningsLines());
         self::assertSame([['LeaveTypeID' => 'leave-1', 'Amount' => 0]], $payslip->getLeaveEarningsLines());
@@ -285,12 +293,12 @@ final class PayRunsTest extends TestCase
             'FirstName' => 'Jane',
             'LastName' => 'Smith',
             'LastEdited' => '/Date(1573430400000+0000)/',
-            'Wages' => '1000.00',
-            'Deductions' => '10.00',
-            'Tax' => '100.00',
-            'Super' => '120.00',
-            'Reimbursements' => '5.00',
-            'NetPay' => '1200.55',
+            'Wages' => 1000.00,
+            'Deductions' => 10.00,
+            'Tax' => 100.00,
+            'Super' => 120.00,
+            'Reimbursements' => 5.00,
+            'NetPay' => 1200.55,
             'UpdatedDateUTC' => '/Date(1573430400000+0000)/',
         ]);
 
@@ -299,12 +307,12 @@ final class PayRunsTest extends TestCase
         self::assertSame('Jane', $summary->getFirstName());
         self::assertSame('Smith', $summary->getLastName());
         self::assertSame('/Date(1573430400000+0000)/', $summary->getLastEdited());
-        self::assertSame('1000.00', $summary->getWages());
-        self::assertSame('10.00', $summary->getDeductions());
-        self::assertSame('100.00', $summary->getTax());
-        self::assertSame('120.00', $summary->getSuper());
-        self::assertSame('5.00', $summary->getReimbursements());
-        self::assertSame('1200.55', $summary->getNetPay());
+        self::assertSame(1000.00, $summary->getWages());
+        self::assertSame(10.00, $summary->getDeductions());
+        self::assertSame(100.00, $summary->getTax());
+        self::assertSame(120.00, $summary->getSuper());
+        self::assertSame(5.00, $summary->getReimbursements());
+        self::assertSame(1200.55, $summary->getNetPay());
         self::assertSame('/Date(1573430400000+0000)/', $summary->getUpdatedDateUTC());
     }
 }
