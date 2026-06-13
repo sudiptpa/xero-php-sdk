@@ -13,77 +13,315 @@ use Sujip\Xero\Support\Model;
 
 final class Project extends Model
 {
-    private ?string $projectID = null;
+    private ?string $projectId = null;
 
-    private ?string $title = null;
+    private ?string $contactId = null;
 
-    private ?string $state = null;
+    private ?string $name = null;
 
-    private ?string $contactID = null;
+    private ?string $currencyCode = null;
 
-    private ?string $deadlineUTC = null;
+    private ?int $minutesLogged = null;
+
+    private ?Amount $totalTaskAmount = null;
+
+    private ?Amount $totalExpenseAmount = null;
+
+    private ?Amount $estimateAmount = null;
+
+    private ?int $minutesToBeInvoiced = null;
+
+    private ?Amount $taskAmountToBeInvoiced = null;
+
+    private ?Amount $taskAmountInvoiced = null;
+
+    private ?Amount $expenseAmountToBeInvoiced = null;
+
+    private ?Amount $expenseAmountInvoiced = null;
+
+    private ?Amount $projectAmountInvoiced = null;
+
+    private ?Amount $deposit = null;
+
+    private ?Amount $depositApplied = null;
+
+    private ?Amount $creditNoteAmount = null;
+
+    private ?string $deadlineUtc = null;
+
+    private ?Amount $totalInvoiced = null;
+
+    private ?Amount $totalToBeInvoiced = null;
+
+    private ?Amount $estimate = null;
+
+    private ?string $status = null;
 
     public function __construct(
         private ?Client $client = null
     ) {
     }
 
-    public function getProjectID(): ?string
+    public function getProjectId(): ?string
     {
-        return $this->projectID;
+        return $this->projectId;
     }
 
-    public function setProjectID(?string $projectID): self
+    public function setProjectId(?string $projectId): self
     {
-        $this->projectID = $projectID;
+        $this->projectId = $projectId;
 
         return $this;
     }
 
-    public function getTitle(): ?string
+    public function getContactId(): ?string
     {
-        return $this->title;
+        return $this->contactId;
     }
 
-    public function setTitle(?string $title): self
+    public function setContactId(?string $contactId): self
     {
-        $this->title = $title;
+        $this->contactId = $contactId;
 
         return $this;
     }
 
-    public function getState(): ?string
+    public function getName(): ?string
     {
-        return $this->state;
+        return $this->name;
     }
 
-    public function setState(?string $state): self
+    public function setName(?string $name): self
     {
-        $this->state = $state === null ? null : strtoupper($state);
+        $this->name = $name;
 
         return $this;
     }
 
-    public function getContactID(): ?string
+    public function getCurrencyCode(): ?string
     {
-        return $this->contactID;
+        return $this->currencyCode;
     }
 
-    public function setContactID(?string $contactID): self
+    public function setCurrencyCode(?string $currencyCode): self
     {
-        $this->contactID = $contactID;
+        $this->currencyCode = $currencyCode;
 
         return $this;
     }
 
-    public function getDeadlineUTC(): ?string
+    public function getMinutesLogged(): ?int
     {
-        return $this->deadlineUTC;
+        return $this->minutesLogged;
     }
 
-    public function setDeadlineUTC(?string $deadlineUTC): self
+    public function setMinutesLogged(?int $minutesLogged): self
     {
-        $this->deadlineUTC = $deadlineUTC;
+        $this->minutesLogged = $minutesLogged;
+
+        return $this;
+    }
+
+    public function getTotalTaskAmount(): ?Amount
+    {
+        return $this->totalTaskAmount;
+    }
+
+    public function setTotalTaskAmount(?Amount $totalTaskAmount): self
+    {
+        $this->totalTaskAmount = $totalTaskAmount;
+
+        return $this;
+    }
+
+    public function getTotalExpenseAmount(): ?Amount
+    {
+        return $this->totalExpenseAmount;
+    }
+
+    public function setTotalExpenseAmount(?Amount $totalExpenseAmount): self
+    {
+        $this->totalExpenseAmount = $totalExpenseAmount;
+
+        return $this;
+    }
+
+    public function getEstimateAmount(): ?Amount
+    {
+        return $this->estimateAmount;
+    }
+
+    public function setEstimateAmount(?Amount $estimateAmount): self
+    {
+        $this->estimateAmount = $estimateAmount;
+
+        return $this;
+    }
+
+    public function getMinutesToBeInvoiced(): ?int
+    {
+        return $this->minutesToBeInvoiced;
+    }
+
+    public function setMinutesToBeInvoiced(?int $minutesToBeInvoiced): self
+    {
+        $this->minutesToBeInvoiced = $minutesToBeInvoiced;
+
+        return $this;
+    }
+
+    public function getTaskAmountToBeInvoiced(): ?Amount
+    {
+        return $this->taskAmountToBeInvoiced;
+    }
+
+    public function setTaskAmountToBeInvoiced(?Amount $taskAmountToBeInvoiced): self
+    {
+        $this->taskAmountToBeInvoiced = $taskAmountToBeInvoiced;
+
+        return $this;
+    }
+
+    public function getTaskAmountInvoiced(): ?Amount
+    {
+        return $this->taskAmountInvoiced;
+    }
+
+    public function setTaskAmountInvoiced(?Amount $taskAmountInvoiced): self
+    {
+        $this->taskAmountInvoiced = $taskAmountInvoiced;
+
+        return $this;
+    }
+
+    public function getExpenseAmountToBeInvoiced(): ?Amount
+    {
+        return $this->expenseAmountToBeInvoiced;
+    }
+
+    public function setExpenseAmountToBeInvoiced(?Amount $expenseAmountToBeInvoiced): self
+    {
+        $this->expenseAmountToBeInvoiced = $expenseAmountToBeInvoiced;
+
+        return $this;
+    }
+
+    public function getExpenseAmountInvoiced(): ?Amount
+    {
+        return $this->expenseAmountInvoiced;
+    }
+
+    public function setExpenseAmountInvoiced(?Amount $expenseAmountInvoiced): self
+    {
+        $this->expenseAmountInvoiced = $expenseAmountInvoiced;
+
+        return $this;
+    }
+
+    public function getProjectAmountInvoiced(): ?Amount
+    {
+        return $this->projectAmountInvoiced;
+    }
+
+    public function setProjectAmountInvoiced(?Amount $projectAmountInvoiced): self
+    {
+        $this->projectAmountInvoiced = $projectAmountInvoiced;
+
+        return $this;
+    }
+
+    public function getDeposit(): ?Amount
+    {
+        return $this->deposit;
+    }
+
+    public function setDeposit(?Amount $deposit): self
+    {
+        $this->deposit = $deposit;
+
+        return $this;
+    }
+
+    public function getDepositApplied(): ?Amount
+    {
+        return $this->depositApplied;
+    }
+
+    public function setDepositApplied(?Amount $depositApplied): self
+    {
+        $this->depositApplied = $depositApplied;
+
+        return $this;
+    }
+
+    public function getCreditNoteAmount(): ?Amount
+    {
+        return $this->creditNoteAmount;
+    }
+
+    public function setCreditNoteAmount(?Amount $creditNoteAmount): self
+    {
+        $this->creditNoteAmount = $creditNoteAmount;
+
+        return $this;
+    }
+
+    public function getDeadlineUtc(): ?string
+    {
+        return $this->deadlineUtc;
+    }
+
+    public function setDeadlineUtc(?string $deadlineUtc): self
+    {
+        $this->deadlineUtc = $deadlineUtc;
+
+        return $this;
+    }
+
+    public function getTotalInvoiced(): ?Amount
+    {
+        return $this->totalInvoiced;
+    }
+
+    public function setTotalInvoiced(?Amount $totalInvoiced): self
+    {
+        $this->totalInvoiced = $totalInvoiced;
+
+        return $this;
+    }
+
+    public function getTotalToBeInvoiced(): ?Amount
+    {
+        return $this->totalToBeInvoiced;
+    }
+
+    public function setTotalToBeInvoiced(?Amount $totalToBeInvoiced): self
+    {
+        $this->totalToBeInvoiced = $totalToBeInvoiced;
+
+        return $this;
+    }
+
+    public function getEstimate(): ?Amount
+    {
+        return $this->estimate;
+    }
+
+    public function setEstimate(?Amount $estimate): self
+    {
+        $this->estimate = $estimate;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status === null ? null : strtoupper($status);
 
         return $this;
     }
@@ -94,54 +332,44 @@ final class Project extends Model
     protected static function getDefinitions(): array
     {
         return [
-            'ProjectID' => Field::string()->using('setProjectID'),
-            'ProjectId' => Field::string()->using('setProjectID'),
-            'projectId' => Field::string()->using('setProjectID'),
-            'Title' => Field::string(),
-            'Name' => Field::string()->using('setTitle'),
-            'name' => Field::string()->using('setTitle'),
-            'State' => Field::string(),
-            'Status' => Field::string()->using('setState'),
-            'status' => Field::string()->using('setState'),
-            'ContactID' => Field::string()->using('setContactID'),
-            'ContactId' => Field::string()->using('setContactID'),
-            'contactId' => Field::string()->using('setContactID'),
-            'DeadlineUTC' => Field::string()->using('setDeadlineUTC'),
-            'DeadlineUtc' => Field::string()->using('setDeadlineUTC'),
-            'deadlineUtc' => Field::string()->using('setDeadlineUTC'),
+            'projectId' => Field::string(),
+            'contactId' => Field::string(),
+            'name' => Field::string(),
+            'currencyCode' => Field::string(),
+            'minutesLogged' => Field::number(),
+            'totalTaskAmount' => Field::object(Amount::class),
+            'totalExpenseAmount' => Field::object(Amount::class),
+            'estimateAmount' => Field::object(Amount::class),
+            'minutesToBeInvoiced' => Field::number(),
+            'taskAmountToBeInvoiced' => Field::object(Amount::class),
+            'taskAmountInvoiced' => Field::object(Amount::class),
+            'expenseAmountToBeInvoiced' => Field::object(Amount::class),
+            'expenseAmountInvoiced' => Field::object(Amount::class),
+            'projectAmountInvoiced' => Field::object(Amount::class),
+            'deposit' => Field::object(Amount::class),
+            'depositApplied' => Field::object(Amount::class),
+            'creditNoteAmount' => Field::object(Amount::class),
+            'deadlineUtc' => Field::string(),
+            'totalInvoiced' => Field::object(Amount::class),
+            'totalToBeInvoiced' => Field::object(Amount::class),
+            'estimate' => Field::object(Amount::class),
+            'status' => Field::string(),
         ];
     }
 
-    public function fill(array $payload): static
+    public function name(string $name): self
     {
-        parent::fill($payload);
-
-        $contact = $payload['Contact'] ?? null;
-
-        if (is_array($contact)) {
-            $contactId = $contact['ContactID'] ?? $contact['ContactId'] ?? $contact['contactId'] ?? null;
-
-            if (is_scalar($contactId)) {
-                $this->setContactID((string) $contactId);
-            }
-        }
-
-        return $this;
+        return $this->setName($name);
     }
 
-    public function title(string $title): self
+    public function status(string $status): self
     {
-        return $this->setTitle($title);
-    }
-
-    public function state(string $state): self
-    {
-        return $this->setState($state);
+        return $this->setStatus($status);
     }
 
     public function deadline(string $deadlineUtc): self
     {
-        return $this->setDeadlineUTC($deadlineUtc);
+        return $this->setDeadlineUtc($deadlineUtc);
     }
 
     public function save(): self
@@ -152,20 +380,20 @@ final class Project extends Model
 
         $payload = new Payload($this->client);
 
-        if ($this->projectID !== null) {
-            $payload = $payload->id($this->projectID);
+        if ($this->projectId !== null) {
+            $payload = $payload->id($this->projectId);
         }
 
-        if ($this->title !== null) {
-            $payload = $payload->title($this->title);
+        if ($this->name !== null) {
+            $payload = $payload->title($this->name);
         }
 
-        if ($this->contactID !== null) {
-            $payload = $payload->contact($this->contactID);
+        if ($this->contactId !== null) {
+            $payload = $payload->contact($this->contactId);
         }
 
-        if ($this->deadlineUTC !== null) {
-            $payload = $payload->deadline($this->deadlineUTC);
+        if ($this->deadlineUtc !== null) {
+            $payload = $payload->deadline($this->deadlineUtc);
         }
 
         return $payload->save();
@@ -173,37 +401,37 @@ final class Project extends Model
 
     public function tasks(): Tasks
     {
-        if ($this->client === null || $this->projectID === null) {
+        if ($this->client === null || $this->projectId === null) {
             throw new RuntimeException('Cannot access project tasks without a bound client context and project id.');
         }
 
-        return new Tasks($this->client, $this->projectID);
+        return new Tasks($this->client, $this->projectId);
     }
 
     public function timeEntries(): TimeEntries
     {
-        if ($this->client === null || $this->projectID === null) {
+        if ($this->client === null || $this->projectId === null) {
             throw new RuntimeException('Cannot access project time entries without a bound client context and project id.');
         }
 
-        return new TimeEntries($this->client, $this->projectID);
+        return new TimeEntries($this->client, $this->projectId);
     }
 
     public function close(): self
     {
-        if ($this->client === null || $this->projectID === null) {
+        if ($this->client === null || $this->projectId === null) {
             throw new RuntimeException('Cannot close a project without a bound client context and project id.');
         }
 
-        return (new Projects($this->client))->patch($this->projectID)->close()->save();
+        return (new Projects($this->client))->patch($this->projectId)->close()->save();
     }
 
     public function reopen(): self
     {
-        if ($this->client === null || $this->projectID === null) {
+        if ($this->client === null || $this->projectId === null) {
             throw new RuntimeException('Cannot reopen a project without a bound client context and project id.');
         }
 
-        return (new Projects($this->client))->patch($this->projectID)->reopen()->save();
+        return (new Projects($this->client))->patch($this->projectId)->reopen()->save();
     }
 }

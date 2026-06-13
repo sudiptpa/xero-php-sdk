@@ -88,7 +88,13 @@ final class Payload
         $project = Projects::single($payload);
 
         if (! is_array($project)) {
-            return new Project($this->client);
+            $fallback = (new Project($this->client))->fill($this->payload);
+
+            if ($this->projectId !== null) {
+                $fallback->setProjectId($this->projectId);
+            }
+
+            return $fallback;
         }
 
         return (new Projects($this->client))->mapProject($project);

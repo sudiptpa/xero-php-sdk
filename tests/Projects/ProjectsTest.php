@@ -25,40 +25,18 @@ final class ProjectsTest extends TestCase
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'project' => [
-                'projectId' => 'project-1',
-                'name' => 'Website rebuild',
-                'status' => 'INPROGRESS',
-            ],
+            'projectId' => 'project-1',
+            'name' => 'Website rebuild',
+            'status' => 'INPROGRESS',
         ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Project' => [
-                'ProjectID' => 'project-2',
-                'Title' => 'Mobile app',
-                'State' => 'INPROGRESS',
-            ],
+        $transport->push(new Response(201, body: json_encode([
+            'projectId' => 'project-2',
+            'name' => 'Mobile app',
+            'status' => 'INPROGRESS',
         ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Project' => [
-                'ProjectID' => 'project-2',
-                'Title' => 'Mobile app v2',
-                'State' => 'INPROGRESS',
-            ],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Project' => [
-                'ProjectID' => 'project-2',
-                'Title' => 'Mobile app v2',
-                'State' => 'CLOSED',
-            ],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Project' => [
-                'ProjectID' => 'project-2',
-                'Title' => 'Mobile app v2',
-                'State' => 'INPROGRESS',
-            ],
-        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(204, body: '')); // update -> 204 No Content
+        $transport->push(new Response(204, body: '')); // patch close -> 204 No Content
+        $transport->push(new Response(204, body: '')); // patch reopen -> 204 No Content
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
@@ -77,7 +55,7 @@ final class ProjectsTest extends TestCase
             ->deadline(new DateTimeImmutable('2026-04-30T00:00:00+00:00'))
             ->save();
 
-        $updated = $created->title('Mobile app v2')->save();
+        $updated = $created->name('Mobile app v2')->save();
         $closed = $updated->close();
         $reopened = $closed->reopen();
 
@@ -100,11 +78,11 @@ final class ProjectsTest extends TestCase
         self::assertSame('PATCH', $transport->requests()[5]->method);
         $json5 = $transport->requests()[5]->json ?? [];
         self::assertSame('INPROGRESS', $json5['status'] ?? null);
-        self::assertSame('Mobile app v2', $updated->getTitle());
-        self::assertSame('CLOSED', $closed->getState());
-        self::assertSame('INPROGRESS', $reopened->getState());
-        self::assertSame('project-1', $project?->getProjectID());
-        self::assertSame('contact-1', $firstProject->getContactID());
-        self::assertSame('2026-04-30T00:00:00Z', $firstProject->getDeadlineUTC());
+        self::assertSame('Mobile app v2', $updated->getName());
+        self::assertSame('CLOSED', $closed->getStatus());
+        self::assertSame('INPROGRESS', $reopened->getStatus());
+        self::assertSame('project-1', $project?->getProjectId());
+        self::assertSame('contact-1', $firstProject->getContactId());
+        self::assertSame('2026-04-30T00:00:00Z', $firstProject->getDeadlineUtc());
     }
 }

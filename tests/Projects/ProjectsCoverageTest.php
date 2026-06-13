@@ -10,6 +10,7 @@ use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Projects\Project\Amount;
 use Sujip\Xero\Projects\Project\Project;
 use Sujip\Xero\Projects\ProjectUser\ProjectUser;
 use Sujip\Xero\Projects\Task\Task;
@@ -26,10 +27,10 @@ final class ProjectsCoverageTest extends TestCase
     public function test_projects_facade_delegates_scopes_builders_and_accessors(): void
     {
         $transport = new FakeTransport();
-        $transport->push(new Response(200, body: '{"Items":[]}')); // paginate -> get
-        $transport->push(new Response(200, body: '{"Project":{"ProjectId":"p-1"}}')); // update -> save (PUT)
-        $transport->push(new Response(200, body: '{"Project":{"ProjectId":"p-1"}}')); // patch -> save (PATCH)
-        $transport->push(new Response(200, body: '{"Items":[{"ProjectId":"p-1"}]}')); // find via many fallback
+        $transport->push(new Response(200, body: '{"items":[]}')); // paginate -> get
+        $transport->push(new Response(200, body: '{"project":{"projectId":"p-1"}}')); // update -> save (PUT)
+        $transport->push(new Response(200, body: '{"project":{"projectId":"p-1"}}')); // patch -> save (PATCH)
+        $transport->push(new Response(200, body: '{"items":[{"projectId":"p-1"}]}')); // find via many fallback
 
         $client = $this->client($transport);
         $projects = $client->projects();
@@ -54,34 +55,94 @@ final class ProjectsCoverageTest extends TestCase
         self::assertSame('PATCH', $transport->requests()[2]->method);
 
         $found = $projects->find('p-1');
-        self::assertSame('p-1', $found?->getProjectID());
+        self::assertSame('p-1', $found?->getProjectId());
     }
 
     public function test_project_entity_helpers_hydration_and_navigation(): void
     {
         $hydrated = (new Project())->fill([
-            'Contact' => ['ContactID' => 'contact-9'],
+            'contactId' => 'contact-9',
         ]);
-        self::assertSame('contact-9', $hydrated->getContactID());
+        self::assertSame('contact-9', $hydrated->getContactId());
 
         $project = (new Project())
-            ->state('inprogress')
+            ->status('inprogress')
             ->deadline('2026-12-31T00:00:00Z');
-        self::assertSame('INPROGRESS', $project->getState());
-        self::assertSame('2026-12-31T00:00:00Z', $project->getDeadlineUTC());
+        self::assertSame('INPROGRESS', $project->getStatus());
+        self::assertSame('2026-12-31T00:00:00Z', $project->getDeadlineUtc());
 
         $transport = new FakeTransport();
-        $transport->push(new Response(200, body: '{"Project":{"ProjectId":"p-1","Name":"Build"}}')); // find
-        $transport->push(new Response(200, body: '{"Project":{"ProjectId":"p-1","Name":"Build"}}')); // save (PUT)
+        $transport->push(new Response(200, body: '{"project":{"projectId":"p-1","name":"Build"}}')); // find
+        $transport->push(new Response(200, body: '{"project":{"projectId":"p-1","name":"Build"}}')); // save (PUT)
 
         $found = $this->client($transport)->projects()->find('p-1');
         self::assertNotNull($found);
 
-        $saved = $found->setContactID('contact-1')->setDeadlineUTC('2026-12-31T00:00:00Z')->save();
-        self::assertSame('p-1', $saved->getProjectID());
+        $saved = $found->setContactId('contact-1')->setDeadlineUtc('2026-12-31T00:00:00Z')->save();
+        self::assertSame('p-1', $saved->getProjectId());
 
         self::assertSame(['projects'], $found->tasks()->scopes()->broad);
         self::assertSame(['projects'], $found->timeEntries()->scopes()->broad);
+    }
+
+    public function test_project_full_hydration_with_amounts(): void
+    {
+        $amount = ['currency' => 'AUD', 'value' => 99.5];
+
+        $project = (new Project())->fill([
+            'projectId' => 'p-1',
+            'contactId' => 'contact-1',
+            'name' => 'Build',
+            'currencyCode' => 'AUD',
+            'minutesLogged' => 120,
+            'totalTaskAmount' => $amount,
+            'totalExpenseAmount' => $amount,
+            'estimateAmount' => $amount,
+            'minutesToBeInvoiced' => 60,
+            'taskAmountToBeInvoiced' => $amount,
+            'taskAmountInvoiced' => $amount,
+            'expenseAmountToBeInvoiced' => $amount,
+            'expenseAmountInvoiced' => $amount,
+            'projectAmountInvoiced' => $amount,
+            'deposit' => $amount,
+            'depositApplied' => $amount,
+            'creditNoteAmount' => $amount,
+            'deadlineUtc' => '2026-12-31T00:00:00Z',
+            'totalInvoiced' => $amount,
+            'totalToBeInvoiced' => $amount,
+            'estimate' => $amount,
+            'status' => 'inprogress',
+        ]);
+
+        self::assertSame('p-1', $project->getProjectId());
+        self::assertSame('contact-1', $project->getContactId());
+        self::assertSame('Build', $project->getName());
+        self::assertSame('AUD', $project->getCurrencyCode());
+        self::assertSame(120, $project->getMinutesLogged());
+        self::assertSame(60, $project->getMinutesToBeInvoiced());
+        self::assertSame('2026-12-31T00:00:00Z', $project->getDeadlineUtc());
+        self::assertSame('INPROGRESS', $project->getStatus());
+
+        foreach ([
+            $project->getTotalTaskAmount(),
+            $project->getTotalExpenseAmount(),
+            $project->getEstimateAmount(),
+            $project->getTaskAmountToBeInvoiced(),
+            $project->getTaskAmountInvoiced(),
+            $project->getExpenseAmountToBeInvoiced(),
+            $project->getExpenseAmountInvoiced(),
+            $project->getProjectAmountInvoiced(),
+            $project->getDeposit(),
+            $project->getDepositApplied(),
+            $project->getCreditNoteAmount(),
+            $project->getTotalInvoiced(),
+            $project->getTotalToBeInvoiced(),
+            $project->getEstimate(),
+        ] as $value) {
+            self::assertInstanceOf(Amount::class, $value);
+            self::assertSame('AUD', $value->getCurrency());
+            self::assertSame(99.5, $value->getValue());
+        }
     }
 
     public function test_project_entity_guards_require_bound_context(): void
@@ -120,7 +181,7 @@ final class ProjectsCoverageTest extends TestCase
         $request = $transport->requests()[0];
         self::assertSame('key-1', $request->headers['Idempotency-Key']);
         self::assertSame(1500.0, $request->json['estimateAmount'] ?? null);
-        self::assertNull($project->getProjectID());
+        self::assertNull($project->getProjectId());
     }
 
     public function test_project_patch_idempotency_and_empty_response(): void
@@ -134,7 +195,8 @@ final class ProjectsCoverageTest extends TestCase
             ->save();
 
         self::assertSame('key-2', $transport->requests()[0]->headers['Idempotency-Key']);
-        self::assertNull($project->getProjectID());
+        self::assertSame('p-1', $project->getProjectId());
+        self::assertSame('CLOSED', $project->getStatus());
     }
 
     public function test_project_user_model_getters(): void

@@ -59,7 +59,7 @@ final class Patch
         $project = Projects::single($payload);
 
         if (! is_array($project)) {
-            return new Project($this->client);
+            return (new Project($this->client))->fill($this->payload)->setProjectId($this->projectId);
         }
 
         return (new Projects($this->client))->mapProject($project);

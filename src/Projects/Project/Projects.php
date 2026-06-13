@@ -138,6 +138,10 @@ final class Projects implements PaginatesResults, DefinesScopes
      */
     public static function single(array $payload): ?array
     {
+        if (array_key_exists('projectId', $payload)) {
+            return $payload;
+        }
+
         return Json::extractObject($payload, 'Project')
             ?: Json::extractObject($payload, 'project')
             ?: self::many($payload)[0]
