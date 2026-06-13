@@ -13,6 +13,7 @@ use Sujip\Xero\Payroll\UK\PayItem\EarningsRates;
 use Sujip\Xero\Payroll\UK\PayRun\PayRuns;
 use Sujip\Xero\Payroll\UK\PayRunCalendar\PayRunCalendars;
 use Sujip\Xero\Payroll\UK\Settings\Settings;
+use Sujip\Xero\Payroll\UK\StatutoryLeave\StatutoryLeaves;
 use Sujip\Xero\Payroll\UK\Timesheet\Timesheets;
 
 final readonly class PayrollUK extends PayrollRegion
@@ -60,5 +61,10 @@ final readonly class PayrollUK extends PayrollRegion
     public function settings(): Settings
     {
         return new Settings($this->client);
+    }
+
+    public function statutoryLeaves(): StatutoryLeaves
+    {
+        return new StatutoryLeaves($this->client);
     }
 }
