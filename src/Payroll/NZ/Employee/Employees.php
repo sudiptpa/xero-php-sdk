@@ -160,10 +160,8 @@ final class Employees implements PaginatesResults, DefinesScopes
 
         $payload = $this->client
             ->post('/payroll.xro/2.0/Employees/' . $employeeId . '/PayTemplateEarnings')
-            ->withHeaders(array_merge(
-                ['Content-Type' => 'application/json'],
-                $idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey]
-            ))
+            ->contentTypeJson()
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
             ->withBody(Json::encodeList($body))
             ->send()
             ->json();
