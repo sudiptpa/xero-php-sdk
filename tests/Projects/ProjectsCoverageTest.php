@@ -227,19 +227,40 @@ final class ProjectsCoverageTest extends TestCase
     {
         $task = (new Task())
             ->setChargeType('time')
-            ->setRate(120.0)
-            ->setProjectID('p-1')
+            ->rate(120.0, 'AUD')
+            ->setProjectId('p-1')
             ->setStatus('active')
             ->setEstimateMinutes(60);
 
         self::assertSame('TIME', $task->getChargeType());
-        self::assertSame(120.0, $task->getRate());
-        self::assertSame('p-1', $task->getProjectID());
+        $rate = $task->getRate();
+        self::assertInstanceOf(Amount::class, $rate);
+        self::assertSame(120.0, $rate->getValue());
+        self::assertSame('AUD', $rate->getCurrency());
+        self::assertSame('p-1', $task->getProjectId());
         self::assertSame('ACTIVE', $task->getStatus());
         self::assertSame(60, $task->getEstimateMinutes());
 
-        $hydrated = (new Task())->fill(['Rate' => ['Value' => 99]]);
-        self::assertSame(99, $hydrated->getRate());
+        $hydrated = (new Task())->fill([
+            'rate' => ['currency' => 'AUD', 'value' => 99],
+            'totalAmount' => ['currency' => 'AUD', 'value' => 198],
+            'totalMinutes' => 120,
+            'minutesInvoiced' => 0,
+            'minutesToBeInvoiced' => 120,
+            'fixedMinutes' => 0,
+            'nonChargeableMinutes' => 0,
+            'amountToBeInvoiced' => ['currency' => 'AUD', 'value' => 198],
+            'amountInvoiced' => ['currency' => 'AUD', 'value' => 0],
+        ]);
+        self::assertSame(99, $hydrated->getRate()?->getValue());
+        self::assertSame(198, $hydrated->getTotalAmount()?->getValue());
+        self::assertSame(120, $hydrated->getTotalMinutes());
+        self::assertSame(0, $hydrated->getMinutesInvoiced());
+        self::assertSame(120, $hydrated->getMinutesToBeInvoiced());
+        self::assertSame(0, $hydrated->getFixedMinutes());
+        self::assertSame(0, $hydrated->getNonChargeableMinutes());
+        self::assertSame(198, $hydrated->getAmountToBeInvoiced()?->getValue());
+        self::assertSame(0, $hydrated->getAmountInvoiced()?->getValue());
     }
 
     public function test_task_entity_guards_require_bound_context(): void
@@ -262,9 +283,9 @@ final class ProjectsCoverageTest extends TestCase
     public function test_tasks_resource_builders_pagination_update_and_find_fallback(): void
     {
         $transport = new FakeTransport();
-        $transport->push(new Response(200, body: '{"Items":[]}')); // paginate -> get
-        $transport->push(new Response(200, body: '{"Task":{"TaskId":"t-1"}}')); // update -> save (PUT)
-        $transport->push(new Response(200, body: '{"Items":[{"TaskId":"t-1"}]}')); // find via many fallback
+        $transport->push(new Response(200, body: '{"items":[]}')); // paginate -> get
+        $transport->push(new Response(204)); // update -> save (PUT, 204 No Content)
+        $transport->push(new Response(200, body: '{"taskId":"t-1"}')); // find (unwrapped Task)
 
         $tasks = $this->client($transport)->projects()->tasks('p-1');
 
@@ -272,16 +293,18 @@ final class ProjectsCoverageTest extends TestCase
         $paginated = $tasks->ids('t-1')->paginate(2, 10);
         self::assertSame(2, $paginated->page);
 
-        $tasks->update('t-1')->name('Renamed')->save();
+        $updated = $tasks->update('t-1')->name('Renamed')->save();
         self::assertSame('PUT', $transport->requests()[1]->method);
+        self::assertSame('t-1', $updated->getTaskId());
+        self::assertSame('Renamed', $updated->getName());
 
         $found = $tasks->find('t-1');
-        self::assertSame('t-1', $found?->getTaskID());
+        self::assertSame('t-1', $found?->getTaskId());
     }
 
     public function test_task_payload_supports_estimate_idempotency_and_empty_response(): void
     {
-        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+        $transport = (new FakeTransport())->push(new Response(204));
 
         $task = $this->client($transport)->projects()->tasks('p-1')
             ->create()
@@ -293,7 +316,7 @@ final class ProjectsCoverageTest extends TestCase
         $request = $transport->requests()[0];
         self::assertSame('key-3', $request->headers['Idempotency-Key']);
         self::assertSame(120, $request->json['estimateMinutes'] ?? null);
-        self::assertSame('p-1', $task->getProjectID());
+        self::assertSame('p-1', $task->getProjectId());
     }
 
     public function test_time_entry_model_getters_and_setters(): void

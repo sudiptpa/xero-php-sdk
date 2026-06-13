@@ -6,38 +6,55 @@ namespace Sujip\Xero\Projects\Task;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Projects\Project\Amount;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
 
 final class Task extends Model
 {
-    private ?string $taskID = null;
+    private ?string $taskId = null;
 
     private ?string $name = null;
 
+    private ?Amount $rate = null;
+
     private ?string $chargeType = null;
 
-    private int|float|null $rate = null;
+    private ?int $estimateMinutes = null;
 
-    private ?string $projectID = null;
+    private ?string $projectId = null;
+
+    private ?int $totalMinutes = null;
+
+    private ?Amount $totalAmount = null;
+
+    private ?int $minutesInvoiced = null;
+
+    private ?int $minutesToBeInvoiced = null;
+
+    private ?int $fixedMinutes = null;
+
+    private ?int $nonChargeableMinutes = null;
+
+    private ?Amount $amountToBeInvoiced = null;
+
+    private ?Amount $amountInvoiced = null;
 
     private ?string $status = null;
-
-    private ?int $estimateMinutes = null;
 
     public function __construct(
         private ?Client $client = null
     ) {
     }
 
-    public function getTaskID(): ?string
+    public function getTaskId(): ?string
     {
-        return $this->taskID;
+        return $this->taskId;
     }
 
-    public function setTaskID(?string $taskID): self
+    public function setTaskId(?string $taskId): self
     {
-        $this->taskID = $taskID;
+        $this->taskId = $taskId;
 
         return $this;
     }
@@ -54,6 +71,18 @@ final class Task extends Model
         return $this;
     }
 
+    public function getRate(): ?Amount
+    {
+        return $this->rate;
+    }
+
+    public function setRate(?Amount $rate): self
+    {
+        $this->rate = $rate;
+
+        return $this;
+    }
+
     public function getChargeType(): ?string
     {
         return $this->chargeType;
@@ -62,42 +91,6 @@ final class Task extends Model
     public function setChargeType(?string $chargeType): self
     {
         $this->chargeType = $chargeType === null ? null : strtoupper($chargeType);
-
-        return $this;
-    }
-
-    public function getRate(): int|float|null
-    {
-        return $this->rate;
-    }
-
-    public function setRate(int|float|null $rate): self
-    {
-        $this->rate = $rate;
-
-        return $this;
-    }
-
-    public function getProjectID(): ?string
-    {
-        return $this->projectID;
-    }
-
-    public function setProjectID(?string $projectID): self
-    {
-        $this->projectID = $projectID;
-
-        return $this;
-    }
-
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-
-    public function setStatus(?string $status): self
-    {
-        $this->status = $status === null ? null : strtoupper($status);
 
         return $this;
     }
@@ -114,46 +107,148 @@ final class Task extends Model
         return $this;
     }
 
+    public function getProjectId(): ?string
+    {
+        return $this->projectId;
+    }
+
+    public function setProjectId(?string $projectId): self
+    {
+        $this->projectId = $projectId;
+
+        return $this;
+    }
+
+    public function getTotalMinutes(): ?int
+    {
+        return $this->totalMinutes;
+    }
+
+    public function setTotalMinutes(?int $totalMinutes): self
+    {
+        $this->totalMinutes = $totalMinutes;
+
+        return $this;
+    }
+
+    public function getTotalAmount(): ?Amount
+    {
+        return $this->totalAmount;
+    }
+
+    public function setTotalAmount(?Amount $totalAmount): self
+    {
+        $this->totalAmount = $totalAmount;
+
+        return $this;
+    }
+
+    public function getMinutesInvoiced(): ?int
+    {
+        return $this->minutesInvoiced;
+    }
+
+    public function setMinutesInvoiced(?int $minutesInvoiced): self
+    {
+        $this->minutesInvoiced = $minutesInvoiced;
+
+        return $this;
+    }
+
+    public function getMinutesToBeInvoiced(): ?int
+    {
+        return $this->minutesToBeInvoiced;
+    }
+
+    public function setMinutesToBeInvoiced(?int $minutesToBeInvoiced): self
+    {
+        $this->minutesToBeInvoiced = $minutesToBeInvoiced;
+
+        return $this;
+    }
+
+    public function getFixedMinutes(): ?int
+    {
+        return $this->fixedMinutes;
+    }
+
+    public function setFixedMinutes(?int $fixedMinutes): self
+    {
+        $this->fixedMinutes = $fixedMinutes;
+
+        return $this;
+    }
+
+    public function getNonChargeableMinutes(): ?int
+    {
+        return $this->nonChargeableMinutes;
+    }
+
+    public function setNonChargeableMinutes(?int $nonChargeableMinutes): self
+    {
+        $this->nonChargeableMinutes = $nonChargeableMinutes;
+
+        return $this;
+    }
+
+    public function getAmountToBeInvoiced(): ?Amount
+    {
+        return $this->amountToBeInvoiced;
+    }
+
+    public function setAmountToBeInvoiced(?Amount $amountToBeInvoiced): self
+    {
+        $this->amountToBeInvoiced = $amountToBeInvoiced;
+
+        return $this;
+    }
+
+    public function getAmountInvoiced(): ?Amount
+    {
+        return $this->amountInvoiced;
+    }
+
+    public function setAmountInvoiced(?Amount $amountInvoiced): self
+    {
+        $this->amountInvoiced = $amountInvoiced;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status === null ? null : strtoupper($status);
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
     {
         return [
-            'TaskID' => Field::string()->using('setTaskID'),
-            'TaskId' => Field::string()->using('setTaskID'),
-            'taskId' => Field::string()->using('setTaskID'),
-            'Name' => Field::string(),
-            'name' => Field::string()->using('setName'),
-            'ChargeType' => Field::string(),
-            'chargeType' => Field::string()->using('setChargeType'),
-            'ProjectID' => Field::string()->using('setProjectID'),
-            'ProjectId' => Field::string()->using('setProjectID'),
-            'projectId' => Field::string()->using('setProjectID'),
-            'Status' => Field::string()->using('setStatus'),
-            'status' => Field::string()->using('setStatus'),
-            'EstimateMinutes' => Field::number()->using('setEstimateMinutes'),
-            'estimateMinutes' => Field::number()->using('setEstimateMinutes'),
+            'taskId' => Field::string(),
+            'name' => Field::string(),
+            'rate' => Field::object(Amount::class),
+            'chargeType' => Field::string(),
+            'estimateMinutes' => Field::number(),
+            'projectId' => Field::string(),
+            'totalMinutes' => Field::number(),
+            'totalAmount' => Field::object(Amount::class),
+            'minutesInvoiced' => Field::number(),
+            'minutesToBeInvoiced' => Field::number(),
+            'fixedMinutes' => Field::number(),
+            'nonChargeableMinutes' => Field::number(),
+            'amountToBeInvoiced' => Field::object(Amount::class),
+            'amountInvoiced' => Field::object(Amount::class),
+            'status' => Field::string(),
         ];
-    }
-
-    public function fill(array $payload): static
-    {
-        parent::fill($payload);
-
-        $rate = $payload['Rate'] ?? $payload['rate'] ?? null;
-
-        if (is_array($rate)) {
-            $value = $rate['Value'] ?? $rate['value'] ?? null;
-
-            if (is_numeric($value)) {
-                $this->setRate($value + 0);
-            }
-        } elseif (is_numeric($rate)) {
-            $this->setRate($rate + 0);
-        }
-
-        return $this;
     }
 
     public function name(string $name): self
@@ -161,21 +256,21 @@ final class Task extends Model
         return $this->setName($name);
     }
 
-    public function rate(int|float $rate): self
+    public function rate(int|float $value, ?string $currency = null): self
     {
-        return $this->setRate($rate);
+        return $this->setRate((new Amount())->setValue($value)->setCurrency($currency));
     }
 
     public function save(): self
     {
-        if ($this->client === null || $this->projectID === null) {
+        if ($this->client === null || $this->projectId === null) {
             throw new RuntimeException('Cannot save a task without a bound client context and project id.');
         }
 
-        $payload = new Payload($this->client, $this->projectID);
+        $payload = new Payload($this->client, $this->projectId);
 
-        if ($this->taskID !== null) {
-            $payload = $payload->id($this->taskID);
+        if ($this->taskId !== null) {
+            $payload = $payload->id($this->taskId);
         }
 
         if ($this->name !== null) {
@@ -186,8 +281,12 @@ final class Task extends Model
             $payload = $payload->chargeType($this->chargeType);
         }
 
-        if ($this->rate !== null) {
-            $payload = $payload->rate($this->rate);
+        if ($this->rate !== null && $this->rate->getValue() !== null) {
+            $payload = $payload->rate($this->rate->getValue(), $this->rate->getCurrency());
+        }
+
+        if ($this->estimateMinutes !== null) {
+            $payload = $payload->estimateMinutes($this->estimateMinutes);
         }
 
         return $payload->save();
@@ -195,10 +294,10 @@ final class Task extends Model
 
     public function delete(): void
     {
-        if ($this->client === null || $this->projectID === null || $this->taskID === null) {
+        if ($this->client === null || $this->projectId === null || $this->taskId === null) {
             throw new RuntimeException('Cannot delete a task without a bound client context, project id, and task id.');
         }
 
-        (new Tasks($this->client, $this->projectID))->delete($this->taskID);
+        (new Tasks($this->client, $this->projectId))->delete($this->taskId);
     }
 }
