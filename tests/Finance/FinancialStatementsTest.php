@@ -16,8 +16,51 @@ final class FinancialStatementsTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'FinancialStatement' => [
-                'Rows' => [['Title' => 'Assets']],
+            'balanceDate' => '2021-05-12',
+            'asset' => [
+                'accountTypes' => [
+                    [
+                        'accountType' => 'BANK',
+                        'accounts' => [[
+                            'accountID' => 'abcdeabc-3a6d-4c53-ba82-ea1c92d02ef4',
+                            'name' => 'Buz Acc',
+                            'reportingCode' => 'ASS',
+                            'total' => -42.3,
+                        ]],
+                        'total' => -42.3,
+                    ],
+                ],
+                'total' => -42.3,
+            ],
+            'liability' => [
+                'accountTypes' => [
+                    [
+                        'accountType' => 'CURRLIAB',
+                        'accounts' => [[
+                            'code' => '800',
+                            'accountID' => 'abcdeabc-80ba-4b58-8d72-f8e9ca0f2f00',
+                            'name' => 'Accounts Payable',
+                            'reportingCode' => 'LIA.CUR.PAY.TRA',
+                            'total' => 44.4,
+                        ]],
+                        'total' => 44.4,
+                    ],
+                ],
+                'total' => 44.4,
+            ],
+            'equity' => [
+                'accountTypes' => [
+                    [
+                        'accountType' => 'EQUITY',
+                        'accounts' => [[
+                            'accountID' => '00000000-0000-0000-0000-000000000000',
+                            'name' => 'Current Year Earnings',
+                            'total' => 14.81,
+                        ]],
+                        'total' => 14.81,
+                    ],
+                ],
+                'total' => 14.81,
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -69,7 +112,25 @@ final class FinancialStatementsTest extends TestCase
         self::assertSame(['contact-1'], $transport->requests()[4]->query['contactIds']);
         self::assertSame('/finance.xro/1.0/FinancialStatements/contacts/revenue', $transport->requests()[5]->path);
         self::assertSame(['contact-2'], $transport->requests()[5]->query['contactIds']);
-        self::assertNotEmpty($balanceSheet->getRows());
+        self::assertSame('2021-05-12', $balanceSheet->getBalanceDate());
+        $asset = $balanceSheet->getAsset();
+        self::assertNotNull($asset);
+        self::assertSame(-42.3, $asset->getTotal());
+        $bankType = $asset->getAccountTypes()[0];
+        self::assertSame('BANK', $bankType->getAccountType());
+        self::assertSame('Buz Acc', $bankType->getAccounts()[0]->getName());
+        self::assertSame('ASS', $bankType->getAccounts()[0]->getReportingCode());
+
+        $liability = $balanceSheet->getLiability();
+        self::assertNotNull($liability);
+        self::assertSame(44.4, $liability->getTotal());
+        self::assertSame('800', $liability->getAccountTypes()[0]->getAccounts()[0]->getCode());
+
+        $equity = $balanceSheet->getEquity();
+        self::assertNotNull($equity);
+        self::assertSame(14.81, $equity->getTotal());
+        self::assertSame('Current Year Earnings', $equity->getAccountTypes()[0]->getAccounts()[0]->getName());
+
         self::assertNotEmpty($cashflow->getRows());
         self::assertNotEmpty($profitAndLoss->getRows());
         self::assertNotEmpty($trialBalance->getRows());

@@ -112,17 +112,17 @@ final class FinanceCoverageTest extends TestCase
         self::assertSame(750.0, $contact->getTotal());
     }
 
-    public function test_statement_falls_back_to_an_empty_typed_statement(): void
+    public function test_balance_sheet_falls_back_to_an_empty_model_on_empty_response(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: '[]'));
 
-        $statement = Xero::withAccessToken('token', $transport)
+        $balanceSheet = Xero::withAccessToken('token', $transport)
             ->tenant('tenant-1')
             ->finance()
             ->statements()
             ->balanceSheet();
 
-        self::assertSame('balance_sheet', $statement->getType());
-        self::assertSame([], $statement->getRows());
+        self::assertNull($balanceSheet->getBalanceDate());
+        self::assertNull($balanceSheet->getAsset());
     }
 }

@@ -26,13 +26,15 @@ final readonly class FinancialStatements implements DefinesScopes
         );
     }
 
-    public function balanceSheet(?DateTimeInterface $balanceDate = null): Statement
+    public function balanceSheet(?DateTimeInterface $balanceDate = null): BalanceSheet
     {
-        return $this->statement(
-            '/finance.xro/1.0/FinancialStatements/BalanceSheet',
-            'balance_sheet',
-            $balanceDate === null ? [] : ['balanceDate' => $balanceDate->format('Y-m-d')]
-        );
+        $payload = $this->client
+            ->get('/finance.xro/1.0/FinancialStatements/BalanceSheet')
+            ->withQuery($balanceDate === null ? [] : ['balanceDate' => $balanceDate->format('Y-m-d')])
+            ->send()
+            ->json();
+
+        return (new BalanceSheet())->fill($payload);
     }
 
     public function cashflow(?DateTimeInterface $startDate = null, ?DateTimeInterface $endDate = null): Statement
