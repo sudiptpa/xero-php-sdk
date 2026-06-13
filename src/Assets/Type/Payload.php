@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Sujip\Xero\Assets\Type;
 
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -26,8 +25,6 @@ final class Payload
     private int|float|null $depreciationRate = null;
 
     private ?string $depreciationCalculationMethod = null;
-
-    private ?string $poolName = null;
 
     private ?string $idempotencyKey = null;
 
@@ -100,14 +97,6 @@ final class Payload
         return $clone;
     }
 
-    public function poolName(string $poolName): self
-    {
-        $clone = clone $this;
-        $clone->poolName = $poolName;
-
-        return $clone;
-    }
-
     public function idempotencyKey(string $key): self
     {
         $clone = clone $this;
@@ -122,19 +111,18 @@ final class Payload
             ->post(self::BASE_PATH)
             ->withHeaders($this->headers())
             ->withJson(array_filter([
-                'AssetTypeName' => $this->name,
-                'FixedAssetAccountId' => $this->fixedAssetAccountId,
-                'DepreciationExpenseAccountId' => $this->depreciationExpenseAccountId,
-                'AccumulatedDepreciationAccountId' => $this->accumulatedDepreciationAccountId,
-                'BookDepreciationSetting' => array_filter([
-                    'DepreciationMethod' => $this->depreciationMethod,
-                    'AveragingMethod' => $this->averagingMethod,
-                    'DepreciationRate' => $this->depreciationRate,
-                    'DepreciationCalculationMethod' => $this->depreciationCalculationMethod,
-                    'PoolName' => $this->poolName,
+                'assetTypeName' => $this->name,
+                'fixedAssetAccountId' => $this->fixedAssetAccountId,
+                'depreciationExpenseAccountId' => $this->depreciationExpenseAccountId,
+                'accumulatedDepreciationAccountId' => $this->accumulatedDepreciationAccountId,
+                'bookDepreciationSetting' => array_filter([
+                    'depreciationMethod' => $this->depreciationMethod,
+                    'averagingMethod' => $this->averagingMethod,
+                    'depreciationRate' => $this->depreciationRate,
+                    'depreciationCalculationMethod' => $this->depreciationCalculationMethod,
                 ], static fn (mixed $value): bool => $value !== null),
             ], static function (mixed $value, string $key): bool {
-                if ($key === 'BookDepreciationSetting') {
+                if ($key === 'bookDepreciationSetting') {
                     return is_array($value) && $value !== [];
                 }
 
@@ -142,14 +130,7 @@ final class Payload
             }, ARRAY_FILTER_USE_BOTH))
             ->send();
 
-        $payload = $response->json();
-        $type = Json::extractFirst($payload, 'Items') ?? [];
-
-        if ($type === []) {
-            return new Type();
-        }
-
-        return (new Types($this->client))->mapType($type);
+        return (new Types($this->client))->mapType($response->json());
     }
 
     /**

@@ -64,25 +64,35 @@ final class AssetsCoverageTest extends TestCase
         self::assertNull($asset->getAssetId());
     }
 
-    public function test_settings_getters_and_null_when_absent(): void
+    public function test_settings_getters_and_fetch(): void
     {
         $settings = (new Settings())
             ->setDefaultGainOnDisposalAccountId('gain-1')
             ->setDefaultLossOnDisposalAccountId('loss-1')
-            ->setDefaultCapitalGainOnDisposalAccountId('capital-1');
+            ->setDefaultCapitalGainOnDisposalAccountId('capital-1')
+            ->setAssetNumberPrefix('FA-')
+            ->setAssetNumberSequence('0007')
+            ->setAssetStartDate('2016-01-01')
+            ->setLastDepreciationDate('2016-01-01')
+            ->setOptInForTax(true);
 
         self::assertSame('gain-1', $settings->getDefaultGainOnDisposalAccountId());
         self::assertSame('loss-1', $settings->getDefaultLossOnDisposalAccountId());
         self::assertSame('capital-1', $settings->getDefaultCapitalGainOnDisposalAccountId());
+        self::assertSame('FA-', $settings->getAssetNumberPrefix());
+        self::assertSame('0007', $settings->getAssetNumberSequence());
+        self::assertSame('2016-01-01', $settings->getAssetStartDate());
+        self::assertSame('2016-01-01', $settings->getLastDepreciationDate());
+        self::assertTrue($settings->getOptInForTax());
 
-        $transport = (new FakeTransport())->push(new Response(200, body: '{"Items":[]}'));
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
 
-        $absent = Xero::withAccessToken('token', $transport)
+        $fetched = Xero::withAccessToken('token', $transport)
             ->tenant('tenant-1')
             ->assets()
             ->settings();
 
-        self::assertNull($absent);
+        self::assertNull($fetched->getAssetNumberPrefix());
     }
 
     public function test_type_getters_and_setters(): void
@@ -91,32 +101,34 @@ final class AssetsCoverageTest extends TestCase
             ->setAssetTypeId('type-1')
             ->setFixedAssetAccountId('account-1')
             ->setDepreciationExpenseAccountId('account-2')
-            ->setAccumulatedDepreciationAccountId('account-3');
+            ->setAccumulatedDepreciationAccountId('account-3')
+            ->setLocks(2);
 
         self::assertSame('type-1', $type->getAssetTypeId());
         self::assertSame('account-1', $type->getFixedAssetAccountId());
         self::assertSame('account-2', $type->getDepreciationExpenseAccountId());
         self::assertSame('account-3', $type->getAccumulatedDepreciationAccountId());
+        self::assertSame(2, $type->getLocks());
     }
 
     public function test_creating_an_asset_type_without_idempotency_and_empty_response(): void
     {
-        $transport = (new FakeTransport())->push(new Response(200, body: '{"Items":[]}'));
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
 
         $type = Xero::withAccessToken('token', $transport)
             ->tenant('tenant-1')
             ->assets()
             ->createAssetType()
             ->name('Vehicles')
-            ->poolName('Pool A')
+            ->depreciationMethod('DiminishingValue100')
             ->save();
 
         $request = $transport->requests()[0];
 
         self::assertArrayNotHasKey('Idempotency-Key', $request->headers);
-        $bookSetting = $request->json['BookDepreciationSetting'] ?? [];
+        $bookSetting = $request->json['bookDepreciationSetting'] ?? [];
         self::assertIsArray($bookSetting);
-        self::assertSame('Pool A', $bookSetting['PoolName'] ?? null);
+        self::assertSame('DiminishingValue100', $bookSetting['depreciationMethod'] ?? null);
         self::assertNull($type->getAssetTypeId());
     }
 }

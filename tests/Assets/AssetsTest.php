@@ -118,26 +118,20 @@ final class AssetsTest extends TestCase
     public function test_it_can_list_asset_types_from_both_entrypoints_and_create_asset_types(): void
     {
         $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([[
+            'assetTypeId' => 'type-1',
+            'assetTypeName' => 'Computer Equipment',
+            'fixedAssetAccountId' => 'account-1',
+        ]], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([[
+            'assetTypeId' => 'type-2',
+            'assetTypeName' => 'Office Equipment',
+            'fixedAssetAccountId' => 'account-2',
+        ]], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'AssetTypeId' => 'type-1',
-                'AssetTypeName' => 'Computer Equipment',
-                'FixedAssetAccountId' => 'account-1',
-            ]],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'AssetTypeId' => 'type-2',
-                'AssetTypeName' => 'Office Equipment',
-                'FixedAssetAccountId' => 'account-2',
-            ]],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'AssetTypeId' => 'type-2',
-                'AssetTypeName' => 'Office Equipment',
-                'FixedAssetAccountId' => 'account-2',
-            ]],
+            'assetTypeId' => 'type-2',
+            'assetTypeName' => 'Office Equipment',
+            'fixedAssetAccountId' => 'account-2',
         ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
@@ -163,7 +157,7 @@ final class AssetsTest extends TestCase
         self::assertSame('/assets.xro/1.0/AssetTypes', $transport->requests()[1]->path);
         self::assertSame('/assets.xro/1.0/AssetTypes', $transport->requests()[2]->path);
         $json2 = $transport->requests()[2]->json ?? [];
-        self::assertSame('Office Equipment', $json2['AssetTypeName'] ?? null);
+        self::assertSame('Office Equipment', $json2['assetTypeName'] ?? null);
         self::assertSame('type-key', $transport->requests()[2]->headers['Idempotency-Key']);
         self::assertSame('Office Equipment', $created->getAssetTypeName());
     }
@@ -172,11 +166,11 @@ final class AssetsTest extends TestCase
     {
         $transport = (new FakeTransport())->push(
             new Response(200, body: json_encode([
-                'Items' => [[
-                    'DepreciationCalculationEnabled' => true,
-                    'DefaultGainOnDisposalAccountId' => 'account-1',
-                    'DefaultLossOnDisposalAccountId' => 'account-2',
-                ]],
+                'assetNumberPrefix' => 'FA-',
+                'assetNumberSequence' => '0007',
+                'optInForTax' => false,
+                'defaultGainOnDisposalAccountId' => 'account-1',
+                'defaultLossOnDisposalAccountId' => 'account-2',
             ], JSON_THROW_ON_ERROR))
         );
 
@@ -186,7 +180,7 @@ final class AssetsTest extends TestCase
             ->settings();
 
         self::assertSame('/assets.xro/1.0/Settings', $transport->requests()[0]->path);
-        self::assertNotNull($settings);
-        self::assertTrue((bool) $settings->getDepreciationCalculationEnabled());
+        self::assertSame('FA-', $settings->getAssetNumberPrefix());
+        self::assertFalse($settings->getOptInForTax());
     }
 }

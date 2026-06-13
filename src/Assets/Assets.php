@@ -116,7 +116,7 @@ final class Assets implements DefinesScopes
         return $this->assetTypes()->create();
     }
 
-    public function settings(): ?Settings
+    public function settings(): Settings
     {
         return Settings::fetch($this->client);
     }
