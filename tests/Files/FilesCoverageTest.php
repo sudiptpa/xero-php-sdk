@@ -11,6 +11,7 @@ use Sujip\Xero\Files\File\Association;
 use Sujip\Xero\Files\File\AssociationCount;
 use Sujip\Xero\Files\File\File;
 use Sujip\Xero\Files\File\Payload as FilePayload;
+use Sujip\Xero\Files\File\User;
 use Sujip\Xero\Files\Folder\Folder;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
@@ -57,17 +58,25 @@ final class FilesCoverageTest extends TestCase
             ->setFolderId('folder-1')
             ->setCreatedDateUTC('2026-03-01T00:00:00')
             ->setUpdatedDateUTC('2026-03-02T00:00:00')
-            ->setUser('Jane');
+            ->setUser((new User())->setName('Jane'));
 
         self::assertSame('file-1', $file->getId());
         self::assertSame('application/pdf', $file->getMimeType());
         self::assertSame(1024, $file->getSize());
         self::assertSame('2026-03-01T00:00:00', $file->getCreatedDateUTC());
         self::assertSame('2026-03-02T00:00:00', $file->getUpdatedDateUTC());
-        self::assertSame('Jane', $file->getUser());
+        self::assertSame('Jane', $file->getUser()?->getName());
 
-        $hydrated = (new File())->fill(['FolderId' => ['Id' => 'folder-9']]);
+        $hydrated = (new File())->fill([
+            'FolderId' => 'folder-9',
+            'CreatedDateUtc' => '2026-03-01T00:00:00',
+            'UpdatedDateUtc' => '2026-03-02T00:00:00',
+            'User' => ['Id' => 'user-1', 'Name' => 'jane@example.com', 'FirstName' => 'Jane', 'LastName' => 'Doe', 'FullName' => 'Jane Doe'],
+        ]);
         self::assertSame('folder-9', $hydrated->getFolderId());
+        self::assertSame('2026-03-01T00:00:00', $hydrated->getCreatedDateUTC());
+        self::assertSame('2026-03-02T00:00:00', $hydrated->getUpdatedDateUTC());
+        self::assertSame('Jane Doe', $hydrated->getUser()?->getFullName());
     }
 
     public function test_file_entity_guards_and_association_navigation(): void

@@ -25,7 +25,7 @@ final class File extends Model
 
     private ?string $updatedDateUtc = null;
 
-    private ?string $user = null;
+    private ?User $user = null;
 
     public function __construct(
         private ?Client $client = null
@@ -116,12 +116,12 @@ final class File extends Model
         return $this;
     }
 
-    public function getUser(): ?string
+    public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUser(?string $user): self
+    public function setUser(?User $user): self
     {
         $this->user = $user;
 
@@ -138,27 +138,11 @@ final class File extends Model
             'Name' => Field::string(),
             'MimeType' => Field::string(),
             'Size' => Field::number(),
-            'CreatedDateUTC' => Field::string(),
-            'UpdatedDateUTC' => Field::string(),
-            'User' => Field::string(),
+            'CreatedDateUtc' => Field::string()->using('setCreatedDateUTC'),
+            'UpdatedDateUtc' => Field::string()->using('setUpdatedDateUTC'),
+            'FolderId' => Field::string(),
+            'User' => Field::object(User::class)->using('setUser'),
         ];
-    }
-
-    public function fill(array $payload): static
-    {
-        parent::fill($payload);
-
-        $folder = $payload['FolderId'] ?? null;
-
-        if (is_array($folder)) {
-            $folderId = is_string($folder['Id'] ?? null) ? $folder['Id'] : null;
-        } elseif (is_string($folder)) {
-            $folderId = $folder;
-        } else {
-            $folderId = null;
-        }
-
-        return $this->setFolderId($folderId);
     }
 
     public function rename(string $name): self
