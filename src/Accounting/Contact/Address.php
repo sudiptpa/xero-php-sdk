@@ -16,6 +16,10 @@ final class Address extends Model implements SerializesRequest
 
     private ?string $addressLine2 = null;
 
+    private ?string $addressLine3 = null;
+
+    private ?string $addressLine4 = null;
+
     private ?string $city = null;
 
     private ?string $region = null;
@@ -23,6 +27,8 @@ final class Address extends Model implements SerializesRequest
     private ?string $postalCode = null;
 
     private ?string $country = null;
+
+    private ?string $attentionTo = null;
 
     public function getAddressType(): ?string
     {
@@ -56,6 +62,30 @@ final class Address extends Model implements SerializesRequest
     public function setAddressLine2(?string $addressLine2): self
     {
         $this->addressLine2 = $addressLine2;
+
+        return $this;
+    }
+
+    public function getAddressLine3(): ?string
+    {
+        return $this->addressLine3;
+    }
+
+    public function setAddressLine3(?string $addressLine3): self
+    {
+        $this->addressLine3 = $addressLine3;
+
+        return $this;
+    }
+
+    public function getAddressLine4(): ?string
+    {
+        return $this->addressLine4;
+    }
+
+    public function setAddressLine4(?string $addressLine4): self
+    {
+        $this->addressLine4 = $addressLine4;
 
         return $this;
     }
@@ -108,6 +138,18 @@ final class Address extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getAttentionTo(): ?string
+    {
+        return $this->attentionTo;
+    }
+
+    public function setAttentionTo(?string $attentionTo): self
+    {
+        $this->attentionTo = $attentionTo;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -117,10 +159,13 @@ final class Address extends Model implements SerializesRequest
             'AddressType' => Field::string(),
             'AddressLine1' => Field::string(),
             'AddressLine2' => Field::string(),
+            'AddressLine3' => Field::string(),
+            'AddressLine4' => Field::string(),
             'City' => Field::string(),
             'Region' => Field::string(),
             'PostalCode' => Field::string(),
             'Country' => Field::string(),
+            'AttentionTo' => Field::string(),
         ];
     }
 
@@ -133,10 +178,13 @@ final class Address extends Model implements SerializesRequest
             'AddressType' => $this->getAddressType(),
             'AddressLine1' => $this->getAddressLine1(),
             'AddressLine2' => $this->getAddressLine2(),
+            'AddressLine3' => $this->getAddressLine3(),
+            'AddressLine4' => $this->getAddressLine4(),
             'City' => $this->getCity(),
             'Region' => $this->getRegion(),
             'PostalCode' => $this->getPostalCode(),
             'Country' => $this->getCountry(),
+            'AttentionTo' => $this->getAttentionTo(),
         ], static fn (mixed $value): bool => $value !== null);
     }
 }

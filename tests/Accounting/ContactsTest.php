@@ -277,17 +277,44 @@ final class ContactsTest extends TestCase
 
         $address = $contacts->mapAddress([
             'AddressType' => 'STREET',
+            'AddressLine1' => 'Level 2',
             'AddressLine2' => 'Suite 5',
+            'AddressLine3' => 'Building C',
+            'AddressLine4' => 'Tech Park',
+            'City' => 'Sydney',
             'Region' => 'NSW',
+            'PostalCode' => '2000',
+            'Country' => 'Australia',
+            'AttentionTo' => 'Accounts Team',
         ]);
         $phone = $contacts->mapPhone([
             'PhoneType' => 'MOBILE',
             'PhoneNumber' => '0400000000',
         ]);
 
+        self::assertSame('STREET', $address->getAddressType());
+        self::assertSame('Level 2', $address->getAddressLine1());
         self::assertSame('Suite 5', $address->getAddressLine2());
+        self::assertSame('Building C', $address->getAddressLine3());
+        self::assertSame('Tech Park', $address->getAddressLine4());
+        self::assertSame('Sydney', $address->getCity());
         self::assertSame('NSW', $address->getRegion());
+        self::assertSame('2000', $address->getPostalCode());
+        self::assertSame('Australia', $address->getCountry());
+        self::assertSame('Accounts Team', $address->getAttentionTo());
         self::assertSame('MOBILE', $phone->getPhoneType());
+        self::assertSame([
+            'AddressType' => 'STREET',
+            'AddressLine1' => 'Level 2',
+            'AddressLine2' => 'Suite 5',
+            'AddressLine3' => 'Building C',
+            'AddressLine4' => 'Tech Park',
+            'City' => 'Sydney',
+            'Region' => 'NSW',
+            'PostalCode' => '2000',
+            'Country' => 'Australia',
+            'AttentionTo' => 'Accounts Team',
+        ], $address->toRequest());
     }
 
     public function test_payload_fluent_helpers_set_all_name_fields(): void
