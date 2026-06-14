@@ -17,6 +17,17 @@ final class Report extends Model
 
     private ?string $title = null;
 
+    private ?string $reportTitle = null;
+
+    private ?string $reportDate = null;
+
+    private ?string $updatedDateUTC = null;
+
+    /**
+     * @var list<TenNinetyNineContact>
+     */
+    private array $contacts = [];
+
     public function getReportID(): ?string
     {
         return $this->reportID;
@@ -65,6 +76,57 @@ final class Report extends Model
         return $this;
     }
 
+    public function getReportTitle(): ?string
+    {
+        return $this->reportTitle;
+    }
+
+    public function setReportTitle(?string $reportTitle): self
+    {
+        $this->reportTitle = $reportTitle;
+
+        return $this;
+    }
+
+    public function getReportDate(): ?string
+    {
+        return $this->reportDate;
+    }
+
+    public function setReportDate(?string $reportDate): self
+    {
+        $this->reportDate = $reportDate;
+
+        return $this;
+    }
+
+    public function getUpdatedDateUTC(): ?string
+    {
+        return $this->updatedDateUTC;
+    }
+
+    public function setUpdatedDateUTC(?string $updatedDateUTC): self
+    {
+        $this->updatedDateUTC = $updatedDateUTC;
+
+        return $this;
+    }
+
+    /**
+     * @return list<TenNinetyNineContact>
+     */
+    public function getContacts(): array
+    {
+        return $this->contacts;
+    }
+
+    public function addContact(TenNinetyNineContact $contact): self
+    {
+        $this->contacts[] = $contact;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -74,6 +136,10 @@ final class Report extends Model
             'ReportID' => Field::string(),
             'ReportName' => Field::string(),
             'ReportType' => Field::string(),
+            'ReportTitle' => Field::string(),
+            'ReportDate' => Field::string(),
+            'UpdatedDateUTC' => Field::string(),
+            'Contacts' => Field::many(TenNinetyNineContact::class),
         ];
     }
 

@@ -131,6 +131,19 @@ final class JournalsAndReportsTest extends TestCase
                 'ReportID' => 'report-ar',
                 'ReportName' => 'Aged Receivables By Contact',
                 'ReportTitles' => ['Aged Receivables By Contact'],
+                'ReportTitle' => 'Aged Receivables By Contact',
+                'ReportDate' => '25 March 2026',
+                'UpdatedDateUTC' => '2026-03-25T00:00:00',
+                'Contacts' => [[
+                    'Name' => 'Acme Ltd',
+                    'Box1' => 1000,
+                    'City' => 'Auckland',
+                    'TaxID' => 'tax-1',
+                    'ContactId' => 'contact-1',
+                    'LegalName' => 'Acme Limited',
+                    'BusinessName' => 'Acme',
+                    'FederalTaxClassification' => 'C_CORP',
+                ]],
             ]],
         ], JSON_THROW_ON_ERROR)));
 
@@ -160,6 +173,17 @@ final class JournalsAndReportsTest extends TestCase
         self::assertSame('Custom Report', $custom?->getTitle());
         self::assertSame('Profit and Loss', $profitAndLoss?->getTitle());
         self::assertSame('Aged Receivables By Contact', $agedReceivables?->getTitle());
+        self::assertSame('Aged Receivables By Contact', $agedReceivables->getReportTitle());
+        self::assertSame('25 March 2026', $agedReceivables->getReportDate());
+        self::assertSame('2026-03-25T00:00:00', $agedReceivables->getUpdatedDateUTC());
+        self::assertSame('Acme Ltd', $agedReceivables->getContacts()[0]->getName());
+        self::assertSame(1000, $agedReceivables->getContacts()[0]->getBox1());
+        self::assertSame('Auckland', $agedReceivables->getContacts()[0]->getCity());
+        self::assertSame('tax-1', $agedReceivables->getContacts()[0]->getTaxID());
+        self::assertSame('contact-1', $agedReceivables->getContacts()[0]->getContactId());
+        self::assertSame('Acme Limited', $agedReceivables->getContacts()[0]->getLegalName());
+        self::assertSame('Acme', $agedReceivables->getContacts()[0]->getBusinessName());
+        self::assertSame('C_CORP', $agedReceivables->getContacts()[0]->getFederalTaxClassification());
     }
 
     public function test_it_can_fetch_every_named_report_type(): void
