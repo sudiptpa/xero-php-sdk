@@ -8,6 +8,7 @@ use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\ValidationError;
 
 final class LeaveApplication extends Model
 {
@@ -17,7 +18,20 @@ final class LeaveApplication extends Model
     private ?string $title = null;
     private ?string $startDate = null;
     private ?string $endDate = null;
+    private ?string $description = null;
+    private ?string $payOutType = null;
+
+    /**
+     * @var list<array<string, mixed>>
+     */
+    private array $leavePeriods = [];
     private ?string $status = null;
+    private ?string $updatedDateUTC = null;
+
+    /**
+     * @var list<ValidationError>
+     */
+    private array $validationErrors = [];
 
     public function __construct(
         private ?Client $client = null
@@ -78,6 +92,41 @@ final class LeaveApplication extends Model
         $this->endDate = $endDate;
         return $this;
     }
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+    public function getPayOutType(): ?string
+    {
+        return $this->payOutType;
+    }
+    public function setPayOutType(?string $payOutType): self
+    {
+        $this->payOutType = $payOutType;
+        return $this;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getLeavePeriods(): array
+    {
+        return $this->leavePeriods;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $leavePeriods
+     */
+    public function setLeavePeriods(array $leavePeriods): self
+    {
+        $this->leavePeriods = $leavePeriods;
+        return $this;
+    }
     public function getStatus(): ?string
     {
         return $this->status;
@@ -93,6 +142,29 @@ final class LeaveApplication extends Model
 
         return $this;
     }
+    public function getUpdatedDateUTC(): ?string
+    {
+        return $this->updatedDateUTC;
+    }
+    public function setUpdatedDateUTC(?string $updatedDateUTC): self
+    {
+        $this->updatedDateUTC = $updatedDateUTC;
+        return $this;
+    }
+
+    /**
+     * @return list<ValidationError>
+     */
+    public function getValidationErrors(): array
+    {
+        return $this->validationErrors;
+    }
+
+    public function addValidationError(ValidationError $validationError): self
+    {
+        $this->validationErrors[] = $validationError;
+        return $this;
+    }
 
     /**
      * @return array<string, Field>
@@ -106,7 +178,12 @@ final class LeaveApplication extends Model
             'Title' => Field::string()->using('setTitle'),
             'StartDate' => Field::string()->using('setStartDate'),
             'EndDate' => Field::string()->using('setEndDate'),
+            'Description' => Field::string()->using('setDescription'),
+            'PayOutType' => Field::string()->using('setPayOutType'),
+            'LeavePeriods' => Field::array()->using('setLeavePeriods'),
             'Status' => Field::string()->using('setStatus'),
+            'UpdatedDateUTC' => Field::string()->using('setUpdatedDateUTC'),
+            'ValidationErrors' => Field::many(ValidationError::class),
         ];
     }
 

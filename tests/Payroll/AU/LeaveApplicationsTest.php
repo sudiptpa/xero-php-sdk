@@ -160,6 +160,37 @@ final class LeaveApplicationsTest extends TestCase
         self::assertSame(20, $page->perPage);
     }
 
+    public function test_leave_application_exposes_all_spec_fields(): void
+    {
+        $application = (new LeaveApplication())->fill([
+            'LeaveApplicationID' => 'leave-1',
+            'EmployeeID' => 'employee-1',
+            'LeaveTypeID' => 'type-1',
+            'Title' => 'Annual Leave',
+            'StartDate' => '/Date(1743465600000+0000)/',
+            'EndDate' => '/Date(1743552000000+0000)/',
+            'Description' => 'Family holiday',
+            'PayOutType' => 'CASHED_OUT',
+            'LeavePeriods' => [[
+                'NumberOfUnits' => 22.8,
+                'PayPeriodStartDate' => '/Date(1743465600000+0000)/',
+                'PayPeriodEndDate' => '/Date(1743552000000+0000)/',
+            ]],
+            'Status' => 'SCHEDULED',
+            'UpdatedDateUTC' => '/Date(1583967733054+0000)/',
+            'ValidationErrors' => [['Message' => 'Invalid leave application']],
+        ]);
+
+        self::assertSame('Family holiday', $application->getDescription());
+        self::assertSame('CASHED_OUT', $application->getPayOutType());
+        self::assertSame(22.8, $application->getLeavePeriods()[0]['NumberOfUnits']);
+        self::assertSame('/Date(1743465600000+0000)/', $application->getLeavePeriods()[0]['PayPeriodStartDate']);
+        self::assertSame('/Date(1743552000000+0000)/', $application->getLeavePeriods()[0]['PayPeriodEndDate']);
+        self::assertSame('/Date(1583967733054+0000)/', $application->getUpdatedDateUTC());
+        self::assertCount(1, $application->getValidationErrors());
+        self::assertSame('Invalid leave application', $application->getValidationErrors()[0]->getMessage());
+    }
+
     public function test_model_getters_and_status_helper(): void
     {
         $application = (new LeaveApplication())->fill([
