@@ -122,7 +122,27 @@ final class OverpaymentsAndPrepaymentsTest extends TestCase
         $transport->push(new Response(200, body: json_encode([
             'Prepayments' => [[
                 'PrepaymentID' => 'pre-1',
+                'Type' => 'RECEIVE-PREPAYMENT',
                 'Status' => 'AUTHORISED',
+                'Contact' => ['ContactID' => 'contact-1'],
+                'Date' => '2026-04-01T00:00:00',
+                'LineAmountTypes' => 'Exclusive',
+                'LineItems' => [['Description' => 'Prepayment line', 'Quantity' => 1, 'UnitAmount' => 10]],
+                'SubTotal' => 10,
+                'TotalTax' => 0,
+                'Total' => 10,
+                'Reference' => 'INV-PRE-1',
+                'InvoiceNumber' => 'INV-PRE-1',
+                'UpdatedDateUTC' => '2026-04-01T01:00:00',
+                'CurrencyCode' => 'NZD',
+                'BrandingThemeID' => 'brand-1',
+                'CurrencyRate' => 1.0,
+                'RemainingCredit' => 10,
+                'Allocations' => [['AllocationID' => 'alloc-1', 'Amount' => 5]],
+                'Payments' => [['PaymentID' => 'payment-1']],
+                'AppliedAmount' => 5,
+                'HasAttachments' => true,
+                'Attachments' => [['AttachmentID' => 'attach-1', 'FileName' => 'photo.jpg']],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -147,9 +167,43 @@ final class OverpaymentsAndPrepaymentsTest extends TestCase
         self::assertSame('AUTHORISED', $first->getStatus());
         self::assertSame(10, $first->getRemainingCredit());
         self::assertSame('/api.xro/2.0/Prepayments/pre-1', $transport->requests()[1]->path);
-        self::assertSame('pre-1', $prepayment?->getPrepaymentID());
+        self::assertNotNull($prepayment);
+        self::assertSame('pre-1', $prepayment->getPrepaymentID());
+        self::assertSame('RECEIVE-PREPAYMENT', $prepayment->getType());
+        self::assertSame('contact-1', $prepayment->getContact()?->getContactID());
+        self::assertSame('2026-04-01T00:00:00', $prepayment->getDate());
+        self::assertSame('Exclusive', $prepayment->getLineAmountTypes());
+        self::assertCount(1, $prepayment->getLineItems());
+        self::assertSame('Prepayment line', $prepayment->getLineItems()[0]->getDescription());
+        self::assertSame(10, $prepayment->getSubTotal());
+        self::assertSame(0, $prepayment->getTotalTax());
+        self::assertSame(10, $prepayment->getTotal());
+        self::assertSame('INV-PRE-1', $prepayment->getReference());
+        self::assertSame('INV-PRE-1', $prepayment->getInvoiceNumber());
+        self::assertSame('2026-04-01T01:00:00', $prepayment->getUpdatedDateUTC());
+        self::assertSame('NZD', $prepayment->getCurrencyCode());
+        self::assertSame('brand-1', $prepayment->getBrandingThemeID());
+        self::assertSame(1, $prepayment->getCurrencyRate());
+        self::assertCount(1, $prepayment->getAllocations());
+        self::assertSame('alloc-1', $prepayment->getAllocations()[0]->getAllocationID());
+        self::assertCount(1, $prepayment->getPayments());
+        self::assertSame('payment-1', $prepayment->getPayments()[0]->getPaymentID());
+        self::assertSame(5, $prepayment->getAppliedAmount());
+        self::assertTrue($prepayment->getHasAttachments());
+        self::assertCount(1, $prepayment->getAttachments());
+        self::assertSame('attach-1', $prepayment->getAttachments()[0]->getAttachmentID());
         self::assertNotNull($page->items->first());
         self::assertSame(1, $page->page);
         self::assertNotSame([], $client->accounting()->prepayments()->scopes()->broad);
+    }
+
+    public function test_set_prepayment_line_items_replaces_the_line_items_list(): void
+    {
+        $prepayment = (new Prepayment())
+            ->addLineItem((new \Sujip\Xero\Accounting\Invoice\LineItem())->setDescription('First'))
+            ->setLineItems([(new \Sujip\Xero\Accounting\Invoice\LineItem())->setDescription('Second')]);
+
+        self::assertCount(1, $prepayment->getLineItems());
+        self::assertSame('Second', $prepayment->getLineItems()[0]->getDescription());
     }
 }
