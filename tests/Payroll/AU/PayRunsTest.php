@@ -164,14 +164,37 @@ final class PayRunsTest extends TestCase
         $payRun = (new PayRun())->fill([
             'PayRunID' => 'payrun-1',
             'PayrollCalendarID' => 'calendar-1',
+            'PayRunPeriodStartDate' => '/Date(1572912000000+0000)/',
+            'PayRunPeriodEndDate' => '/Date(1573516800000+0000)/',
             'PayRunStatus' => 'POSTED',
             'PaymentDate' => '/Date(1573430400000+0000)/',
+            'PayslipMessage' => 'Thanks for being awesome',
+            'UpdatedDateUTC' => '/Date(1583967733054+0000)/',
+            'Wages' => 1060.5,
+            'Deductions' => 0.0,
+            'Tax' => 198.0,
+            'Super' => 75.6,
+            'Reimbursement' => 0.0,
+            'NetPay' => 862.5,
+            'ValidationErrors' => [['Message' => 'Invalid pay run']],
         ]);
 
         self::assertSame('payrun-1', $payRun->getPayRunID());
         self::assertSame('calendar-1', $payRun->getPayrollCalendarID());
+        self::assertSame('/Date(1572912000000+0000)/', $payRun->getPayRunPeriodStartDate());
+        self::assertSame('/Date(1573516800000+0000)/', $payRun->getPayRunPeriodEndDate());
         self::assertSame('POSTED', $payRun->getPayRunStatus());
         self::assertSame('/Date(1573430400000+0000)/', $payRun->getPaymentDate());
+        self::assertSame('Thanks for being awesome', $payRun->getPayslipMessage());
+        self::assertSame('/Date(1583967733054+0000)/', $payRun->getUpdatedDateUTC());
+        self::assertSame(1060.5, $payRun->getWages());
+        self::assertSame(0.0, $payRun->getDeductions());
+        self::assertSame(198.0, $payRun->getTax());
+        self::assertSame(75.6, $payRun->getSuper());
+        self::assertSame(0.0, $payRun->getReimbursement());
+        self::assertSame(862.5, $payRun->getNetPay());
+        self::assertCount(1, $payRun->getValidationErrors());
+        self::assertSame('Invalid pay run', $payRun->getValidationErrors()[0]->getMessage());
     }
 
     public function test_it_can_save_a_found_pay_run(): void
