@@ -39,6 +39,11 @@ final class Employee extends Model
     private ?string $employeeGroupName = null;
     private ?string $terminationDate = null;
     private ?string $terminationReason = null;
+
+    /**
+     * @var list<array<string, mixed>>
+     */
+    private array $bankAccounts = [];
     private ?PayTemplate $payTemplate = null;
     private ?OpeningBalances $openingBalances = null;
     private ?TaxDeclaration $taxDeclaration = null;
@@ -46,6 +51,16 @@ final class Employee extends Model
     private ?string $employmentType = null;
     private ?string $countryOfResidence = null;
     private ?bool $isSTP2Qualified = null;
+
+    /**
+     * @var list<array<string, mixed>>
+     */
+    private array $leaveBalances = [];
+
+    /**
+     * @var list<array<string, mixed>>
+     */
+    private array $superMemberships = [];
     private ?string $status = null;
     private ?string $updatedDateUTC = null;
 
@@ -301,6 +316,23 @@ final class Employee extends Model
         return $this;
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getBankAccounts(): array
+    {
+        return $this->bankAccounts;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $bankAccounts
+     */
+    public function setBankAccounts(array $bankAccounts): self
+    {
+        $this->bankAccounts = $bankAccounts;
+        return $this;
+    }
+
     public function getPayTemplate(): ?PayTemplate
     {
         return $this->payTemplate;
@@ -378,6 +410,40 @@ final class Employee extends Model
         return $this;
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getLeaveBalances(): array
+    {
+        return $this->leaveBalances;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $leaveBalances
+     */
+    public function setLeaveBalances(array $leaveBalances): self
+    {
+        $this->leaveBalances = $leaveBalances;
+        return $this;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getSuperMemberships(): array
+    {
+        return $this->superMemberships;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $superMemberships
+     */
+    public function setSuperMemberships(array $superMemberships): self
+    {
+        $this->superMemberships = $superMemberships;
+        return $this;
+    }
+
     public function getStatus(): ?string
     {
         return $this->status;
@@ -442,6 +508,7 @@ final class Employee extends Model
             'EmployeeGroupName' => Field::string()->using('setEmployeeGroupName'),
             'TerminationDate' => Field::string()->using('setTerminationDate'),
             'TerminationReason' => Field::string()->using('setTerminationReason'),
+            'BankAccounts' => Field::array()->using('setBankAccounts'),
             'PayTemplate' => Field::object(PayTemplate::class)->using('setPayTemplate'),
             'OpeningBalances' => Field::object(OpeningBalances::class)->using('setOpeningBalances'),
             'TaxDeclaration' => Field::object(TaxDeclaration::class)->using('setTaxDeclaration'),
@@ -449,6 +516,8 @@ final class Employee extends Model
             'EmploymentType' => Field::string()->using('setEmploymentType'),
             'CountryOfResidence' => Field::string()->using('setCountryOfResidence'),
             'IsSTP2Qualified' => Field::boolean()->using('setIsSTP2Qualified'),
+            'LeaveBalances' => Field::array()->using('setLeaveBalances'),
+            'SuperMemberships' => Field::array()->using('setSuperMemberships'),
             'Status' => Field::string()->using('setStatus'),
             'UpdatedDateUTC' => Field::string()->using('setUpdatedDateUTC'),
             'ValidationErrors' => Field::many(ValidationError::class),

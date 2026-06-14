@@ -292,6 +292,9 @@ final class EmployeesTest extends TestCase
                 'UpdatedDateUTC' => '2026-03-25T00:00:00Z',
                 'IncludeLeaveLoadingInQualifyingEarnings' => true,
             ],
+            'BankAccounts' => [['AccountName' => 'James Lebron Savings', 'BSB' => '122344', 'AccountNumber' => '345678']],
+            'LeaveBalances' => [['LeaveName' => 'Annual Leave', 'LeaveTypeID' => 'leave-type-1', 'NumberOfUnits' => 81.2602, 'TypeOfUnits' => 'Hours']],
+            'SuperMemberships' => [['SuperFundID' => 'fund-1', 'EmployeeNumber' => '1234']],
             'PayTemplate' => [
                 'EarningsLines' => [['EarningsRateID' => 'rate-1']],
                 'DeductionLines' => [['DeductionTypeID' => 'deduction-1']],
@@ -393,6 +396,10 @@ final class EmployeesTest extends TestCase
         self::assertSame('reimbursement-1', $openingBalances->getReimbursementLines()[0]['ReimbursementTypeID']);
         self::assertSame('leave-1', $openingBalances->getLeaveLines()[0]['LeaveTypeID']);
         self::assertSame(500.0, $openingBalances->getPaidLeaveEarningsLines()[0]['Amount']);
+
+        self::assertSame('James Lebron Savings', $employee->getBankAccounts()[0]['AccountName']);
+        self::assertSame('Annual Leave', $employee->getLeaveBalances()[0]['LeaveName']);
+        self::assertSame('fund-1', $employee->getSuperMemberships()[0]['SuperFundID']);
     }
 
     public function test_saving_without_a_client_throws(): void
