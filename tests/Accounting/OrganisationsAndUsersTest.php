@@ -51,6 +51,8 @@ final class OrganisationsAndUsersTest extends TestCase
                     'LastName' => 'Banner',
                     'EmailAddress' => 'bruce@example.test',
                     'IsSubscriber' => true,
+                    'UpdatedDateUTC' => '2026-03-25T00:00:00',
+                    'OrganisationRole' => 'STANDARD',
                 ]],
             ], JSON_THROW_ON_ERROR))
         );
@@ -74,6 +76,8 @@ final class OrganisationsAndUsersTest extends TestCase
         self::assertSame('Bruce', $users->first()->getFirstName());
         self::assertSame('Banner', $users->first()->getLastName());
         self::assertTrue($users->first()->getIsSubscriber());
+        self::assertSame('2026-03-25T00:00:00', $users->first()->getUpdatedDateUTC());
+        self::assertSame('STANDARD', $users->first()->getOrganisationRole());
     }
 
     public function test_it_can_find_a_user(): void
