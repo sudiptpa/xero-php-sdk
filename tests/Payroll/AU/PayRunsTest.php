@@ -315,6 +315,7 @@ final class PayRunsTest extends TestCase
             'PayslipID' => 'payslip-1',
             'FirstName' => 'Jane',
             'LastName' => 'Smith',
+            'EmployeeGroup' => 'Marketing',
             'LastEdited' => '/Date(1573430400000+0000)/',
             'Wages' => 1000.00,
             'Deductions' => 10.00,
@@ -329,6 +330,7 @@ final class PayRunsTest extends TestCase
         self::assertSame('payslip-1', $summary->getPayslipID());
         self::assertSame('Jane', $summary->getFirstName());
         self::assertSame('Smith', $summary->getLastName());
+        self::assertSame('Marketing', $summary->getEmployeeGroup());
         self::assertSame('/Date(1573430400000+0000)/', $summary->getLastEdited());
         self::assertSame(1000.00, $summary->getWages());
         self::assertSame(10.00, $summary->getDeductions());

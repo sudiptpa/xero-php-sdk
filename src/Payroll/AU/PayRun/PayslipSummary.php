@@ -13,6 +13,7 @@ final class PayslipSummary extends Model
     private ?string $employeeID = null;
     private ?string $firstName = null;
     private ?string $lastName = null;
+    private ?string $employeeGroup = null;
     private ?string $lastEdited = null;
     private ?float $wages = null;
     private ?float $deductions = null;
@@ -66,6 +67,18 @@ final class PayslipSummary extends Model
     public function setLastName(?string $lastName): self
     {
         $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getEmployeeGroup(): ?string
+    {
+        return $this->employeeGroup;
+    }
+
+    public function setEmployeeGroup(?string $employeeGroup): self
+    {
+        $this->employeeGroup = $employeeGroup;
 
         return $this;
     }
@@ -176,6 +189,7 @@ final class PayslipSummary extends Model
             'EmployeeID' => Field::string()->using('setEmployeeID'),
             'FirstName' => Field::string()->using('setFirstName'),
             'LastName' => Field::string()->using('setLastName'),
+            'EmployeeGroup' => Field::string()->using('setEmployeeGroup'),
             'LastEdited' => Field::string()->using('setLastEdited'),
             'Wages' => Field::number()->using('setWages'),
             'Deductions' => Field::number()->using('setDeductions'),
