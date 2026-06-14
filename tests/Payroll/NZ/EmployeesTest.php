@@ -321,6 +321,14 @@ final class EmployeesTest extends TestCase
             'jobTitle' => 'General Manager',
             'engagementType' => 'Permanent',
             'fixedTermEndDate' => '2026-12-31',
+            'address' => [
+                'addressLine1' => '19 Taranaki Street',
+                'addressLine2' => 'Apt 4',
+                'city' => 'Wellington',
+                'suburb' => 'Te Aro',
+                'postCode' => '6011',
+                'countryName' => 'NEW ZEALAND',
+            ],
         ]);
 
         self::assertSame('employee-1', $employee->getEmployeeID());
@@ -339,6 +347,15 @@ final class EmployeesTest extends TestCase
         self::assertSame('General Manager', $employee->getJobTitle());
         self::assertSame('Permanent', $employee->getEngagementType());
         self::assertSame('2026-12-31', $employee->getFixedTermEndDate());
+
+        $address = $employee->getAddress();
+        self::assertNotNull($address);
+        self::assertSame('19 Taranaki Street', $address->getAddressLine1());
+        self::assertSame('Apt 4', $address->getAddressLine2());
+        self::assertSame('Wellington', $address->getCity());
+        self::assertSame('Te Aro', $address->getSuburb());
+        self::assertSame('6011', $address->getPostCode());
+        self::assertSame('NEW ZEALAND', $address->getCountryName());
     }
 
     public function test_it_can_save_a_found_employee(): void

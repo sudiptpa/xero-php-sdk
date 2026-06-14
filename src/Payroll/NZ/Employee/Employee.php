@@ -28,6 +28,7 @@ final class Employee extends Model
     private ?string $jobTitle = null;
     private ?string $engagementType = null;
     private ?string $fixedTermEndDate = null;
+    private ?Address $address = null;
 
 
     public function __construct(
@@ -192,6 +193,16 @@ final class Employee extends Model
         return $this;
     }
 
+    public function getAddress(): ?Address
+    {
+        return $this->address;
+    }
+    public function setAddress(?Address $address): self
+    {
+        $this->address = $address;
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -214,6 +225,7 @@ final class Employee extends Model
             'jobTitle' => Field::string()->using('setJobTitle'),
             'engagementType' => Field::string()->using('setEngagementType'),
             'fixedTermEndDate' => Field::string()->using('setFixedTermEndDate'),
+            'address' => Field::object(Address::class)->using('setAddress'),
         ];
     }
 
