@@ -292,6 +292,13 @@ final class EmployeesTest extends TestCase
                 'UpdatedDateUTC' => '2026-03-25T00:00:00Z',
                 'IncludeLeaveLoadingInQualifyingEarnings' => true,
             ],
+            'PayTemplate' => [
+                'EarningsLines' => [['EarningsRateID' => 'rate-1']],
+                'DeductionLines' => [['DeductionTypeID' => 'deduction-1']],
+                'SuperLines' => [['SuperMembershipID' => 'super-1']],
+                'ReimbursementLines' => [['ReimbursementTypeID' => 'reimbursement-1']],
+                'LeaveLines' => [['LeaveTypeID' => 'leave-1']],
+            ],
         ]);
 
         self::assertSame('employee-1', $employee->getEmployeeID());
@@ -357,6 +364,14 @@ final class EmployeesTest extends TestCase
         self::assertTrue($taxDeclaration->getHasLoanOrStudentDebt());
         self::assertSame('2026-03-25T00:00:00Z', $taxDeclaration->getUpdatedDateUTC());
         self::assertTrue($taxDeclaration->getIncludeLeaveLoadingInQualifyingEarnings());
+
+        $payTemplate = $employee->getPayTemplate();
+        self::assertNotNull($payTemplate);
+        self::assertSame('rate-1', $payTemplate->getEarningsLines()[0]['EarningsRateID']);
+        self::assertSame('deduction-1', $payTemplate->getDeductionLines()[0]['DeductionTypeID']);
+        self::assertSame('super-1', $payTemplate->getSuperLines()[0]['SuperMembershipID']);
+        self::assertSame('reimbursement-1', $payTemplate->getReimbursementLines()[0]['ReimbursementTypeID']);
+        self::assertSame('leave-1', $payTemplate->getLeaveLines()[0]['LeaveTypeID']);
     }
 
     public function test_saving_without_a_client_throws(): void

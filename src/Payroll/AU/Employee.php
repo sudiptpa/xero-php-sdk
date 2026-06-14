@@ -7,6 +7,7 @@ namespace Sujip\Xero\Payroll\AU;
 use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Payroll\AU\Employee\HomeAddress;
+use Sujip\Xero\Payroll\AU\Employee\PayTemplate;
 use Sujip\Xero\Payroll\AU\Employee\TaxDeclaration;
 use Sujip\Xero\Payroll\AU\LeaveApplication\Payload as LeaveApplicationPayload;
 use Sujip\Xero\Support\Field;
@@ -37,6 +38,7 @@ final class Employee extends Model
     private ?string $employeeGroupName = null;
     private ?string $terminationDate = null;
     private ?string $terminationReason = null;
+    private ?PayTemplate $payTemplate = null;
     private ?TaxDeclaration $taxDeclaration = null;
     private ?string $incomeType = null;
     private ?string $employmentType = null;
@@ -297,6 +299,17 @@ final class Employee extends Model
         return $this;
     }
 
+    public function getPayTemplate(): ?PayTemplate
+    {
+        return $this->payTemplate;
+    }
+
+    public function setPayTemplate(?PayTemplate $payTemplate): self
+    {
+        $this->payTemplate = $payTemplate;
+        return $this;
+    }
+
     public function getTaxDeclaration(): ?TaxDeclaration
     {
         return $this->taxDeclaration;
@@ -416,6 +429,7 @@ final class Employee extends Model
             'EmployeeGroupName' => Field::string()->using('setEmployeeGroupName'),
             'TerminationDate' => Field::string()->using('setTerminationDate'),
             'TerminationReason' => Field::string()->using('setTerminationReason'),
+            'PayTemplate' => Field::object(PayTemplate::class)->using('setPayTemplate'),
             'TaxDeclaration' => Field::object(TaxDeclaration::class)->using('setTaxDeclaration'),
             'IncomeType' => Field::string()->using('setIncomeType'),
             'EmploymentType' => Field::string()->using('setEmploymentType'),
