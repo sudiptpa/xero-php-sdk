@@ -35,6 +35,16 @@ final class ManualJournalsTest extends TestCase
                         'Name' => 'Region',
                     ]],
                 ]],
+                'Date' => '2026-03-25',
+                'LineAmountTypes' => 'NoTax',
+                'Url' => 'https://example.test/source',
+                'ShowOnCashBasisReports' => true,
+                'HasAttachments' => true,
+                'UpdatedDateUTC' => '2026-03-25T00:00:00',
+                'StatusAttributeString' => 'ERROR',
+                'Warnings' => [['Message' => 'Journal is unbalanced']],
+                'ValidationErrors' => [['Message' => 'Invalid account code']],
+                'Attachments' => [['AttachmentID' => 'attachment-1', 'FileName' => 'journal.pdf', 'MimeType' => 'application/pdf']],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -62,6 +72,16 @@ final class ManualJournalsTest extends TestCase
         self::assertSame(0, $line->getTaxAmount());
         self::assertFalse($line->getIsBlank());
         self::assertSame('category-1', $line->getTracking()[0]->getTrackingCategoryID());
+        self::assertSame('2026-03-25', $firstMj->getDate());
+        self::assertSame('NoTax', $firstMj->getLineAmountTypes());
+        self::assertSame('https://example.test/source', $firstMj->getUrl());
+        self::assertTrue($firstMj->getShowOnCashBasisReports());
+        self::assertTrue($firstMj->getHasAttachments());
+        self::assertSame('2026-03-25T00:00:00', $firstMj->getUpdatedDateUTC());
+        self::assertSame('ERROR', $firstMj->getStatusAttributeString());
+        self::assertSame('Journal is unbalanced', $firstMj->getWarnings()[0]->getMessage());
+        self::assertSame('Invalid account code', $firstMj->getValidationErrors()[0]->getMessage());
+        self::assertSame('journal.pdf', $firstMj->getAttachments()[0]->getFileName());
     }
 
     public function test_it_can_create_and_update_manual_journals(): void
