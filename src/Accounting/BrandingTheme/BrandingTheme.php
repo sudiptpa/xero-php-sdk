@@ -13,7 +13,13 @@ final class BrandingTheme extends Model
 
     private ?string $name = null;
 
+    private ?string $logoUrl = null;
+
+    private ?string $type = null;
+
     private ?int $sortOrder = null;
+
+    private ?string $createdDateUTC = null;
 
     public function getBrandingThemeID(): ?string
     {
@@ -39,6 +45,30 @@ final class BrandingTheme extends Model
         return $this;
     }
 
+    public function getLogoUrl(): ?string
+    {
+        return $this->logoUrl;
+    }
+
+    public function setLogoUrl(?string $logoUrl): self
+    {
+        $this->logoUrl = $logoUrl;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
     public function getSortOrder(): ?int
     {
         return $this->sortOrder;
@@ -51,6 +81,18 @@ final class BrandingTheme extends Model
         return $this;
     }
 
+    public function getCreatedDateUTC(): ?string
+    {
+        return $this->createdDateUTC;
+    }
+
+    public function setCreatedDateUTC(?string $createdDateUTC): self
+    {
+        $this->createdDateUTC = $createdDateUTC;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -59,7 +101,10 @@ final class BrandingTheme extends Model
         return [
             'BrandingThemeID' => Field::string(),
             'Name' => Field::string(),
+            'LogoUrl' => Field::string(),
+            'Type' => Field::string(),
             'SortOrder' => Field::number(),
+            'CreatedDateUTC' => Field::string(),
         ];
     }
 }

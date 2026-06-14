@@ -19,7 +19,10 @@ final class BrandingThemesTest extends TestCase
             'BrandingThemes' => [[
                 'BrandingThemeID' => 'branding-1',
                 'Name' => 'Standard',
+                'LogoUrl' => 'https://example.test/logo.png',
+                'Type' => 'INVOICE',
                 'SortOrder' => 1,
+                'CreatedDateUTC' => '2026-03-25T00:00:00',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -39,6 +42,9 @@ final class BrandingThemesTest extends TestCase
         self::assertInstanceOf(BrandingTheme::class, $themes->first());
         self::assertSame('Standard', $themes->first()->getName());
         self::assertSame(1, $themes->first()->getSortOrder());
+        self::assertSame('https://example.test/logo.png', $themes->first()->getLogoUrl());
+        self::assertSame('INVOICE', $themes->first()->getType());
+        self::assertSame('2026-03-25T00:00:00', $themes->first()->getCreatedDateUTC());
         self::assertSame('/api.xro/2.0/BrandingThemes/branding-1', $transport->requests()[1]->path);
         self::assertSame('branding-1', $theme?->getBrandingThemeID());
     }
