@@ -20,6 +20,11 @@ final class AllocationsTest extends TestCase
                 'Amount' => 25.5,
                 'Date' => '/Date(1551744000000+0000)/',
                 'Invoice' => ['InvoiceID' => 'invoice-1', 'LineItems' => []],
+                'Overpayment' => ['OverpaymentID' => 'overpayment-1'],
+                'Prepayment' => ['PrepaymentID' => 'prepayment-1'],
+                'CreditNote' => ['CreditNoteID' => 'credit-note-1'],
+                'StatusAttributeString' => 'ERROR',
+                'ValidationErrors' => [['Message' => 'Invalid allocation amount']],
             ]],
         ], JSON_THROW_ON_ERROR)));
 
@@ -48,6 +53,11 @@ final class AllocationsTest extends TestCase
         $invoice = $allocation->getInvoice();
         self::assertNotNull($invoice);
         self::assertSame('invoice-1', $invoice->getInvoiceID());
+        self::assertSame('overpayment-1', $allocation->getOverpayment()?->getOverpaymentID());
+        self::assertSame('prepayment-1', $allocation->getPrepayment()?->getPrepaymentID());
+        self::assertSame('credit-note-1', $allocation->getCreditNote()?->getCreditNoteID());
+        self::assertSame('ERROR', $allocation->getStatusAttributeString());
+        self::assertSame('Invalid allocation amount', $allocation->getValidationErrors()[0]->getMessage());
     }
 
     public function test_it_creates_an_overpayment_allocation_without_an_idempotency_key(): void
