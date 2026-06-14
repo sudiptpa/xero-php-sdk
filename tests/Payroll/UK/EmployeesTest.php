@@ -199,15 +199,39 @@ final class EmployeesTest extends TestCase
     {
         $employee = (new Employee())->fill([
             'employeeID' => 'employee-1',
+            'title' => 'Mrs',
             'firstName' => 'Ada',
             'lastName' => 'Lovelace',
+            'dateOfBirth' => '1990-01-02',
             'email' => 'ada@example.test',
+            'gender' => 'F',
+            'phoneNumber' => '415-555-1212',
+            'startDate' => '2020-01-19',
+            'endDate' => '2026-01-19',
+            'payrollCalendarID' => 'calendar-1',
+            'updatedDateUTC' => '2026-03-29T00:00:00',
+            'createdDateUTC' => '2020-01-01T00:00:00',
+            'niCategory' => 'A',
+            'nationalInsuranceNumber' => 'AB123456C',
+            'isOffPayrollWorker' => true,
         ]);
 
         self::assertSame('employee-1', $employee->getEmployeeID());
+        self::assertSame('Mrs', $employee->getTitle());
         self::assertSame('Ada', $employee->getFirstName());
         self::assertSame('Lovelace', $employee->getLastName());
+        self::assertSame('1990-01-02', $employee->getDateOfBirth());
         self::assertSame('ada@example.test', $employee->getEmailAddress());
+        self::assertSame('F', $employee->getGender());
+        self::assertSame('415-555-1212', $employee->getPhoneNumber());
+        self::assertSame('2020-01-19', $employee->getStartDate());
+        self::assertSame('2026-01-19', $employee->getEndDate());
+        self::assertSame('calendar-1', $employee->getPayrollCalendarID());
+        self::assertSame('2026-03-29T00:00:00', $employee->getUpdatedDateUTC());
+        self::assertSame('2020-01-01T00:00:00', $employee->getCreatedDateUTC());
+        self::assertSame('A', $employee->getNiCategory());
+        self::assertSame('AB123456C', $employee->getNationalInsuranceNumber());
+        self::assertTrue($employee->getIsOffPayrollWorker());
     }
 
     public function test_it_can_save_a_found_employee(): void
