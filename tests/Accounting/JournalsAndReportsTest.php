@@ -28,9 +28,29 @@ final class JournalsAndReportsTest extends TestCase
         $transport->push(new Response(200, body: json_encode([
             'Journals' => [[
                 'JournalID' => 'journal-1',
+                'JournalDate' => '2026-03-25T00:00:00',
                 'JournalNumber' => 1250,
+                'CreatedDateUTC' => '2026-03-25T01:00:00',
+                'Reference' => 'INV-001',
                 'SourceType' => 'ACCPAY',
                 'SourceID' => 'source-1',
+                'JournalLines' => [[
+                    'JournalLineID' => 'line-1',
+                    'AccountID' => 'account-1',
+                    'AccountCode' => '200',
+                    'AccountType' => 'REVENUE',
+                    'AccountName' => 'Sales',
+                    'Description' => 'Sale of goods',
+                    'NetAmount' => 100.0,
+                    'GrossAmount' => 115.0,
+                    'TaxAmount' => 15.0,
+                    'TaxType' => 'OUTPUT2',
+                    'TaxName' => 'GST on Income',
+                    'TrackingCategories' => [[
+                        'TrackingCategoryID' => 'category-1',
+                        'Name' => 'Region',
+                    ]],
+                ]],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -63,6 +83,22 @@ final class JournalsAndReportsTest extends TestCase
         self::assertSame('journal-1', $journal?->getJournalID());
         self::assertSame('ACCPAY', $journal->getSourceType());
         self::assertSame('source-1', $journal->getSourceID());
+        self::assertSame('2026-03-25T00:00:00', $journal->getJournalDate());
+        self::assertSame('2026-03-25T01:00:00', $journal->getCreatedDateUTC());
+        self::assertSame('INV-001', $journal->getReference());
+        $journalLine = $journal->getJournalLines()[0];
+        self::assertSame('line-1', $journalLine->getJournalLineID());
+        self::assertSame('account-1', $journalLine->getAccountID());
+        self::assertSame('200', $journalLine->getAccountCode());
+        self::assertSame('REVENUE', $journalLine->getAccountType());
+        self::assertSame('Sales', $journalLine->getAccountName());
+        self::assertSame('Sale of goods', $journalLine->getDescription());
+        self::assertSame(100, $journalLine->getNetAmount());
+        self::assertSame(115, $journalLine->getGrossAmount());
+        self::assertSame(15, $journalLine->getTaxAmount());
+        self::assertSame('OUTPUT2', $journalLine->getTaxType());
+        self::assertSame('GST on Income', $journalLine->getTaxName());
+        self::assertSame('category-1', $journalLine->getTrackingCategories()[0]->getTrackingCategoryID());
         self::assertNotSame([], $client->accounting()->journals()->scopes()->granular);
     }
 
