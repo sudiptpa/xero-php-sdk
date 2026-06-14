@@ -30,6 +30,11 @@ final class Employee extends Model
     private ?bool $isOffPayrollWorker = null;
     private ?Address $address = null;
 
+    /**
+     * @var list<NICategory>
+     */
+    private array $niCategories = [];
+
 
     public function __construct(
         private ?Client $client = null
@@ -190,6 +195,18 @@ final class Employee extends Model
         return $this;
     }
     /**
+     * @return list<NICategory>
+     */
+    public function getNiCategories(): array
+    {
+        return $this->niCategories;
+    }
+    public function addNiCategory(NICategory $niCategory): self
+    {
+        $this->niCategories[] = $niCategory;
+        return $this;
+    }
+    /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
@@ -212,6 +229,7 @@ final class Employee extends Model
             'nationalInsuranceNumber' => Field::string()->using('setNationalInsuranceNumber'),
             'isOffPayrollWorker' => Field::boolean()->using('setIsOffPayrollWorker'),
             'address' => Field::object(Address::class)->using('setAddress'),
+            'niCategories' => Field::many(NICategory::class),
         ];
     }
 
