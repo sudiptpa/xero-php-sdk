@@ -268,6 +268,30 @@ final class EmployeesTest extends TestCase
                 'PostalCode' => '3182',
                 'Country' => 'AUSTRALIA',
             ],
+            'TaxDeclaration' => [
+                'EmployeeID' => 'employee-1',
+                'EmploymentBasis' => 'FULLTIME',
+                'TFNExemptionType' => 'NOTQUOTED',
+                'TaxFileNumber' => '123123123',
+                'ABN' => '21006819692',
+                'AustralianResidentForTaxPurposes' => true,
+                'ResidencyStatus' => 'AUSTRALIANRESIDENT',
+                'TaxScaleType' => 'REGULAR',
+                'WorkCondition' => 'NONE',
+                'SeniorMaritalStatus' => 'SINGLE',
+                'TaxFreeThresholdClaimed' => true,
+                'TaxOffsetEstimatedAmount' => 100,
+                'HasHELPDebt' => false,
+                'HasSFSSDebt' => false,
+                'HasTradeSupportLoanDebt' => false,
+                'UpwardVariationTaxWithholdingAmount' => 50,
+                'EligibleToReceiveLeaveLoading' => false,
+                'ApprovedWithholdingVariationPercentage' => 75,
+                'HasStudentStartupLoan' => true,
+                'HasLoanOrStudentDebt' => true,
+                'UpdatedDateUTC' => '2026-03-25T00:00:00Z',
+                'IncludeLeaveLoadingInQualifyingEarnings' => true,
+            ],
         ]);
 
         self::assertSame('employee-1', $employee->getEmployeeID());
@@ -308,6 +332,31 @@ final class EmployeesTest extends TestCase
         self::assertSame('VIC', $homeAddress->getRegion());
         self::assertSame('3182', $homeAddress->getPostalCode());
         self::assertSame('AUSTRALIA', $homeAddress->getCountry());
+
+        $taxDeclaration = $employee->getTaxDeclaration();
+        self::assertNotNull($taxDeclaration);
+        self::assertSame('employee-1', $taxDeclaration->getEmployeeID());
+        self::assertSame('FULLTIME', $taxDeclaration->getEmploymentBasis());
+        self::assertSame('NOTQUOTED', $taxDeclaration->getTFNExemptionType());
+        self::assertSame('123123123', $taxDeclaration->getTaxFileNumber());
+        self::assertSame('21006819692', $taxDeclaration->getABN());
+        self::assertTrue($taxDeclaration->getAustralianResidentForTaxPurposes());
+        self::assertSame('AUSTRALIANRESIDENT', $taxDeclaration->getResidencyStatus());
+        self::assertSame('REGULAR', $taxDeclaration->getTaxScaleType());
+        self::assertSame('NONE', $taxDeclaration->getWorkCondition());
+        self::assertSame('SINGLE', $taxDeclaration->getSeniorMaritalStatus());
+        self::assertTrue($taxDeclaration->getTaxFreeThresholdClaimed());
+        self::assertSame(100.0, $taxDeclaration->getTaxOffsetEstimatedAmount());
+        self::assertFalse($taxDeclaration->getHasHELPDebt());
+        self::assertFalse($taxDeclaration->getHasSFSSDebt());
+        self::assertFalse($taxDeclaration->getHasTradeSupportLoanDebt());
+        self::assertSame(50.0, $taxDeclaration->getUpwardVariationTaxWithholdingAmount());
+        self::assertFalse($taxDeclaration->getEligibleToReceiveLeaveLoading());
+        self::assertSame(75.0, $taxDeclaration->getApprovedWithholdingVariationPercentage());
+        self::assertTrue($taxDeclaration->getHasStudentStartupLoan());
+        self::assertTrue($taxDeclaration->getHasLoanOrStudentDebt());
+        self::assertSame('2026-03-25T00:00:00Z', $taxDeclaration->getUpdatedDateUTC());
+        self::assertTrue($taxDeclaration->getIncludeLeaveLoadingInQualifyingEarnings());
     }
 
     public function test_saving_without_a_client_throws(): void
