@@ -2,14 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Sujip\Xero\Finance;
+namespace Sujip\Xero\Finance\BankStatementAccounting;
 
 use DateTimeInterface;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
-use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
-use Sujip\Xero\Support\Json;
 
 final readonly class BankStatementAccounting implements DefinesScopes
 {
@@ -26,10 +24,7 @@ final readonly class BankStatementAccounting implements DefinesScopes
         );
     }
 
-    /**
-     * @return ResourceCollection<BankStatementEntry>
-     */
-    public function get(string $bankAccountId, DateTimeInterface $fromDate, DateTimeInterface $toDate, ?bool $summaryOnly = null): ResourceCollection
+    public function get(string $bankAccountId, DateTimeInterface $fromDate, DateTimeInterface $toDate, ?bool $summaryOnly = null): BankStatementAccountingResult
     {
         $query = [
             'BankAccountID' => $bankAccountId,
@@ -47,19 +42,6 @@ final readonly class BankStatementAccounting implements DefinesScopes
             ->send()
             ->json();
 
-        $items = array_map(
-            fn (array $entry): BankStatementEntry => $this->mapBankStatementEntry($entry),
-            Json::extractList($payload, 'statements') ?: Json::extractList($payload, 'Statements')
-        );
-
-        return new ResourceCollection($items);
-    }
-
-    /**
-     * @param array<string, mixed> $entry
-     */
-    public function mapBankStatementEntry(array $entry): BankStatementEntry
-    {
-        return (new BankStatementEntry())->fill($entry);
+        return (new BankStatementAccountingResult())->fill($payload);
     }
 }

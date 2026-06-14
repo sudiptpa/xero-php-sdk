@@ -10,7 +10,6 @@ use Sujip\Xero\Finance\AccountingActivity\AccountUsage;
 use Sujip\Xero\Finance\AccountingActivity\LockHistory;
 use Sujip\Xero\Finance\AccountingActivity\ReportHistory;
 use Sujip\Xero\Finance\AccountingActivity\UserActivity;
-use Sujip\Xero\Finance\BankStatementEntry;
 use Sujip\Xero\Finance\CashValidation\CashValidationResult;
 use Sujip\Xero\Finance\FinancialStatement\ContactDetail;
 use Sujip\Xero\Http\FakeTransport;
@@ -84,17 +83,8 @@ final class FinanceCoverageTest extends TestCase
         self::assertSame(12, $user->getTransactionCount());
     }
 
-    public function test_bank_statement_cash_and_contact_models_expose_getters(): void
+    public function test_cash_validation_and_contact_models_expose_getters(): void
     {
-        $entry = (new BankStatementEntry())
-            ->setAccountID('acc-1')
-            ->setAccountName('Business')
-            ->setStatementBalance(2500.0);
-
-        self::assertSame('acc-1', $entry->getAccountID());
-        self::assertSame('Business', $entry->getAccountName());
-        self::assertSame(2500.0, $entry->getStatementBalance());
-
         $cash = (new CashValidationResult())
             ->setAccountId('account-1')
             ->setStatementBalanceDate('2026-03-01');

@@ -6,6 +6,7 @@ namespace Sujip\Xero\Finance;
 
 use Sujip\Xero\Client;
 use Sujip\Xero\Finance\AccountingActivity\AccountingActivities;
+use Sujip\Xero\Finance\BankStatementAccounting\BankStatementAccounting;
 use Sujip\Xero\Finance\CashValidation\CashValidation;
 use Sujip\Xero\Finance\FinancialStatement\FinancialStatements;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
