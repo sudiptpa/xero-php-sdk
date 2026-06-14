@@ -299,6 +299,16 @@ final class EmployeesTest extends TestCase
                 'ReimbursementLines' => [['ReimbursementTypeID' => 'reimbursement-1']],
                 'LeaveLines' => [['LeaveTypeID' => 'leave-1']],
             ],
+            'OpeningBalances' => [
+                'OpeningBalanceDate' => '2026-01-01',
+                'Tax' => '100.00',
+                'EarningsLines' => [['EarningsRateID' => 'rate-1']],
+                'DeductionLines' => [['DeductionTypeID' => 'deduction-1']],
+                'SuperLines' => [['SuperMembershipID' => 'super-1']],
+                'ReimbursementLines' => [['ReimbursementTypeID' => 'reimbursement-1']],
+                'LeaveLines' => [['LeaveTypeID' => 'leave-1']],
+                'PaidLeaveEarningsLines' => [['LeaveTypeID' => 'leave-1', 'Amount' => 500.0]],
+            ],
         ]);
 
         self::assertSame('employee-1', $employee->getEmployeeID());
@@ -372,6 +382,17 @@ final class EmployeesTest extends TestCase
         self::assertSame('super-1', $payTemplate->getSuperLines()[0]['SuperMembershipID']);
         self::assertSame('reimbursement-1', $payTemplate->getReimbursementLines()[0]['ReimbursementTypeID']);
         self::assertSame('leave-1', $payTemplate->getLeaveLines()[0]['LeaveTypeID']);
+
+        $openingBalances = $employee->getOpeningBalances();
+        self::assertNotNull($openingBalances);
+        self::assertSame('2026-01-01', $openingBalances->getOpeningBalanceDate());
+        self::assertSame('100.00', $openingBalances->getTax());
+        self::assertSame('rate-1', $openingBalances->getEarningsLines()[0]['EarningsRateID']);
+        self::assertSame('deduction-1', $openingBalances->getDeductionLines()[0]['DeductionTypeID']);
+        self::assertSame('super-1', $openingBalances->getSuperLines()[0]['SuperMembershipID']);
+        self::assertSame('reimbursement-1', $openingBalances->getReimbursementLines()[0]['ReimbursementTypeID']);
+        self::assertSame('leave-1', $openingBalances->getLeaveLines()[0]['LeaveTypeID']);
+        self::assertSame(500.0, $openingBalances->getPaidLeaveEarningsLines()[0]['Amount']);
     }
 
     public function test_saving_without_a_client_throws(): void
