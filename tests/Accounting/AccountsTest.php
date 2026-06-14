@@ -24,6 +24,20 @@ final class AccountsTest extends TestCase
                     'Name' => 'Sales',
                     'Type' => 'REVENUE',
                     'Status' => 'ACTIVE',
+                    'BankAccountNumber' => '123-456-7890',
+                    'BankAccountType' => 'BANK',
+                    'CurrencyCode' => 'NZD',
+                    'TaxType' => 'OUTPUT2',
+                    'EnablePaymentsToAccount' => true,
+                    'ShowInExpenseClaims' => false,
+                    'Class' => 'REVENUE',
+                    'SystemAccount' => '',
+                    'ReportingCode' => 'REV',
+                    'ReportingCodeName' => 'Revenue',
+                    'HasAttachments' => true,
+                    'UpdatedDateUTC' => '2026-04-01T01:00:00',
+                    'AddToWatchlist' => true,
+                    'ValidationErrors' => [['Message' => 'Bad account']],
                 ]],
             ], JSON_THROW_ON_ERROR))
         );
@@ -44,6 +58,21 @@ final class AccountsTest extends TestCase
         $firstAccount = $accounts->first();
         self::assertNotNull($firstAccount);
         self::assertSame('Sales', $firstAccount->getName());
+        self::assertSame('123-456-7890', $firstAccount->getBankAccountNumber());
+        self::assertSame('BANK', $firstAccount->getBankAccountType());
+        self::assertSame('NZD', $firstAccount->getCurrencyCode());
+        self::assertSame('OUTPUT2', $firstAccount->getTaxType());
+        self::assertTrue($firstAccount->getEnablePaymentsToAccount());
+        self::assertFalse($firstAccount->getShowInExpenseClaims());
+        self::assertSame('REVENUE', $firstAccount->getClass());
+        self::assertSame('', $firstAccount->getSystemAccount());
+        self::assertSame('REV', $firstAccount->getReportingCode());
+        self::assertSame('Revenue', $firstAccount->getReportingCodeName());
+        self::assertTrue($firstAccount->getHasAttachments());
+        self::assertSame('2026-04-01T01:00:00', $firstAccount->getUpdatedDateUTC());
+        self::assertTrue($firstAccount->getAddToWatchlist());
+        self::assertCount(1, $firstAccount->getValidationErrors());
+        self::assertSame('Bad account', $firstAccount->getValidationErrors()[0]->getMessage());
     }
 
     public function test_it_can_create_an_account(): void
@@ -71,6 +100,14 @@ final class AccountsTest extends TestCase
                     ->setName('Sales')
                     ->setType('REVENUE')
                     ->setDescription('Primary sales account')
+                    ->setBankAccountNumber('123-456-7890')
+                    ->setBankAccountType('BANK')
+                    ->setCurrencyCode('NZD')
+                    ->setTaxType('OUTPUT2')
+                    ->setEnablePaymentsToAccount(true)
+                    ->setShowInExpenseClaims(false)
+                    ->setReportingCode('REV')
+                    ->setAddToWatchlist(true)
             )
             ->save();
 
@@ -82,6 +119,14 @@ final class AccountsTest extends TestCase
         $firstAccount = Json::extractFirst($json, 'Accounts');
         self::assertNotNull($firstAccount);
         self::assertSame('200', $firstAccount['Code']);
+        self::assertSame('123-456-7890', $firstAccount['BankAccountNumber']);
+        self::assertSame('BANK', $firstAccount['BankAccountType']);
+        self::assertSame('NZD', $firstAccount['CurrencyCode']);
+        self::assertSame('OUTPUT2', $firstAccount['TaxType']);
+        self::assertTrue($firstAccount['EnablePaymentsToAccount']);
+        self::assertFalse($firstAccount['ShowInExpenseClaims']);
+        self::assertSame('REV', $firstAccount['ReportingCode']);
+        self::assertTrue($firstAccount['AddToWatchlist']);
         self::assertSame('Sales', $account->getName());
     }
 

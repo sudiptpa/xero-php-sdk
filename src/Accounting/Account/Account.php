@@ -8,6 +8,7 @@ use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\ValidationError;
 use Sujip\Xero\Support\Contracts\SerializesRequest;
 
 final class Account extends Model implements SerializesRequest
@@ -28,6 +29,37 @@ final class Account extends Model implements SerializesRequest
     private ?string $status = null;
 
     private ?string $description = null;
+
+    private ?string $bankAccountNumber = null;
+
+    private ?string $bankAccountType = null;
+
+    private ?string $currencyCode = null;
+
+    private ?string $taxType = null;
+
+    private ?bool $enablePaymentsToAccount = null;
+
+    private ?bool $showInExpenseClaims = null;
+
+    private ?string $class = null;
+
+    private ?string $systemAccount = null;
+
+    private ?string $reportingCode = null;
+
+    private ?string $reportingCodeName = null;
+
+    private ?bool $hasAttachments = null;
+
+    private ?string $updatedDateUTC = null;
+
+    private ?bool $addToWatchlist = null;
+
+    /**
+     * @var list<ValidationError>
+     */
+    private array $validationErrors = [];
 
     public function getAccountID(): ?string
     {
@@ -101,6 +133,177 @@ final class Account extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getBankAccountNumber(): ?string
+    {
+        return $this->bankAccountNumber;
+    }
+
+    public function setBankAccountNumber(?string $bankAccountNumber): self
+    {
+        $this->bankAccountNumber = $bankAccountNumber;
+
+        return $this;
+    }
+
+    public function getBankAccountType(): ?string
+    {
+        return $this->bankAccountType;
+    }
+
+    public function setBankAccountType(?string $bankAccountType): self
+    {
+        $this->bankAccountType = $bankAccountType;
+
+        return $this;
+    }
+
+    public function getCurrencyCode(): ?string
+    {
+        return $this->currencyCode;
+    }
+
+    public function setCurrencyCode(?string $currencyCode): self
+    {
+        $this->currencyCode = $currencyCode;
+
+        return $this;
+    }
+
+    public function getTaxType(): ?string
+    {
+        return $this->taxType;
+    }
+
+    public function setTaxType(?string $taxType): self
+    {
+        $this->taxType = $taxType;
+
+        return $this;
+    }
+
+    public function getEnablePaymentsToAccount(): ?bool
+    {
+        return $this->enablePaymentsToAccount;
+    }
+
+    public function setEnablePaymentsToAccount(?bool $enablePaymentsToAccount): self
+    {
+        $this->enablePaymentsToAccount = $enablePaymentsToAccount;
+
+        return $this;
+    }
+
+    public function getShowInExpenseClaims(): ?bool
+    {
+        return $this->showInExpenseClaims;
+    }
+
+    public function setShowInExpenseClaims(?bool $showInExpenseClaims): self
+    {
+        $this->showInExpenseClaims = $showInExpenseClaims;
+
+        return $this;
+    }
+
+    public function getClass(): ?string
+    {
+        return $this->class;
+    }
+
+    public function setClass(?string $class): self
+    {
+        $this->class = $class;
+
+        return $this;
+    }
+
+    public function getSystemAccount(): ?string
+    {
+        return $this->systemAccount;
+    }
+
+    public function setSystemAccount(?string $systemAccount): self
+    {
+        $this->systemAccount = $systemAccount;
+
+        return $this;
+    }
+
+    public function getReportingCode(): ?string
+    {
+        return $this->reportingCode;
+    }
+
+    public function setReportingCode(?string $reportingCode): self
+    {
+        $this->reportingCode = $reportingCode;
+
+        return $this;
+    }
+
+    public function getReportingCodeName(): ?string
+    {
+        return $this->reportingCodeName;
+    }
+
+    public function setReportingCodeName(?string $reportingCodeName): self
+    {
+        $this->reportingCodeName = $reportingCodeName;
+
+        return $this;
+    }
+
+    public function getHasAttachments(): ?bool
+    {
+        return $this->hasAttachments;
+    }
+
+    public function setHasAttachments(?bool $hasAttachments): self
+    {
+        $this->hasAttachments = $hasAttachments;
+
+        return $this;
+    }
+
+    public function getUpdatedDateUTC(): ?string
+    {
+        return $this->updatedDateUTC;
+    }
+
+    public function setUpdatedDateUTC(?string $updatedDateUTC): self
+    {
+        $this->updatedDateUTC = $updatedDateUTC;
+
+        return $this;
+    }
+
+    public function getAddToWatchlist(): ?bool
+    {
+        return $this->addToWatchlist;
+    }
+
+    public function setAddToWatchlist(?bool $addToWatchlist): self
+    {
+        $this->addToWatchlist = $addToWatchlist;
+
+        return $this;
+    }
+
+    /**
+     * @return list<ValidationError>
+     */
+    public function getValidationErrors(): array
+    {
+        return $this->validationErrors;
+    }
+
+    public function addValidationError(ValidationError $validationError): self
+    {
+        $this->validationErrors[] = $validationError;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -113,6 +316,20 @@ final class Account extends Model implements SerializesRequest
             'Type' => Field::string(),
             'Status' => Field::string(),
             'Description' => Field::string(),
+            'BankAccountNumber' => Field::string(),
+            'BankAccountType' => Field::string(),
+            'CurrencyCode' => Field::string(),
+            'TaxType' => Field::string(),
+            'EnablePaymentsToAccount' => Field::boolean(),
+            'ShowInExpenseClaims' => Field::boolean(),
+            'Class' => Field::string(),
+            'SystemAccount' => Field::string(),
+            'ReportingCode' => Field::string(),
+            'ReportingCodeName' => Field::string(),
+            'HasAttachments' => Field::boolean(),
+            'UpdatedDateUTC' => Field::string(),
+            'AddToWatchlist' => Field::boolean(),
+            'ValidationErrors' => Field::many(ValidationError::class),
         ];
     }
 
@@ -128,6 +345,14 @@ final class Account extends Model implements SerializesRequest
             'Type' => $this->getType(),
             'Status' => $this->getStatus(),
             'Description' => $this->getDescription(),
+            'BankAccountNumber' => $this->getBankAccountNumber(),
+            'BankAccountType' => $this->getBankAccountType(),
+            'CurrencyCode' => $this->getCurrencyCode(),
+            'TaxType' => $this->getTaxType(),
+            'EnablePaymentsToAccount' => $this->getEnablePaymentsToAccount(),
+            'ShowInExpenseClaims' => $this->getShowInExpenseClaims(),
+            'ReportingCode' => $this->getReportingCode(),
+            'AddToWatchlist' => $this->getAddToWatchlist(),
         ], static fn (mixed $value): bool => $value !== null);
     }
 
