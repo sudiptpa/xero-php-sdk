@@ -32,6 +32,14 @@ final class EmployeesTest extends TestCase
                 'FirstName' => 'Nick',
                 'LastName' => 'Fury',
                 'Status' => 'ACTIVE',
+                'ExternalLink' => [
+                    'LinkType' => 'Website',
+                    'Url' => 'https://example.test/nick-fury',
+                    'Description' => 'Profile',
+                ],
+                'UpdatedDateUTC' => '2026-03-25T00:00:00',
+                'StatusAttributeString' => 'ERROR',
+                'ValidationErrors' => [['Message' => 'Invalid status']],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -99,6 +107,12 @@ final class EmployeesTest extends TestCase
         self::assertSame('Nick', $employee->getFirstName());
         self::assertSame('Fury', $employee->getLastName());
         self::assertSame('ACTIVE', $employee->getStatus());
+        self::assertSame('Website', $employee->getExternalLink()?->getLinkType());
+        self::assertSame('https://example.test/nick-fury', $employee->getExternalLink()->getUrl());
+        self::assertSame('Profile', $employee->getExternalLink()->getDescription());
+        self::assertSame('2026-03-25T00:00:00', $employee->getUpdatedDateUTC());
+        self::assertSame('ERROR', $employee->getStatusAttributeString());
+        self::assertSame('Invalid status', $employee->getValidationErrors()[0]->getMessage());
         self::assertSame('/api.xro/2.0/Employees', $transport->requests()[4]->path);
         self::assertSame('employee-key', $transport->requests()[4]->headers['Idempotency-Key']);
         self::assertNotSame([], $client->accounting()->employees()->scopes()->broad);

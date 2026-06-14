@@ -8,6 +8,7 @@ use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\ValidationError;
 
 final class Employee extends Model
 {
@@ -20,6 +21,17 @@ final class Employee extends Model
     private ?string $status = null;
 
     private ?string $emailAddress = null;
+
+    private ?ExternalLink $externalLink = null;
+
+    private ?string $updatedDateUTC = null;
+
+    private ?string $statusAttributeString = null;
+
+    /**
+     * @var list<ValidationError>
+     */
+    private array $validationErrors = [];
 
     public function __construct(
         private ?Client $client = null
@@ -86,6 +98,57 @@ final class Employee extends Model
         return $this;
     }
 
+    public function getExternalLink(): ?ExternalLink
+    {
+        return $this->externalLink;
+    }
+
+    public function setExternalLink(?ExternalLink $externalLink): self
+    {
+        $this->externalLink = $externalLink;
+
+        return $this;
+    }
+
+    public function getUpdatedDateUTC(): ?string
+    {
+        return $this->updatedDateUTC;
+    }
+
+    public function setUpdatedDateUTC(?string $updatedDateUTC): self
+    {
+        $this->updatedDateUTC = $updatedDateUTC;
+
+        return $this;
+    }
+
+    public function getStatusAttributeString(): ?string
+    {
+        return $this->statusAttributeString;
+    }
+
+    public function setStatusAttributeString(?string $statusAttributeString): self
+    {
+        $this->statusAttributeString = $statusAttributeString;
+
+        return $this;
+    }
+
+    /**
+     * @return list<ValidationError>
+     */
+    public function getValidationErrors(): array
+    {
+        return $this->validationErrors;
+    }
+
+    public function addValidationError(ValidationError $validationError): self
+    {
+        $this->validationErrors[] = $validationError;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -97,6 +160,10 @@ final class Employee extends Model
             'LastName' => Field::string(),
             'Status' => Field::string(),
             'EmailAddress' => Field::string(),
+            'ExternalLink' => Field::object(ExternalLink::class),
+            'UpdatedDateUTC' => Field::string(),
+            'StatusAttributeString' => Field::string(),
+            'ValidationErrors' => Field::many(ValidationError::class),
         ];
     }
 
