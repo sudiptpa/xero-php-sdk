@@ -6,6 +6,7 @@ namespace Sujip\Xero\Accounting\LinkedTransaction;
 
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\ValidationError;
 use Sujip\Xero\Support\Contracts\SerializesRequest;
 
 final class LinkedTransaction extends Model implements SerializesRequest
@@ -14,11 +15,26 @@ final class LinkedTransaction extends Model implements SerializesRequest
 
     private ?string $sourceTransactionID = null;
 
+    private ?string $sourceLineItemID = null;
+
     private ?string $targetTransactionID = null;
+
+    private ?string $targetLineItemID = null;
 
     private ?string $contactID = null;
 
     private ?string $status = null;
+
+    private ?string $type = null;
+
+    private ?string $updatedDateUTC = null;
+
+    private ?string $sourceTransactionTypeCode = null;
+
+    /**
+     * @var list<ValidationError>
+     */
+    private array $validationErrors = [];
 
     public function getLinkedTransactionID(): ?string
     {
@@ -44,6 +60,18 @@ final class LinkedTransaction extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getSourceLineItemID(): ?string
+    {
+        return $this->sourceLineItemID;
+    }
+
+    public function setSourceLineItemID(?string $sourceLineItemID): self
+    {
+        $this->sourceLineItemID = $sourceLineItemID;
+
+        return $this;
+    }
+
     public function getTargetTransactionID(): ?string
     {
         return $this->targetTransactionID;
@@ -52,6 +80,18 @@ final class LinkedTransaction extends Model implements SerializesRequest
     public function setTargetTransactionID(?string $targetTransactionID): self
     {
         $this->targetTransactionID = $targetTransactionID;
+
+        return $this;
+    }
+
+    public function getTargetLineItemID(): ?string
+    {
+        return $this->targetLineItemID;
+    }
+
+    public function setTargetLineItemID(?string $targetLineItemID): self
+    {
+        $this->targetLineItemID = $targetLineItemID;
 
         return $this;
     }
@@ -80,6 +120,57 @@ final class LinkedTransaction extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getUpdatedDateUTC(): ?string
+    {
+        return $this->updatedDateUTC;
+    }
+
+    public function setUpdatedDateUTC(?string $updatedDateUTC): self
+    {
+        $this->updatedDateUTC = $updatedDateUTC;
+
+        return $this;
+    }
+
+    public function getSourceTransactionTypeCode(): ?string
+    {
+        return $this->sourceTransactionTypeCode;
+    }
+
+    public function setSourceTransactionTypeCode(?string $sourceTransactionTypeCode): self
+    {
+        $this->sourceTransactionTypeCode = $sourceTransactionTypeCode;
+
+        return $this;
+    }
+
+    /**
+     * @return list<ValidationError>
+     */
+    public function getValidationErrors(): array
+    {
+        return $this->validationErrors;
+    }
+
+    public function addValidationError(ValidationError $validationError): self
+    {
+        $this->validationErrors[] = $validationError;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -88,9 +179,15 @@ final class LinkedTransaction extends Model implements SerializesRequest
         return [
             'LinkedTransactionID' => Field::string(),
             'SourceTransactionID' => Field::string(),
+            'SourceLineItemID' => Field::string(),
             'TargetTransactionID' => Field::string(),
+            'TargetLineItemID' => Field::string(),
             'ContactID' => Field::string(),
             'Status' => Field::string(),
+            'Type' => Field::string(),
+            'UpdatedDateUTC' => Field::string(),
+            'SourceTransactionTypeCode' => Field::string(),
+            'ValidationErrors' => Field::many(ValidationError::class),
         ];
     }
 
@@ -102,9 +199,12 @@ final class LinkedTransaction extends Model implements SerializesRequest
         return array_filter([
             'LinkedTransactionID' => $this->getLinkedTransactionID(),
             'SourceTransactionID' => $this->getSourceTransactionID(),
+            'SourceLineItemID' => $this->getSourceLineItemID(),
             'TargetTransactionID' => $this->getTargetTransactionID(),
+            'TargetLineItemID' => $this->getTargetLineItemID(),
             'ContactID' => $this->getContactID(),
             'Status' => $this->getStatus(),
+            'Type' => $this->getType(),
         ], static fn (mixed $value): bool => $value !== null);
     }
 }

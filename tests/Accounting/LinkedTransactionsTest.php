@@ -19,9 +19,15 @@ final class LinkedTransactionsTest extends TestCase
                 'LinkedTransactions' => [[
                     'LinkedTransactionID' => 'linked-1',
                     'SourceTransactionID' => 'source-1',
+                    'SourceLineItemID' => 'source-line-1',
                     'TargetTransactionID' => 'target-1',
+                    'TargetLineItemID' => 'target-line-1',
                     'ContactID' => 'contact-1',
                     'Status' => 'ACTIVE',
+                    'Type' => 'BILLABLEEXPENSE',
+                    'UpdatedDateUTC' => '2026-03-25T00:00:00',
+                    'SourceTransactionTypeCode' => 'ACCPAY',
+                    'ValidationErrors' => [['Message' => 'Invalid linked transaction']],
                 ]],
             ], JSON_THROW_ON_ERROR))
         );
@@ -41,6 +47,12 @@ final class LinkedTransactionsTest extends TestCase
         $firstLt = $linkedTransactions->first();
         self::assertNotNull($firstLt);
         self::assertSame('source-1', $firstLt->getSourceTransactionID());
+        self::assertSame('source-line-1', $firstLt->getSourceLineItemID());
+        self::assertSame('target-line-1', $firstLt->getTargetLineItemID());
+        self::assertSame('BILLABLEEXPENSE', $firstLt->getType());
+        self::assertSame('2026-03-25T00:00:00', $firstLt->getUpdatedDateUTC());
+        self::assertSame('ACCPAY', $firstLt->getSourceTransactionTypeCode());
+        self::assertSame('Invalid linked transaction', $firstLt->getValidationErrors()[0]->getMessage());
     }
 
     public function test_it_can_create_linked_transactions(): void
