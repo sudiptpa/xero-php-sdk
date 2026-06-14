@@ -106,6 +106,14 @@ final class PayRunsTest extends TestCase
             'payRunType' => 'Scheduled',
             'calendarType' => 'Weekly',
             'postedDateTime' => '2026-04-08T00:00:00',
+            'paySlips' => [
+                [
+                    'paySlipID' => 'payslip-1',
+                    'employeeID' => 'employee-1',
+                    'firstName' => 'John',
+                    'lastName' => 'Doe',
+                ],
+            ],
         ]);
 
         self::assertSame('payrun-1', $payRun->getPayRunID());
@@ -119,6 +127,13 @@ final class PayRunsTest extends TestCase
         self::assertSame('Scheduled', $payRun->getPayRunType());
         self::assertSame('Weekly', $payRun->getCalendarType());
         self::assertSame('2026-04-08T00:00:00', $payRun->getPostedDateTime());
+
+        $paySlips = $payRun->getPaySlips();
+        self::assertCount(1, $paySlips);
+        self::assertSame('payslip-1', $paySlips[0]->getPaySlipID());
+        self::assertSame('employee-1', $paySlips[0]->getEmployeeID());
+        self::assertSame('John', $paySlips[0]->getFirstName());
+        self::assertSame('Doe', $paySlips[0]->getLastName());
     }
 
     public function test_it_sends_idempotency_key_and_returns_blank_pay_run_on_empty_response(): void

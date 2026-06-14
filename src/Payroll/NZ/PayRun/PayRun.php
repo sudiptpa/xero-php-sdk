@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\NZ\PayRun;
 
+use Sujip\Xero\Payroll\NZ\PaySlip\PaySlip;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
 
 final class PayRun extends Model
 {
+    /**
+     * @var list<PaySlip>
+     */
+    private array $paySlips = [];
+
     public function __construct(
         private ?string $payRunID = null,
         private ?string $payrollCalendarID = null,
@@ -157,6 +163,21 @@ final class PayRun extends Model
     }
 
     /**
+     * @return list<PaySlip>
+     */
+    public function getPaySlips(): array
+    {
+        return $this->paySlips;
+    }
+
+    public function addPaySlip(PaySlip $paySlip): self
+    {
+        $this->paySlips[] = $paySlip;
+
+        return $this;
+    }
+
+    /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
@@ -173,6 +194,7 @@ final class PayRun extends Model
             'payRunType' => Field::string()->using('setPayRunType'),
             'calendarType' => Field::string()->using('setCalendarType'),
             'postedDateTime' => Field::string()->using('setPostedDateTime'),
+            'paySlips' => Field::many(PaySlip::class),
         ];
     }
 }
