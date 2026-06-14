@@ -50,7 +50,7 @@ final class ContactGroupsTest extends TestCase
                 'ContactGroupID' => 'group-2',
                 'Name' => 'Strategic Partners',
                 'Status' => 'ACTIVE',
-                'Contacts' => [['ContactID' => 'contact-1']],
+                'Contacts' => [['ContactID' => 'contact-1', 'Name' => 'Acme Ltd']],
             ]],
         ], JSON_THROW_ON_ERROR)));
 
@@ -75,6 +75,8 @@ final class ContactGroupsTest extends TestCase
         self::assertNotNull($contact4);
         self::assertSame('contact-1', $contact4['ContactID']);
         self::assertSame(['contact-1'], $attached->getContactIDs());
+        self::assertSame('contact-1', $attached->getContacts()[0]->getContactID());
+        self::assertSame('Acme Ltd', $attached->getContacts()[0]->getName());
         self::assertSame('group-1', $group?->getContactGroupID());
     }
 
