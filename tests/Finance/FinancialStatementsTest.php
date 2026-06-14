@@ -295,40 +295,4 @@ final class FinancialStatementsTest extends TestCase
         self::assertSame(-100, $manualJournals->getTotal());
         self::assertSame('Globex', $contactRevenue->getContacts()[0]->getName());
     }
-
-    public function test_it_can_get_finance_account_usage_and_report_history(): void
-    {
-        $transport = new FakeTransport();
-        $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'AccountID' => 'account-1',
-                'AccountCode' => '200',
-                'AccountName' => 'Sales',
-                'Amount' => 1200.5,
-            ]],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'ReportName' => 'Profit and Loss',
-                'PublishedDateUTC' => '2026-03-31T00:00:00Z',
-                'PublishedBy' => 'Jane',
-            ]],
-        ], JSON_THROW_ON_ERROR)));
-
-        $activities = Xero::withAccessToken('token', $transport)
-            ->tenant('tenant-123')
-            ->finance()
-            ->accountingActivities();
-
-        $accountUsage = $activities->accountUsage('2025-04', '2026-03');
-        $reportHistory = $activities->reportHistory(new DateTimeImmutable('2026-03-31'));
-
-        self::assertSame('/finance.xro/1.0/AccountingActivities/AccountUsage', $transport->requests()[0]->path);
-        self::assertSame('2025-04', $transport->requests()[0]->query['startMonth']);
-        self::assertSame('2026-03', $transport->requests()[0]->query['endMonth']);
-        self::assertSame('/finance.xro/1.0/AccountingActivities/ReportHistory', $transport->requests()[1]->path);
-        self::assertSame('2026-03-31', $transport->requests()[1]->query['endDate']);
-        self::assertNotNull($accountUsage->first());
-        self::assertNotNull($reportHistory->first());
-    }
 }

@@ -167,10 +167,10 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
             'SuperFundProducts' => [[
-                'SuperFundProductID' => 'product-1',
-                'Name' => 'Balanced',
                 'USI' => 'OSF0001AU',
                 'ABN' => '40022701955',
+                'SPIN' => 'NML0117AU',
+                'ProductName' => 'Balanced',
             ]],
         ], JSON_THROW_ON_ERROR)));
 
@@ -186,7 +186,8 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('OSF0001AU', $transport->requests()[0]->query['USI']);
         $firstProduct = $products->first();
         self::assertNotNull($firstProduct);
-        self::assertSame('product-1', $firstProduct->getSuperFundProductID());
+        self::assertSame('Balanced', $firstProduct->getProductName());
+        self::assertSame('NML0117AU', $firstProduct->getSpin());
     }
 
     public function test_super_funds_and_products_expose_scopes(): void
@@ -209,28 +210,50 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
     {
         $fund = (new SuperFund())->fill([
             'SuperFundID' => 'fund-1',
-            'Name' => 'AustralianSuper',
             'Type' => 'REGULATED',
+            'Name' => 'AustralianSuper',
+            'ABN' => '24248426878',
+            'BSB' => '484799',
+            'AccountNumber' => '123456789',
+            'AccountName' => 'Money account',
+            'ElectronicServiceAddress' => '12345678',
+            'EmployerNumber' => '324324',
+            'SPIN' => '4545445454',
+            'USI' => '40022701955001',
+            'UpdatedDateUTC' => '/Date(1583967733054+0000)/',
+            'ValidationErrors' => [['Message' => 'Invalid ABN']],
         ]);
 
         self::assertSame('fund-1', $fund->getSuperFundID());
-        self::assertSame('AustralianSuper', $fund->getName());
         self::assertSame('REGULATED', $fund->getType());
+        self::assertSame('AustralianSuper', $fund->getName());
+        self::assertSame('24248426878', $fund->getAbn());
+        self::assertSame('484799', $fund->getBsb());
+        self::assertSame('123456789', $fund->getAccountNumber());
+        self::assertSame('Money account', $fund->getAccountName());
+        self::assertSame('12345678', $fund->getElectronicServiceAddress());
+        self::assertSame('324324', $fund->getEmployerNumber());
+        self::assertSame('4545445454', $fund->getSpin());
+        self::assertSame('40022701955001', $fund->getUsi());
+        self::assertSame('/Date(1583967733054+0000)/', $fund->getUpdatedDateUtc());
+        $errors = $fund->getValidationErrors();
+        self::assertCount(1, $errors);
+        self::assertSame('Invalid ABN', $errors[0]->getMessage());
     }
 
     public function test_super_fund_product_exposes_all_fields(): void
     {
         $product = (new Product())->fill([
-            'SuperFundProductID' => 'product-1',
-            'Name' => 'Balanced',
-            'USI' => 'OSF0001AU',
             'ABN' => '40022701955',
+            'USI' => 'OSF0001AU',
+            'SPIN' => 'NML0117AU',
+            'ProductName' => 'Balanced',
         ]);
 
-        self::assertSame('product-1', $product->getSuperFundProductID());
-        self::assertSame('Balanced', $product->getName());
-        self::assertSame('OSF0001AU', $product->getUSI());
-        self::assertSame('40022701955', $product->getABN());
+        self::assertSame('40022701955', $product->getAbn());
+        self::assertSame('OSF0001AU', $product->getUsi());
+        self::assertSame('NML0117AU', $product->getSpin());
+        self::assertSame('Balanced', $product->getProductName());
     }
 
     public function test_super_fund_save_returns_blank_model_on_empty_response(): void
