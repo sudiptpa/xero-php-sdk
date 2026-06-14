@@ -8,18 +8,40 @@ use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\ValidationError;
 
 final class BankTransfer extends Model
 {
     private ?string $bankTransferID = null;
 
-    private ?string $fromBankAccountID = null;
+    private ?BankAccount $fromBankAccount = null;
 
-    private ?string $toBankAccountID = null;
+    private ?BankAccount $toBankAccount = null;
 
     private int|float|null $amount = null;
 
+    private ?string $date = null;
+
+    private int|float|null $currencyRate = null;
+
+    private ?string $fromBankTransactionID = null;
+
+    private ?string $toBankTransactionID = null;
+
+    private ?bool $fromIsReconciled = null;
+
+    private ?bool $toIsReconciled = null;
+
     private ?string $reference = null;
+
+    private ?bool $hasAttachments = null;
+
+    private ?string $createdDateUTC = null;
+
+    /**
+     * @var list<ValidationError>
+     */
+    private array $validationErrors = [];
 
     public function __construct(
         private ?Client $client = null
@@ -38,26 +60,54 @@ final class BankTransfer extends Model
         return $this;
     }
 
+    public function getFromBankAccount(): ?BankAccount
+    {
+        return $this->fromBankAccount;
+    }
+
+    public function setFromBankAccount(?BankAccount $fromBankAccount): self
+    {
+        $this->fromBankAccount = $fromBankAccount;
+
+        return $this;
+    }
+
+    public function getToBankAccount(): ?BankAccount
+    {
+        return $this->toBankAccount;
+    }
+
+    public function setToBankAccount(?BankAccount $toBankAccount): self
+    {
+        $this->toBankAccount = $toBankAccount;
+
+        return $this;
+    }
+
     public function getFromBankAccountID(): ?string
     {
-        return $this->fromBankAccountID;
+        return $this->fromBankAccount?->getAccountID();
     }
 
     public function setFromBankAccountID(?string $fromBankAccountID): self
     {
-        $this->fromBankAccountID = $fromBankAccountID;
+        $this->fromBankAccount = $fromBankAccountID === null
+            ? null
+            : (new BankAccount())->setAccountID($fromBankAccountID);
 
         return $this;
     }
 
     public function getToBankAccountID(): ?string
     {
-        return $this->toBankAccountID;
+        return $this->toBankAccount?->getAccountID();
     }
 
     public function setToBankAccountID(?string $toBankAccountID): self
     {
-        $this->toBankAccountID = $toBankAccountID;
+        $this->toBankAccount = $toBankAccountID === null
+            ? null
+            : (new BankAccount())->setAccountID($toBankAccountID);
 
         return $this;
     }
@@ -74,6 +124,78 @@ final class BankTransfer extends Model
         return $this;
     }
 
+    public function getDate(): ?string
+    {
+        return $this->date;
+    }
+
+    public function setDate(?string $date): self
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    public function getCurrencyRate(): int|float|null
+    {
+        return $this->currencyRate;
+    }
+
+    public function setCurrencyRate(int|float|null $currencyRate): self
+    {
+        $this->currencyRate = $currencyRate;
+
+        return $this;
+    }
+
+    public function getFromBankTransactionID(): ?string
+    {
+        return $this->fromBankTransactionID;
+    }
+
+    public function setFromBankTransactionID(?string $fromBankTransactionID): self
+    {
+        $this->fromBankTransactionID = $fromBankTransactionID;
+
+        return $this;
+    }
+
+    public function getToBankTransactionID(): ?string
+    {
+        return $this->toBankTransactionID;
+    }
+
+    public function setToBankTransactionID(?string $toBankTransactionID): self
+    {
+        $this->toBankTransactionID = $toBankTransactionID;
+
+        return $this;
+    }
+
+    public function getFromIsReconciled(): ?bool
+    {
+        return $this->fromIsReconciled;
+    }
+
+    public function setFromIsReconciled(?bool $fromIsReconciled): self
+    {
+        $this->fromIsReconciled = $fromIsReconciled;
+
+        return $this;
+    }
+
+    public function getToIsReconciled(): ?bool
+    {
+        return $this->toIsReconciled;
+    }
+
+    public function setToIsReconciled(?bool $toIsReconciled): self
+    {
+        $this->toIsReconciled = $toIsReconciled;
+
+        return $this;
+    }
+
     public function getReference(): ?string
     {
         return $this->reference;
@@ -86,6 +208,45 @@ final class BankTransfer extends Model
         return $this;
     }
 
+    public function getHasAttachments(): ?bool
+    {
+        return $this->hasAttachments;
+    }
+
+    public function setHasAttachments(?bool $hasAttachments): self
+    {
+        $this->hasAttachments = $hasAttachments;
+
+        return $this;
+    }
+
+    public function getCreatedDateUTC(): ?string
+    {
+        return $this->createdDateUTC;
+    }
+
+    public function setCreatedDateUTC(?string $createdDateUTC): self
+    {
+        $this->createdDateUTC = $createdDateUTC;
+
+        return $this;
+    }
+
+    /**
+     * @return list<ValidationError>
+     */
+    public function getValidationErrors(): array
+    {
+        return $this->validationErrors;
+    }
+
+    public function addValidationError(ValidationError $validationError): self
+    {
+        $this->validationErrors[] = $validationError;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -93,34 +254,30 @@ final class BankTransfer extends Model
     {
         return [
             'BankTransferID' => Field::string(),
+            'FromBankAccount' => Field::object(BankAccount::class),
+            'ToBankAccount' => Field::object(BankAccount::class),
             'Amount' => Field::number(),
+            'Date' => Field::string(),
+            'CurrencyRate' => Field::number(),
+            'FromBankTransactionID' => Field::string(),
+            'ToBankTransactionID' => Field::string(),
+            'FromIsReconciled' => Field::boolean(),
+            'ToIsReconciled' => Field::boolean(),
             'Reference' => Field::string(),
+            'HasAttachments' => Field::boolean(),
+            'CreatedDateUTC' => Field::string(),
+            'ValidationErrors' => Field::many(ValidationError::class),
         ];
-    }
-
-    public function fill(array $payload): static
-    {
-        parent::fill($payload);
-
-        $fromBankAccount = is_array($payload['FromBankAccount'] ?? null) ? $payload['FromBankAccount'] : [];
-        $this->setFromBankAccountID(
-            isset($fromBankAccount['AccountID']) && is_string($fromBankAccount['AccountID'])
-                ? $fromBankAccount['AccountID']
-                : null
-        );
-        $toBankAccount = is_array($payload['ToBankAccount'] ?? null) ? $payload['ToBankAccount'] : [];
-        $this->setToBankAccountID(
-            isset($toBankAccount['AccountID']) && is_string($toBankAccount['AccountID'])
-                ? $toBankAccount['AccountID']
-                : null
-        );
-
-        return $this;
     }
 
     public function amount(int|float $amount): self
     {
         return $this->setAmount($amount);
+    }
+
+    public function date(string $date): self
+    {
+        return $this->setDate($date);
     }
 
     public function reference(string $reference): self
@@ -136,16 +293,20 @@ final class BankTransfer extends Model
 
         $payload = new Payload($this->client);
 
-        if ($this->fromBankAccountID !== null) {
-            $payload = $payload->fromBankAccount($this->fromBankAccountID);
+        if ($this->fromBankAccount?->getAccountID() !== null) {
+            $payload = $payload->fromBankAccount($this->fromBankAccount->getAccountID());
         }
 
-        if ($this->toBankAccountID !== null) {
-            $payload = $payload->toBankAccount($this->toBankAccountID);
+        if ($this->toBankAccount?->getAccountID() !== null) {
+            $payload = $payload->toBankAccount($this->toBankAccount->getAccountID());
         }
 
         if ($this->amount !== null) {
             $payload = $payload->amount($this->amount);
+        }
+
+        if ($this->date !== null) {
+            $payload = $payload->date($this->date);
         }
 
         if ($this->reference !== null) {
