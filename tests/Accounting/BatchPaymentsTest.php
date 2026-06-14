@@ -33,6 +33,17 @@ final class BatchPaymentsTest extends TestCase
                     ],
                     'Amount' => 75,
                 ]],
+                'Particulars' => 'PARTIC',
+                'Code' => 'CODE1',
+                'Details' => 'Bank ref details',
+                'Narrative' => 'Narrative text',
+                'DateString' => '2026-04-01T00:00:00',
+                'Date' => '2026-04-01T00:00:00',
+                'Type' => 'PAYBATCH',
+                'TotalAmount' => 75,
+                'UpdatedDateUTC' => '2026-04-01T01:00:00',
+                'IsReconciled' => true,
+                'ValidationErrors' => [['Message' => 'Bad batch']],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -54,6 +65,18 @@ final class BatchPaymentsTest extends TestCase
         self::assertSame('batch-1', $batchPayment?->getBatchPaymentID());
         self::assertSame('account-1', $firstBp->getAccount()?->getAccountID());
         self::assertSame('invoice-1', $firstBp->getPayments()[0]->getInvoiceID());
+        self::assertSame('PARTIC', $firstBp->getParticulars());
+        self::assertSame('CODE1', $firstBp->getCode());
+        self::assertSame('Bank ref details', $firstBp->getDetails());
+        self::assertSame('Narrative text', $firstBp->getNarrative());
+        self::assertSame('2026-04-01T00:00:00', $firstBp->getDateString());
+        self::assertSame('2026-04-01T00:00:00', $firstBp->getDate());
+        self::assertSame('PAYBATCH', $firstBp->getType());
+        self::assertSame(75, $firstBp->getTotalAmount());
+        self::assertSame('2026-04-01T01:00:00', $firstBp->getUpdatedDateUTC());
+        self::assertTrue($firstBp->getIsReconciled());
+        self::assertCount(1, $firstBp->getValidationErrors());
+        self::assertSame('Bad batch', $firstBp->getValidationErrors()[0]->getMessage());
     }
 
     public function test_it_can_create_batch_payments(): void
@@ -84,6 +107,17 @@ final class BatchPaymentsTest extends TestCase
                             ->setInvoiceID('invoice-1')
                             ->setAmount(75)
                     )
+                    ->setParticulars('PARTIC')
+                    ->setCode('CODE1')
+                    ->setDetails('Bank ref details')
+                    ->setNarrative('Narrative text')
+                    ->setDateString('2026-04-01T00:00:00')
+                    ->setDate('2026-04-01T00:00:00')
+                    ->setType('PAYBATCH')
+                    ->setTotalAmount(75)
+                    ->setUpdatedDateUTC('2026-04-01T01:00:00')
+                    ->setIsReconciled(true)
+                    ->addValidationError((new \Sujip\Xero\Support\ValidationError())->setMessage('Bad batch'))
             )
             ->save();
 
@@ -92,6 +126,11 @@ final class BatchPaymentsTest extends TestCase
         $bp0 = Json::extractFirst($json0, 'BatchPayments');
         self::assertNotNull($bp0);
         self::assertSame('account-1', Json::extractObject($bp0, 'Account')['AccountID']);
+        self::assertSame('PARTIC', $bp0['Particulars']);
+        self::assertSame('CODE1', $bp0['Code']);
+        self::assertSame('Bank ref details', $bp0['Details']);
+        self::assertSame('Narrative text', $bp0['Narrative']);
+        self::assertSame('2026-04-01T00:00:00', $bp0['DateString']);
         $payments0 = Json::extractList($bp0, 'Payments');
         $invoice0 = Json::extractObject($payments0[0] ?? [], 'Invoice');
         self::assertSame('invoice-1', $invoice0['InvoiceID']);

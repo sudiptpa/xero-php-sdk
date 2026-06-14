@@ -10,6 +10,7 @@ use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\ValidationError;
 use Sujip\Xero\Support\Contracts\SerializesRequest;
 
 final class BatchPayment extends Model implements SerializesRequest
@@ -33,6 +34,31 @@ final class BatchPayment extends Model implements SerializesRequest
      * @var list<PaymentEntry>
      */
     private array $payments = [];
+
+    private ?string $particulars = null;
+
+    private ?string $code = null;
+
+    private ?string $details = null;
+
+    private ?string $narrative = null;
+
+    private ?string $dateString = null;
+
+    private ?string $date = null;
+
+    private ?string $type = null;
+
+    private int|float|null $totalAmount = null;
+
+    private ?string $updatedDateUTC = null;
+
+    private ?bool $isReconciled = null;
+
+    /**
+     * @var list<ValidationError>
+     */
+    private array $validationErrors = [];
 
     public function getBatchPaymentID(): ?string
     {
@@ -119,6 +145,141 @@ final class BatchPayment extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getParticulars(): ?string
+    {
+        return $this->particulars;
+    }
+
+    public function setParticulars(?string $particulars): self
+    {
+        $this->particulars = $particulars;
+
+        return $this;
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(?string $code): self
+    {
+        $this->code = $code;
+
+        return $this;
+    }
+
+    public function getDetails(): ?string
+    {
+        return $this->details;
+    }
+
+    public function setDetails(?string $details): self
+    {
+        $this->details = $details;
+
+        return $this;
+    }
+
+    public function getNarrative(): ?string
+    {
+        return $this->narrative;
+    }
+
+    public function setNarrative(?string $narrative): self
+    {
+        $this->narrative = $narrative;
+
+        return $this;
+    }
+
+    public function getDateString(): ?string
+    {
+        return $this->dateString;
+    }
+
+    public function setDateString(?string $dateString): self
+    {
+        $this->dateString = $dateString;
+
+        return $this;
+    }
+
+    public function getDate(): ?string
+    {
+        return $this->date;
+    }
+
+    public function setDate(?string $date): self
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getTotalAmount(): int|float|null
+    {
+        return $this->totalAmount;
+    }
+
+    public function setTotalAmount(int|float|null $totalAmount): self
+    {
+        $this->totalAmount = $totalAmount;
+
+        return $this;
+    }
+
+    public function getUpdatedDateUTC(): ?string
+    {
+        return $this->updatedDateUTC;
+    }
+
+    public function setUpdatedDateUTC(?string $updatedDateUTC): self
+    {
+        $this->updatedDateUTC = $updatedDateUTC;
+
+        return $this;
+    }
+
+    public function getIsReconciled(): ?bool
+    {
+        return $this->isReconciled;
+    }
+
+    public function setIsReconciled(?bool $isReconciled): self
+    {
+        $this->isReconciled = $isReconciled;
+
+        return $this;
+    }
+
+    /**
+     * @return list<ValidationError>
+     */
+    public function getValidationErrors(): array
+    {
+        return $this->validationErrors;
+    }
+
+    public function addValidationError(ValidationError $validationError): self
+    {
+        $this->validationErrors[] = $validationError;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -131,6 +292,17 @@ final class BatchPayment extends Model implements SerializesRequest
             'Amount' => Field::number(),
             'Account' => Field::object(Account::class),
             'Payments' => Field::many(PaymentEntry::class),
+            'Particulars' => Field::string(),
+            'Code' => Field::string(),
+            'Details' => Field::string(),
+            'Narrative' => Field::string(),
+            'DateString' => Field::string(),
+            'Date' => Field::string(),
+            'Type' => Field::string(),
+            'TotalAmount' => Field::number(),
+            'UpdatedDateUTC' => Field::string(),
+            'IsReconciled' => Field::boolean(),
+            'ValidationErrors' => Field::many(ValidationError::class),
         ];
     }
 
@@ -158,6 +330,11 @@ final class BatchPayment extends Model implements SerializesRequest
                 static fn (PaymentEntry $payment): array => $payment->toRequest(),
                 $this->getPayments()
             ),
+            'Particulars' => $this->getParticulars(),
+            'Code' => $this->getCode(),
+            'Details' => $this->getDetails(),
+            'Narrative' => $this->getNarrative(),
+            'DateString' => $this->getDateString(),
         ], static fn (mixed $value): bool => $value !== null);
     }
 
