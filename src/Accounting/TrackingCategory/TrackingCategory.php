@@ -19,7 +19,11 @@ final class TrackingCategory extends Model implements SerializesRequest
 
     private ?string $trackingCategoryID = null;
 
+    private ?string $trackingOptionID = null;
+
     private ?string $name = null;
+
+    private ?string $option = null;
 
     private ?string $status = null;
 
@@ -40,6 +44,18 @@ final class TrackingCategory extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getTrackingOptionID(): ?string
+    {
+        return $this->trackingOptionID;
+    }
+
+    public function setTrackingOptionID(?string $trackingOptionID): self
+    {
+        $this->trackingOptionID = $trackingOptionID;
+
+        return $this;
+    }
+
     public function getName(): ?string
     {
         return $this->name;
@@ -48,6 +64,18 @@ final class TrackingCategory extends Model implements SerializesRequest
     public function setName(?string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getOption(): ?string
+    {
+        return $this->option;
+    }
+
+    public function setOption(?string $option): self
+    {
+        $this->option = $option;
 
         return $this;
     }
@@ -96,7 +124,9 @@ final class TrackingCategory extends Model implements SerializesRequest
     {
         return [
             'TrackingCategoryID' => Field::string(),
+            'TrackingOptionID' => Field::string(),
             'Name' => Field::string(),
+            'Option' => Field::string(),
             'Status' => Field::string(),
             'Options' => Field::many(Option::class),
         ];
@@ -109,7 +139,9 @@ final class TrackingCategory extends Model implements SerializesRequest
     {
         return array_filter([
             'TrackingCategoryID' => $this->getTrackingCategoryID(),
+            'TrackingOptionID' => $this->getTrackingOptionID(),
             'Name' => $this->getName(),
+            'Option' => $this->getOption(),
             'Status' => $this->getStatus(),
             'Options' => array_map(
                 static fn (Option $option): array => $option->toRequest(),

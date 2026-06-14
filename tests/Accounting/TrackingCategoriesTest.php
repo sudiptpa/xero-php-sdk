@@ -29,7 +29,9 @@ final class TrackingCategoriesTest extends TestCase
         $transport->push(new Response(200, body: json_encode([
             'TrackingCategories' => [[
                 'TrackingCategoryID' => 'tracking-1',
+                'TrackingOptionID' => 'option-1',
                 'Name' => 'Region',
+                'Option' => 'APAC',
                 'Status' => 'ACTIVE',
             ]],
         ], JSON_THROW_ON_ERROR)));
@@ -48,6 +50,8 @@ final class TrackingCategoriesTest extends TestCase
         self::assertNotNull($firstCat);
         self::assertSame('/api.xro/2.0/TrackingCategories/tracking-1', $transport->requests()[1]->path);
         self::assertSame('tracking-1', $category?->getTrackingCategoryID());
+        self::assertSame('option-1', $category->getTrackingOptionID());
+        self::assertSame('APAC', $category->getOption());
         self::assertSame('APAC', $firstCat->getOptions()[0]->getName());
         self::assertSame('APAC', $firstCat->getOptions()[0]->getName());
     }
