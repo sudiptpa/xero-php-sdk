@@ -20,6 +20,11 @@ final class Timesheet extends Model
     private ?float $totalHours = null;
     private ?string $updatedDateUTC = null;
 
+    /**
+     * @var list<TimesheetLine>
+     */
+    private array $timesheetLines = [];
+
     public function __construct(
         private ?Client $client = null
     ) {
@@ -122,6 +127,21 @@ final class Timesheet extends Model
     }
 
     /**
+     * @return list<TimesheetLine>
+     */
+    public function getTimesheetLines(): array
+    {
+        return $this->timesheetLines;
+    }
+
+    public function addTimesheetLine(TimesheetLine $timesheetLine): self
+    {
+        $this->timesheetLines[] = $timesheetLine;
+
+        return $this;
+    }
+
+    /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
@@ -135,6 +155,7 @@ final class Timesheet extends Model
             'status' => Field::string()->using('setStatus'),
             'totalHours' => Field::number()->using('setTotalHours'),
             'updatedDateUTC' => Field::string()->using('setUpdatedDateUTC'),
+            'timesheetLines' => Field::many(TimesheetLine::class),
         ];
     }
 

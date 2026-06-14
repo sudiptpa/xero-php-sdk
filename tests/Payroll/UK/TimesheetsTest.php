@@ -136,6 +136,15 @@ final class TimesheetsTest extends TestCase
             'status' => 'Draft',
             'totalHours' => 17,
             'updatedDateUTC' => '2026-03-29T00:00:00',
+            'timesheetLines' => [
+                [
+                    'timesheetLineID' => 'line-1',
+                    'date' => '2026-03-23',
+                    'earningsRateID' => 'rate-1',
+                    'trackingItemID' => 'tracking-1',
+                    'numberOfUnits' => 8,
+                ],
+            ],
         ]);
 
         self::assertSame('timesheet-1', $timesheet->getTimesheetID());
@@ -146,6 +155,14 @@ final class TimesheetsTest extends TestCase
         self::assertSame('Draft', $timesheet->getStatus());
         self::assertSame(17.0, $timesheet->getTotalHours());
         self::assertSame('2026-03-29T00:00:00', $timesheet->getUpdatedDateUTC());
+
+        $lines = $timesheet->getTimesheetLines();
+        self::assertCount(1, $lines);
+        self::assertSame('line-1', $lines[0]->getTimesheetLineID());
+        self::assertSame('2026-03-23', $lines[0]->getDate());
+        self::assertSame('rate-1', $lines[0]->getEarningsRateID());
+        self::assertSame('tracking-1', $lines[0]->getTrackingItemID());
+        self::assertSame(8.0, $lines[0]->getNumberOfUnits());
     }
 
     public function test_it_can_save_a_found_timesheet(): void
