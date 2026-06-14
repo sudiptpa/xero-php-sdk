@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\ManualJournal;
 
+use Sujip\Xero\Accounting\TrackingCategory\TrackingCategory;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
-use Sujip\Xero\Support\Contracts\SerializesRequest;
 
 final class JournalLine extends Model implements SerializesRequest
 {
@@ -14,7 +15,20 @@ final class JournalLine extends Model implements SerializesRequest
 
     private ?string $accountCode = null;
 
-    private ?bool $isDebit = null;
+    private ?string $accountID = null;
+
+    private ?string $description = null;
+
+    private ?string $taxType = null;
+
+    private int|float|null $taxAmount = null;
+
+    private ?bool $isBlank = null;
+
+    /**
+     * @var list<TrackingCategory>
+     */
+    private array $tracking = [];
 
     public function getLineAmount(): int|float|null
     {
@@ -40,14 +54,77 @@ final class JournalLine extends Model implements SerializesRequest
         return $this;
     }
 
-    public function getIsDebit(): ?bool
+    public function getAccountID(): ?string
     {
-        return $this->isDebit;
+        return $this->accountID;
     }
 
-    public function setIsDebit(?bool $isDebit): self
+    public function setAccountID(?string $accountID): self
     {
-        $this->isDebit = $isDebit;
+        $this->accountID = $accountID;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getTaxType(): ?string
+    {
+        return $this->taxType;
+    }
+
+    public function setTaxType(?string $taxType): self
+    {
+        $this->taxType = $taxType;
+
+        return $this;
+    }
+
+    public function getTaxAmount(): int|float|null
+    {
+        return $this->taxAmount;
+    }
+
+    public function setTaxAmount(int|float|null $taxAmount): self
+    {
+        $this->taxAmount = $taxAmount;
+
+        return $this;
+    }
+
+    public function getIsBlank(): ?bool
+    {
+        return $this->isBlank;
+    }
+
+    public function setIsBlank(?bool $isBlank): self
+    {
+        $this->isBlank = $isBlank;
+
+        return $this;
+    }
+
+    /**
+     * @return list<TrackingCategory>
+     */
+    public function getTracking(): array
+    {
+        return $this->tracking;
+    }
+
+    public function addTracking(TrackingCategory $tracking): self
+    {
+        $this->tracking[] = $tracking;
 
         return $this;
     }
@@ -60,16 +137,13 @@ final class JournalLine extends Model implements SerializesRequest
         return [
             'LineAmount' => Field::number(),
             'AccountCode' => Field::string(),
+            'AccountID' => Field::string(),
+            'Description' => Field::string(),
+            'TaxType' => Field::string(),
+            'TaxAmount' => Field::number(),
+            'IsBlank' => Field::boolean(),
+            'Tracking' => Field::many(TrackingCategory::class),
         ];
-    }
-
-    public function fill(array $payload): static
-    {
-        parent::fill($payload);
-
-        $this->setIsDebit(isset($payload['IsDebit']) ? (bool) $payload['IsDebit'] : null);
-
-        return $this;
     }
 
     /**
@@ -80,7 +154,15 @@ final class JournalLine extends Model implements SerializesRequest
         return array_filter([
             'LineAmount' => $this->getLineAmount(),
             'AccountCode' => $this->getAccountCode(),
-            'IsDebit' => $this->getIsDebit(),
-        ], static fn (mixed $value): bool => $value !== null);
+            'AccountID' => $this->getAccountID(),
+            'Description' => $this->getDescription(),
+            'TaxType' => $this->getTaxType(),
+            'TaxAmount' => $this->getTaxAmount(),
+            'IsBlank' => $this->getIsBlank(),
+            'Tracking' => array_map(
+                static fn (TrackingCategory $tracking): array => $tracking->toRequest(),
+                $this->getTracking()
+            ),
+        ], static fn (mixed $value): bool => $value !== null && $value !== []);
     }
 }

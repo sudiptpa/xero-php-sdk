@@ -25,7 +25,15 @@ final class ManualJournalsTest extends TestCase
                 'JournalLines' => [[
                     'LineAmount' => 100,
                     'AccountCode' => '200',
-                    'IsDebit' => true,
+                    'AccountID' => 'account-1',
+                    'Description' => 'Office equipment',
+                    'TaxType' => 'NONE',
+                    'TaxAmount' => 0,
+                    'IsBlank' => false,
+                    'Tracking' => [[
+                        'TrackingCategoryID' => 'category-1',
+                        'Name' => 'Region',
+                    ]],
                 ]],
             ]],
         ], JSON_THROW_ON_ERROR)));
@@ -46,7 +54,14 @@ final class ManualJournalsTest extends TestCase
         self::assertNotNull($firstMj);
         self::assertSame('/api.xro/2.0/ManualJournals/journal-1', $transport->requests()[1]->path);
         self::assertSame('journal-1', $manualJournal?->getManualJournalID());
-        self::assertSame('200', $firstMj->getJournalLines()[0]->getAccountCode());
+        $line = $firstMj->getJournalLines()[0];
+        self::assertSame('200', $line->getAccountCode());
+        self::assertSame('account-1', $line->getAccountID());
+        self::assertSame('Office equipment', $line->getDescription());
+        self::assertSame('NONE', $line->getTaxType());
+        self::assertSame(0, $line->getTaxAmount());
+        self::assertFalse($line->getIsBlank());
+        self::assertSame('category-1', $line->getTracking()[0]->getTrackingCategoryID());
     }
 
     public function test_it_can_create_and_update_manual_journals(): void
@@ -75,13 +90,11 @@ final class ManualJournalsTest extends TestCase
                         (new JournalLine())
                             ->setLineAmount(100)
                             ->setAccountCode('200')
-                            ->setIsDebit(true)
                     )
                     ->addJournalLine(
                         (new JournalLine())
-                            ->setLineAmount(100)
+                            ->setLineAmount(-100)
                             ->setAccountCode('300')
-                            ->setIsDebit(false)
                     )
             )
             ->save();
@@ -286,6 +299,9 @@ final class ManualJournalsTest extends TestCase
         $lines = Json::extractList($mj, 'JournalLines');
         self::assertCount(2, $lines);
         self::assertSame('200', $lines[0]['AccountCode'] ?? null);
+        self::assertSame(100, $lines[0]['LineAmount'] ?? null);
+        self::assertSame('090', $lines[1]['AccountCode'] ?? null);
+        self::assertSame(-100, $lines[1]['LineAmount'] ?? null);
     }
 
     public function test_model_fluent_helpers_set_fields(): void
