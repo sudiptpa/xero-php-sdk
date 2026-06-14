@@ -260,6 +260,14 @@ final class EmployeesTest extends TestCase
             'Status' => 'ACTIVE',
             'UpdatedDateUTC' => '2026-03-25T00:00:00Z',
             'ValidationErrors' => [['Message' => 'Invalid employee']],
+            'HomeAddress' => [
+                'AddressLine1' => '123 Main St',
+                'AddressLine2' => 'Apt 4',
+                'City' => 'St. Kilda',
+                'Region' => 'VIC',
+                'PostalCode' => '3182',
+                'Country' => 'AUSTRALIA',
+            ],
         ]);
 
         self::assertSame('employee-1', $employee->getEmployeeID());
@@ -291,6 +299,15 @@ final class EmployeesTest extends TestCase
         self::assertSame('2026-03-25T00:00:00Z', $employee->getUpdatedDateUTC());
         self::assertCount(1, $employee->getValidationErrors());
         self::assertSame('Invalid employee', $employee->getValidationErrors()[0]->getMessage());
+
+        $homeAddress = $employee->getHomeAddress();
+        self::assertNotNull($homeAddress);
+        self::assertSame('123 Main St', $homeAddress->getAddressLine1());
+        self::assertSame('Apt 4', $homeAddress->getAddressLine2());
+        self::assertSame('St. Kilda', $homeAddress->getCity());
+        self::assertSame('VIC', $homeAddress->getRegion());
+        self::assertSame('3182', $homeAddress->getPostalCode());
+        self::assertSame('AUSTRALIA', $homeAddress->getCountry());
     }
 
     public function test_saving_without_a_client_throws(): void

@@ -6,6 +6,7 @@ namespace Sujip\Xero\Payroll\AU;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Payroll\AU\Employee\HomeAddress;
 use Sujip\Xero\Payroll\AU\LeaveApplication\Payload as LeaveApplicationPayload;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
@@ -16,6 +17,7 @@ final class Employee extends Model
     private ?string $employeeID = null;
     private ?string $firstName = null;
     private ?string $lastName = null;
+    private ?HomeAddress $homeAddress = null;
     private ?string $dateOfBirth = null;
     private ?string $startDate = null;
     private ?string $title = null;
@@ -81,6 +83,17 @@ final class Employee extends Model
     public function setLastName(?string $lastName): self
     {
         $this->lastName = $lastName;
+        return $this;
+    }
+
+    public function getHomeAddress(): ?HomeAddress
+    {
+        return $this->homeAddress;
+    }
+
+    public function setHomeAddress(?HomeAddress $homeAddress): self
+    {
+        $this->homeAddress = $homeAddress;
         return $this;
     }
 
@@ -371,6 +384,7 @@ final class Employee extends Model
             'EmployeeID' => Field::string()->using('setEmployeeID'),
             'FirstName' => Field::string()->using('setFirstName'),
             'LastName' => Field::string()->using('setLastName'),
+            'HomeAddress' => Field::object(HomeAddress::class)->using('setHomeAddress'),
             'DateOfBirth' => Field::string()->using('setDateOfBirth'),
             'StartDate' => Field::string()->using('setStartDate'),
             'Title' => Field::string()->using('setTitle'),
