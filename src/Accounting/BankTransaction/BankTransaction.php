@@ -11,6 +11,7 @@ use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\ValidationError;
 use Sujip\Xero\Support\Contracts\SerializesRequest;
 
 final class BankTransaction extends Model implements SerializesRequest
@@ -38,6 +39,37 @@ final class BankTransaction extends Model implements SerializesRequest
      * @var list<LineItem>
      */
     private array $lineItems = [];
+
+    private ?bool $isReconciled = null;
+
+    private ?string $date = null;
+
+    private ?string $currencyCode = null;
+
+    private int|float|null $currencyRate = null;
+
+    private ?string $url = null;
+
+    private ?string $lineAmountTypes = null;
+
+    private int|float|null $subTotal = null;
+
+    private int|float|null $totalTax = null;
+
+    private ?string $prepaymentID = null;
+
+    private ?string $overpaymentID = null;
+
+    private ?string $updatedDateUTC = null;
+
+    private ?bool $hasAttachments = null;
+
+    private ?string $statusAttributeString = null;
+
+    /**
+     * @var list<ValidationError>
+     */
+    private array $validationErrors = [];
 
     public function getBankTransactionID(): ?string
     {
@@ -148,6 +180,177 @@ final class BankTransaction extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getIsReconciled(): ?bool
+    {
+        return $this->isReconciled;
+    }
+
+    public function setIsReconciled(?bool $isReconciled): self
+    {
+        $this->isReconciled = $isReconciled;
+
+        return $this;
+    }
+
+    public function getDate(): ?string
+    {
+        return $this->date;
+    }
+
+    public function setDate(?string $date): self
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    public function getCurrencyCode(): ?string
+    {
+        return $this->currencyCode;
+    }
+
+    public function setCurrencyCode(?string $currencyCode): self
+    {
+        $this->currencyCode = $currencyCode;
+
+        return $this;
+    }
+
+    public function getCurrencyRate(): int|float|null
+    {
+        return $this->currencyRate;
+    }
+
+    public function setCurrencyRate(int|float|null $currencyRate): self
+    {
+        $this->currencyRate = $currencyRate;
+
+        return $this;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url): self
+    {
+        $this->url = $url;
+
+        return $this;
+    }
+
+    public function getLineAmountTypes(): ?string
+    {
+        return $this->lineAmountTypes;
+    }
+
+    public function setLineAmountTypes(?string $lineAmountTypes): self
+    {
+        $this->lineAmountTypes = $lineAmountTypes;
+
+        return $this;
+    }
+
+    public function getSubTotal(): int|float|null
+    {
+        return $this->subTotal;
+    }
+
+    public function setSubTotal(int|float|null $subTotal): self
+    {
+        $this->subTotal = $subTotal;
+
+        return $this;
+    }
+
+    public function getTotalTax(): int|float|null
+    {
+        return $this->totalTax;
+    }
+
+    public function setTotalTax(int|float|null $totalTax): self
+    {
+        $this->totalTax = $totalTax;
+
+        return $this;
+    }
+
+    public function getPrepaymentID(): ?string
+    {
+        return $this->prepaymentID;
+    }
+
+    public function setPrepaymentID(?string $prepaymentID): self
+    {
+        $this->prepaymentID = $prepaymentID;
+
+        return $this;
+    }
+
+    public function getOverpaymentID(): ?string
+    {
+        return $this->overpaymentID;
+    }
+
+    public function setOverpaymentID(?string $overpaymentID): self
+    {
+        $this->overpaymentID = $overpaymentID;
+
+        return $this;
+    }
+
+    public function getUpdatedDateUTC(): ?string
+    {
+        return $this->updatedDateUTC;
+    }
+
+    public function setUpdatedDateUTC(?string $updatedDateUTC): self
+    {
+        $this->updatedDateUTC = $updatedDateUTC;
+
+        return $this;
+    }
+
+    public function getHasAttachments(): ?bool
+    {
+        return $this->hasAttachments;
+    }
+
+    public function setHasAttachments(?bool $hasAttachments): self
+    {
+        $this->hasAttachments = $hasAttachments;
+
+        return $this;
+    }
+
+    public function getStatusAttributeString(): ?string
+    {
+        return $this->statusAttributeString;
+    }
+
+    public function setStatusAttributeString(?string $statusAttributeString): self
+    {
+        $this->statusAttributeString = $statusAttributeString;
+
+        return $this;
+    }
+
+    /**
+     * @return list<ValidationError>
+     */
+    public function getValidationErrors(): array
+    {
+        return $this->validationErrors;
+    }
+
+    public function addValidationError(ValidationError $validationError): self
+    {
+        $this->validationErrors[] = $validationError;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -162,6 +365,20 @@ final class BankTransaction extends Model implements SerializesRequest
             'Contact' => Field::object(Contact::class),
             'BankAccount' => Field::object(BankAccount::class),
             'LineItems' => Field::many(LineItem::class),
+            'IsReconciled' => Field::boolean(),
+            'Date' => Field::string(),
+            'CurrencyCode' => Field::string(),
+            'CurrencyRate' => Field::number(),
+            'Url' => Field::string(),
+            'LineAmountTypes' => Field::string(),
+            'SubTotal' => Field::number(),
+            'TotalTax' => Field::number(),
+            'PrepaymentID' => Field::string(),
+            'OverpaymentID' => Field::string(),
+            'UpdatedDateUTC' => Field::string(),
+            'HasAttachments' => Field::boolean(),
+            'StatusAttributeString' => Field::string(),
+            'ValidationErrors' => Field::many(ValidationError::class),
         ];
     }
 
@@ -191,6 +408,12 @@ final class BankTransaction extends Model implements SerializesRequest
                 static fn (LineItem $lineItem): array => $lineItem->toRequest(),
                 $this->getLineItems()
             ),
+            'IsReconciled' => $this->getIsReconciled(),
+            'Date' => $this->getDate(),
+            'CurrencyCode' => $this->getCurrencyCode(),
+            'CurrencyRate' => $this->getCurrencyRate(),
+            'Url' => $this->getUrl(),
+            'LineAmountTypes' => $this->getLineAmountTypes(),
         ], static fn (mixed $value): bool => $value !== null);
     }
 

@@ -44,6 +44,20 @@ final class BankTransactionsTest extends TestCase
                 'BankTransactionID' => 'bank-1',
                 'Type' => 'SPEND',
                 'Status' => 'AUTHORISED',
+                'IsReconciled' => true,
+                'Date' => '2026-04-01T00:00:00',
+                'CurrencyCode' => 'NZD',
+                'CurrencyRate' => 1.0,
+                'Url' => 'https://example.com/bank-1',
+                'LineAmountTypes' => 'Exclusive',
+                'SubTotal' => 20,
+                'TotalTax' => 5,
+                'PrepaymentID' => 'prepay-1',
+                'OverpaymentID' => 'overpay-1',
+                'UpdatedDateUTC' => '2026-04-01T01:00:00',
+                'HasAttachments' => true,
+                'StatusAttributeString' => 'ERROR',
+                'ValidationErrors' => [['Message' => 'Bad transaction']],
             ]],
         ], JSON_THROW_ON_ERROR)));
 
@@ -61,6 +75,22 @@ final class BankTransactionsTest extends TestCase
         self::assertSame('contact-1', $firstTx->getContact()?->getContactID());
         self::assertSame('account-1', $firstTx->getBankAccount()?->getAccountID());
         self::assertSame('Office supplies', $firstTx->getLineItems()[0]->getDescription());
+
+        self::assertTrue($transaction->getIsReconciled());
+        self::assertSame('2026-04-01T00:00:00', $transaction->getDate());
+        self::assertSame('NZD', $transaction->getCurrencyCode());
+        self::assertSame(1, $transaction->getCurrencyRate());
+        self::assertSame('https://example.com/bank-1', $transaction->getUrl());
+        self::assertSame('Exclusive', $transaction->getLineAmountTypes());
+        self::assertSame(20, $transaction->getSubTotal());
+        self::assertSame(5, $transaction->getTotalTax());
+        self::assertSame('prepay-1', $transaction->getPrepaymentID());
+        self::assertSame('overpay-1', $transaction->getOverpaymentID());
+        self::assertSame('2026-04-01T01:00:00', $transaction->getUpdatedDateUTC());
+        self::assertTrue($transaction->getHasAttachments());
+        self::assertSame('ERROR', $transaction->getStatusAttributeString());
+        self::assertCount(1, $transaction->getValidationErrors());
+        self::assertSame('Bad transaction', $transaction->getValidationErrors()[0]->getMessage());
     }
 
     public function test_it_can_create_and_update_bank_transactions(): void
@@ -102,6 +132,12 @@ final class BankTransactionsTest extends TestCase
                             ->setQuantity(1)
                             ->setUnitAmount(25)
                     )
+                    ->setIsReconciled(true)
+                    ->setDate('2026-04-01T00:00:00')
+                    ->setCurrencyCode('NZD')
+                    ->setCurrencyRate(1.0)
+                    ->setUrl('https://example.com/bank-1')
+                    ->setLineAmountTypes('Exclusive')
             )
             ->save();
 
@@ -114,6 +150,12 @@ final class BankTransactionsTest extends TestCase
         self::assertSame('SPEND', $bt0['Type']);
         self::assertSame('contact-1', Json::extractObject($bt0, 'Contact')['ContactID']);
         self::assertSame('account-1', Json::extractObject($bt0, 'BankAccount')['AccountID']);
+        self::assertTrue($bt0['IsReconciled']);
+        self::assertSame('2026-04-01T00:00:00', $bt0['Date']);
+        self::assertSame('NZD', $bt0['CurrencyCode']);
+        self::assertSame(1.0, $bt0['CurrencyRate']);
+        self::assertSame('https://example.com/bank-1', $bt0['Url']);
+        self::assertSame('Exclusive', $bt0['LineAmountTypes']);
         $json1 = $transport->requests()[1]->json ?? [];
         $bt1 = Json::extractFirst($json1, 'BankTransactions');
         self::assertNotNull($bt1);
