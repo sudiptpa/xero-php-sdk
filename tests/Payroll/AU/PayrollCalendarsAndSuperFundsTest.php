@@ -51,6 +51,7 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
             ->calendarType('FORTNIGHTLY')
             ->startDate('2026-04-01')
             ->paymentDate('2026-04-08')
+            ->idempotencyKey('calendar-key')
             ->save();
         $page = $client->payroll()->au()->payrollCalendars()->paginate(page: 3, perPage: 25);
 
@@ -59,6 +60,7 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('/payroll.xro/1.0/PayrollCalendars/calendar-1', $transport->requests()[1]->path);
         self::assertSame('POST', $transport->requests()[2]->method);
         self::assertSame('/payroll.xro/1.0/PayrollCalendars', $transport->requests()[2]->path);
+        self::assertSame('calendar-key', $transport->requests()[2]->headers['Idempotency-Key']);
         self::assertSame('/payroll.xro/1.0/PayrollCalendars', $transport->requests()[3]->path);
         self::assertSame(3, $transport->requests()[3]->query['page']);
         self::assertSame(25, $transport->requests()[3]->query['pageSize']);
@@ -89,6 +91,9 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
             'CalendarType' => 'WEEKLY',
             'StartDate' => '/Date(1572566400000+0000)/',
             'PaymentDate' => '/Date(1573171200000+0000)/',
+            'UpdatedDateUTC' => '/Date(1584125518633+0000)/',
+            'ReferenceDate' => '/Date(1573171200000+0000)/',
+            'ValidationErrors' => [['Message' => 'Invalid calendar']],
         ]);
 
         self::assertSame('calendar-1', $calendar->getPayrollCalendarID());
@@ -96,6 +101,11 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('WEEKLY', $calendar->getCalendarType());
         self::assertSame('/Date(1572566400000+0000)/', $calendar->getStartDate());
         self::assertSame('/Date(1573171200000+0000)/', $calendar->getPaymentDate());
+        self::assertSame('/Date(1584125518633+0000)/', $calendar->getUpdatedDateUtc());
+        self::assertSame('/Date(1573171200000+0000)/', $calendar->getReferenceDate());
+        $errors = $calendar->getValidationErrors();
+        self::assertCount(1, $errors);
+        self::assertSame('Invalid calendar', $errors[0]->getMessage());
     }
 
     public function test_payroll_calendar_save_returns_blank_model_on_empty_response(): void
