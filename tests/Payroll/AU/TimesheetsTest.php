@@ -122,6 +122,14 @@ final class TimesheetsTest extends TestCase
             'StartDate' => '/Date(1572912000000+0000)/',
             'EndDate' => '/Date(1573516800000+0000)/',
             'Status' => 'DRAFT',
+            'Hours' => 31.0,
+            'TimesheetLines' => [[
+                'EarningsRateID' => 'rate-1',
+                'TrackingItemID' => 'tracking-1',
+                'NumberOfUnits' => [2.0, 10.0, 0.0, 0.0, 5.0, 0.0, 5.0],
+            ]],
+            'UpdatedDateUTC' => '2026-03-25T00:00:00Z',
+            'ValidationErrors' => [['Message' => 'Invalid timesheet']],
         ]);
 
         self::assertSame('timesheet-1', $timesheet->getTimesheetID());
@@ -129,6 +137,13 @@ final class TimesheetsTest extends TestCase
         self::assertSame('/Date(1572912000000+0000)/', $timesheet->getStartDate());
         self::assertSame('/Date(1573516800000+0000)/', $timesheet->getEndDate());
         self::assertSame('DRAFT', $timesheet->getStatus());
+        self::assertSame(31.0, $timesheet->getHours());
+        self::assertSame('rate-1', $timesheet->getTimesheetLines()[0]['EarningsRateID']);
+        self::assertSame('tracking-1', $timesheet->getTimesheetLines()[0]['TrackingItemID']);
+        self::assertSame([2.0, 10.0, 0.0, 0.0, 5.0, 0.0, 5.0], $timesheet->getTimesheetLines()[0]['NumberOfUnits']);
+        self::assertSame('2026-03-25T00:00:00Z', $timesheet->getUpdatedDateUTC());
+        self::assertCount(1, $timesheet->getValidationErrors());
+        self::assertSame('Invalid timesheet', $timesheet->getValidationErrors()[0]->getMessage());
     }
 
     public function test_it_can_save_a_found_timesheet(): void
