@@ -7,9 +7,13 @@ namespace Sujip\Xero\Accounting\Receipt;
 use Sujip\Xero\Accounting\History;
 use RuntimeException;
 use Sujip\Xero\Accounting\Contact\Contact;
+use Sujip\Xero\Accounting\Invoice\LineItem;
+use Sujip\Xero\Accounting\User\User;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\AttachmentDetail;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\ValidationError;
 
 final class Receipt extends Model
 {
@@ -22,6 +26,44 @@ final class Receipt extends Model
     private int|float|null $total = null;
 
     private ?Contact $contact = null;
+
+    private ?string $date = null;
+
+    /**
+     * @var list<LineItem>
+     */
+    private array $lineItems = [];
+
+    private ?User $user = null;
+
+    private ?string $reference = null;
+
+    private ?string $lineAmountTypes = null;
+
+    private int|float|null $subTotal = null;
+
+    private int|float|null $totalTax = null;
+
+    private ?string $updatedDateUTC = null;
+
+    private ?bool $hasAttachments = null;
+
+    private ?string $url = null;
+
+    /**
+     * @var list<ValidationError>
+     */
+    private array $validationErrors = [];
+
+    /**
+     * @var list<ValidationError>
+     */
+    private array $warnings = [];
+
+    /**
+     * @var list<AttachmentDetail>
+     */
+    private array $attachments = [];
 
     public function __construct(
         private ?Client $client = null
@@ -102,6 +144,174 @@ final class Receipt extends Model
         return $this;
     }
 
+    public function getDate(): ?string
+    {
+        return $this->date;
+    }
+
+    public function setDate(?string $date): self
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    /**
+     * @return list<LineItem>
+     */
+    public function getLineItems(): array
+    {
+        return $this->lineItems;
+    }
+
+    public function addLineItem(LineItem $lineItem): self
+    {
+        $this->lineItems[] = $lineItem;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    public function setReference(?string $reference): self
+    {
+        $this->reference = $reference;
+
+        return $this;
+    }
+
+    public function getLineAmountTypes(): ?string
+    {
+        return $this->lineAmountTypes;
+    }
+
+    public function setLineAmountTypes(?string $lineAmountTypes): self
+    {
+        $this->lineAmountTypes = $lineAmountTypes;
+
+        return $this;
+    }
+
+    public function getSubTotal(): int|float|null
+    {
+        return $this->subTotal;
+    }
+
+    public function setSubTotal(int|float|null $subTotal): self
+    {
+        $this->subTotal = $subTotal;
+
+        return $this;
+    }
+
+    public function getTotalTax(): int|float|null
+    {
+        return $this->totalTax;
+    }
+
+    public function setTotalTax(int|float|null $totalTax): self
+    {
+        $this->totalTax = $totalTax;
+
+        return $this;
+    }
+
+    public function getUpdatedDateUTC(): ?string
+    {
+        return $this->updatedDateUTC;
+    }
+
+    public function setUpdatedDateUTC(?string $updatedDateUTC): self
+    {
+        $this->updatedDateUTC = $updatedDateUTC;
+
+        return $this;
+    }
+
+    public function getHasAttachments(): ?bool
+    {
+        return $this->hasAttachments;
+    }
+
+    public function setHasAttachments(?bool $hasAttachments): self
+    {
+        $this->hasAttachments = $hasAttachments;
+
+        return $this;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url): self
+    {
+        $this->url = $url;
+
+        return $this;
+    }
+
+    /**
+     * @return list<ValidationError>
+     */
+    public function getValidationErrors(): array
+    {
+        return $this->validationErrors;
+    }
+
+    public function addValidationError(ValidationError $validationError): self
+    {
+        $this->validationErrors[] = $validationError;
+
+        return $this;
+    }
+
+    /**
+     * @return list<ValidationError>
+     */
+    public function getWarnings(): array
+    {
+        return $this->warnings;
+    }
+
+    public function addWarning(ValidationError $warning): self
+    {
+        $this->warnings[] = $warning;
+
+        return $this;
+    }
+
+    /**
+     * @return list<AttachmentDetail>
+     */
+    public function getAttachments(): array
+    {
+        return $this->attachments;
+    }
+
+    public function addAttachment(AttachmentDetail $attachment): self
+    {
+        $this->attachments[] = $attachment;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -113,6 +323,19 @@ final class Receipt extends Model
             'Status' => Field::string(),
             'Total' => Field::number(),
             'Contact' => Field::object(Contact::class),
+            'Date' => Field::string(),
+            'LineItems' => Field::many(LineItem::class),
+            'User' => Field::object(User::class),
+            'Reference' => Field::string(),
+            'LineAmountTypes' => Field::string(),
+            'SubTotal' => Field::number(),
+            'TotalTax' => Field::number(),
+            'UpdatedDateUTC' => Field::string(),
+            'HasAttachments' => Field::boolean(),
+            'Url' => Field::string(),
+            'ValidationErrors' => Field::many(ValidationError::class),
+            'Warnings' => Field::many(ValidationError::class),
+            'Attachments' => Field::many(AttachmentDetail::class),
         ];
     }
 

@@ -27,6 +27,25 @@ final class ReceiptsTest extends TestCase
                 'Contact' => [
                     'ContactID' => 'contact-1',
                 ],
+                'Date' => '2026-04-01T00:00:00',
+                'LineItems' => [[
+                    'Description' => 'Taxi fare',
+                    'Quantity' => 1,
+                    'UnitAmount' => 45,
+                ]],
+                'User' => [
+                    'UserID' => 'user-1',
+                ],
+                'Reference' => 'REF-1',
+                'LineAmountTypes' => 'Exclusive',
+                'SubTotal' => 40,
+                'TotalTax' => 5,
+                'UpdatedDateUTC' => '2026-04-01T01:00:00',
+                'HasAttachments' => true,
+                'Url' => 'https://example.com/receipt',
+                'ValidationErrors' => [['Message' => 'Bad receipt']],
+                'Warnings' => [['Message' => 'Receipt warning']],
+                'Attachments' => [['AttachmentID' => 'attach-1', 'FileName' => 'photo.jpg']],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -51,10 +70,54 @@ final class ReceiptsTest extends TestCase
         self::assertSame('/api.xro/2.0/Receipts/receipt-1', $transport->requests()[1]->path);
         self::assertSame('receipt-1', $receipt?->getReceiptID());
 
+        $first = $receipts->first();
+        self::assertSame('2026-04-01T00:00:00', $first->getDate());
+        self::assertCount(1, $first->getLineItems());
+        self::assertSame('Taxi fare', $first->getLineItems()[0]->getDescription());
+        self::assertSame('user-1', $first->getUser()?->getUserID());
+        self::assertSame('REF-1', $first->getReference());
+        self::assertSame('Exclusive', $first->getLineAmountTypes());
+        self::assertSame(40, $first->getSubTotal());
+        self::assertSame(5, $first->getTotalTax());
+        self::assertSame('2026-04-01T01:00:00', $first->getUpdatedDateUTC());
+        self::assertTrue($first->getHasAttachments());
+        self::assertSame('https://example.com/receipt', $first->getUrl());
+        self::assertCount(1, $first->getValidationErrors());
+        self::assertSame('Bad receipt', $first->getValidationErrors()[0]->getMessage());
+        self::assertCount(1, $first->getWarnings());
+        self::assertSame('Receipt warning', $first->getWarnings()[0]->getMessage());
+        self::assertCount(1, $first->getAttachments());
+        self::assertSame('attach-1', $first->getAttachments()[0]->getAttachmentID());
+        self::assertSame('photo.jpg', $first->getAttachments()[0]->getFileName());
+
         self::assertNotSame([], $client->accounting()->receipts()->scopes()->broad);
 
         $model = (new Receipt())->setContactID('contact-9');
         self::assertSame('contact-9', $model->getContactID());
+    }
+
+    public function test_receipt_setters_compose_a_model(): void
+    {
+        $receipt = (new Receipt())
+            ->setDate('2026-04-01T00:00:00')
+            ->setUser((new \Sujip\Xero\Accounting\User\User())->setUserID('user-2'))
+            ->setReference('REF-2')
+            ->setLineAmountTypes('Inclusive')
+            ->setSubTotal(100)
+            ->setTotalTax(15)
+            ->setUpdatedDateUTC('2026-04-02T00:00:00')
+            ->setHasAttachments(false)
+            ->setUrl('https://example.com/other');
+
+        self::assertSame('2026-04-01T00:00:00', $receipt->getDate());
+        self::assertSame('user-2', $receipt->getUser()?->getUserID());
+        self::assertSame('REF-2', $receipt->getReference());
+        self::assertSame('Inclusive', $receipt->getLineAmountTypes());
+        self::assertSame(100, $receipt->getSubTotal());
+        self::assertSame(15, $receipt->getTotalTax());
+        self::assertSame('2026-04-02T00:00:00', $receipt->getUpdatedDateUTC());
+        self::assertFalse($receipt->getHasAttachments());
+        self::assertSame('https://example.com/other', $receipt->getUrl());
     }
 
     public function test_receipt_attachments_require_a_bound_client(): void
