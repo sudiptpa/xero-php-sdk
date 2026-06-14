@@ -230,6 +230,22 @@ final class EmployeesTest extends TestCase
                     'workplacePostcode' => 'SW1A 1AA',
                 ],
             ],
+            'contracts' => [
+                [
+                    'startDate' => '2024-12-02',
+                    'employmentStatus' => 'Employee',
+                    'contractType' => 'FullTime',
+                    'publicKey' => 'contract-key-1',
+                    'isFixedTerm' => true,
+                    'fixedTermEndDate' => '2025-11-01',
+                    'developmentalRoleDetails' => [
+                        'startDate' => '2024-12-02',
+                        'endDate' => '2025-12-02',
+                        'developmentalRole' => 'Apprentice',
+                        'publicKey' => 'role-key-1',
+                    ],
+                ],
+            ],
         ]);
 
         self::assertSame('employee-1', $employee->getEmployeeID());
@@ -264,6 +280,22 @@ final class EmployeesTest extends TestCase
         self::assertSame(15.0, $niCategories[0]->getNiCategoryID());
         self::assertSame('2024-12-02', $niCategories[0]->getDateFirstEmployedAsCivilian());
         self::assertSame('SW1A 1AA', $niCategories[0]->getWorkplacePostcode());
+
+        $contracts = $employee->getContracts();
+        self::assertCount(1, $contracts);
+        self::assertSame('2024-12-02', $contracts[0]->getStartDate());
+        self::assertSame('Employee', $contracts[0]->getEmploymentStatus());
+        self::assertSame('FullTime', $contracts[0]->getContractType());
+        self::assertSame('contract-key-1', $contracts[0]->getPublicKey());
+        self::assertTrue($contracts[0]->getIsFixedTerm());
+        self::assertSame('2025-11-01', $contracts[0]->getFixedTermEndDate());
+
+        $role = $contracts[0]->getDevelopmentalRoleDetails();
+        self::assertNotNull($role);
+        self::assertSame('2024-12-02', $role->getStartDate());
+        self::assertSame('2025-12-02', $role->getEndDate());
+        self::assertSame('Apprentice', $role->getDevelopmentalRole());
+        self::assertSame('role-key-1', $role->getPublicKey());
     }
 
     public function test_it_can_save_a_found_employee(): void

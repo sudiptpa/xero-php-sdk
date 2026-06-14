@@ -35,6 +35,11 @@ final class Employee extends Model
      */
     private array $niCategories = [];
 
+    /**
+     * @var list<Contract>
+     */
+    private array $contracts = [];
+
 
     public function __construct(
         private ?Client $client = null
@@ -207,6 +212,18 @@ final class Employee extends Model
         return $this;
     }
     /**
+     * @return list<Contract>
+     */
+    public function getContracts(): array
+    {
+        return $this->contracts;
+    }
+    public function addContract(Contract $contract): self
+    {
+        $this->contracts[] = $contract;
+        return $this;
+    }
+    /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
@@ -230,6 +247,7 @@ final class Employee extends Model
             'isOffPayrollWorker' => Field::boolean()->using('setIsOffPayrollWorker'),
             'address' => Field::object(Address::class)->using('setAddress'),
             'niCategories' => Field::many(NICategory::class),
+            'contracts' => Field::many(Contract::class),
         ];
     }
 
