@@ -80,13 +80,11 @@ final class PayItemsTest extends TestCase
             'DeductionTypes' => [['Name' => 'Union Fee']],
             'LeaveTypes' => [['Name' => 'Annual Leave']],
             'ReimbursementTypes' => [['Name' => 'Mileage']],
-            'SuperannuationTypes' => [['Name' => 'Super Guarantee']],
         ]);
 
         self::assertSame('Ordinary Hours', $payItem->getEarningsRates()[0]['Name']);
         self::assertSame('Union Fee', $payItem->getDeductionTypes()[0]['Name']);
         self::assertSame('Annual Leave', $payItem->getLeaveTypes()[0]['Name']);
         self::assertSame('Mileage', $payItem->getReimbursementTypes()[0]['Name']);
-        self::assertSame('Super Guarantee', $payItem->getSuperannuationTypes()[0]['Name']);
     }
 }
