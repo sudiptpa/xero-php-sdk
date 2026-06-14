@@ -29,6 +29,15 @@ final class ExpenseClaimsTest extends TestCase
                 'ExpenseClaimID' => 'expense-1',
                 'Status' => 'SUBMITTED',
                 'Total' => 80,
+                'AmountDue' => 30,
+                'AmountPaid' => 50,
+                'PaymentDueDate' => '2026-04-01',
+                'ReportingDate' => '2026-03-25',
+                'UpdatedDateUTC' => '2026-03-25T00:00:00',
+                'ReceiptID' => 'receipt-1',
+                'User' => ['UserID' => 'user-1'],
+                'Payments' => [['PaymentID' => 'payment-1']],
+                'Receipts' => [['ReceiptID' => 'receipt-1']],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -91,6 +100,15 @@ final class ExpenseClaimsTest extends TestCase
         self::assertSame(['receipt-1'], $updated->getReceiptIDs());
         self::assertSame('expense-1', $claim?->getExpenseClaimID());
         self::assertSame(80, $claim->getTotal());
+        self::assertSame(30, $claim->getAmountDue());
+        self::assertSame(50, $claim->getAmountPaid());
+        self::assertSame('2026-04-01', $claim->getPaymentDueDate());
+        self::assertSame('2026-03-25', $claim->getReportingDate());
+        self::assertSame('2026-03-25T00:00:00', $claim->getUpdatedDateUTC());
+        self::assertSame('receipt-1', $claim->getReceiptID());
+        self::assertSame('user-1', $claim->getUser()?->getUserID());
+        self::assertSame('payment-1', $claim->getPayments()[0]->getPaymentID());
+        self::assertSame('receipt-1', $claim->getReceipts()[0]->getReceiptID());
 
         self::assertSame('POST', $transport->requests()[4]->method);
         self::assertSame('/api.xro/2.0/ExpenseClaims/expense-2', $transport->requests()[4]->path);
