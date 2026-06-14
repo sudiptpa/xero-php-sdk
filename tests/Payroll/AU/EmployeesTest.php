@@ -21,7 +21,7 @@ final class EmployeesTest extends TestCase
                 'EmployeeID' => 'employee-1',
                 'FirstName' => 'Jane',
                 'LastName' => 'Smith',
-                'EmailAddress' => 'jane@example.test',
+                'Email' => 'jane@example.test',
                 'Status' => 'ACTIVE',
             ]],
         ], JSON_THROW_ON_ERROR)));
@@ -30,7 +30,7 @@ final class EmployeesTest extends TestCase
                 'EmployeeID' => 'employee-1',
                 'FirstName' => 'Jane',
                 'LastName' => 'Smith',
-                'EmailAddress' => 'jane@example.test',
+                'Email' => 'jane@example.test',
                 'Status' => 'ACTIVE',
             ],
         ], JSON_THROW_ON_ERROR)));
@@ -39,7 +39,7 @@ final class EmployeesTest extends TestCase
                 'EmployeeID' => 'employee-2',
                 'FirstName' => 'Grace',
                 'LastName' => 'Hopper',
-                'EmailAddress' => 'grace@example.test',
+                'Email' => 'grace@example.test',
                 'Status' => 'ACTIVE',
             ],
         ], JSON_THROW_ON_ERROR)));
@@ -48,7 +48,7 @@ final class EmployeesTest extends TestCase
                 'EmployeeID' => 'employee-2',
                 'FirstName' => 'Grace',
                 'LastName' => 'Hopper',
-                'EmailAddress' => 'grace@example.test',
+                'Email' => 'grace@example.test',
                 'Status' => 'ACTIVE',
             ],
         ], JSON_THROW_ON_ERROR)));
@@ -66,12 +66,12 @@ final class EmployeesTest extends TestCase
         $created = $client->payroll()->au()->employees()->create()
             ->firstName('Grace')
             ->lastName('Hopper')
-            ->emailAddress('grace@example.test')
+            ->email('grace@example.test')
             ->save();
         $updated = $client->payroll()->au()->employees()->update('employee-2')
             ->firstName('Grace')
             ->lastName('Hopper')
-            ->emailAddress('grace@example.test')
+            ->email('grace@example.test')
             ->save();
 
         self::assertSame('/payroll.xro/1.0/Employees', $transport->requests()[0]->path);
@@ -171,7 +171,7 @@ final class EmployeesTest extends TestCase
                 'EmployeeID' => 'employee-1',
                 'FirstName' => 'Jane',
                 'LastName' => 'Smith',
-                'EmailAddress' => 'jane@example.test',
+                'Email' => 'jane@example.test',
                 'Status' => 'ACTIVE',
             ],
         ], JSON_THROW_ON_ERROR)));
@@ -180,7 +180,7 @@ final class EmployeesTest extends TestCase
                 'EmployeeID' => 'employee-1',
                 'FirstName' => 'Janet',
                 'LastName' => 'Smithson',
-                'EmailAddress' => 'janet@example.test',
+                'Email' => 'janet@example.test',
             ],
         ], JSON_THROW_ON_ERROR)));
 
@@ -189,13 +189,13 @@ final class EmployeesTest extends TestCase
         $employee = $client->payroll()->au()->employees()->find('employee-1');
         self::assertNotNull($employee);
         self::assertSame('Smith', $employee->getLastName());
-        self::assertSame('jane@example.test', $employee->getEmailAddress());
+        self::assertSame('jane@example.test', $employee->getEmail());
         self::assertSame('ACTIVE', $employee->getStatus());
 
         $saved = $employee
             ->setFirstName('Janet')
             ->setLastName('Smithson')
-            ->setEmailAddress('janet@example.test')
+            ->setEmail('janet@example.test')
             ->save();
 
         self::assertSame('/payroll.xro/1.0/Employees/employee-1', $transport->requests()[1]->path);
@@ -227,6 +227,70 @@ final class EmployeesTest extends TestCase
             ],
         ], $transport->requests()[0]->json);
         self::assertNull($employee->getEmployeeID());
+    }
+
+    public function test_employee_exposes_all_spec_fields(): void
+    {
+        $employee = (new Employee())->fill([
+            'EmployeeID' => 'employee-1',
+            'FirstName' => 'Jane',
+            'LastName' => 'Smith',
+            'DateOfBirth' => '1990-01-15',
+            'StartDate' => '2020-02-01',
+            'Title' => 'Mrs',
+            'MiddleNames' => 'Adena',
+            'Email' => 'jane@example.test',
+            'Gender' => 'F',
+            'Phone' => '415-555-1212',
+            'Mobile' => '415-234-5678',
+            'TwitterUserName' => 'xeroapi',
+            'IsAuthorisedToApproveLeave' => true,
+            'IsAuthorisedToApproveTimesheets' => true,
+            'JobTitle' => 'Manager',
+            'Classification' => '99383',
+            'OrdinaryEarningsRateID' => 'rate-1',
+            'PayrollCalendarID' => 'calendar-1',
+            'EmployeeGroupName' => 'marketing',
+            'TerminationDate' => '2026-03-01',
+            'TerminationReason' => 'V',
+            'IncomeType' => 'SALARYANDWAGES',
+            'EmploymentType' => 'EMPLOYEE',
+            'CountryOfResidence' => 'AU',
+            'IsSTP2Qualified' => true,
+            'Status' => 'ACTIVE',
+            'UpdatedDateUTC' => '2026-03-25T00:00:00Z',
+            'ValidationErrors' => [['Message' => 'Invalid employee']],
+        ]);
+
+        self::assertSame('employee-1', $employee->getEmployeeID());
+        self::assertSame('Jane', $employee->getFirstName());
+        self::assertSame('Smith', $employee->getLastName());
+        self::assertSame('1990-01-15', $employee->getDateOfBirth());
+        self::assertSame('2020-02-01', $employee->getStartDate());
+        self::assertSame('Mrs', $employee->getTitle());
+        self::assertSame('Adena', $employee->getMiddleNames());
+        self::assertSame('jane@example.test', $employee->getEmail());
+        self::assertSame('F', $employee->getGender());
+        self::assertSame('415-555-1212', $employee->getPhone());
+        self::assertSame('415-234-5678', $employee->getMobile());
+        self::assertSame('xeroapi', $employee->getTwitterUserName());
+        self::assertTrue($employee->getIsAuthorisedToApproveLeave());
+        self::assertTrue($employee->getIsAuthorisedToApproveTimesheets());
+        self::assertSame('Manager', $employee->getJobTitle());
+        self::assertSame('99383', $employee->getClassification());
+        self::assertSame('rate-1', $employee->getOrdinaryEarningsRateID());
+        self::assertSame('calendar-1', $employee->getPayrollCalendarID());
+        self::assertSame('marketing', $employee->getEmployeeGroupName());
+        self::assertSame('2026-03-01', $employee->getTerminationDate());
+        self::assertSame('V', $employee->getTerminationReason());
+        self::assertSame('SALARYANDWAGES', $employee->getIncomeType());
+        self::assertSame('EMPLOYEE', $employee->getEmploymentType());
+        self::assertSame('AU', $employee->getCountryOfResidence());
+        self::assertTrue($employee->getIsSTP2Qualified());
+        self::assertSame('ACTIVE', $employee->getStatus());
+        self::assertSame('2026-03-25T00:00:00Z', $employee->getUpdatedDateUTC());
+        self::assertCount(1, $employee->getValidationErrors());
+        self::assertSame('Invalid employee', $employee->getValidationErrors()[0]->getMessage());
     }
 
     public function test_saving_without_a_client_throws(): void
