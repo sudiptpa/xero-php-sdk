@@ -173,6 +173,9 @@ final class PayRunsTest extends TestCase
             'payRunType' => 'Scheduled',
             'calendarType' => 'Monthly',
             'postedDateTime' => '2026-03-31T12:00:00',
+            'paySlips' => [
+                ['paySlipID' => 'payslip-1', 'employeeID' => 'employee-1'],
+            ],
         ]);
 
         self::assertSame('payrun-1', $payRun->getPayRunID());
@@ -186,6 +189,11 @@ final class PayRunsTest extends TestCase
         self::assertSame('Scheduled', $payRun->getPayRunType());
         self::assertSame('Monthly', $payRun->getCalendarType());
         self::assertSame('2026-03-31T12:00:00', $payRun->getPostedDateTime());
+
+        $paySlips = $payRun->getPaySlips();
+        self::assertCount(1, $paySlips);
+        self::assertSame('payslip-1', $paySlips[0]->getPayslipID());
+        self::assertSame('employee-1', $paySlips[0]->getEmployeeID());
     }
 
     public function test_pay_run_payslips_require_client_and_pay_run_id(): void

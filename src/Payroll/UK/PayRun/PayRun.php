@@ -23,6 +23,11 @@ final class PayRun extends Model
     private ?string $calendarType = null;
     private ?string $postedDateTime = null;
 
+    /**
+     * @var list<Payslip>
+     */
+    private array $paySlips = [];
+
     public function __construct(
         private ?Client $client = null
     ) {
@@ -161,6 +166,21 @@ final class PayRun extends Model
     }
 
     /**
+     * @return list<Payslip>
+     */
+    public function getPaySlips(): array
+    {
+        return $this->paySlips;
+    }
+
+    public function addPaySlip(Payslip $paySlip): self
+    {
+        $this->paySlips[] = $paySlip;
+
+        return $this;
+    }
+
+    /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
@@ -177,6 +197,7 @@ final class PayRun extends Model
             'payRunType' => Field::string()->using('setPayRunType'),
             'calendarType' => Field::string()->using('setCalendarType'),
             'postedDateTime' => Field::string()->using('setPostedDateTime'),
+            'paySlips' => Field::many(Payslip::class),
         ];
     }
 
