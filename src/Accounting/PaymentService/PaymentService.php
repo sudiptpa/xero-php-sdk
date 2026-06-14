@@ -6,6 +6,7 @@ namespace Sujip\Xero\Accounting\PaymentService;
 
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\ValidationError;
 
 final class PaymentService extends Model
 {
@@ -18,6 +19,11 @@ final class PaymentService extends Model
     private ?string $paymentServiceUrl = null;
 
     private ?string $payNowText = null;
+
+    /**
+     * @var list<ValidationError>
+     */
+    private array $validationErrors = [];
 
     public function getPaymentServiceID(): ?string
     {
@@ -79,6 +85,21 @@ final class PaymentService extends Model
         return $this;
     }
     /**
+     * @return list<ValidationError>
+     */
+    public function getValidationErrors(): array
+    {
+        return $this->validationErrors;
+    }
+
+    public function addValidationError(ValidationError $validationError): self
+    {
+        $this->validationErrors[] = $validationError;
+
+        return $this;
+    }
+
+    /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
@@ -89,6 +110,7 @@ final class PaymentService extends Model
             'PaymentServiceName' => Field::string(),
             'PaymentServiceUrl' => Field::string(),
             'PayNowText' => Field::string(),
+            'ValidationErrors' => Field::many(ValidationError::class),
         ];
     }
 }
