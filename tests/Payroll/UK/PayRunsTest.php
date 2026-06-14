@@ -241,6 +241,17 @@ final class PayRunsTest extends TestCase
             'totalBenefits' => 5.0,
             'bacsHash' => 'hash-1',
             'paymentMethod' => 'Electronically',
+            'earningsLines' => [['earningsRateID' => 'rate-1']],
+            'leaveEarningsLines' => [['leaveTypeID' => 'leave-1']],
+            'timesheetEarningsLines' => [['timesheetEarningsID' => 'timesheet-1']],
+            'deductionLines' => [['deductionTypeID' => 'deduction-1']],
+            'reimbursementLines' => [['reimbursementTypeID' => 'reimbursement-1']],
+            'leaveAccrualLines' => [['leaveTypeID' => 'leave-2']],
+            'benefitLines' => [['benefitTypeID' => 'benefit-1']],
+            'paymentLines' => [['employeePaymentMethodID' => 'payment-1']],
+            'employeeTaxLines' => [['taxTypeID' => 'tax-1']],
+            'employerTaxLines' => [['taxTypeID' => 'tax-2']],
+            'courtOrderLines' => [['courtOrderTypeID' => 'court-1']],
         ]);
 
         self::assertSame('payslip-1', $payslip->getPayslipID());
@@ -260,5 +271,16 @@ final class PayRunsTest extends TestCase
         self::assertSame(5.0, $payslip->getTotalBenefits());
         self::assertSame('hash-1', $payslip->getBacsHash());
         self::assertSame('Electronically', $payslip->getPaymentMethod());
+        self::assertSame([['earningsRateID' => 'rate-1']], $payslip->getEarningsLines());
+        self::assertSame([['leaveTypeID' => 'leave-1']], $payslip->getLeaveEarningsLines());
+        self::assertSame([['timesheetEarningsID' => 'timesheet-1']], $payslip->getTimesheetEarningsLines());
+        self::assertSame([['deductionTypeID' => 'deduction-1']], $payslip->getDeductionLines());
+        self::assertSame([['reimbursementTypeID' => 'reimbursement-1']], $payslip->getReimbursementLines());
+        self::assertSame([['leaveTypeID' => 'leave-2']], $payslip->getLeaveAccrualLines());
+        self::assertSame([['benefitTypeID' => 'benefit-1']], $payslip->getBenefitLines());
+        self::assertSame([['employeePaymentMethodID' => 'payment-1']], $payslip->getPaymentLines());
+        self::assertSame([['taxTypeID' => 'tax-1']], $payslip->getEmployeeTaxLines());
+        self::assertSame([['taxTypeID' => 'tax-2']], $payslip->getEmployerTaxLines());
+        self::assertSame([['courtOrderTypeID' => 'court-1']], $payslip->getCourtOrderLines());
     }
 }
