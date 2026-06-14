@@ -214,6 +214,13 @@ final class EmployeesTest extends TestCase
             'niCategory' => 'A',
             'nationalInsuranceNumber' => 'AB123456C',
             'isOffPayrollWorker' => true,
+            'address' => [
+                'addressLine1' => '123 Main St',
+                'addressLine2' => 'Apt 4',
+                'city' => 'Fulham',
+                'postCode' => 'SW6 6EY',
+                'countryName' => 'United Kingdom',
+            ],
         ]);
 
         self::assertSame('employee-1', $employee->getEmployeeID());
@@ -232,6 +239,14 @@ final class EmployeesTest extends TestCase
         self::assertSame('A', $employee->getNiCategory());
         self::assertSame('AB123456C', $employee->getNationalInsuranceNumber());
         self::assertTrue($employee->getIsOffPayrollWorker());
+
+        $address = $employee->getAddress();
+        self::assertNotNull($address);
+        self::assertSame('123 Main St', $address->getAddressLine1());
+        self::assertSame('Apt 4', $address->getAddressLine2());
+        self::assertSame('Fulham', $address->getCity());
+        self::assertSame('SW6 6EY', $address->getPostCode());
+        self::assertSame('United Kingdom', $address->getCountryName());
     }
 
     public function test_it_can_save_a_found_employee(): void

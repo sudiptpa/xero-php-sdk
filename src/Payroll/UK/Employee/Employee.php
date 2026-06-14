@@ -28,6 +28,7 @@ final class Employee extends Model
     private ?string $niCategory = null;
     private ?string $nationalInsuranceNumber = null;
     private ?bool $isOffPayrollWorker = null;
+    private ?Address $address = null;
 
 
     public function __construct(
@@ -179,6 +180,15 @@ final class Employee extends Model
         $this->isOffPayrollWorker = $isOffPayrollWorker;
         return $this;
     }
+    public function getAddress(): ?Address
+    {
+        return $this->address;
+    }
+    public function setAddress(?Address $address): self
+    {
+        $this->address = $address;
+        return $this;
+    }
     /**
      * @return array<string, Field>
      */
@@ -201,6 +211,7 @@ final class Employee extends Model
             'niCategory' => Field::string()->using('setNiCategory'),
             'nationalInsuranceNumber' => Field::string()->using('setNationalInsuranceNumber'),
             'isOffPayrollWorker' => Field::boolean()->using('setIsOffPayrollWorker'),
+            'address' => Field::object(Address::class)->using('setAddress'),
         ];
     }
 
