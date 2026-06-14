@@ -30,6 +30,14 @@ final class TaxRatesTest extends TestCase
                 'Name' => 'GST',
                 'TaxType' => 'OUTPUT',
                 'Status' => 'ACTIVE',
+                'ReportTaxType' => 'OUTPUT',
+                'CanApplyToAssets' => true,
+                'CanApplyToEquity' => false,
+                'CanApplyToExpenses' => false,
+                'CanApplyToLiabilities' => false,
+                'CanApplyToRevenue' => true,
+                'DisplayTaxRate' => 15,
+                'EffectiveRate' => 15,
             ]],
         ], JSON_THROW_ON_ERROR)));
 
@@ -44,6 +52,14 @@ final class TaxRatesTest extends TestCase
         self::assertNotNull($taxRates->first());
         self::assertSame('/api.xro/2.0/TaxRates/OUTPUT', $transport->requests()[1]->path);
         self::assertSame('OUTPUT', $taxRate?->getTaxType());
+        self::assertSame('OUTPUT', $taxRate->getReportTaxType());
+        self::assertTrue($taxRate->getCanApplyToAssets());
+        self::assertFalse($taxRate->getCanApplyToEquity());
+        self::assertFalse($taxRate->getCanApplyToExpenses());
+        self::assertFalse($taxRate->getCanApplyToLiabilities());
+        self::assertTrue($taxRate->getCanApplyToRevenue());
+        self::assertSame(15.0, $taxRate->getDisplayTaxRate());
+        self::assertSame(15.0, $taxRate->getEffectiveRate());
     }
 
     public function test_it_can_create_and_update_tax_rates(): void

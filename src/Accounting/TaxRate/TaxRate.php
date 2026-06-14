@@ -28,6 +28,22 @@ final class TaxRate extends Model implements SerializesRequest
      */
     private array $taxComponents = [];
 
+    private ?string $reportTaxType = null;
+
+    private ?bool $canApplyToAssets = null;
+
+    private ?bool $canApplyToEquity = null;
+
+    private ?bool $canApplyToExpenses = null;
+
+    private ?bool $canApplyToLiabilities = null;
+
+    private ?bool $canApplyToRevenue = null;
+
+    private ?float $displayTaxRate = null;
+
+    private ?float $effectiveRate = null;
+
     public function getName(): ?string
     {
         return $this->name;
@@ -89,6 +105,102 @@ final class TaxRate extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getReportTaxType(): ?string
+    {
+        return $this->reportTaxType;
+    }
+
+    public function setReportTaxType(?string $reportTaxType): self
+    {
+        $this->reportTaxType = $reportTaxType;
+
+        return $this;
+    }
+
+    public function getCanApplyToAssets(): ?bool
+    {
+        return $this->canApplyToAssets;
+    }
+
+    public function setCanApplyToAssets(?bool $canApplyToAssets): self
+    {
+        $this->canApplyToAssets = $canApplyToAssets;
+
+        return $this;
+    }
+
+    public function getCanApplyToEquity(): ?bool
+    {
+        return $this->canApplyToEquity;
+    }
+
+    public function setCanApplyToEquity(?bool $canApplyToEquity): self
+    {
+        $this->canApplyToEquity = $canApplyToEquity;
+
+        return $this;
+    }
+
+    public function getCanApplyToExpenses(): ?bool
+    {
+        return $this->canApplyToExpenses;
+    }
+
+    public function setCanApplyToExpenses(?bool $canApplyToExpenses): self
+    {
+        $this->canApplyToExpenses = $canApplyToExpenses;
+
+        return $this;
+    }
+
+    public function getCanApplyToLiabilities(): ?bool
+    {
+        return $this->canApplyToLiabilities;
+    }
+
+    public function setCanApplyToLiabilities(?bool $canApplyToLiabilities): self
+    {
+        $this->canApplyToLiabilities = $canApplyToLiabilities;
+
+        return $this;
+    }
+
+    public function getCanApplyToRevenue(): ?bool
+    {
+        return $this->canApplyToRevenue;
+    }
+
+    public function setCanApplyToRevenue(?bool $canApplyToRevenue): self
+    {
+        $this->canApplyToRevenue = $canApplyToRevenue;
+
+        return $this;
+    }
+
+    public function getDisplayTaxRate(): ?float
+    {
+        return $this->displayTaxRate;
+    }
+
+    public function setDisplayTaxRate(?float $displayTaxRate): self
+    {
+        $this->displayTaxRate = $displayTaxRate;
+
+        return $this;
+    }
+
+    public function getEffectiveRate(): ?float
+    {
+        return $this->effectiveRate;
+    }
+
+    public function setEffectiveRate(?float $effectiveRate): self
+    {
+        $this->effectiveRate = $effectiveRate;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -99,6 +211,14 @@ final class TaxRate extends Model implements SerializesRequest
             'TaxType' => Field::string(),
             'Status' => Field::string(),
             'TaxComponents' => Field::many(Component::class),
+            'ReportTaxType' => Field::string(),
+            'CanApplyToAssets' => Field::boolean(),
+            'CanApplyToEquity' => Field::boolean(),
+            'CanApplyToExpenses' => Field::boolean(),
+            'CanApplyToLiabilities' => Field::boolean(),
+            'CanApplyToRevenue' => Field::boolean(),
+            'DisplayTaxRate' => Field::number(),
+            'EffectiveRate' => Field::number(),
         ];
     }
 
