@@ -9,9 +9,9 @@ are on the most recent release before reporting an issue.
 
 Please do not open a public issue for security problems.
 
-Report privately through GitHub's [security advisory form](https://github.com/sudiptpa/xero-php-sdk/security/advisories/new),
-or email sudiptpa@gmail.com. Include the affected version, a description of the
-problem, and steps to reproduce it if you have them.
+Report privately through GitHub's [security advisory form](https://github.com/sudiptpa/xero-php-sdk/security/advisories/new).
+Include the affected version, a description of the problem, and steps to
+reproduce it if you have them.
 
 You can expect an acknowledgement within a few days. Once a fix is ready it will
 be released and the advisory published with credit to the reporter, unless you
