@@ -6,8 +6,9 @@ namespace Sujip\Xero\Accounting\Organisation;
 
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\Contracts\SerializesRequest;
 
-final class Bill extends Model
+final class Bill extends Model implements SerializesRequest
 {
     private ?int $day = null;
 
@@ -46,5 +47,16 @@ final class Bill extends Model
             'Day' => Field::number(),
             'Type' => Field::string(),
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toRequest(): array
+    {
+        return array_filter([
+            'Day' => $this->getDay(),
+            'Type' => $this->getType(),
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

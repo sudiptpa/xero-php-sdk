@@ -7,8 +7,13 @@ namespace Sujip\Xero\Tests\Accounting;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Accounting\Contact\Address;
+use Sujip\Xero\Accounting\Contact\BatchPaymentDetails;
 use Sujip\Xero\Accounting\Contact\Contact;
+use Sujip\Xero\Accounting\Contact\ContactPerson;
 use Sujip\Xero\Accounting\Contact\Phone;
+use Sujip\Xero\Accounting\Contact\SalesTrackingCategory;
+use Sujip\Xero\Accounting\Organisation\Bill;
+use Sujip\Xero\Accounting\Organisation\PaymentTerm;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Support\Json;
@@ -94,6 +99,72 @@ final class ContactsTest extends TestCase
                 'Contacts' => [[
                     'ContactID' => 'contact-1',
                     'Name' => 'Acme Pty Ltd',
+                    'MergedToContactID' => 'contact-0',
+                    'ContactNumber' => 'CUST-001',
+                    'AccountNumber' => 'ACC-001',
+                    'ContactStatus' => 'ACTIVE',
+                    'CompanyNumber' => 'NZ-123456',
+                    'ContactPersons' => [[
+                        'FirstName' => 'Bruce',
+                        'LastName' => 'Banner',
+                        'EmailAddress' => 'bruce@acme.test',
+                        'IncludeInEmails' => true,
+                    ]],
+                    'BankAccountDetails' => '12-3456-7890123-00',
+                    'TaxNumber' => 'TAX-999',
+                    'TaxNumberType' => 'EIN',
+                    'AccountsReceivableTaxType' => 'OUTPUT2',
+                    'AccountsPayableTaxType' => 'INPUT2',
+                    'IsSupplier' => true,
+                    'IsCustomer' => true,
+                    'SalesDefaultLineAmountType' => 'EXCLUSIVE',
+                    'PurchasesDefaultLineAmountType' => 'INCLUSIVE',
+                    'DefaultCurrency' => 'NZD',
+                    'XeroNetworkKey' => 'network-key-1',
+                    'SalesDefaultAccountCode' => '200',
+                    'PurchasesDefaultAccountCode' => '400',
+                    'SalesTrackingCategories' => [[
+                        'TrackingCategoryName' => 'Region',
+                        'TrackingOptionName' => 'North',
+                    ]],
+                    'PurchasesTrackingCategories' => [[
+                        'TrackingCategoryName' => 'Department',
+                        'TrackingOptionName' => 'Procurement',
+                    ]],
+                    'TrackingCategoryName' => 'Region',
+                    'TrackingCategoryOption' => 'North',
+                    'PaymentTerms' => [
+                        'Bills' => ['Day' => 15, 'Type' => 'DAYSAFTERBILLMONTH'],
+                        'Sales' => ['Day' => 20, 'Type' => 'DAYSAFTERBILLDATE'],
+                    ],
+                    'UpdatedDateUTC' => '2026-01-02T00:00:00',
+                    'ContactGroups' => [[
+                        'ContactGroupID' => 'group-1',
+                        'Name' => 'VIP',
+                        'Status' => 'ACTIVE',
+                    ]],
+                    'Website' => 'https://acme.test',
+                    'BrandingTheme' => [
+                        'BrandingThemeID' => 'theme-1',
+                        'Name' => 'Default',
+                    ],
+                    'BatchPayments' => [
+                        'BankAccountNumber' => '123-456-1111111',
+                        'BankAccountName' => 'ACME Bank',
+                        'Details' => 'Hello World',
+                        'Code' => 'ABC',
+                        'Reference' => 'Foobar',
+                    ],
+                    'Discount' => 10.5,
+                    'Balances' => [
+                        'AccountsReceivable' => ['Outstanding' => 100.5, 'Overdue' => 50.25],
+                        'AccountsPayable' => ['Outstanding' => 25.5, 'Overdue' => 5.25],
+                    ],
+                    'Attachments' => [['AttachmentID' => 'attachment-1', 'FileName' => 'contract.pdf']],
+                    'HasAttachments' => true,
+                    'ValidationErrors' => [['Message' => 'something went wrong']],
+                    'HasValidationErrors' => true,
+                    'StatusAttributeString' => 'OK',
                 ]],
             ], JSON_THROW_ON_ERROR))
         );
@@ -107,7 +178,97 @@ final class ContactsTest extends TestCase
         $request = $transport->requests()[0];
 
         self::assertSame('/api.xro/2.0/Contacts/contact-1', $request->path);
-        self::assertSame('contact-1', $contact?->getContactID());
+        self::assertNotNull($contact);
+        self::assertSame('contact-1', $contact->getContactID());
+        self::assertSame('contact-0', $contact->getMergedToContactID());
+        self::assertSame('CUST-001', $contact->getContactNumber());
+        self::assertSame('ACC-001', $contact->getAccountNumber());
+        self::assertSame('ACTIVE', $contact->getContactStatus());
+        self::assertSame('NZ-123456', $contact->getCompanyNumber());
+        self::assertSame('12-3456-7890123-00', $contact->getBankAccountDetails());
+        self::assertSame('TAX-999', $contact->getTaxNumber());
+        self::assertSame('EIN', $contact->getTaxNumberType());
+        self::assertSame('OUTPUT2', $contact->getAccountsReceivableTaxType());
+        self::assertSame('INPUT2', $contact->getAccountsPayableTaxType());
+        self::assertTrue($contact->getIsSupplier());
+        self::assertTrue($contact->getIsCustomer());
+        self::assertSame('EXCLUSIVE', $contact->getSalesDefaultLineAmountType());
+        self::assertSame('INCLUSIVE', $contact->getPurchasesDefaultLineAmountType());
+        self::assertSame('NZD', $contact->getDefaultCurrency());
+        self::assertSame('network-key-1', $contact->getXeroNetworkKey());
+        self::assertSame('200', $contact->getSalesDefaultAccountCode());
+        self::assertSame('400', $contact->getPurchasesDefaultAccountCode());
+        self::assertSame('Region', $contact->getTrackingCategoryName());
+        self::assertSame('North', $contact->getTrackingCategoryOption());
+        self::assertSame('2026-01-02T00:00:00', $contact->getUpdatedDateUTC());
+        self::assertSame('https://acme.test', $contact->getWebsite());
+        self::assertSame(10.5, $contact->getDiscount());
+        self::assertTrue($contact->getHasAttachments());
+        self::assertTrue($contact->getHasValidationErrors());
+        self::assertSame('OK', $contact->getStatusAttributeString());
+
+        $contactPersons = $contact->getContactPersons();
+        self::assertCount(1, $contactPersons);
+        self::assertSame('Bruce', $contactPersons[0]->getFirstName());
+        self::assertSame('Banner', $contactPersons[0]->getLastName());
+        self::assertSame('bruce@acme.test', $contactPersons[0]->getEmailAddress());
+        self::assertTrue($contactPersons[0]->getIncludeInEmails());
+
+        $salesCategories = $contact->getSalesTrackingCategories();
+        self::assertCount(1, $salesCategories);
+        self::assertSame('Region', $salesCategories[0]->getTrackingCategoryName());
+        self::assertSame('North', $salesCategories[0]->getTrackingOptionName());
+
+        $purchasesCategories = $contact->getPurchasesTrackingCategories();
+        self::assertCount(1, $purchasesCategories);
+        self::assertSame('Department', $purchasesCategories[0]->getTrackingCategoryName());
+        self::assertSame('Procurement', $purchasesCategories[0]->getTrackingOptionName());
+
+        $paymentTerms = $contact->getPaymentTerms();
+        self::assertNotNull($paymentTerms);
+        self::assertNotNull($paymentTerms->getBills());
+        self::assertSame(15, $paymentTerms->getBills()->getDay());
+        self::assertSame('DAYSAFTERBILLMONTH', $paymentTerms->getBills()->getType());
+        self::assertNotNull($paymentTerms->getSales());
+        self::assertSame(20, $paymentTerms->getSales()->getDay());
+        self::assertSame('DAYSAFTERBILLDATE', $paymentTerms->getSales()->getType());
+
+        $contactGroups = $contact->getContactGroups();
+        self::assertCount(1, $contactGroups);
+        self::assertSame('group-1', $contactGroups[0]->getContactGroupID());
+        self::assertSame('VIP', $contactGroups[0]->getName());
+        self::assertSame('ACTIVE', $contactGroups[0]->getStatus());
+
+        $brandingTheme = $contact->getBrandingTheme();
+        self::assertNotNull($brandingTheme);
+        self::assertSame('theme-1', $brandingTheme->getBrandingThemeID());
+        self::assertSame('Default', $brandingTheme->getName());
+
+        $batchPayments = $contact->getBatchPayments();
+        self::assertNotNull($batchPayments);
+        self::assertSame('123-456-1111111', $batchPayments->getBankAccountNumber());
+        self::assertSame('ACME Bank', $batchPayments->getBankAccountName());
+        self::assertSame('Hello World', $batchPayments->getDetails());
+        self::assertSame('ABC', $batchPayments->getCode());
+        self::assertSame('Foobar', $batchPayments->getReference());
+
+        $balances = $contact->getBalances();
+        self::assertNotNull($balances);
+        self::assertNotNull($balances->getAccountsReceivable());
+        self::assertSame(100.5, $balances->getAccountsReceivable()->getOutstanding());
+        self::assertSame(50.25, $balances->getAccountsReceivable()->getOverdue());
+        self::assertNotNull($balances->getAccountsPayable());
+        self::assertSame(25.5, $balances->getAccountsPayable()->getOutstanding());
+        self::assertSame(5.25, $balances->getAccountsPayable()->getOverdue());
+
+        $attachments = $contact->getAttachments();
+        self::assertCount(1, $attachments);
+        self::assertSame('attachment-1', $attachments[0]->getAttachmentID());
+        self::assertSame('contract.pdf', $attachments[0]->getFileName());
+
+        $validationErrors = $contact->getValidationErrors();
+        self::assertCount(1, $validationErrors);
+        self::assertSame('something went wrong', $validationErrors[0]->getMessage());
     }
 
     public function test_it_can_create_a_contact(): void
@@ -368,6 +529,90 @@ final class ContactsTest extends TestCase
         self::assertSame('Suite 5', $contact->getAddresses()[0]->getAddressLine2());
         self::assertSame('NSW', $contact->getAddresses()[0]->getRegion());
         self::assertSame('0400000000', $contact->getPhones()[0]->getPhoneNumber());
+    }
+
+    public function test_it_serialises_contact_persons_tracking_categories_batch_payments_and_payment_terms(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode([
+                'Contacts' => [['ContactID' => 'contact-1', 'Name' => 'Acme Pty Ltd']],
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->contacts()
+            ->create()
+            ->using(
+                (new Contact())
+                    ->setName('Acme Pty Ltd')
+                    ->addContactPerson(
+                        (new ContactPerson())
+                            ->setFirstName('Bruce')
+                            ->setLastName('Banner')
+                            ->setEmailAddress('bruce@acme.test')
+                            ->setIncludeInEmails(true)
+                    )
+                    ->addSalesTrackingCategory(
+                        (new SalesTrackingCategory())
+                            ->setTrackingCategoryName('Region')
+                            ->setTrackingOptionName('North')
+                    )
+                    ->addPurchasesTrackingCategory(
+                        (new SalesTrackingCategory())
+                            ->setTrackingCategoryName('Department')
+                            ->setTrackingOptionName('Procurement')
+                    )
+                    ->setBatchPayments(
+                        (new BatchPaymentDetails())
+                            ->setBankAccountNumber('123-456-1111111')
+                            ->setBankAccountName('ACME Bank')
+                            ->setDetails('Hello World')
+                            ->setCode('ABC')
+                            ->setReference('Foobar')
+                    )
+                    ->setPaymentTerms(
+                        (new PaymentTerm())
+                            ->setBills((new Bill())->setDay(15)->setType('DAYSAFTERBILLMONTH'))
+                            ->setSales((new Bill())->setDay(20)->setType('DAYSAFTERBILLDATE'))
+                    )
+            )
+            ->save();
+
+        $request = $transport->requests()[0];
+        $json = $request->json ?? [];
+        $firstContact = Json::extractFirst($json, 'Contacts');
+        self::assertNotNull($firstContact);
+
+        $contactPersons = Json::extractList($firstContact, 'ContactPersons');
+        self::assertSame('Bruce', $contactPersons[0]['FirstName'] ?? null);
+        self::assertSame('Banner', $contactPersons[0]['LastName'] ?? null);
+        self::assertSame('bruce@acme.test', $contactPersons[0]['EmailAddress'] ?? null);
+        self::assertTrue($contactPersons[0]['IncludeInEmails'] ?? null);
+
+        $salesCategories = Json::extractList($firstContact, 'SalesTrackingCategories');
+        self::assertSame('Region', $salesCategories[0]['TrackingCategoryName'] ?? null);
+        self::assertSame('North', $salesCategories[0]['TrackingOptionName'] ?? null);
+
+        $purchasesCategories = Json::extractList($firstContact, 'PurchasesTrackingCategories');
+        self::assertSame('Department', $purchasesCategories[0]['TrackingCategoryName'] ?? null);
+        self::assertSame('Procurement', $purchasesCategories[0]['TrackingOptionName'] ?? null);
+
+        $batchPayments = Json::extractObject($firstContact, 'BatchPayments');
+        self::assertSame('123-456-1111111', $batchPayments['BankAccountNumber'] ?? null);
+        self::assertSame('ACME Bank', $batchPayments['BankAccountName'] ?? null);
+        self::assertSame('Hello World', $batchPayments['Details'] ?? null);
+        self::assertSame('ABC', $batchPayments['Code'] ?? null);
+        self::assertSame('Foobar', $batchPayments['Reference'] ?? null);
+
+        $paymentTerms = Json::extractObject($firstContact, 'PaymentTerms');
+        $bills = Json::extractObject($paymentTerms, 'Bills');
+        self::assertSame(15, $bills['Day'] ?? null);
+        self::assertSame('DAYSAFTERBILLMONTH', $bills['Type'] ?? null);
+        $sales = Json::extractObject($paymentTerms, 'Sales');
+        self::assertSame(20, $sales['Day'] ?? null);
+        self::assertSame('DAYSAFTERBILLDATE', $sales['Type'] ?? null);
     }
 
     public function test_it_fetches_contact_cis_settings(): void
