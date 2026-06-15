@@ -19,10 +19,59 @@ final class OrganisationsAndUsersTest extends TestCase
         $transport = (new FakeTransport())->push(
             new Response(200, body: json_encode([
                 'Organisations' => [[
+                    'OrganisationID' => 'org-123',
+                    'APIKey' => 'api-key-456',
                     'Name' => 'Acme Pty Ltd',
                     'LegalName' => 'Acme Holdings Pty Ltd',
-                    'ShortCode' => 'ACME',
+                    'PaysTax' => true,
+                    'Version' => 'AU',
+                    'OrganisationType' => 'COMPANY',
+                    'BaseCurrency' => 'AUD',
                     'CountryCode' => 'AU',
+                    'IsDemoCompany' => false,
+                    'OrganisationStatus' => 'ACTIVE',
+                    'RegistrationNumber' => 'REG-123',
+                    'EmployerIdentificationNumber' => 'EIN-123',
+                    'TaxNumber' => 'TAX-123',
+                    'FinancialYearEndDay' => 30,
+                    'FinancialYearEndMonth' => 6,
+                    'SalesTaxBasis' => 'ACCRUALS',
+                    'SalesTaxPeriod' => 'QUARTERLY1',
+                    'DefaultSalesTax' => 'Tax Exclusive',
+                    'DefaultPurchasesTax' => 'Tax Inclusive',
+                    'PeriodLockDate' => '2025-12-31T00:00:00',
+                    'EndOfYearLockDate' => '2025-12-31T00:00:00',
+                    'CreatedDateUTC' => '2020-01-01T00:00:00',
+                    'Timezone' => 'AUSEASTERNSTANDARDTIME',
+                    'OrganisationEntityType' => 'COMPANY',
+                    'Class' => 'PREMIUM',
+                    'Edition' => 'BUSINESS',
+                    'LineOfBusiness' => 'Retail',
+                    'ShortCode' => 'ACME',
+                    'Addresses' => [[
+                        'AddressType' => 'STREET',
+                        'AddressLine1' => '123 Main St',
+                        'City' => 'Sydney',
+                        'Region' => 'NSW',
+                        'PostalCode' => '2000',
+                        'Country' => 'Australia',
+                        'AttentionTo' => 'Bruce Banner',
+                    ]],
+                    'Phones' => [[
+                        'PhoneType' => 'DEFAULT',
+                        'PhoneNumber' => '5555555',
+                        'PhoneAreaCode' => '02',
+                        'PhoneCountryCode' => '61',
+                    ]],
+                    'ExternalLinks' => [[
+                        'LinkType' => 'Website',
+                        'Url' => 'https://acme.test',
+                        'Description' => 'Acme website',
+                    ]],
+                    'PaymentTerms' => [
+                        'Bills' => ['Day' => 15, 'Type' => 'DAYSAFTERBILLMONTH'],
+                        'Sales' => ['Day' => 20, 'Type' => 'DAYSAFTERBILLDATE'],
+                    ],
                 ]],
             ], JSON_THROW_ON_ERROR))
         );
@@ -35,10 +84,67 @@ final class OrganisationsAndUsersTest extends TestCase
 
         self::assertSame('/api.xro/2.0/Organisation', $transport->requests()[0]->path);
         self::assertInstanceOf(Organisation::class, $organisation);
+        self::assertSame('org-123', $organisation->getOrganisationID());
+        self::assertSame('api-key-456', $organisation->getApiKey());
         self::assertSame('Acme Pty Ltd', $organisation->getName());
         self::assertSame('Acme Holdings Pty Ltd', $organisation->getLegalName());
-        self::assertSame('ACME', $organisation->getShortCode());
+        self::assertTrue($organisation->getPaysTax());
+        self::assertSame('AU', $organisation->getVersion());
+        self::assertSame('COMPANY', $organisation->getOrganisationType());
+        self::assertSame('AUD', $organisation->getBaseCurrency());
         self::assertSame('AU', $organisation->getCountryCode());
+        self::assertFalse($organisation->getIsDemoCompany());
+        self::assertSame('ACTIVE', $organisation->getOrganisationStatus());
+        self::assertSame('REG-123', $organisation->getRegistrationNumber());
+        self::assertSame('EIN-123', $organisation->getEmployerIdentificationNumber());
+        self::assertSame('TAX-123', $organisation->getTaxNumber());
+        self::assertSame(30, $organisation->getFinancialYearEndDay());
+        self::assertSame(6, $organisation->getFinancialYearEndMonth());
+        self::assertSame('ACCRUALS', $organisation->getSalesTaxBasis());
+        self::assertSame('QUARTERLY1', $organisation->getSalesTaxPeriod());
+        self::assertSame('Tax Exclusive', $organisation->getDefaultSalesTax());
+        self::assertSame('Tax Inclusive', $organisation->getDefaultPurchasesTax());
+        self::assertSame('2025-12-31T00:00:00', $organisation->getPeriodLockDate());
+        self::assertSame('2025-12-31T00:00:00', $organisation->getEndOfYearLockDate());
+        self::assertSame('2020-01-01T00:00:00', $organisation->getCreatedDateUTC());
+        self::assertSame('AUSEASTERNSTANDARDTIME', $organisation->getTimezone());
+        self::assertSame('COMPANY', $organisation->getOrganisationEntityType());
+        self::assertSame('PREMIUM', $organisation->getClass());
+        self::assertSame('BUSINESS', $organisation->getEdition());
+        self::assertSame('Retail', $organisation->getLineOfBusiness());
+        self::assertSame('ACME', $organisation->getShortCode());
+
+        $addresses = $organisation->getAddresses();
+        self::assertCount(1, $addresses);
+        self::assertSame('STREET', $addresses[0]->getAddressType());
+        self::assertSame('123 Main St', $addresses[0]->getAddressLine1());
+        self::assertSame('Sydney', $addresses[0]->getCity());
+        self::assertSame('NSW', $addresses[0]->getRegion());
+        self::assertSame('2000', $addresses[0]->getPostalCode());
+        self::assertSame('Australia', $addresses[0]->getCountry());
+        self::assertSame('Bruce Banner', $addresses[0]->getAttentionTo());
+
+        $phones = $organisation->getPhones();
+        self::assertCount(1, $phones);
+        self::assertSame('DEFAULT', $phones[0]->getPhoneType());
+        self::assertSame('5555555', $phones[0]->getPhoneNumber());
+        self::assertSame('02', $phones[0]->getPhoneAreaCode());
+        self::assertSame('61', $phones[0]->getPhoneCountryCode());
+
+        $externalLinks = $organisation->getExternalLinks();
+        self::assertCount(1, $externalLinks);
+        self::assertSame('Website', $externalLinks[0]->getLinkType());
+        self::assertSame('https://acme.test', $externalLinks[0]->getUrl());
+        self::assertSame('Acme website', $externalLinks[0]->getDescription());
+
+        $paymentTerms = $organisation->getPaymentTerms();
+        self::assertNotNull($paymentTerms);
+        self::assertNotNull($paymentTerms->getBills());
+        self::assertSame(15, $paymentTerms->getBills()->getDay());
+        self::assertSame('DAYSAFTERBILLMONTH', $paymentTerms->getBills()->getType());
+        self::assertNotNull($paymentTerms->getSales());
+        self::assertSame(20, $paymentTerms->getSales()->getDay());
+        self::assertSame('DAYSAFTERBILLDATE', $paymentTerms->getSales()->getType());
     }
 
     public function test_it_can_query_users(): void
