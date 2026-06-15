@@ -319,6 +319,36 @@ final class ProjectsCoverageTest extends TestCase
         self::assertSame('p-1', $task->getProjectId());
     }
 
+    public function test_task_model_save_sends_estimate_minutes(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(204));
+
+        $task = (new Task($this->client($transport)))
+            ->setProjectId('p-1')
+            ->setName('Design')
+            ->setChargeType('TIME')
+            ->setEstimateMinutes(90)
+            ->save();
+
+        $request = $transport->requests()[0];
+        self::assertSame(90, $request->json['estimateMinutes'] ?? null);
+        self::assertSame('p-1', $task->getProjectId());
+    }
+
+    public function test_task_payload_rate_without_currency(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(204));
+
+        $this->client($transport)->projects()->tasks('p-1')
+            ->create()
+            ->name('Design')
+            ->rate(120)
+            ->save();
+
+        $request = $transport->requests()[0];
+        self::assertSame(['value' => 120], $request->json['rate'] ?? null);
+    }
+
     public function test_time_entry_model_getters_and_setters(): void
     {
         $entry = (new TimeEntry())
@@ -367,6 +397,7 @@ final class ProjectsCoverageTest extends TestCase
             ->setUserId('user-1')
             ->setDateUtc('2026-03-01T00:00:00Z')
             ->durationMinutes(30)
+            ->setDescription('Worked')
             ->save();
 
         self::assertSame('te-1', $saved->getTimeEntryId());

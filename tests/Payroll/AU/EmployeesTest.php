@@ -196,6 +196,7 @@ final class EmployeesTest extends TestCase
             ->setFirstName('Janet')
             ->setLastName('Smithson')
             ->setEmail('janet@example.test')
+            ->setDateOfBirth('1990-01-15')
             ->save();
 
         self::assertSame('/payroll.xro/1.0/Employees/employee-1', $transport->requests()[1]->path);
