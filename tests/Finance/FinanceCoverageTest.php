@@ -21,7 +21,20 @@ use Sujip\Xero\Finance\CashValidation\CashValidationResult;
 use Sujip\Xero\Finance\CashValidation\CurrentStatement;
 use Sujip\Xero\Finance\CashValidation\DataSource;
 use Sujip\Xero\Finance\CashValidation\StatementLines;
+use Sujip\Xero\Finance\FinancialStatement\BalanceSheetAccountDetail;
+use Sujip\Xero\Finance\FinancialStatement\BalanceSheetAccountGroup;
+use Sujip\Xero\Finance\FinancialStatement\BalanceSheetAccountType;
+use Sujip\Xero\Finance\FinancialStatement\Cashflow;
+use Sujip\Xero\Finance\FinancialStatement\CashflowAccount;
+use Sujip\Xero\Finance\FinancialStatement\CashflowActivity;
+use Sujip\Xero\Finance\FinancialStatement\CashflowType;
 use Sujip\Xero\Finance\FinancialStatement\ContactDetail;
+use Sujip\Xero\Finance\FinancialStatement\IncomeByContact;
+use Sujip\Xero\Finance\FinancialStatement\PnlAccount;
+use Sujip\Xero\Finance\FinancialStatement\PnlAccountClass;
+use Sujip\Xero\Finance\FinancialStatement\PnlAccountType;
+use Sujip\Xero\Finance\FinancialStatement\TrialBalance;
+use Sujip\Xero\Finance\FinancialStatement\TrialBalanceAccount;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Xero;
@@ -171,6 +184,41 @@ final class FinanceCoverageTest extends TestCase
         self::assertSame(3, $statementLines->getReconciledLines());
         self::assertSame(2245, $statementLines->getTotalAmountPos());
         self::assertSame(-1995, $statementLines->getTotalAmountNeg());
+    }
+
+    public function test_financial_statement_collection_setters(): void
+    {
+        $balanceSheetAccount = new BalanceSheetAccountDetail();
+        $balanceSheetAccountType = (new BalanceSheetAccountType())->setAccounts([$balanceSheetAccount]);
+        self::assertSame([$balanceSheetAccount], $balanceSheetAccountType->getAccounts());
+
+        $balanceSheetAccountGroup = (new BalanceSheetAccountGroup())->setAccountTypes([$balanceSheetAccountType]);
+        self::assertSame([$balanceSheetAccountType], $balanceSheetAccountGroup->getAccountTypes());
+
+        $cashflowAccount = new CashflowAccount();
+        $cashflowType = (new CashflowType())->setAccounts([$cashflowAccount]);
+        self::assertSame([$cashflowAccount], $cashflowType->getAccounts());
+
+        $cashflowActivity = (new CashflowActivity())->setCashflowTypes([$cashflowType]);
+        self::assertSame([$cashflowType], $cashflowActivity->getCashflowTypes());
+
+        $cashflow = (new Cashflow())->setCashflowActivities([$cashflowActivity]);
+        self::assertSame([$cashflowActivity], $cashflow->getCashflowActivities());
+
+        $pnlAccount = new PnlAccount();
+        $pnlAccountType = (new PnlAccountType())->setAccounts([$pnlAccount]);
+        self::assertSame([$pnlAccount], $pnlAccountType->getAccounts());
+
+        $pnlAccountClass = (new PnlAccountClass())->setAccountTypes([$pnlAccountType]);
+        self::assertSame([$pnlAccountType], $pnlAccountClass->getAccountTypes());
+
+        $trialBalanceAccount = new TrialBalanceAccount();
+        $trialBalance = (new TrialBalance())->setAccounts([$trialBalanceAccount]);
+        self::assertSame([$trialBalanceAccount], $trialBalance->getAccounts());
+
+        $contactDetail = new ContactDetail();
+        $incomeByContact = (new IncomeByContact())->setContacts([$contactDetail]);
+        self::assertSame([$contactDetail], $incomeByContact->getContacts());
     }
 
     public function test_balance_sheet_falls_back_to_an_empty_model_on_empty_response(): void
