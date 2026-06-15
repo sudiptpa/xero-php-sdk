@@ -123,6 +123,41 @@ final class InvoicesTest extends TestCase
                     'Status' => 'PAID',
                     'Reference' => 'BILL-1001',
                     'LineItems' => [],
+                    'Date' => '2026-01-01T00:00:00',
+                    'DueDate' => '2026-01-31T00:00:00',
+                    'LineAmountTypes' => 'Exclusive',
+                    'InvoiceNumber' => 'INV-0001',
+                    'BrandingThemeID' => 'theme-1',
+                    'Url' => 'https://example.test/invoice',
+                    'CurrencyCode' => 'NZD',
+                    'CurrencyRate' => 1.5,
+                    'SentToContact' => true,
+                    'ExpectedPaymentDate' => '2026-02-01T00:00:00',
+                    'PlannedPaymentDate' => '2026-02-02T00:00:00',
+                    'CISDeduction' => 10.5,
+                    'CISRate' => 0.25,
+                    'SubTotal' => 100.5,
+                    'TotalTax' => 15.25,
+                    'Total' => 115.75,
+                    'TotalDiscount' => 5.25,
+                    'RepeatingInvoiceID' => 'repeating-1',
+                    'HasAttachments' => true,
+                    'IsDiscounted' => true,
+                    'Payments' => [['PaymentID' => 'payment-1']],
+                    'Prepayments' => [['PrepaymentID' => 'prepayment-1']],
+                    'Overpayments' => [['OverpaymentID' => 'overpayment-1']],
+                    'AmountDue' => 50.25,
+                    'AmountPaid' => 65.75,
+                    'FullyPaidOnDate' => '2026-02-03T00:00:00',
+                    'AmountCredited' => 0.01,
+                    'UpdatedDateUTC' => '2026-01-02T00:00:00',
+                    'CreditNotes' => [['CreditNoteID' => 'credit-note-1']],
+                    'Attachments' => [['AttachmentID' => 'attachment-1', 'FileName' => 'receipt.pdf']],
+                    'HasErrors' => false,
+                    'StatusAttributeString' => 'OK',
+                    'ValidationErrors' => [['Message' => 'something went wrong']],
+                    'Warnings' => [['Message' => 'a warning']],
+                    'InvoiceAddresses' => [['InvoiceAddressType' => 'POBOX', 'City' => 'Auckland']],
                 ]],
             ], JSON_THROW_ON_ERROR))
         );
@@ -136,6 +171,67 @@ final class InvoicesTest extends TestCase
         self::assertNotNull($invoice);
         self::assertSame('invoice-1', $invoice->getInvoiceID());
         self::assertSame('ACCPAY', $invoice->getType());
+        self::assertSame('2026-01-01T00:00:00', $invoice->getDate());
+        self::assertSame('2026-01-31T00:00:00', $invoice->getDueDate());
+        self::assertSame('Exclusive', $invoice->getLineAmountTypes());
+        self::assertSame('INV-0001', $invoice->getInvoiceNumber());
+        self::assertSame('theme-1', $invoice->getBrandingThemeID());
+        self::assertSame('https://example.test/invoice', $invoice->getUrl());
+        self::assertSame('NZD', $invoice->getCurrencyCode());
+        self::assertSame(1.5, $invoice->getCurrencyRate());
+        self::assertTrue($invoice->getSentToContact());
+        self::assertSame('2026-02-01T00:00:00', $invoice->getExpectedPaymentDate());
+        self::assertSame('2026-02-02T00:00:00', $invoice->getPlannedPaymentDate());
+        self::assertSame(10.5, $invoice->getCISDeduction());
+        self::assertSame(0.25, $invoice->getCISRate());
+        self::assertSame(100.5, $invoice->getSubTotal());
+        self::assertSame(15.25, $invoice->getTotalTax());
+        self::assertSame(115.75, $invoice->getTotal());
+        self::assertSame(5.25, $invoice->getTotalDiscount());
+        self::assertSame('repeating-1', $invoice->getRepeatingInvoiceID());
+        self::assertTrue($invoice->getHasAttachments());
+        self::assertTrue($invoice->getIsDiscounted());
+        self::assertSame(50.25, $invoice->getAmountDue());
+        self::assertSame(65.75, $invoice->getAmountPaid());
+        self::assertSame('2026-02-03T00:00:00', $invoice->getFullyPaidOnDate());
+        self::assertSame(0.01, $invoice->getAmountCredited());
+        self::assertSame('2026-01-02T00:00:00', $invoice->getUpdatedDateUTC());
+        self::assertFalse($invoice->getHasErrors());
+        self::assertSame('OK', $invoice->getStatusAttributeString());
+
+        $payments = $invoice->getPayments();
+        self::assertCount(1, $payments);
+        self::assertSame('payment-1', $payments[0]->getPaymentID());
+
+        $prepayments = $invoice->getPrepayments();
+        self::assertCount(1, $prepayments);
+        self::assertSame('prepayment-1', $prepayments[0]->getPrepaymentID());
+
+        $overpayments = $invoice->getOverpayments();
+        self::assertCount(1, $overpayments);
+        self::assertSame('overpayment-1', $overpayments[0]->getOverpaymentID());
+
+        $creditNotes = $invoice->getCreditNotes();
+        self::assertCount(1, $creditNotes);
+        self::assertSame('credit-note-1', $creditNotes[0]->getCreditNoteID());
+
+        $attachments = $invoice->getAttachments();
+        self::assertCount(1, $attachments);
+        self::assertSame('attachment-1', $attachments[0]->getAttachmentID());
+        self::assertSame('receipt.pdf', $attachments[0]->getFileName());
+
+        $validationErrors = $invoice->getValidationErrors();
+        self::assertCount(1, $validationErrors);
+        self::assertSame('something went wrong', $validationErrors[0]->getMessage());
+
+        $warnings = $invoice->getWarnings();
+        self::assertCount(1, $warnings);
+        self::assertSame('a warning', $warnings[0]->getMessage());
+
+        $invoiceAddresses = $invoice->getInvoiceAddresses();
+        self::assertCount(1, $invoiceAddresses);
+        self::assertSame('POBOX', $invoiceAddresses[0]->getInvoiceAddressType());
+        self::assertSame('Auckland', $invoiceAddresses[0]->getCity());
     }
 
     public function test_it_can_update_an_invoice(): void
