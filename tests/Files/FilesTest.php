@@ -145,6 +145,7 @@ final class FilesTest extends TestCase
         $associations = $client->files()->associations('file-1')->get();
         $created = $client->files()->associations('file-1')
             ->attach('invoice-2', 'Invoice', 'Invoices')
+            ->idempotencyKey('idem-key-1')
             ->save();
 
         self::assertSame('/files.xro/1.0/Files/file-1/Associations', $transport->requests()[0]->path);
@@ -153,6 +154,7 @@ final class FilesTest extends TestCase
         $json1 = $transport->requests()[1]->json ?? [];
         self::assertSame('invoice-2', $json1['ObjectId'] ?? null);
         self::assertSame('Invoice', $created->getObjectType());
+        self::assertSame('idem-key-1', $transport->requests()[1]->headers['Idempotency-Key'] ?? null);
     }
 
     public function test_it_can_list_files_associated_with_an_object_and_delete_an_association(): void

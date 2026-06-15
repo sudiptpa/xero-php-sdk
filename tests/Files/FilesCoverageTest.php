@@ -106,6 +106,19 @@ final class FilesCoverageTest extends TestCase
         self::assertNull($this->client($missing)->files()->find('missing'));
     }
 
+    public function test_association_payload_save_without_idempotency_key(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(201, body: '{"ObjectId":"invoice-2"}'));
+
+        $created = $this->client($transport)->files()->associations('file-1')
+            ->attach('invoice-2', 'Invoice', 'Invoices')
+            ->save();
+
+        $request = $transport->requests()[0];
+        self::assertArrayNotHasKey('Idempotency-Key', $request->headers);
+        self::assertSame('invoice-2', $created->getObjectId());
+    }
+
     public function test_file_payload_supports_put_idempotency_and_empty_response(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
@@ -150,10 +163,18 @@ final class FilesCoverageTest extends TestCase
     {
         $association = (new Association())
             ->setObjectId('object-1')
-            ->setObjectGroup('Invoices');
+            ->setObjectGroup('Invoices')
+            ->setSendWithObject(true)
+            ->setSize(1024)
+            ->setCreatedDateUTC('2026-01-01T00:00:00Z')
+            ->setAssociationDateUTC('2026-01-02T00:00:00Z');
 
         self::assertSame('object-1', $association->getObjectId());
         self::assertSame('Invoices', $association->getObjectGroup());
+        self::assertTrue($association->getSendWithObject());
+        self::assertSame(1024, $association->getSize());
+        self::assertSame('2026-01-01T00:00:00Z', $association->getCreatedDateUTC());
+        self::assertSame('2026-01-02T00:00:00Z', $association->getAssociationDateUTC());
 
         $count = (new AssociationCount())
             ->setObjectId('object-1')
@@ -161,6 +182,15 @@ final class FilesCoverageTest extends TestCase
 
         self::assertSame('object-1', $count->getObjectId());
         self::assertSame(3, $count->getCount());
+
+        $user = (new User())
+            ->setId('user-1')
+            ->setFirstName('Ada')
+            ->setLastName('Lovelace');
+
+        self::assertSame('user-1', $user->getId());
+        self::assertSame('Ada', $user->getFirstName());
+        self::assertSame('Lovelace', $user->getLastName());
     }
 
     public function test_associations_and_object_associations_scopes_and_pagination(): void
