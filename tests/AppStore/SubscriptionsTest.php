@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\AppStore;
 
 use PHPUnit\Framework\TestCase;
+use Sujip\Xero\AppStore\Subscription\Plan;
+use Sujip\Xero\AppStore\Subscription\Product;
+use Sujip\Xero\AppStore\Subscription\Subscription;
+use Sujip\Xero\AppStore\Subscription\SubscriptionItem;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Xero;
@@ -93,8 +97,18 @@ final class SubscriptionsTest extends TestCase
 
         $plans = $subscription->getPlans();
         self::assertSame('plan-1', $plans[0]->getId());
+        self::assertSame('Small', $plans[0]->getName());
+        self::assertSame('ACTIVE', $plans[0]->getStatus());
         self::assertSame('item-1', $plans[0]->getSubscriptionItems()[0]->getId());
+        self::assertSame('2026-01-01', $plans[0]->getSubscriptionItems()[0]->getStartDate());
+        self::assertSame('ACTIVE', $plans[0]->getSubscriptionItems()[0]->getStatus());
+        self::assertTrue($plans[0]->getSubscriptionItems()[0]->getTestMode());
+        self::assertSame(1, $plans[0]->getSubscriptionItems()[0]->getQuantity());
+        self::assertSame('price-1', $plans[0]->getSubscriptionItems()[0]->getPrice()?->getId());
+        self::assertSame(50, $plans[0]->getSubscriptionItems()[0]->getPrice()?->getAmount());
         self::assertSame('AUD', $plans[0]->getSubscriptionItems()[0]->getPrice()?->getCurrency());
+        self::assertSame('product-1', $plans[0]->getSubscriptionItems()[0]->getProduct()?->getId());
+        self::assertSame('Small', $plans[0]->getSubscriptionItems()[0]->getProduct()?->getName());
         self::assertSame('FIXED', $plans[0]->getSubscriptionItems()[0]->getProduct()?->getType());
         self::assertTrue($subscription->getTestMode());
         self::assertSame('org-1', $subscription->getOrganisationId());
@@ -107,5 +121,24 @@ final class SubscriptionsTest extends TestCase
         self::assertNotNull($usageRecords->first());
         self::assertSame('usage-2', $recorded->getUsageRecordId());
         self::assertSame(15, $updated->getQuantity());
+    }
+
+    public function test_subscription_value_objects_setters(): void
+    {
+        $item = (new SubscriptionItem())
+            ->setEndDate('2026-12-31');
+        self::assertSame('2026-12-31', $item->getEndDate());
+
+        $product = (new Product())
+            ->setSeatUnit('seats')
+            ->setUsageUnit('units');
+        self::assertSame('seats', $product->getSeatUnit());
+        self::assertSame('units', $product->getUsageUnit());
+
+        $plan = (new Plan())->setSubscriptionItems([$item]);
+        self::assertSame([$item], $plan->getSubscriptionItems());
+
+        $subscription = (new Subscription())->setPlans([$plan]);
+        self::assertSame([$plan], $subscription->getPlans());
     }
 }
