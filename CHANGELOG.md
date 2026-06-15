@@ -45,7 +45,7 @@ additive and do not change the signatures of existing methods.
   - employee pay template earnings: list, create, update, delete, and bulk
     create
 
-### Fixed (breaking wire-contract corrections, see UPGRADE.md)
+### Fixed (breaking API call corrections, see UPGRADE.md)
 
 An audit against the official Xero OpenAPI specs found that a number of
 endpoints, request bodies, and response shapes did not match the documented

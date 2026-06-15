@@ -1,6 +1,6 @@
 # Upgrade Guide
 
-## Upgrading To The Next Release (Wire-Contract Fixes)
+## Upgrading To The Next Release (API Call Fixes)
 
 This release fixes a set of endpoints, request bodies, and response shapes
 that did not match the official Xero OpenAPI specs. Most of the affected
