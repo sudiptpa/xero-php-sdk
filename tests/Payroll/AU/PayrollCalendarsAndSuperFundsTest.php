@@ -158,6 +158,12 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
             ->name('Future Super')
             ->uSI('40022701955002')
             ->abn('12345678901')
+            ->bsb('484-799')
+            ->accountNumber('123456789')
+            ->accountName('Super Account')
+            ->electronicServiceAddress('FUTURESUPER')
+            ->employerNumber('EMP-1')
+            ->spin('FSF0001AU')
             ->idempotencyKey('superfund-key')
             ->save();
 
@@ -167,6 +173,12 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('superfund-key', $transport->requests()[2]->headers['Idempotency-Key']);
         $json2 = $transport->requests()[2]->json ?? [];
         self::assertSame('40022701955002', $json2['USI'] ?? null);
+        self::assertSame('484-799', $json2['BSB'] ?? null);
+        self::assertSame('123456789', $json2['AccountNumber'] ?? null);
+        self::assertSame('Super Account', $json2['AccountName'] ?? null);
+        self::assertSame('FUTURESUPER', $json2['ElectronicServiceAddress'] ?? null);
+        self::assertSame('EMP-1', $json2['EmployerNumber'] ?? null);
+        self::assertSame('FSF0001AU', $json2['SPIN'] ?? null);
         self::assertNotNull($funds->first());
         self::assertSame('fund-1', $fund?->getSuperFundID());
         self::assertSame('fund-2', $created->getSuperFundID());
