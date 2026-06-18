@@ -158,10 +158,7 @@ final class Allocation extends Model
     protected static function getDefinitions(): array
     {
         return [
-            // The delete response example uses "AllocationId" while the schema
-            // declares "AllocationID" — accept both spellings.
             'AllocationID' => Field::string()->using('setAllocationID'),
-            'AllocationId' => Field::string()->using('setAllocationID'),
             'Amount' => Field::number()->using('setAmount'),
             'Date' => Field::string()->using('setDate'),
             'IsDeleted' => Field::boolean()->using('setIsDeleted'),

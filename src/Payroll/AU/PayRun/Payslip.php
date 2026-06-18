@@ -13,7 +13,6 @@ final class Payslip extends Model
     private ?string $employeeID = null;
     private ?string $firstName = null;
     private ?string $lastName = null;
-    private ?string $lastEdited = null;
     private ?float $wages = null;
     private ?float $deductions = null;
     private ?float $tax = null;
@@ -90,18 +89,6 @@ final class Payslip extends Model
     public function setLastName(?string $lastName): self
     {
         $this->lastName = $lastName;
-
-        return $this;
-    }
-
-    public function getLastEdited(): ?string
-    {
-        return $this->lastEdited;
-    }
-
-    public function setLastEdited(?string $lastEdited): self
-    {
-        $this->lastEdited = $lastEdited;
 
         return $this;
     }
@@ -312,7 +299,6 @@ final class Payslip extends Model
             'EmployeeID' => Field::string()->using('setEmployeeID'),
             'FirstName' => Field::string()->using('setFirstName'),
             'LastName' => Field::string()->using('setLastName'),
-            'LastEdited' => Field::string()->using('setLastEdited'),
             'Wages' => Field::number()->using('setWages'),
             'Deductions' => Field::number()->using('setDeductions'),
             'Tax' => Field::number()->using('setTax'),

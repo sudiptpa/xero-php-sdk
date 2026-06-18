@@ -80,7 +80,7 @@ final class AllocationsTest extends TestCase
     public function test_it_deletes_a_prepayment_allocation(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
-            'AllocationId' => 'allocation-1',
+            'AllocationID' => 'allocation-1',
             'Date' => '/Date(1551822670731)/',
             'IsDeleted' => true,
         ], JSON_THROW_ON_ERROR)));
