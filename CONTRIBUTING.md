@@ -6,7 +6,7 @@ Use it for code, tests, docs, examples, and reviews.
 
 ## Source of truth
 
-- The OpenAPI specs in `openapi/` are the primary source of truth for every field name, type, path, and HTTP verb
+- The official Xero OpenAPI specs at [github.com/XeroAPI/Xero-OpenAPI](https://github.com/XeroAPI/Xero-OpenAPI) are the primary source of truth for every field name, type, path, and HTTP verb
 - Use official Xero field names and resource names exactly as they appear in the spec
 - Corroborate against `developer.xero.com` and the live API when the spec is ambiguous
 - Do not invent public API shapes that are not in the official spec
