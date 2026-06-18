@@ -32,6 +32,10 @@ New endpoints and resources. These are additive and do not change existing metho
   - timesheet lines: create, update, and delete a line on a timesheet
   - employee pay template earnings: list, create, update, delete, and bulk create
 
+### Added (infrastructure)
+
+- CI audit workflow (`.github/workflows/audit.yml`): downloads the latest Xero OpenAPI specs from `XeroAPI/Xero-OpenAPI` on every push and PR, runs `.github/scripts/audit.py` (endpoint coverage) and `.github/scripts/schema_audit.py` (model field audit), and fails the build on any finding — zero tolerance
+
 ### Fixed
 
 These are bug fixes against the official Xero OpenAPI specs. The affected calls previously 404'd, returned empty data, or sent a payload Xero ignores. They change method signatures and serialized payloads, so they are breaking. See `UPGRADE.md` for the full list of affected methods.
@@ -64,6 +68,8 @@ These are bug fixes against the official Xero OpenAPI specs. The affected calls 
   - `Employee::leaveBalances()` and `Employees::leaveBalances($id)` removed — the endpoint does not exist; leave balances are on the `Employee` resource itself
 - `Accounting`: `BankTransfers`, `Currencies`, `ExpenseClaims` (create), `LinkedTransactions`, `PaymentServices`, and `ContactGroups/{id}/Contacts` now send `PUT` (was `POST`, which Xero rejects for these resources)
 - Many Accounting, Payroll, and other models gained missing spec fields (`ValidationErrors`, `StatusAttributeString`, `UpdatedDateUTC`, nested sub-models) across 46 models
+- `Accounting/Allocation`: removed the `AllocationId` alias — only `AllocationID` is in the spec
+- `Payroll AU/Payslip` and `PayslipSummary`: removed `LastEdited` — not in the AU payroll spec
 
 ## 1.0.0 — 2026-03-31
 

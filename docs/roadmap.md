@@ -11,8 +11,8 @@ All API families are implemented and passing the field-level audit against the O
 
 Do not tag a release until:
 
-- `openapi/schema_audit.py` reports zero findings across all audited models
-- `openapi/audit.py` is clean
+- `.github/scripts/schema_audit.py` reports zero findings
+- `.github/scripts/audit.py` is clean
 - the pre-release checklist in PROGRESS.md is done
 
 ## Quality bar

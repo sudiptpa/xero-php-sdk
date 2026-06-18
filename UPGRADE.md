@@ -78,6 +78,14 @@ This release fixes endpoints, request bodies, and response shapes that did not m
 - The old `PayRuns::payslips($payRunId)` collection (which called the non-existent `/PayRuns/{id}/Payslips(/{id})` endpoints) has been **removed**.
 - `Employee::leaveBalances()` and `Employees::leaveBalances($id)` have been **removed** — `/Employees/{id}/LeaveBalances` does not exist; leave balances are embedded on the `Employee` resource itself.
 
+### Accounting — Allocation
+
+- `Allocation` no longer accepts `AllocationId` (lowercase `d`) from response payloads. The spec declares `AllocationID`. If your code reads `getAllocationID()` after a delete call, no change is needed — the getter is unchanged. Only the response key alias is removed.
+
+### Payroll AU — Payslip and PayslipSummary
+
+- `getLastEdited()` and `setLastEdited()` have been **removed** from both `Payslip` and `PayslipSummary`. `LastEdited` is not in the AU payroll spec. Use `getUpdatedDateUTC()` instead.
+
 ### Accounting — create verbs
 
 - `BankTransfers`, `Currencies`, `ExpenseClaims` (create only), `LinkedTransactions`, `PaymentServices`, and `ContactGroups::contacts($id)->save()` (assigning contacts to a group) now send `PUT` to the collection endpoint instead of `POST`. `ExpenseClaims` update remains `POST /ExpenseClaims/{id}`.
