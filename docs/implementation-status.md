@@ -1,52 +1,40 @@
-# Implementation Status
+# Implementation status
 
-This document shows what is already in the package and what is still open.
+Shows what is in the package and what is still open.
 
-It is meant to answer three practical questions quickly:
+## Overview
 
-- what already exists
-- what is ready to use
-- what is still missing
-
-## Xero Docs Overview
-
-| Xero docs area | In Xero docs | Integrated in package | Open items |
+| Area | In Xero docs | In package | Open items |
 | --- | --- | --- | --- |
-| Auth and Identity | Yes | Yes | no clear gap from the official overview today |
-| Webhooks | Yes | Yes | no clear gap from the official overview today |
-| Accounting | Yes | Yes | no clear gap from the official overview today |
-| Files | Yes | Yes | no clear gap from the official overview today |
-| Assets | Yes | Yes | no clear gap from the official overview today |
-| Projects | Yes | Yes | no clear gap from the official overview today |
-| Payroll AU | Yes | Yes | no clear gap from the official overview today |
-| Payroll NZ | Yes | Yes | no clear gap from the official overview today |
-| Payroll UK | Yes | Yes | no clear gap from the official overview today |
-| Finance | Yes | Yes | no clear gap from the official overview today |
-| App Store | Yes | Yes | no clear gap today |
+| Auth and Identity | Yes | Yes | None |
+| Webhooks | Yes | Yes | None |
+| Accounting | Yes | Yes | None |
+| Files | Yes | Yes | None |
+| Assets | Yes | Yes | None |
+| Projects | Yes | Yes | None |
+| Payroll AU | Yes | Yes | None |
+| Payroll NZ | Yes | Yes | None |
+| Payroll UK | Yes | Yes | None |
+| Finance | Yes | Yes | None |
+| App Store | Yes | Yes | None |
 
-This table is the quickest overview:
-
-- if the last column is empty or close to empty, that area is already in good shape
-- if the last column still lists work, that area is not finished yet
-- this status reflects the official Xero overview pages and guides listed in the package docs
-
-## Current Snapshot
+## Current snapshot
 
 | Area | Status | Notes |
 | --- | --- | --- |
 | Core client, context, transport | Built | Native transport, fake transport, request pipeline, error mapping |
-| Auth | Strong coverage | Authorization URL, token exchange client, refresh, PKCE, custom connections, token storage, connection manager, and disconnect helpers are in place |
-| Identity | Built | Tenant discovery and connection disconnect support through `/connections` are covered |
-| Webhooks | Strong coverage | Signature verification, header-array helpers, payload parsing, and event-query helpers are covered |
-| Accounting | Broad coverage | Core workflows, settings, transactions, reporting, invoice reminder settings, receipt attachments, and long-tail resources are now in place |
-| Files | Strong coverage | Files, uploads, deletes, folders, inbox, associations, object-side association lookup, and associations count |
-| Assets | Near-complete overview coverage | Assets, asset types, settings, and documented collection search parameters |
-| Payroll AU | Strong coverage | Employees, leave balances, employee-scoped leave application helper, payroll calendars, super funds, super fund products, super fund create flow, leave applications, pay items, pay runs, payslips, timesheets, settings |
-| Payroll NZ | Strong coverage | Employees, employee leave/tax/working-pattern helpers, employment, payment-method, leave, salary-and-wages, single salary record lookup, leave setup, opening balances, leave types, pay run calendars, pay runs, timesheets, settings, statutory deductions |
-| Payroll UK | Strong coverage | Employees, leave balances, leave types, leave-type creation, leave records, leave creation, employment, payment methods, pay run calendars, pay runs, payslips, timesheets, settings helpers, reimbursement create flow |
-| Projects | Strong coverage | Projects, project lifecycle patch helpers, project users, tasks, and time entries |
-| Finance | Strong coverage | Accounting activities, account usage, lock history, report history, user activities, cash validation, bank statement accounting, and financial statements; note the documented Accounting Activities decommissioning scheduled for April 6, 2026 |
-| App Store | Strong | Subscription lookup, documented subscription-item usage paths, and usage record updates |
+| Auth | Built | Authorization URL, token exchange, refresh, PKCE, custom connections, token storage, connection manager, disconnect |
+| Identity | Built | Tenant discovery and connection disconnect via `/connections` |
+| Webhooks | Built | Signature verification, header-array helpers, payload parsing, event helpers |
+| Accounting | Built | Core workflows, settings, transactions, reporting, attachments, long-tail resources |
+| Files | Built | Files, uploads, deletes, folders, inbox, associations, object-side lookup, association counts |
+| Assets | Built | Assets, asset types, settings, collection search parameters |
+| Payroll AU | Built | Employees, leave balances, leave applications, pay items, pay runs, payslips, timesheets, payroll calendars, super funds, settings |
+| Payroll NZ | Built | Employees, leave, employment, payment-method, salary-and-wages, leave types, pay run calendars, pay runs, timesheets, settings, statutory deductions |
+| Payroll UK | Built | Employees, leave balances, leave types, employment, payment methods, pay run calendars, pay runs, payslips, timesheets, settings, reimbursements |
+| Projects | Built | Projects, users, tasks, time entries, lifecycle patch helpers |
+| Finance | Built | Cash validation, bank statement accounting, balance sheet, cashflow, profit and loss, trial balance, contact revenue, contact expenses |
+| App Store | Built | Subscription lookup, usage records |
 
 ## Foundation
 
@@ -70,13 +58,13 @@ This table is the quickest overview:
 | PKCE helper | Built | Yes | auth docs |
 | Custom connection helper | Built | Yes | auth docs |
 
-## Auth And Identity
+## Auth and Identity
 
 | Resource | Read | Write | Tests | Docs | Scope notes |
 | --- | --- | --- | --- | --- | --- |
 | OAuth authorization URL | Yes | n/a | Yes | Yes | Yes |
 | Token exchange | Yes | Yes | Yes | Yes | Yes |
-| Token refresh helper | Supported in code | Yes | Yes | Yes | Yes |
+| Token refresh | Yes | Yes | Yes | Yes | Yes |
 | Connection manager | Yes | Yes | Yes | Yes | Yes |
 | Identity connections | Yes | n/a | Yes | Yes | n/a |
 | Custom connections | Yes | Yes | Yes | Yes | Yes |
@@ -126,7 +114,7 @@ This table is the quickest overview:
 | Payment services | Yes | Create | Yes | Yes | Yes |
 | Reports | Yes | No | Yes | Yes | Yes |
 
-Detailed Accounting tracking lives in [accounting-coverage.md](accounting-coverage.md).
+See [accounting-coverage.md](accounting-coverage.md) for the full Accounting resource matrix.
 
 ## Files
 
@@ -134,7 +122,7 @@ Detailed Accounting tracking lives in [accounting-coverage.md](accounting-covera
 | --- | --- | --- | --- | --- | --- |
 | Files | Yes | Upload, update metadata, delete | Yes | Yes | Yes |
 | File content | Yes | n/a | Yes | Yes | Yes |
-| File associations | Yes | Create, delete association | Yes | Yes | Yes |
+| File associations | Yes | Create, delete | Yes | Yes | Yes |
 | Object-side file associations | Yes | n/a | Yes | Yes | Yes |
 | Associations count | Yes | n/a | Yes | Yes | Yes |
 | Folders | Yes | Create, update, delete | Yes | Yes | Yes |
@@ -152,7 +140,7 @@ Detailed Accounting tracking lives in [accounting-coverage.md](accounting-covera
 
 | Resource | Read | Write | Tests | Docs | Scope notes |
 | --- | --- | --- | --- | --- | --- |
-| AU employees | Yes | Create, update, employee-scoped leave helper | Yes | Yes | Yes |
+| AU employees | Yes | Create, update | Yes | Yes | Yes |
 | AU employee leave balances | Yes | No | Yes | Yes | Yes |
 | AU leave applications | Yes | Create, update, approve, reject | Yes | Yes | Yes |
 | AU pay items | Yes | No | Yes | Yes | Yes |
@@ -162,7 +150,7 @@ Detailed Accounting tracking lives in [accounting-coverage.md](accounting-covera
 | AU super funds | Yes | Create | Yes | Yes | Yes |
 | AU super fund products | Yes | No | Yes | Yes | Yes |
 | AU settings | Yes | No | Yes | Yes | Yes |
-| NZ employees | Yes | Create, update, leave, payment, tax, working-pattern, leave-setup, and opening-balance helpers | Yes | Yes | Yes |
+| NZ employees | Yes | Create, update, leave, payment, tax, working-pattern, leave-setup, opening-balance helpers | Yes | Yes | Yes |
 | NZ employee employment | Yes | No | Yes | Yes | Yes |
 | NZ employee salary and wages | Yes | No | Yes | Yes | Yes |
 | NZ leave types | Yes | No | Yes | Yes | Yes |
@@ -184,11 +172,6 @@ Detailed Accounting tracking lives in [accounting-coverage.md](accounting-covera
 
 | Resource | Read | Write | Tests | Docs | Scope notes |
 | --- | --- | --- | --- | --- | --- |
-| Accounting activities | Yes | No | Yes | Yes | Yes |
-| Accounting activity account usage | Yes | No | Yes | Yes | Yes |
-| Accounting activity lock history | Yes | No | Yes | Yes | Yes |
-| Accounting activity report history | Yes | No | Yes | Yes | Yes |
-| Accounting activity user activities | Yes | No | Yes | Yes | Yes |
 | Bank statement accounting | Yes | No | Yes | Yes | Yes |
 | Cash validation | Yes | No | Yes | Yes | Yes |
 | Balance sheet | Yes | No | Yes | Yes | Yes |
@@ -213,11 +196,3 @@ Detailed Accounting tracking lives in [accounting-coverage.md](accounting-covera
 | Project users | Yes | No | Yes | Yes | Yes |
 | Tasks | Yes | Create, update, delete | Yes | Yes | Yes |
 | Time entries | Yes | Create, update, delete | Yes | Yes | Yes |
-
-## Other API Families
-
-| Domain | Status | Notes |
-| --- | --- | --- |
-| Projects | Strong | Projects, users, tasks, and time entries are covered |
-| Finance | Strong | Finance statements, accounting activity views, and validation are covered |
-| App Store | Strong | Subscription lookup and documented usage-record flows are covered |

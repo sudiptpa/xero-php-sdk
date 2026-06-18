@@ -1,24 +1,8 @@
 # Payroll AU
-AU payroll resources and helpers.
 
-Coverage:
+AU payroll resources.
 
-- payroll calendars
-- employees
-- employee leave balances
-- employee-scoped leave application helper
-- leave applications
-- pay items
-- pay runs
-- pay slips
-- timesheets
-- settings
-- super funds
-- super fund products
-- employee find and write flows
-- super fund create flow
-
-## Payroll Calendars
+## Payroll calendars
 
 ```php
 $calendars = $xero->payroll()
@@ -70,7 +54,7 @@ $employee = $xero->payroll()
     ->create()
     ->firstName('Grace')
     ->lastName('Hopper')
-    ->emailAddress('grace@example.test')
+    ->email('grace@example.test')
     ->save();
 ```
 
@@ -85,7 +69,7 @@ $leave = $employee->createLeaveApplication()
     ->save();
 ```
 
-## Leave Applications
+## Leave applications
 
 ```php
 $leaveApplications = $xero->payroll()
@@ -110,7 +94,7 @@ $leave = $xero->payroll()
     ->save();
 ```
 
-## Pay Items
+## Pay items
 
 ```php
 $payItems = $xero->payroll()
@@ -122,7 +106,7 @@ $payItems = $xero->payroll()
 $earningsRates = $payItems->first()?->getEarningsRates();
 ```
 
-## Pay Runs
+## Pay runs
 
 ```php
 $payRuns = $xero->payroll()
@@ -188,7 +172,7 @@ $settings = $xero->payroll()
     ->get();
 ```
 
-## Super Funds
+## Super funds
 
 ```php
 $superFunds = $xero->payroll()
@@ -219,15 +203,12 @@ $products = $xero->payroll()
     ->usi('OSF0001AU')
     ->get();
 
-$productId = $products->first()?->getSuperFundProductID();
+$productName = $products->first()?->getProductName();
 ```
 
-## Scope Notes
+## Scopes
 
-Payroll AU uses several scope families:
-
-- employees and leave applications: broad `payroll.employees`, granular `payroll.employees.read`, `payroll.employees`
-- pay items and settings: broad `payroll.settings`, granular `payroll.settings.read`, `payroll.settings`
-- payroll calendars and super funds: broad `payroll.settings`, granular `payroll.settings.read`, `payroll.settings`
-- pay runs: broad `payroll.payruns`, granular `payroll.payruns.read`, `payroll.payruns`
-- timesheets: broad `payroll.timesheets`, granular `payroll.timesheets.read`, `payroll.timesheets`
+- `payroll.employees.read` / `payroll.employees` — employees and leave applications
+- `payroll.settings.read` / `payroll.settings` — pay items, settings, payroll calendars, super funds
+- `payroll.payruns.read` / `payroll.payruns` — pay runs
+- `payroll.timesheets.read` / `payroll.timesheets` — timesheets

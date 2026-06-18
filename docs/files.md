@@ -1,20 +1,8 @@
 # Files
+
 Files, folders, uploads, and associations.
 
-Coverage:
-
-- files
-- file content
-- file delete
-- uploads
-- folders
-- folder delete
-- inbox
-- file associations
-- object-side file association lookups
-- association counts
-
-## Files
+## List files
 
 ```php
 $files = $xero->files()
@@ -23,6 +11,8 @@ $files = $xero->files()
     ->perPage(50)
     ->get();
 ```
+
+## Find a file
 
 ```php
 $file = $xero->files()
@@ -33,6 +23,8 @@ $name = $file?->getName();
 $folderId = $file?->getFolderId();
 ```
 
+## Upload a file
+
 ```php
 $uploaded = $xero->files()
     ->upload('contract.pdf', $binary)
@@ -41,11 +33,15 @@ $uploaded = $xero->files()
     ->save();
 ```
 
+## Rename or move a file
+
 ```php
 $renamed = $file?->rename('contract-v2.pdf')
     ->moveToFolder('folder-id')
     ->save();
 ```
+
+## Delete a file
 
 ```php
 $file?->delete();
@@ -124,15 +120,7 @@ $uploaded = $folder?->upload('terms.pdf', $binary)
 $uploadedName = $uploaded?->getName();
 ```
 
-## Scope Notes
+## Scopes
 
-Implemented Files resources use:
-
-- broad `files`
-- granular `files.read`, `files`
-
-Use `files.read` for listing, lookup, content reads, inbox reads, and association reads.
-
-Use `files` for uploads, metadata updates, folder writes, file deletes, and association writes.
-
-If the integration only reads or downloads files, `files.read` is the right starting point.
+- `files.read` — list files, find files, read file content, read inbox, read associations
+- `files` — upload, rename, move, delete files; write folders; write associations

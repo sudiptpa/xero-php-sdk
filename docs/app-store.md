@@ -1,34 +1,27 @@
 # App Store
+
 Subscriptions and usage records.
 
-Coverage:
+These requests are app-level, not tenant-scoped. The SDK does not send the Xero tenant header for App Store calls.
 
-- fetching subscriptions
-- listing usage records
-- creating usage records
-- updating usage records
-
-These requests are app-level rather than tenant-scoped, so the SDK does not send the Xero tenant header.
-
-## Subscription Lookup
+## Get a subscription
 
 ```php
 $subscription = $xero->appStore()
     ->subscriptions()
     ->find('subscription-id');
 
-$subscriptionId = $subscription->getSubscriptionID();
-$planId = $subscription->getPlanID();
+$subscriptionId = $subscription->getId();
 $status = $subscription->getStatus();
-$items = $subscription->getItems();
+$plans = $subscription->getPlans();
 ```
 
-## Usage Records
+## Usage records
 
 ```php
 $usageRecords = $subscription?->usageRecords();
 
-$usageRecordId = $usageRecords->first()?->getUsageRecordID();
+$usageRecordId = $usageRecords->first()?->getUsageRecordId();
 $quantity = $usageRecords->first()?->getQuantity();
 ```
 
@@ -36,26 +29,22 @@ $quantity = $usageRecords->first()?->getQuantity();
 $usage = $subscription?->recordUsage()
     ->item('subscription-item-id')
     ->quantity(12)
-    ->startDate('2026-03-01')
-    ->endDate('2026-03-31')
+    ->timestamp('2026-03-31T23:59:59Z')
     ->save();
 
-$createdUsageId = $usage->getUsageRecordID();
+$createdUsageId = $usage->getUsageRecordId();
 ```
 
 ```php
 $updated = $xero->appStore()
     ->subscriptions()
     ->updateUsage('subscription-id', 'usage-record-id')
-    ->item('subscription-item-id')
     ->quantity(15)
-    ->startDate('2026-03-01')
-    ->endDate('2026-03-31')
     ->save();
 
 $updatedQuantity = $updated->getQuantity();
 ```
 
-## Scope Notes
+## Scopes
 
-The current App Store coverage uses granular `marketplace.billing`.
+- `marketplace.billing` — access subscriptions and usage records

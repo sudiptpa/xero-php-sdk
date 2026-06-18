@@ -1,20 +1,15 @@
-# Accounting Coverage
+# Accounting coverage
 
-This document tracks Accounting coverage against the current Xero Accounting documentation surface.
+Tracks implemented Accounting resources against the Xero Accounting API.
 
-## Current Position
-
-The package has broad Accounting coverage.
-
-Current implemented coverage:
+## Implemented resources
 
 - accounts
 - contacts
 - currencies
 - branding themes
 - invoices
-- invoice attachments
-- invoice attachment downloads
+- invoice attachments and downloads
 - invoice history
 - invoice PDF
 - invoice reminder settings
@@ -25,8 +20,7 @@ Current implemented coverage:
 - organisations
 - users
 - credit notes
-- credit note attachments
-- credit note attachment downloads
+- credit note attachments and downloads
 - credit note history
 - credit note PDF
 - bank transactions
@@ -42,90 +36,77 @@ Current implemented coverage:
 - expense claims
 - journals
 - purchase orders
-- purchase order attachments
-- purchase order attachment downloads
+- purchase order attachments and downloads
 - purchase order PDF
 - quotes
 - quote PDF
 - receipts
-- receipt attachments
-- receipt attachment downloads
+- receipt attachments and downloads
 - repeating invoices
 - payment services
 - reports
 
-## Coverage Matrix
+## Coverage matrix
 
-| Resource Area | Current status | Notes |
-| --- | --- | --- |
-| Accounts | Built | Query, find, create, update |
-| Contacts | Built | Query, find, create, update |
-| Invoices | Built | Query, find, create, update |
-| Invoice attachments | Built | List, upload, download by filename and attachment id |
-| Invoice history | Built | List, record |
-| Invoice PDF | Built | Direct PDF helper |
-| Invoice reminder settings | Built | Reminder settings read |
-| Payments | Built | Query, find, create, update |
-| Bank transactions | Built | Query, find, create, update |
-| Bank transfers | Built | Query, find, create |
-| Batch payments | Built | Query, find, create |
-| Branding themes | Built | Query, find |
-| Contact groups | Built | Query, find, create, update, attach contacts |
-| Credit notes | Built | Query, find, create, update |
-| Credit note attachments | Built | List, upload, download by filename and attachment id |
-| Credit note history | Built | List, record |
-| Credit note PDF | Built | Direct PDF helper |
-| Currencies | Built | Query, create |
-| Employees | Built | Query, find, create, update; deprecated by Xero for removal on April 28, 2026 |
-| Expense claims | Built | Query, find, create, update |
-| Items | Built | Query, find, create, update |
-| Journals | Built | Query, find by ID, find by journal number |
-| Linked transactions | Built | Query, create |
-| Manual journals | Built | Query, find, create, update, attachment helpers, history helpers |
-| Organisations | Built | Current organisation read |
-| Overpayments | Built | Query, find |
-| Payment services | Built | Query, create |
-| Prepayments | Built | Query, find |
-| Purchase orders | Built | Query, find, create, update, PDF helper |
-| Purchase order attachments | Built | List, upload, download by filename and attachment id |
-| Quotes | Built | Query, find, create, update |
-| Quote PDF | Built | Direct PDF helper |
-| Receipts | Built | Query, find, attachment helpers |
-| Receipt attachments | Built | List, upload, download by filename and attachment id |
-| Repeating invoices | Built | Query, find, create, update |
-| Reports | Built | Reports list, report by ID, named report helpers |
-| Tax rates | Built | Query, find, create, update |
-| Tracking categories | Built | Query, find, create, update |
-| Users | Built | Query |
+| Resource | Read | Write | Notes |
+| --- | --- | --- | --- |
+| Accounts | Yes | Create, update | |
+| Contacts | Yes | Create, update | |
+| Invoices | Yes | Create, update | |
+| Invoice attachments | Yes | Upload | List, upload, download by filename and attachment id |
+| Invoice history | Yes | Record | |
+| Invoice PDF | Yes | n/a | |
+| Invoice reminder settings | Yes | n/a | |
+| Payments | Yes | Create, update | |
+| Bank transactions | Yes | Create, update | |
+| Bank transfers | Yes | Create | |
+| Batch payments | Yes | Create | |
+| Branding themes | Yes | No | |
+| Contact groups | Yes | Create, update, attach contacts | |
+| Credit notes | Yes | Create, update | |
+| Credit note attachments | Yes | Upload | List, upload, download by filename and attachment id |
+| Credit note history | Yes | Record | |
+| Credit note PDF | Yes | n/a | |
+| Currencies | Yes | Create | |
+| Employees | Yes | Create, update | Deprecated by Xero — use the Payroll API instead |
+| Expense claims | Yes | Create, update | |
+| Items | Yes | Create, update | |
+| Journals | Yes | No | Query, find by ID, find by journal number |
+| Linked transactions | Yes | Create | |
+| Manual journals | Yes | Create, update | Includes attachment helpers and history helpers |
+| Organisations | Yes | No | Current organisation read |
+| Overpayments | Yes | No | |
+| Payment services | Yes | Create | |
+| Prepayments | Yes | No | |
+| Purchase orders | Yes | Create, update | Includes PDF helper |
+| Purchase order attachments | Yes | Upload | List, upload, download by filename and attachment id |
+| Quotes | Yes | Create, update | |
+| Quote PDF | Yes | n/a | |
+| Receipts | Yes | No | Includes attachment helpers |
+| Receipt attachments | Yes | Upload | List, upload, download by filename and attachment id |
+| Repeating invoices | Yes | Create, update | |
+| Reports | Yes | No | Reports list, report by ID, named report helpers |
+| Tax rates | Yes | Create, update | |
+| Tracking categories | Yes | Create, update | |
+| Users | Yes | No | |
 
-## Scope Shape
+## Scopes
 
-The current implemented resources already use scope metadata in code.
+- contacts: `accounting.contacts.read`, `accounting.contacts`
+- invoices and payments: `accounting.transactions.read`, `accounting.transactions`; broad: `accounting.transactions`
+- accounts, items, tax rates, tracking categories, branding themes, organisations, users: `accounting.settings.read`, `accounting.settings`; broad: `accounting.settings`
+- credit notes, bank transactions, bank transfers, manual journals, purchase orders, quotes, receipts, repeating invoices: `accounting.transactions.read`, `accounting.transactions`
+- journals: `accounting.journals.read`
+- reports: `accounting.reports.read`
+- attachments: `accounting.attachments.read`, `accounting.attachments`
 
-Broadly:
+## Done criteria
 
-- contacts use contact scopes
-- invoices and payments use transaction scopes
-- accounts use settings-style scopes
+A resource is complete when it has:
 
-The package carries this metadata in code, and the docs point to the main scope families used by Accounting resources.
-
-## Open Items
-
-The open items in Accounting are small:
-
-- a final live-docs recheck for low-traffic long-tail helpers
-- any resource-specific attachment helpers beyond the current invoice, credit note, purchase order, manual journal, and receipt set if the docs expose them
-
-## Definition Of Done For An Accounting Resource
-
-A resource is only done when it has:
-
-- fluent public entrypoints
+- fluent public entry points
 - typed read models
 - typed create or update payloads where the API supports them
 - tests
-- scope notes in docs
-- coverage map entry
-
-Anything less should not be treated as finished coverage.
+- scope notes
+- a coverage matrix entry

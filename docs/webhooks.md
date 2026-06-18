@@ -1,4 +1,5 @@
 # Webhooks
+
 Verify signatures and parse events.
 
 The package does two things:
@@ -6,7 +7,7 @@ The package does two things:
 - verify the `x-xero-signature` header
 - parse the payload into typed event objects
 
-## Verify A Request
+## Verify a request
 
 ```php
 use Sujip\Xero\Xero;
@@ -24,7 +25,7 @@ If your HTTP layer gives you a header array instead of a single string:
 $verifier->assertValidHeaders($rawPayload, $headers);
 ```
 
-## Parse The Payload
+## Parse the payload
 
 ```php
 $payload = $verifier->parse($rawPayload);
@@ -40,13 +41,13 @@ Or in one step:
 $payload = $verifier->verifyAndParse($rawPayload, $signatureHeader);
 ```
 
-Or directly from a framework-neutral header array:
+Or from a header array:
 
 ```php
 $payload = $verifier->verifyAndParseHeaders($rawPayload, $headers);
 ```
 
-## Event Helpers
+## Event helpers
 
 ```php
 $first = $payload->first();
@@ -67,14 +68,14 @@ $invoiceEvents = $payload->only('invoice');
 $ids = $payload->resourceIds();
 ```
 
-## Practical Notes
+## Practical notes
 
 - verify before you parse
 - keep the raw payload if you need to retry processing
-- return quickly to Xero and do heavier work asynchronously in your app
-- treat webhook delivery as a signal, not as your only source of truth
+- return quickly to Xero and do heavier work asynchronously
+- treat webhook delivery as a signal, not your only source of truth
 - route from event category and id, then re-fetch current data from Xero when accuracy matters
 
-## Scope Notes
+## Scopes
 
-Webhook delivery is configured in Xero rather than through normal API scopes, so there is no endpoint scope section here.
+Webhook delivery is configured in Xero, not through API scopes. There are no scope requirements here.

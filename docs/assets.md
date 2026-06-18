@@ -1,14 +1,8 @@
 # Assets
-Fixed assets, asset types, and settings.
 
-Coverage:
+Fixed assets, asset types, and depreciation settings.
 
-- fixed assets
-- asset types
-- asset settings
-- asset collection search parameters from the documented API
-
-## Assets
+## List assets
 
 ```php
 $assets = $xero->assets()
@@ -19,6 +13,8 @@ $assets = $xero->assets()
     ->filterBy('MacBook')
     ->get();
 ```
+
+## Create an asset
 
 ```php
 $asset = $xero->assets()
@@ -32,6 +28,8 @@ $asset = $xero->assets()
     ->save();
 ```
 
+## Find an asset
+
 ```php
 $asset = $xero->assets()->find('asset-id');
 
@@ -39,13 +37,15 @@ $status = $asset->getAssetStatus();
 $assetTypeId = $asset->getAssetTypeId();
 ```
 
+## Paginate
+
 ```php
 $page = $xero->assets()
     ->status('draft')
     ->paginate(page: 2, perPage: 10);
 ```
 
-## Asset Types
+## Asset types
 
 ```php
 $types = $xero->assets()
@@ -77,16 +77,11 @@ $type = $xero->assets()
 ```php
 $settings = $xero->assets()->settings();
 
-$enabled = $settings?->getDepreciationCalculationEnabled();
+$prefix = $settings->getAssetNumberPrefix();
+$optInForTax = $settings->getOptInForTax();
 ```
 
-## Scope Notes
+## Scopes
 
-Implemented Assets resources use:
-
-- broad `assets`
-- granular `assets.read`, `assets`
-
-Use `assets.read` for asset, asset-type, and settings reads.
-
-Use `assets` for create flows and asset-changing actions.
+- `assets.read` — read assets, asset types, and settings
+- `assets` — create assets and asset types

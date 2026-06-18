@@ -1,15 +1,8 @@
 # Projects
+
 Projects, users, tasks, and time entries.
 
-Coverage:
-
-- projects
-- project users
-- tasks
-- time entries
-- project lifecycle patch helpers
-
-## Projects
+## List projects
 
 ```php
 $projects = $xero->projects()
@@ -19,6 +12,8 @@ $projects = $xero->projects()
     ->get();
 ```
 
+## Create a project
+
 ```php
 $project = $xero->projects()
     ->create()
@@ -27,9 +22,11 @@ $project = $xero->projects()
     ->estimateAmount(1200)
     ->save();
 
-$projectId = $project->getProjectID();
-$projectTitle = $project->getTitle();
+$projectId = $project->getProjectId();
+$projectName = $project->getName();
 ```
+
+## Update a project
 
 ```php
 $updated = $xero->projects()
@@ -37,6 +34,8 @@ $updated = $xero->projects()
     ->title('Website rebuild v2')
     ->save();
 ```
+
+## Close or reopen a project
 
 ```php
 $closed = $xero->projects()
@@ -49,7 +48,7 @@ $closed = $xero->projects()
 $reopened = $project?->close()->reopen();
 ```
 
-## Project Users
+## Project users
 
 ```php
 $users = $xero->projects()
@@ -58,7 +57,7 @@ $users = $xero->projects()
     ->perPage(100)
     ->get();
 
-$email = $users->first()?->getEmailAddress();
+$email = $users->first()?->getEmail();
 ```
 
 ## Tasks
@@ -79,10 +78,10 @@ $task = $xero->projects()
     ->rate(150)
     ->save();
 
-$taskId = $task->getTaskID();
+$taskId = $task->getTaskId();
 ```
 
-## Time Entries
+## Time entries
 
 ```php
 $entries = $xero->projects()
@@ -106,13 +105,7 @@ $entry = $xero->projects()
 $minutes = $entry->getDuration();
 ```
 
-## Scope Notes
+## Scopes
 
-Projects uses:
-
-- broad `projects`
-- granular `projects.read`, `projects`
-
-Use `projects.read` for project, task, user, and time-entry reads.
-
-Use `projects` for project writes, project lifecycle patch calls, task writes, and time-entry writes.
+- `projects.read` — read projects, tasks, users, and time entries
+- `projects` — write projects, tasks, and time entries; patch project state
