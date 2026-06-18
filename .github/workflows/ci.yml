@@ -15,7 +15,7 @@ jobs:
         php-version: ['8.2', '8.3', '8.4', '8.5']
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -33,7 +33,7 @@ jobs:
         if: matrix.php-version == '8.3'
       - run: composer lint
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always() && matrix.php-version == '8.3'
         with:
           name: phpunit-coverage-${{ matrix.php-version }}
