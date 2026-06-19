@@ -107,5 +107,5 @@ $minutes = $entry->getDuration();
 
 ## Scopes
 
-- `projects.read` — read projects, tasks, users, and time entries
-- `projects` — write projects, tasks, and time entries; patch project state
+- `projects.read`: read projects, tasks, users, and time entries
+- `projects`: write projects, tasks, and time entries; patch project state

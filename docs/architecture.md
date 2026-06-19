@@ -10,12 +10,12 @@ $xero->payroll()->au()->employees()->get();
 
 ## Layers
 
-- `Http` — request, response, transport, test doubles
-- `Auth` — token handling, auth flows, connection strategies
+- `Http`: request, response, transport, test doubles
+- `Auth`: token handling, auth flows, connection strategies
 - `Accounting`, `Files`, `Projects`, `Assets`, `Finance`, `AppStore`
 - `Payroll\AU`, `Payroll\NZ`, `Payroll\UK`
-- `Support` — collections, helpers, and shared value objects
-- `Webhooks` — signature verification and event mapping
+- `Support`: collections, helpers, and shared value objects
+- `Webhooks`: signature verification and event mapping
 
 ## Package shape
 

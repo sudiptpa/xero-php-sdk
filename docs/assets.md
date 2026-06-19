@@ -83,5 +83,5 @@ $optInForTax = $settings->getOptInForTax();
 
 ## Scopes
 
-- `assets.read` — read assets, asset types, and settings
-- `assets` — create assets and asset types
+- `assets.read`: read assets, asset types, and settings
+- `assets`: create assets and asset types

@@ -103,6 +103,6 @@ $contactExpenses = $xero->finance()
 
 ## Scopes
 
-- `finance.cashvalidation.read` — cash validation
-- `finance.statements.read` — balance sheet, cashflow, profit and loss, trial balance, contact revenue, contact expenses
-- `finance.bankstatementsplus.read` — bank statement accounting
+- `finance.cashvalidation.read`: cash validation
+- `finance.statements.read`: balance sheet, cashflow, profit and loss, trial balance, contact revenue, contact expenses
+- `finance.bankstatementsplus.read`: bank statement accounting

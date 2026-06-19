@@ -68,7 +68,7 @@ Tracks implemented Accounting resources against the Xero Accounting API.
 | Credit note history | Yes | Record | |
 | Credit note PDF | Yes | n/a | |
 | Currencies | Yes | Create | |
-| Employees | Yes | Create, update | Deprecated by Xero — use the Payroll API instead |
+| Employees | Yes | Create, update | Deprecated by Xero: use the Payroll API instead |
 | Expense claims | Yes | Create, update | |
 | Items | Yes | Create, update | |
 | Journals | Yes | No | Query, find by ID, find by journal number |

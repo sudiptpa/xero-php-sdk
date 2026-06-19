@@ -10,7 +10,7 @@ New endpoints and resources. These are additive and do not change existing metho
 
 - `Accounting`:
   - `Budgets`: `budgets()` with `get()`, `find()`, and `dateFrom`/`dateTo` filters, under `accounting.budgets.read`
-  - `Invoices`: `email()` to send an invoice to the contact; `onlineInvoiceUrl()` for the shareable link — both on the `Invoices` resource and a bound `Invoice`
+  - `Invoices`: `email()` to send an invoice to the contact; `onlineInvoiceUrl()` for the shareable link (both on the `Invoices` resource and a bound `Invoice`)
   - `Allocations` on credit notes, overpayments, and prepayments (create with `PUT`, remove with `DELETE`)
   - `attachments()` on accounts, bank transactions, bank transfers, contacts, quotes, and repeating invoices (list, download by file name or attachment id, create, update)
   - `history()` on contacts, bank transfers, expense claims, quotes, overpayments, prepayments, and repeating invoices
@@ -34,7 +34,7 @@ New endpoints and resources. These are additive and do not change existing metho
 
 ### Added (infrastructure)
 
-- CI audit workflow (`.github/workflows/audit.yml`): downloads the latest Xero OpenAPI specs from `XeroAPI/Xero-OpenAPI` on every push and PR, runs `.github/scripts/audit.py` (endpoint coverage) and `.github/scripts/schema_audit.py` (model field audit), and fails the build on any finding — zero tolerance
+- CI audit workflow (`.github/workflows/audit.yml`): downloads the latest Xero OpenAPI specs from `XeroAPI/Xero-OpenAPI` on every push and PR, then runs `.github/scripts/audit.py` (endpoint coverage) and `.github/scripts/schema_audit.py` (model field audit). Any finding fails the build; there is zero tolerance for spec drift.
 
 ### Fixed
 
@@ -46,7 +46,7 @@ These are bug fixes against the official Xero OpenAPI specs. The affected calls 
 - `Files`: `File` model fields corrected to spec casing (`CreatedDateUtc`/`UpdatedDateUtc`); `User` model added; upload changed to `multipart/form-data` (was a raw body that Xero rejected with 415); `Associations` response shapes fixed from guessed `Items`-wrapper to bare array
 - `Assets`: `Asset` model rewritten to spec camelCase fields; `AssetType` and `Settings` models rewritten to spec fields; list responses now read `items` (was `Items`)
 - `Projects`: `Project` model rewritten to spec camelCase fields; `Task` and `TimeEntry` models rewritten; `ProjectUser` model rewritten to spec fields (`userId`, `name`, `email`)
-- `Finance`: removed `AccountingActivities` module — Xero removed this API from the OpenAPI spec in February 2026; `BankStatementAccounting` response shape fixed; `FinancialStatements` models (`BalanceSheet`, `ProfitAndLoss`, `Cashflow`, `TrialBalance`, `IncomeByContact`) rewritten to spec fields
+- `Finance`: removed `AccountingActivities` module (Xero removed this API from the OpenAPI spec in February 2026); `BankStatementAccounting` response shape fixed; `FinancialStatements` models (`BalanceSheet`, `ProfitAndLoss`, `Cashflow`, `TrialBalance`, `IncomeByContact`) rewritten to spec fields
 - `Finance`: `bankStatementAccounting()` now calls `/finance.xro/1.0/BankStatementsPlus/statements` with the documented `BankAccountID`/`FromDate`/`ToDate`/`SummaryOnly` parameters
 - `Payroll NZ` and `Payroll UK`:
   - `Timesheets`: revert now calls `RevertToDraft` (was `Revert`, a 404); removed the phantom `update()`; UK gained `delete()`
@@ -65,13 +65,13 @@ These are bug fixes against the official Xero OpenAPI specs. The affected calls 
 - `Payroll AU`:
   - removed the phantom `PayrollCalendars::update()` (only `GET`/`POST` exist)
   - `PayRun::payslips()` now returns embedded `PayslipSummary[]` from the pay run response; added `PayRuns::payslip($id)` for the full `Payslip`; removed phantom `Payslips` collection
-  - `Employee::leaveBalances()` and `Employees::leaveBalances($id)` removed — the endpoint does not exist; leave balances are on the `Employee` resource itself
+  - `Employee::leaveBalances()` and `Employees::leaveBalances($id)` removed (the endpoint does not exist; leave balances are on the `Employee` resource itself)
 - `Accounting`: `BankTransfers`, `Currencies`, `ExpenseClaims` (create), `LinkedTransactions`, `PaymentServices`, and `ContactGroups/{id}/Contacts` now send `PUT` (was `POST`, which Xero rejects for these resources)
 - Many Accounting, Payroll, and other models gained missing spec fields (`ValidationErrors`, `StatusAttributeString`, `UpdatedDateUTC`, nested sub-models) across 46 models
-- `Accounting/Allocation`: removed the `AllocationId` alias — only `AllocationID` is in the spec
-- `Payroll AU/Payslip` and `PayslipSummary`: removed `LastEdited` — not in the AU payroll spec
+- `Accounting/Allocation`: removed the `AllocationId` alias; only `AllocationID` is in the spec
+- `Payroll AU/Payslip` and `PayslipSummary`: removed `LastEdited`, which is not in the AU payroll spec
 
-## 1.0.0 — 2026-03-31
+## 1.0.0 (2026-03-31)
 
 First public release.
 
@@ -96,4 +96,4 @@ First public release.
 - Granular scopes are covered in code and docs
 - Apps created on or after 2026-03-02 should use granular scopes
 - All apps must migrate off broad scopes by September 2027
-- `Accounting > Employees` is deprecated by Xero — use the Payroll API for employee management
+- `Accounting > Employees` is deprecated by Xero; use the Payroll API for employee management

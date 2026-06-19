@@ -122,5 +122,5 @@ $uploadedName = $uploaded?->getName();
 
 ## Scopes
 
-- `files.read` — list files, find files, read file content, read inbox, read associations
-- `files` — upload, rename, move, delete files; write folders; write associations
+- `files.read`: list files, find files, read file content, read inbox, read associations
+- `files`: upload, rename, move, delete files; write folders; write associations

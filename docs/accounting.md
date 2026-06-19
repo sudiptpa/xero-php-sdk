@@ -4,9 +4,9 @@ Covers the main Accounting API surface used in production integrations. For the 
 
 ## Scopes
 
-- `accounting.contacts.read` / `accounting.contacts` — contacts and contact groups
-- `accounting.settings.read` / `accounting.settings` — accounts, items, tax rates, tracking categories, branding themes, organisations, users
-- `accounting.transactions.read` / `accounting.transactions` — invoices, payments, credit notes, bank transactions, manual journals, purchase orders, quotes, receipts, repeating invoices
+- `accounting.contacts.read` / `accounting.contacts`: contacts and contact groups
+- `accounting.settings.read` / `accounting.settings`: accounts, items, tax rates, tracking categories, branding themes, organisations, users
+- `accounting.transactions.read` / `accounting.transactions`: invoices, payments, credit notes, bank transactions, manual journals, purchase orders, quotes, receipts, repeating invoices
 
 ## Contacts
 

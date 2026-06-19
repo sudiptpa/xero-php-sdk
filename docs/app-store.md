@@ -47,4 +47,4 @@ $updatedQuantity = $updated->getQuantity();
 
 ## Scopes
 
-- `marketplace.billing` — access subscriptions and usage records
+- `marketplace.billing`: access subscriptions and usage records

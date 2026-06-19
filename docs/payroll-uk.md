@@ -155,7 +155,7 @@ $reimbursementId = $reimbursement->getReimbursementID();
 
 ## Scopes
 
-- `payroll.employees.read` / `payroll.employees` — employees and leave balances
-- `payroll.settings.read` / `payroll.settings` — pay run calendars, settings
-- `payroll.payruns.read` / `payroll.payruns` — pay runs
-- `payroll.timesheets.read` / `payroll.timesheets` — timesheets
+- `payroll.employees.read` / `payroll.employees`: employees and leave balances
+- `payroll.settings.read` / `payroll.settings`: pay run calendars, settings
+- `payroll.payruns.read` / `payroll.payruns`: pay runs
+- `payroll.timesheets.read` / `payroll.timesheets`: timesheets

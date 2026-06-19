@@ -208,7 +208,7 @@ $productName = $products->first()?->getProductName();
 
 ## Scopes
 
-- `payroll.employees.read` / `payroll.employees` — employees and leave applications
-- `payroll.settings.read` / `payroll.settings` — pay items, settings, payroll calendars, super funds
-- `payroll.payruns.read` / `payroll.payruns` — pay runs
-- `payroll.timesheets.read` / `payroll.timesheets` — timesheets
+- `payroll.employees.read` / `payroll.employees`: employees and leave applications
+- `payroll.settings.read` / `payroll.settings`: pay items, settings, payroll calendars, super funds
+- `payroll.payruns.read` / `payroll.payruns`: pay runs
+- `payroll.timesheets.read` / `payroll.timesheets`: timesheets

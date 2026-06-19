@@ -118,10 +118,10 @@ $connections->disconnectTenant('tenant-id');
 ## Scopes
 
 - User-consent flows need `openid`, `profile`, `email`, and `offline_access` plus the API scopes you use
-- `accounting.contacts.read` — read contacts
-- `accounting.contacts` — write contacts
-- `accounting.transactions.read` — read invoices, payments, credit notes
-- `accounting.transactions` — write transactions
+- `accounting.contacts.read`: read contacts
+- `accounting.contacts`: write contacts
+- `accounting.transactions.read`: read invoices, payments, credit notes
+- `accounting.transactions`: write transactions
 - Keep scope lists small for payroll, files, assets, finance, and app-store flows
 - Apps created on or after 2 March 2026 must use granular scopes
 - Apps created before 2 March 2026 can start requesting granular scopes from April 2026

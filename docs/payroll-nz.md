@@ -173,7 +173,7 @@ $deductionName = $deductions->first()?->getName();
 
 ## Scopes
 
-- `payroll.employees.read` / `payroll.employees` — employees
-- `payroll.settings.read` / `payroll.settings` — leave types, pay run calendars, settings
-- `payroll.payruns.read` / `payroll.payruns` — pay runs
-- `payroll.timesheets.read` / `payroll.timesheets` — timesheets
+- `payroll.employees.read` / `payroll.employees`: employees
+- `payroll.settings.read` / `payroll.settings`: leave types, pay run calendars, settings
+- `payroll.payruns.read` / `payroll.payruns`: pay runs
+- `payroll.timesheets.read` / `payroll.timesheets`: timesheets
