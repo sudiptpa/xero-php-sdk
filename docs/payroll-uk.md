@@ -31,7 +31,6 @@ $balances = $employee->leaveBalances();
 $statutory = $employee->statutoryLeaveBalance('sick', '2026-03-27');
 $leaves = $employee->leaves();
 $leaveTypes = $employee->leaveTypes();
-$employment = $employee->employment();
 $paymentMethod = $employee->paymentMethod();
 ```
 
@@ -89,7 +88,7 @@ $payslips = $xero->payroll()
     ->payslips('payrun-id')
     ->get();
 
-$netPay = $payslips->first()?->getNetPay();
+$totalPay = $payslips->first()?->getTotalPay();
 ```
 
 ## Timesheets
@@ -129,7 +128,7 @@ $trackingCategories = $xero->payroll()
     ->settings()
     ->trackingCategories();
 
-$trackingCategoryName = $trackingCategories->first()?->getName();
+$timesheetCategoryId = $trackingCategories['timesheetTrackingCategoryID'] ?? null;
 ```
 
 ```php
@@ -138,7 +137,7 @@ $summary = $xero->payroll()
     ->settings()
     ->statutoryLeaveSummary('employee-id');
 
-$employeeId = $summary->getEmployeeID();
+$employeeId = $summary->first()?->getEmployeeID();
 ```
 
 ```php
@@ -147,7 +146,7 @@ $reimbursement = $xero->payroll()
     ->settings()
     ->createReimbursement()
     ->name('Meals')
-    ->accountCode('400')
+    ->account('account-id')
     ->save();
 
 $reimbursementId = $reimbursement->getReimbursementID();

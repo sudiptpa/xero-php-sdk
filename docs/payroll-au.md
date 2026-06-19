@@ -59,7 +59,7 @@ $employee = $xero->payroll()
 ```
 
 ```php
-$leaveBalances = $employee->leaveBalances();
+$leaveBalances = $employee->getLeaveBalances();
 
 $leave = $employee->createLeaveApplication()
     ->leaveType('leave-type-id')
@@ -129,13 +129,24 @@ $payRun = $xero->payroll()
 ```
 
 ```php
-$payslips = $xero->payroll()
+$payRun = $xero->payroll()
     ->au()
     ->payRuns()
-    ->payslips('payrun-id')
-    ->get();
+    ->find('payrun-id');
 
-$netPay = $payslips->first()?->getNetPay();
+$payslips = $payRun?->payslips();
+$netPay = $payslips?->first()?->getNetPay();
+```
+
+For the full payslip with all line items:
+
+```php
+$payslip = $xero->payroll()
+    ->au()
+    ->payRuns()
+    ->payslip('payslip-id');
+
+$earningsLines = $payslip?->getEarningsLines();
 ```
 
 ## Timesheets

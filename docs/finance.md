@@ -25,7 +25,7 @@ $results = $xero->finance()
     ->get(new DateTimeImmutable('2026-03-31'));
 
 $accountId = $results->first()?->getAccountId();
-$statementBalance = $results->first()?->getStatementBalance();
+$statementBalance = $results->first()?->getStatementBalance()?->getValue();
 ```
 
 ## Balance sheet

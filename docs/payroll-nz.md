@@ -34,7 +34,6 @@ $leaves = $employee->leaves();
 $paymentMethod = $employee->paymentMethod();
 $tax = $employee->tax();
 $workingPatterns = $employee->workingPatterns();
-$employment = $employee->employment();
 $salaryAndWages = $employee->salaryAndWages(page: 2);
 $salaryAndWage = $employee->salaryAndWage('salary-id');
 ```
