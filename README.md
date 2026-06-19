@@ -1,4 +1,6 @@
-# Xero PHP SDK
+<p align="center">
+  <img src="art/banner.svg" alt="xero-php-sdk" width="100%">
+</p>
 
 [![PHP 8.2-8.5](https://img.shields.io/badge/PHP-8.2--8.5-777BB4?logo=php&logoColor=white)](https://www.php.net/)
 [![Tests](https://github.com/sudiptpa/xero-php-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/sudiptpa/xero-php-sdk/actions/workflows/ci.yml)
@@ -14,7 +16,7 @@
 
 If this package saves you time, [GitHub Sponsors](https://github.com/sponsors/sudiptpa) is a simple way to support it.
 
-A fluent, framework-agnostic Xero SDK for PHP 8.2 to 8.5. No runtime dependencies.
+A fluent, framework-agnostic Xero SDK for PHP 8.2 to 8.5. No runtime dependencies. Drop it into Laravel, Symfony, or a plain PHP project; it runs anywhere PHP runs.
 
 - Typed models for every Xero API response
 - Fluent builders for reads and writes
