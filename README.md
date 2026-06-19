@@ -398,7 +398,6 @@ See [Auth](docs/auth.md) for PKCE, token refresh, tenant selection, and custom c
 - [Architecture](docs/architecture.md)
 - [Auth](docs/auth.md)
 - [Accounting](docs/accounting.md)
-- [Accounting Coverage](docs/accounting-coverage.md)
 - [Files](docs/files.md)
 - [Assets](docs/assets.md)
 - [Projects](docs/projects.md)

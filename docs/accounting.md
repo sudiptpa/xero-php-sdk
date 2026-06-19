@@ -1,6 +1,6 @@
 # Accounting
 
-Covers the main Accounting API surface used in production integrations. For the full resource matrix, see [Accounting Coverage](accounting-coverage.md).
+Covers the main Accounting API surface used in production integrations.
 
 ## Scopes
 

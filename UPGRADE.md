@@ -1,6 +1,6 @@
 # Upgrade Guide
 
-## Upgrading to the next release
+## Upgrading to 3.0
 
 This release fixes endpoints, request bodies, and response shapes that did not match the official Xero OpenAPI specs. Most affected calls previously 404'd, returned no data, or sent a payload Xero ignores. These are bug fixes, but the corrected method signatures and serialized payloads are breaking changes for any code relying on the old (incorrect) behaviour.
 
