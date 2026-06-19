@@ -8,6 +8,7 @@ use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\ValidationError;
 
 final class Timesheet extends Model
 {
@@ -16,6 +17,18 @@ final class Timesheet extends Model
     private ?string $startDate = null;
     private ?string $endDate = null;
     private ?string $status = null;
+    private ?float $hours = null;
+
+    /**
+     * @var list<array<string, mixed>>
+     */
+    private array $timesheetLines = [];
+    private ?string $updatedDateUTC = null;
+
+    /**
+     * @var list<ValidationError>
+     */
+    private array $validationErrors = [];
 
     public function __construct(
         private ?Client $client = null
@@ -82,6 +95,63 @@ final class Timesheet extends Model
         return $this;
     }
 
+    public function getHours(): ?float
+    {
+        return $this->hours;
+    }
+
+    public function setHours(?float $hours): self
+    {
+        $this->hours = $hours;
+
+        return $this;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getTimesheetLines(): array
+    {
+        return $this->timesheetLines;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $timesheetLines
+     */
+    public function setTimesheetLines(array $timesheetLines): self
+    {
+        $this->timesheetLines = $timesheetLines;
+
+        return $this;
+    }
+
+    public function getUpdatedDateUTC(): ?string
+    {
+        return $this->updatedDateUTC;
+    }
+
+    public function setUpdatedDateUTC(?string $updatedDateUTC): self
+    {
+        $this->updatedDateUTC = $updatedDateUTC;
+
+        return $this;
+    }
+
+    /**
+     * @return list<ValidationError>
+     */
+    public function getValidationErrors(): array
+    {
+        return $this->validationErrors;
+    }
+
+    public function addValidationError(ValidationError $validationError): self
+    {
+        $this->validationErrors[] = $validationError;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -93,6 +163,10 @@ final class Timesheet extends Model
             'StartDate' => Field::string()->using('setStartDate'),
             'EndDate' => Field::string()->using('setEndDate'),
             'Status' => Field::string()->using('setStatus'),
+            'Hours' => Field::number()->using('setHours'),
+            'TimesheetLines' => Field::array()->using('setTimesheetLines'),
+            'UpdatedDateUTC' => Field::string()->using('setUpdatedDateUTC'),
+            'ValidationErrors' => Field::many(ValidationError::class),
         ];
     }
 

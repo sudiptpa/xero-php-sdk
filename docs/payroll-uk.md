@@ -1,18 +1,6 @@
 # Payroll UK
-UK payroll resources and helpers.
 
-Coverage:
-
-- employees
-- employee leave balances
-- employee statutory leave balance
-- employee leave records, leave creation, leave types, leave-type creation, employment, and payment method helpers
-- pay run calendars
-- pay runs
-- pay run payslips
-- timesheets
-- settings helpers for tracking categories, reimbursements, and statutory leave summary
-- reimbursement create flow
+UK payroll resources.
 
 ## Employees
 
@@ -40,17 +28,9 @@ $employee = $xero->payroll()
 
 ```php
 $balances = $employee->leaveBalances();
-
 $statutory = $employee->statutoryLeaveBalance('sick', '2026-03-27');
-
 $leaves = $employee->leaves();
-
 $leaveTypes = $employee->leaveTypes();
-
-$leaveTypeId = $leaveTypes->first()?->getLeaveTypeID();
-
-$employment = $employee->employment();
-
 $paymentMethod = $employee->paymentMethod();
 ```
 
@@ -69,7 +49,7 @@ $createdLeaveType = $employee->createLeaveType()
     ->save();
 ```
 
-## Pay Run Calendars
+## Pay run calendars
 
 ```php
 $calendars = $xero->payroll()
@@ -80,7 +60,7 @@ $calendars = $xero->payroll()
 $calendarName = $calendars->first()?->getName();
 ```
 
-## Pay Runs
+## Pay runs
 
 ```php
 $payRuns = $xero->payroll()
@@ -108,7 +88,7 @@ $payslips = $xero->payroll()
     ->payslips('payrun-id')
     ->get();
 
-$netPay = $payslips->first()?->getNetPay();
+$totalPay = $payslips->first()?->getTotalPay();
 ```
 
 ## Timesheets
@@ -148,7 +128,7 @@ $trackingCategories = $xero->payroll()
     ->settings()
     ->trackingCategories();
 
-$trackingCategoryName = $trackingCategories->first()?->getName();
+$timesheetCategoryId = $trackingCategories['timesheetTrackingCategoryID'] ?? null;
 ```
 
 ```php
@@ -157,7 +137,7 @@ $summary = $xero->payroll()
     ->settings()
     ->statutoryLeaveSummary('employee-id');
 
-$employeeId = $summary->getEmployeeID();
+$employeeId = $summary->first()?->getEmployeeID();
 ```
 
 ```php
@@ -166,17 +146,15 @@ $reimbursement = $xero->payroll()
     ->settings()
     ->createReimbursement()
     ->name('Meals')
-    ->accountCode('400')
+    ->account('account-id')
     ->save();
 
 $reimbursementId = $reimbursement->getReimbursementID();
 ```
 
-## Scope Notes
+## Scopes
 
-Payroll UK uses several scope families:
-
-- employees and employee leave balances: broad `payroll.employees`, granular `payroll.employees.read`, `payroll.employees`
-- pay run calendars: broad `payroll.settings`, granular `payroll.settings.read`, `payroll.settings`
-- pay runs: broad `payroll.payruns`, granular `payroll.payruns.read`, `payroll.payruns`
-- timesheets: broad `payroll.timesheets`, granular `payroll.timesheets.read`, `payroll.timesheets`
+- `payroll.employees.read` / `payroll.employees`: employees and leave balances
+- `payroll.settings.read` / `payroll.settings`: pay run calendars, settings
+- `payroll.payruns.read` / `payroll.payruns`: pay runs
+- `payroll.timesheets.read` / `payroll.timesheets`: timesheets

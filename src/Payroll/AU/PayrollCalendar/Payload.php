@@ -14,9 +14,10 @@ final class Payload
      */
     private array $attributes = [];
 
+    private ?string $idempotencyKey = null;
+
     public function __construct(
         private readonly Client $client,
-        private readonly ?string $id = null,
     ) {
     }
 
@@ -52,13 +53,19 @@ final class Payload
         return $clone;
     }
 
+    public function idempotencyKey(string $key): self
+    {
+        $clone = clone $this;
+        $clone->idempotencyKey = $key;
+
+        return $clone;
+    }
+
     public function save(): PayrollCalendar
     {
-        $request = $this->id === null
-            ? $this->client->post('/payroll.xro/1.0/PayrollCalendars')
-            : $this->client->put('/payroll.xro/1.0/PayrollCalendars/' . $this->id);
-
-        $payload = $request
+        $payload = $this->client
+            ->post('/payroll.xro/1.0/PayrollCalendars')
+            ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
             ->withJson($this->attributes)
             ->send()
             ->json();

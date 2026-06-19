@@ -1,0 +1,42 @@
+name: OpenAPI audit
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download Xero OpenAPI specs
+        run: |
+          mkdir -p openapi
+          BASE=https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master
+          for spec in \
+            xero_accounting.yaml \
+            xero-payroll-au.yaml \
+            xero-payroll-nz.yaml \
+            xero-payroll-uk.yaml \
+            xero_files.yaml \
+            xero_assets.yaml \
+            xero-projects.yaml \
+            xero-finance.yaml \
+            xero-app-store.yaml \
+            xero-identity.yaml; do
+            curl -fsSL "$BASE/$spec" -o "openapi/$spec"
+          done
+
+      - name: Endpoint audit
+        run: python3 .github/scripts/audit.py
+        env:
+          XERO_SPECS_DIR: openapi
+
+      - name: Schema field audit
+        run: python3 .github/scripts/schema_audit.py
+        env:
+          XERO_SPECS_DIR: openapi

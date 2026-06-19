@@ -133,6 +133,10 @@ final class Tasks implements PaginatesResults, DefinesScopes
      */
     public static function single(array $payload): ?array
     {
+        if (array_key_exists('taskId', $payload)) {
+            return $payload;
+        }
+
         return Json::extractObject($payload, 'Task')
             ?: Json::extractObject($payload, 'task')
             ?: self::many($payload)[0]
@@ -146,6 +150,6 @@ final class Tasks implements PaginatesResults, DefinesScopes
     {
         return (new Task($this->client))
             ->fill($task)
-            ->setProjectID($this->projectId);
+            ->setProjectId($this->projectId);
     }
 }

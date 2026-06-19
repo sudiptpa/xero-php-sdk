@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\ContactGroup;
 
 use RuntimeException;
+use Sujip\Xero\Accounting\Contact\Contact;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
@@ -21,6 +22,11 @@ final class ContactGroup extends Model
      * @var list<string>
      */
     private array $contactIDs = [];
+
+    /**
+     * @var list<Contact>
+     */
+    private array $contacts = [];
 
     public function __construct(
         private ?Client $client = null
@@ -89,6 +95,21 @@ final class ContactGroup extends Model
     }
 
     /**
+     * @return list<Contact>
+     */
+    public function getContacts(): array
+    {
+        return $this->contacts;
+    }
+
+    public function addContact(Contact $contact): self
+    {
+        $this->contacts[] = $contact;
+
+        return $this;
+    }
+
+    /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
@@ -97,6 +118,7 @@ final class ContactGroup extends Model
             'ContactGroupID' => Field::string(),
             'Name' => Field::string(),
             'Status' => Field::string(),
+            'Contacts' => Field::many(Contact::class),
         ];
     }
 

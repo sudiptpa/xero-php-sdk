@@ -88,7 +88,7 @@ final class Assets implements DefinesScopes
         return $this->assets->paginate($page, $perPage);
     }
 
-    public function find(string $assetId): ?Asset
+    public function find(string $assetId): Asset
     {
         return $this->assets->find($assetId);
     }
@@ -116,7 +116,7 @@ final class Assets implements DefinesScopes
         return $this->assetTypes()->create();
     }
 
-    public function settings(): ?Settings
+    public function settings(): Settings
     {
         return Settings::fetch($this->client);
     }

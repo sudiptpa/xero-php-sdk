@@ -7,7 +7,6 @@ namespace Sujip\Xero\Tests\Projects;
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
-use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class TasksTest extends TestCase
@@ -16,38 +15,27 @@ final class TasksTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Tasks' => [[
-                'TaskID' => 'task-1',
-                'Name' => 'Discovery',
-                'ChargeType' => 'TIME',
-                'Rate' => 150,
+            'items' => [[
+                'taskId' => 'task-1',
+                'name' => 'Discovery',
+                'chargeType' => 'TIME',
+                'rate' => ['currency' => 'AUD', 'value' => 150],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Task' => [
-                'TaskID' => 'task-1',
-                'Name' => 'Discovery',
-                'ChargeType' => 'TIME',
-                'Rate' => 150,
-            ],
+            'taskId' => 'task-1',
+            'name' => 'Discovery',
+            'chargeType' => 'TIME',
+            'rate' => ['currency' => 'AUD', 'value' => 150],
         ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Task' => [
-                'TaskID' => 'task-2',
-                'Name' => 'Build',
-                'ChargeType' => 'TIME',
-                'Rate' => 180,
-            ],
+        $transport->push(new Response(201, body: json_encode([
+            'taskId' => 'task-2',
+            'name' => 'Build',
+            'chargeType' => 'TIME',
+            'rate' => ['currency' => 'AUD', 'value' => 180],
         ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Task' => [
-                'TaskID' => 'task-2',
-                'Name' => 'Build and QA',
-                'ChargeType' => 'TIME',
-                'Rate' => 200,
-            ],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(204));
+        $transport->push(new Response(204)); // update -> 204 No Content
+        $transport->push(new Response(204)); // delete -> 204 No Content
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
@@ -56,9 +44,9 @@ final class TasksTest extends TestCase
         $created = $client->projects()->tasks('project-1')->create()
             ->name('Build')
             ->chargeType('time')
-            ->rate(180)
+            ->rate(180, 'AUD')
             ->save();
-        $updated = $created->name('Build and QA')->rate(200)->save();
+        $updated = $created->name('Build and QA')->rate(200, 'AUD')->save();
         $updated->delete();
 
         self::assertSame('/projects.xro/2.0/Projects/project-1/Tasks', $transport->requests()[0]->path);
@@ -67,12 +55,17 @@ final class TasksTest extends TestCase
         self::assertSame('/projects.xro/2.0/Projects/project-1/Tasks', $transport->requests()[2]->path);
         $json2 = $transport->requests()[2]->json ?? [];
         self::assertSame('Build', $json2['name'] ?? null);
-        $rate = Json::extractObject($json2, 'rate');
-        self::assertSame(180, $rate['value'] ?? null);
+        self::assertSame(['currency' => 'AUD', 'value' => 180], $json2['rate'] ?? null);
         self::assertSame('/projects.xro/2.0/Projects/project-1/Tasks/task-2', $transport->requests()[3]->path);
+        $json3 = $transport->requests()[3]->json ?? [];
+        self::assertSame(['currency' => 'AUD', 'value' => 200], $json3['rate'] ?? null);
         self::assertSame('DELETE', $transport->requests()[4]->method);
+        self::assertSame('/projects.xro/2.0/Projects/project-1/Tasks/task-2', $transport->requests()[4]->path);
         self::assertNotNull($tasks->first());
+        self::assertSame('task-2', $updated->getTaskId());
         self::assertSame('Build and QA', $updated->getName());
-        self::assertSame('task-1', $task?->getTaskID());
+        self::assertSame(200, $updated->getRate()?->getValue());
+        self::assertSame('task-1', $task?->getTaskId());
+        self::assertSame(150, $task->getRate()?->getValue());
     }
 }

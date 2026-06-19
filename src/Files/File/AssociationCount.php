@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Files\File;
 
-use Sujip\Xero\Support\Field;
-use Sujip\Xero\Support\Model;
-
-final class AssociationCount extends Model
+/**
+ * Represents one entry of the `/Associations/Count` response, which is a
+ * dictionary of object id => association count rather than a modeled schema.
+ */
+final class AssociationCount
 {
-    private ?string $objectId = null;
-
-    private ?int $count = null;
+    public function __construct(
+        private ?string $objectId = null,
+        private ?int $count = null,
+    ) {
+    }
 
     public function getObjectId(): ?string
     {
@@ -36,16 +39,4 @@ final class AssociationCount extends Model
 
         return $this;
     }
-
-    /**
-     * @return array<string, Field>
-     */
-    protected static function getDefinitions(): array
-    {
-        return [
-            'ObjectId' => Field::string(),
-            'Count' => Field::number(),
-        ];
-    }
-
 }

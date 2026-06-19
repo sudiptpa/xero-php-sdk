@@ -14,7 +14,7 @@ use Sujip\Xero\Xero;
 
 final class PayrollCalendarsAndSuperFundsTest extends TestCase
 {
-    public function test_it_can_query_find_create_update_and_paginate_payroll_calendars(): void
+    public function test_it_can_query_find_create_and_paginate_payroll_calendars(): void
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
@@ -39,13 +39,6 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'PayrollCalendar' => [
-                'PayrollCalendarID' => 'calendar-2',
-                'Name' => 'Fortnightly',
-                'CalendarType' => 'FORTNIGHTLY',
-            ],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
             'PayrollCalendars' => [],
         ], JSON_THROW_ON_ERROR)));
 
@@ -58,25 +51,22 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
             ->calendarType('FORTNIGHTLY')
             ->startDate('2026-04-01')
             ->paymentDate('2026-04-08')
-            ->save();
-        $updated = $client->payroll()->au()->payrollCalendars()->update('calendar-2')
-            ->name('Fortnightly')
-            ->calendarType('FORTNIGHTLY')
+            ->idempotencyKey('calendar-key')
             ->save();
         $page = $client->payroll()->au()->payrollCalendars()->paginate(page: 3, perPage: 25);
 
         self::assertSame('/payroll.xro/1.0/PayrollCalendars', $transport->requests()[0]->path);
         self::assertSame(2, $transport->requests()[0]->query['page']);
         self::assertSame('/payroll.xro/1.0/PayrollCalendars/calendar-1', $transport->requests()[1]->path);
+        self::assertSame('POST', $transport->requests()[2]->method);
         self::assertSame('/payroll.xro/1.0/PayrollCalendars', $transport->requests()[2]->path);
-        self::assertSame('/payroll.xro/1.0/PayrollCalendars/calendar-2', $transport->requests()[3]->path);
-        self::assertSame('/payroll.xro/1.0/PayrollCalendars', $transport->requests()[4]->path);
-        self::assertSame(3, $transport->requests()[4]->query['page']);
-        self::assertSame(25, $transport->requests()[4]->query['pageSize']);
+        self::assertSame('calendar-key', $transport->requests()[2]->headers['Idempotency-Key']);
+        self::assertSame('/payroll.xro/1.0/PayrollCalendars', $transport->requests()[3]->path);
+        self::assertSame(3, $transport->requests()[3]->query['page']);
+        self::assertSame(25, $transport->requests()[3]->query['pageSize']);
         self::assertNotNull($calendars->first());
         self::assertSame('calendar-1', $calendar?->getPayrollCalendarID());
         self::assertSame('calendar-2', $created->getPayrollCalendarID());
-        self::assertSame('calendar-2', $updated->getPayrollCalendarID());
         self::assertSame(3, $page->page);
     }
 
@@ -101,6 +91,9 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
             'CalendarType' => 'WEEKLY',
             'StartDate' => '/Date(1572566400000+0000)/',
             'PaymentDate' => '/Date(1573171200000+0000)/',
+            'UpdatedDateUTC' => '/Date(1584125518633+0000)/',
+            'ReferenceDate' => '/Date(1573171200000+0000)/',
+            'ValidationErrors' => [['Message' => 'Invalid calendar']],
         ]);
 
         self::assertSame('calendar-1', $calendar->getPayrollCalendarID());
@@ -108,6 +101,11 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('WEEKLY', $calendar->getCalendarType());
         self::assertSame('/Date(1572566400000+0000)/', $calendar->getStartDate());
         self::assertSame('/Date(1573171200000+0000)/', $calendar->getPaymentDate());
+        self::assertSame('/Date(1584125518633+0000)/', $calendar->getUpdatedDateUtc());
+        self::assertSame('/Date(1573171200000+0000)/', $calendar->getReferenceDate());
+        $errors = $calendar->getValidationErrors();
+        self::assertCount(1, $errors);
+        self::assertSame('Invalid calendar', $errors[0]->getMessage());
     }
 
     public function test_payroll_calendar_save_returns_blank_model_on_empty_response(): void
@@ -160,6 +158,12 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
             ->name('Future Super')
             ->uSI('40022701955002')
             ->abn('12345678901')
+            ->bsb('484-799')
+            ->accountNumber('123456789')
+            ->accountName('Super Account')
+            ->electronicServiceAddress('FUTURESUPER')
+            ->employerNumber('EMP-1')
+            ->spin('FSF0001AU')
             ->idempotencyKey('superfund-key')
             ->save();
 
@@ -169,6 +173,12 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('superfund-key', $transport->requests()[2]->headers['Idempotency-Key']);
         $json2 = $transport->requests()[2]->json ?? [];
         self::assertSame('40022701955002', $json2['USI'] ?? null);
+        self::assertSame('484-799', $json2['BSB'] ?? null);
+        self::assertSame('123456789', $json2['AccountNumber'] ?? null);
+        self::assertSame('Super Account', $json2['AccountName'] ?? null);
+        self::assertSame('FUTURESUPER', $json2['ElectronicServiceAddress'] ?? null);
+        self::assertSame('EMP-1', $json2['EmployerNumber'] ?? null);
+        self::assertSame('FSF0001AU', $json2['SPIN'] ?? null);
         self::assertNotNull($funds->first());
         self::assertSame('fund-1', $fund?->getSuperFundID());
         self::assertSame('fund-2', $created->getSuperFundID());
@@ -179,10 +189,10 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
             'SuperFundProducts' => [[
-                'SuperFundProductID' => 'product-1',
-                'Name' => 'Balanced',
                 'USI' => 'OSF0001AU',
                 'ABN' => '40022701955',
+                'SPIN' => 'NML0117AU',
+                'ProductName' => 'Balanced',
             ]],
         ], JSON_THROW_ON_ERROR)));
 
@@ -198,7 +208,8 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('OSF0001AU', $transport->requests()[0]->query['USI']);
         $firstProduct = $products->first();
         self::assertNotNull($firstProduct);
-        self::assertSame('product-1', $firstProduct->getSuperFundProductID());
+        self::assertSame('Balanced', $firstProduct->getProductName());
+        self::assertSame('NML0117AU', $firstProduct->getSpin());
     }
 
     public function test_super_funds_and_products_expose_scopes(): void
@@ -221,28 +232,50 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
     {
         $fund = (new SuperFund())->fill([
             'SuperFundID' => 'fund-1',
-            'Name' => 'AustralianSuper',
             'Type' => 'REGULATED',
+            'Name' => 'AustralianSuper',
+            'ABN' => '24248426878',
+            'BSB' => '484799',
+            'AccountNumber' => '123456789',
+            'AccountName' => 'Money account',
+            'ElectronicServiceAddress' => '12345678',
+            'EmployerNumber' => '324324',
+            'SPIN' => '4545445454',
+            'USI' => '40022701955001',
+            'UpdatedDateUTC' => '/Date(1583967733054+0000)/',
+            'ValidationErrors' => [['Message' => 'Invalid ABN']],
         ]);
 
         self::assertSame('fund-1', $fund->getSuperFundID());
-        self::assertSame('AustralianSuper', $fund->getName());
         self::assertSame('REGULATED', $fund->getType());
+        self::assertSame('AustralianSuper', $fund->getName());
+        self::assertSame('24248426878', $fund->getAbn());
+        self::assertSame('484799', $fund->getBsb());
+        self::assertSame('123456789', $fund->getAccountNumber());
+        self::assertSame('Money account', $fund->getAccountName());
+        self::assertSame('12345678', $fund->getElectronicServiceAddress());
+        self::assertSame('324324', $fund->getEmployerNumber());
+        self::assertSame('4545445454', $fund->getSpin());
+        self::assertSame('40022701955001', $fund->getUsi());
+        self::assertSame('/Date(1583967733054+0000)/', $fund->getUpdatedDateUtc());
+        $errors = $fund->getValidationErrors();
+        self::assertCount(1, $errors);
+        self::assertSame('Invalid ABN', $errors[0]->getMessage());
     }
 
     public function test_super_fund_product_exposes_all_fields(): void
     {
         $product = (new Product())->fill([
-            'SuperFundProductID' => 'product-1',
-            'Name' => 'Balanced',
-            'USI' => 'OSF0001AU',
             'ABN' => '40022701955',
+            'USI' => 'OSF0001AU',
+            'SPIN' => 'NML0117AU',
+            'ProductName' => 'Balanced',
         ]);
 
-        self::assertSame('product-1', $product->getSuperFundProductID());
-        self::assertSame('Balanced', $product->getName());
-        self::assertSame('OSF0001AU', $product->getUSI());
-        self::assertSame('40022701955', $product->getABN());
+        self::assertSame('40022701955', $product->getAbn());
+        self::assertSame('OSF0001AU', $product->getUsi());
+        self::assertSame('NML0117AU', $product->getSpin());
+        self::assertSame('Balanced', $product->getProductName());
     }
 
     public function test_super_fund_save_returns_blank_model_on_empty_response(): void

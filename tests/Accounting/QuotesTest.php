@@ -39,6 +39,26 @@ final class QuotesTest extends TestCase
             'Quotes' => [[
                 'QuoteID' => 'quote-1',
                 'QuoteNumber' => 'QUO-1001',
+                'Reference' => 'REF-001',
+                'Terms' => 'Payment due in 30 days',
+                'Date' => '2026-04-01T00:00:00',
+                'DateString' => '2026-04-01T00:00:00',
+                'ExpiryDate' => '2026-05-01T00:00:00',
+                'ExpiryDateString' => '2026-05-01T00:00:00',
+                'Status' => 'SENT',
+                'CurrencyCode' => 'NZD',
+                'CurrencyRate' => 1.0,
+                'SubTotal' => 1200,
+                'TotalTax' => 180,
+                'Total' => 1380,
+                'TotalDiscount' => 0,
+                'Title' => 'Website redesign',
+                'Summary' => 'Quote summary',
+                'BrandingThemeID' => 'brand-1',
+                'UpdatedDateUTC' => '2026-04-01T01:00:00',
+                'LineAmountTypes' => 'Exclusive',
+                'StatusAttributeString' => 'OK',
+                'ValidationErrors' => [['Message' => 'Some warning']],
             ]],
         ], JSON_THROW_ON_ERROR)));
 
@@ -51,9 +71,31 @@ final class QuotesTest extends TestCase
         $firstQuote = $quotes->first();
         self::assertNotNull($firstQuote);
         self::assertSame('/api.xro/2.0/Quotes/quote-1', $transport->requests()[1]->path);
-        self::assertSame('quote-1', $quote?->getQuoteID());
+        self::assertNotNull($quote);
+        self::assertSame('quote-1', $quote->getQuoteID());
         self::assertSame('contact-1', $firstQuote->getContact()?->getContactID());
         self::assertSame('Design sprint', $firstQuote->getLineItems()[0]->getDescription());
+        self::assertSame('REF-001', $quote->getReference());
+        self::assertSame('Payment due in 30 days', $quote->getTerms());
+        self::assertSame('2026-04-01T00:00:00', $quote->getDate());
+        self::assertSame('2026-04-01T00:00:00', $quote->getDateString());
+        self::assertSame('2026-05-01T00:00:00', $quote->getExpiryDate());
+        self::assertSame('2026-05-01T00:00:00', $quote->getExpiryDateString());
+        self::assertSame('SENT', $quote->getStatus());
+        self::assertSame('NZD', $quote->getCurrencyCode());
+        self::assertSame(1, $quote->getCurrencyRate());
+        self::assertSame(1200, $quote->getSubTotal());
+        self::assertSame(180, $quote->getTotalTax());
+        self::assertSame(1380, $quote->getTotal());
+        self::assertSame(0, $quote->getTotalDiscount());
+        self::assertSame('Website redesign', $quote->getTitle());
+        self::assertSame('Quote summary', $quote->getSummary());
+        self::assertSame('brand-1', $quote->getBrandingThemeID());
+        self::assertSame('2026-04-01T01:00:00', $quote->getUpdatedDateUTC());
+        self::assertSame('Exclusive', $quote->getLineAmountTypes());
+        self::assertSame('OK', $quote->getStatusAttributeString());
+        self::assertCount(1, $quote->getValidationErrors());
+        self::assertSame('Some warning', $quote->getValidationErrors()[0]->getMessage());
     }
 
     public function test_it_can_create_and_update_quotes(): void
@@ -163,6 +205,49 @@ final class QuotesTest extends TestCase
         self::assertSame('Website redesign', $quote['Title']);
         $lineItems = Json::extractList($quote, 'LineItems');
         self::assertSame('Design sprint', $lineItems[0]['Description'] ?? null);
+    }
+
+    public function test_it_serializes_writable_quote_fields_to_request(): void
+    {
+        $quote = (new Quote())
+            ->setQuoteID('quote-1')
+            ->setQuoteNumber('QUO-1001')
+            ->setReference('REF-001')
+            ->setTerms('Payment due in 30 days')
+            ->setStatus('SENT')
+            ->setTitle('Website redesign')
+            ->setSummary('Quote summary')
+            ->setDate('2026-04-01T00:00:00')
+            ->setDateString('2026-04-01T00:00:00')
+            ->setExpiryDate('2026-05-01T00:00:00')
+            ->setExpiryDateString('2026-05-01T00:00:00')
+            ->setCurrencyCode('NZD')
+            ->setCurrencyRate(1.0)
+            ->setBrandingThemeID('brand-1')
+            ->setLineAmountTypes('Exclusive');
+
+        $request = $quote->toRequest();
+
+        self::assertSame('REF-001', $request['Reference']);
+        self::assertSame('Payment due in 30 days', $request['Terms']);
+        self::assertSame('SENT', $request['Status']);
+        self::assertSame('Website redesign', $request['Title']);
+        self::assertSame('Quote summary', $request['Summary']);
+        self::assertSame('2026-04-01T00:00:00', $request['Date']);
+        self::assertSame('2026-04-01T00:00:00', $request['DateString']);
+        self::assertSame('2026-05-01T00:00:00', $request['ExpiryDate']);
+        self::assertSame('2026-05-01T00:00:00', $request['ExpiryDateString']);
+        self::assertSame('NZD', $request['CurrencyCode']);
+        self::assertSame(1.0, $request['CurrencyRate']);
+        self::assertSame('brand-1', $request['BrandingThemeID']);
+        self::assertSame('Exclusive', $request['LineAmountTypes']);
+        self::assertArrayNotHasKey('SubTotal', $request);
+        self::assertArrayNotHasKey('TotalTax', $request);
+        self::assertArrayNotHasKey('Total', $request);
+        self::assertArrayNotHasKey('TotalDiscount', $request);
+        self::assertArrayNotHasKey('UpdatedDateUTC', $request);
+        self::assertArrayNotHasKey('StatusAttributeString', $request);
+        self::assertArrayNotHasKey('ValidationErrors', $request);
     }
 
     public function test_model_fluent_helpers_set_fields(): void

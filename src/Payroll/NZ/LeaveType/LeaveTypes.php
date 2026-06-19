@@ -56,7 +56,7 @@ final class LeaveTypes implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $items = array_map(
             fn (array $leaveType): LeaveType => $this->mapLeaveType($leaveType),
-            Json::extractList($payload, 'LeaveTypes')
+            Json::extractList($payload, 'leaveTypes')
         );
 
         return new ResourceCollection($items);
@@ -87,7 +87,7 @@ final class LeaveTypes implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $leaveType = Json::extractFirst($payload, 'LeaveTypes') ?? Json::extractObject($payload, 'LeaveType') ?: null;
+        $leaveType = Json::extractFirst($payload, 'leaveTypes') ?? Json::extractObject($payload, 'leaveType') ?: null;
 
         return $leaveType !== null ? $this->mapLeaveType($leaveType) : null;
     }

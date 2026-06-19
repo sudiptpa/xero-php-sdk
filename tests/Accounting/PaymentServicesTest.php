@@ -20,6 +20,7 @@ final class PaymentServicesTest extends TestCase
                     'PaymentServiceName' => 'Stripe',
                     'PaymentServiceUrl' => 'https://example.test/pay',
                     'PayNowText' => 'Pay online',
+                    'ValidationErrors' => [['Message' => 'Invalid payment service URL']],
                 ]],
             ], JSON_THROW_ON_ERROR))
         );
@@ -31,7 +32,9 @@ final class PaymentServicesTest extends TestCase
             ->get();
 
         self::assertSame('/api.xro/2.0/PaymentServices', $transport->requests()[0]->path);
-        self::assertInstanceOf(PaymentService::class, $services->first());
+        $service = $services->first();
+        self::assertInstanceOf(PaymentService::class, $service);
+        self::assertSame('Invalid payment service URL', $service->getValidationErrors()[0]->getMessage());
     }
 
     public function test_it_can_create_payment_services(): void
@@ -57,6 +60,7 @@ final class PaymentServicesTest extends TestCase
             ->idempotencyKey('service-key')
             ->save();
 
+        self::assertSame('PUT', $transport->requests()[0]->method);
         self::assertSame('/api.xro/2.0/PaymentServices', $transport->requests()[0]->path);
         self::assertSame('service-key', $transport->requests()[0]->headers['Idempotency-Key']);
         self::assertSame('Stripe', $service->getPaymentServiceName());

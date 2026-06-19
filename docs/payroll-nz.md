@@ -1,19 +1,6 @@
 # Payroll NZ
-NZ payroll resources and employee-side helpers.
 
-Coverage:
-
-- employees
-- employee leave balances, leave records, payment methods, tax, and working-pattern helpers
-- employee leave setup and opening balances
-- employee employment, leave, payment-method, salary-and-wages, and working-pattern create helpers
-- employee employment, salary-and-wages, and single salary record helpers
-- leave types
-- pay run calendars
-- pay runs
-- timesheets
-- settings
-- statutory deductions
+NZ payroll resources and employee helpers.
 
 ## Employees
 
@@ -41,25 +28,13 @@ $employee = $xero->payroll()
 
 ```php
 $leaveTypes = $employee->leaveTypes();
-
-$leaveTypeName = $leaveTypes->first()?->getName();
-
 $leavePeriods = $employee->leavePeriods('2026-01-01', '2026-03-31');
-
 $leaveBalances = $employee->leaveBalances();
-
 $leaves = $employee->leaves();
-
 $paymentMethod = $employee->paymentMethod();
-
 $tax = $employee->tax();
-
 $workingPatterns = $employee->workingPatterns();
-
-$employment = $employee->employment();
-
 $salaryAndWages = $employee->salaryAndWages(page: 2);
-
 $salaryAndWage = $employee->salaryAndWage('salary-id');
 ```
 
@@ -102,7 +77,7 @@ $openingBalances = $employee->openingBalances()
     ->save();
 ```
 
-## Leave Types
+## Leave types
 
 ```php
 $leaveTypes = $xero->payroll()
@@ -114,7 +89,7 @@ $leaveTypes = $xero->payroll()
 $leaveTypeId = $leaveTypes->first()?->getLeaveTypeID();
 ```
 
-## Pay Run Calendars
+## Pay run calendars
 
 ```php
 $calendars = $xero->payroll()
@@ -125,7 +100,7 @@ $calendars = $xero->payroll()
 $calendarName = $calendars->first()?->getName();
 ```
 
-## Pay Runs
+## Pay runs
 
 ```php
 $payRuns = $xero->payroll()
@@ -195,11 +170,9 @@ $deductions = $xero->payroll()
 $deductionName = $deductions->first()?->getName();
 ```
 
-## Scope Notes
+## Scopes
 
-Payroll NZ uses several scope families:
-
-- employees: broad `payroll.employees`, granular `payroll.employees.read`, `payroll.employees`
-- leave types, pay run calendars, and settings: broad `payroll.settings`, granular `payroll.settings.read`, `payroll.settings`
-- pay runs: broad `payroll.payruns`, granular `payroll.payruns.read`, `payroll.payruns`
-- timesheets: broad `payroll.timesheets`, granular `payroll.timesheets.read`, `payroll.timesheets`
+- `payroll.employees.read` / `payroll.employees`: employees
+- `payroll.settings.read` / `payroll.settings`: leave types, pay run calendars, settings
+- `payroll.payruns.read` / `payroll.payruns`: pay runs
+- `payroll.timesheets.read` / `payroll.timesheets`: timesheets

@@ -47,10 +47,12 @@ final class Payload
         return $clone;
     }
 
-    public function rate(int|float $rate): self
+    public function rate(int|float $value, ?string $currency = null): self
     {
         $clone = clone $this;
-        $clone->payload['rate'] = ['value' => $rate];
+        $clone->payload['rate'] = $currency === null
+            ? ['value' => $value]
+            : ['currency' => $currency, 'value' => $value];
 
         return $clone;
     }
@@ -86,7 +88,13 @@ final class Payload
         $task = Tasks::single($payload);
 
         if (! is_array($task)) {
-            return (new Task($this->client))->setProjectID($this->projectId);
+            $fallback = (new Task($this->client))->fill($this->payload)->setProjectId($this->projectId);
+
+            if ($this->taskId !== null) {
+                $fallback->setTaskId($this->taskId);
+            }
+
+            return $fallback;
         }
 
         return (new Tasks($this->client, $this->projectId))->mapTask($task);

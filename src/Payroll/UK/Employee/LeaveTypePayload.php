@@ -24,7 +24,7 @@ final class LeaveTypePayload
     public function leaveType(string $leaveTypeId): self
     {
         $clone = clone $this;
-        $clone->payload['LeaveTypeID'] = $leaveTypeId;
+        $clone->payload['leaveTypeID'] = $leaveTypeId;
 
         return $clone;
     }
@@ -32,7 +32,7 @@ final class LeaveTypePayload
     public function scheduleOfAccrual(string $schedule): self
     {
         $clone = clone $this;
-        $clone->payload['ScheduleOfAccrual'] = $schedule;
+        $clone->payload['scheduleOfAccrual'] = $schedule;
 
         return $clone;
     }
@@ -40,7 +40,7 @@ final class LeaveTypePayload
     public function openingBalance(float $openingBalance): self
     {
         $clone = clone $this;
-        $clone->payload['OpeningBalance'] = $openingBalance;
+        $clone->payload['openingBalance'] = $openingBalance;
 
         return $clone;
     }
@@ -61,7 +61,7 @@ final class LeaveTypePayload
         return $this->client
             ->post('/payroll.xro/2.0/Employees/' . $this->employeeId . '/LeaveTypes')
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
-            ->withJson(['EmployeeLeaveType' => $this->payload])
+            ->withJson($this->payload)
             ->send()
             ->json();
     }

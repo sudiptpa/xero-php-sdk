@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\AppStore\Subscription;
 
+use RuntimeException;
 use Sujip\Xero\Client;
 
 final class UsageRecordPayload
@@ -39,7 +40,7 @@ final class UsageRecordPayload
         return $clone;
     }
 
-    public function quantity(float $quantity): self
+    public function quantity(int|float $quantity): self
     {
         $clone = clone $this;
         $clone->payload['quantity'] = $quantity;
@@ -47,18 +48,10 @@ final class UsageRecordPayload
         return $clone;
     }
 
-    public function startDate(string $startDate): self
+    public function timestamp(string $timestamp): self
     {
         $clone = clone $this;
-        $clone->payload['startDate'] = $startDate;
-
-        return $clone;
-    }
-
-    public function endDate(string $endDate): self
-    {
-        $clone = clone $this;
-        $clone->payload['endDate'] = $endDate;
+        $clone->payload['timestamp'] = $timestamp;
 
         return $clone;
     }
@@ -81,16 +74,14 @@ final class UsageRecordPayload
 
     private function path(): string
     {
-        $itemId = $this->subscriptionItemId ?? ($this->payload['subscriptionItemId'] ?? null);
-
-        if (! is_string($itemId) || $itemId === '') {
-            throw new \RuntimeException('A subscription item id is required when recording or updating usage.');
+        if ($this->subscriptionItemId === null) {
+            throw new RuntimeException('A subscription item id is required when recording or updating usage.');
         }
 
         if ($this->usageRecordId === null) {
-            return '/subscriptions/' . $this->subscriptionId . '/items/' . $itemId . '/usage-records';
+            return '/appstore/2.0/subscriptions/' . $this->subscriptionId . '/items/' . $this->subscriptionItemId . '/usage-records';
         }
 
-        return '/subscriptions/' . $this->subscriptionId . '/items/' . $itemId . '/usage-records/' . $this->usageRecordId;
+        return '/appstore/2.0/subscriptions/' . $this->subscriptionId . '/items/' . $this->subscriptionItemId . '/usage-records/' . $this->usageRecordId;
     }
 }

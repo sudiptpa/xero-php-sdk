@@ -19,6 +19,10 @@ final class User extends Model
 
     private ?bool $isSubscriber = null;
 
+    private ?string $updatedDateUTC = null;
+
+    private ?string $organisationRole = null;
+
     public function getUserID(): ?string
     {
         return $this->userID;
@@ -79,6 +83,30 @@ final class User extends Model
         return $this;
     }
 
+    public function getUpdatedDateUTC(): ?string
+    {
+        return $this->updatedDateUTC;
+    }
+
+    public function setUpdatedDateUTC(?string $updatedDateUTC): self
+    {
+        $this->updatedDateUTC = $updatedDateUTC;
+
+        return $this;
+    }
+
+    public function getOrganisationRole(): ?string
+    {
+        return $this->organisationRole;
+    }
+
+    public function setOrganisationRole(?string $organisationRole): self
+    {
+        $this->organisationRole = $organisationRole;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -90,6 +118,8 @@ final class User extends Model
             'LastName' => Field::string(),
             'EmailAddress' => Field::string(),
             'IsSubscriber' => Field::boolean(),
+            'UpdatedDateUTC' => Field::string(),
+            'OrganisationRole' => Field::string(),
         ];
     }
 }

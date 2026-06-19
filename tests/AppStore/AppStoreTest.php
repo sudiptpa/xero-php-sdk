@@ -28,27 +28,43 @@ final class AppStoreTest extends TestCase
     public function test_subscription_getters_return_filled_values(): void
     {
         $subscription = (new Subscription())
-            ->setSubscriptionID('subscription-1')
-            ->setPlanID('plan-1')
+            ->setId('subscription-1')
+            ->setOrganisationId('org-1')
             ->setStatus('ACTIVE')
-            ->setCurrentPeriodEnd('2026-04-30');
+            ->setStartDate('2026-01-01')
+            ->setCurrentPeriodEnd('2026-04-30')
+            ->setEndDate('2026-12-31')
+            ->setTestMode(true);
 
-        self::assertSame('subscription-1', $subscription->getSubscriptionID());
-        self::assertSame('plan-1', $subscription->getPlanID());
+        self::assertSame('subscription-1', $subscription->getId());
+        self::assertSame('org-1', $subscription->getOrganisationId());
         self::assertSame('ACTIVE', $subscription->getStatus());
+        self::assertSame('2026-01-01', $subscription->getStartDate());
         self::assertSame('2026-04-30', $subscription->getCurrentPeriodEnd());
+        self::assertSame('2026-12-31', $subscription->getEndDate());
+        self::assertTrue($subscription->getTestMode());
     }
 
     public function test_usage_record_getters_return_filled_values(): void
     {
         $record = (new UsageRecord())
-            ->setSubscriptionItemID('item-1')
-            ->setStartDate('2026-03-01')
-            ->setEndDate('2026-03-31');
+            ->setUsageRecordId('usage-1')
+            ->setSubscriptionId('subscription-1')
+            ->setSubscriptionItemId('item-1')
+            ->setProductId('product-1')
+            ->setPricePerUnit(0.1)
+            ->setQuantity(22)
+            ->setTestMode(true)
+            ->setRecordedAt('2026-03-01T00:00:00');
 
-        self::assertSame('item-1', $record->getSubscriptionItemID());
-        self::assertSame('2026-03-01', $record->getStartDate());
-        self::assertSame('2026-03-31', $record->getEndDate());
+        self::assertSame('usage-1', $record->getUsageRecordId());
+        self::assertSame('subscription-1', $record->getSubscriptionId());
+        self::assertSame('item-1', $record->getSubscriptionItemId());
+        self::assertSame('product-1', $record->getProductId());
+        self::assertSame(0.1, $record->getPricePerUnit());
+        self::assertSame(22, $record->getQuantity());
+        self::assertTrue($record->getTestMode());
+        self::assertSame('2026-03-01T00:00:00', $record->getRecordedAt());
     }
 
     public function test_usage_records_require_a_bound_client_context(): void

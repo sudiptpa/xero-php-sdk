@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Account;
 
+use Sujip\Xero\Accounting\Attachments;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
@@ -104,6 +105,11 @@ final class Accounts implements PaginatesResults, DefinesScopes
     public function update(string $accountId): Payload
     {
         return (new Payload($this->client))->id($accountId);
+    }
+
+    public function attachments(string $accountId): Attachments
+    {
+        return new Attachments($this->client, '/api.xro/2.0/Accounts/' . $accountId . '/Attachments');
     }
 
     /**

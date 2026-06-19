@@ -14,14 +14,12 @@ final class PayItem extends Model
      * @param list<array<string, mixed>> $deductionTypes
      * @param list<array<string, mixed>> $leaveTypes
      * @param list<array<string, mixed>> $reimbursementTypes
-     * @param list<array<string, mixed>> $superannuationTypes
      */
     public function __construct(
         private array $earningsRates = [],
         private array $deductionTypes = [],
         private array $leaveTypes = [],
         private array $reimbursementTypes = [],
-        private array $superannuationTypes = [],
     ) {
     }
 
@@ -86,22 +84,6 @@ final class PayItem extends Model
         return $this;
     }
     /**
-     * @return list<array<string, mixed>>
-     */
-    public function getSuperannuationTypes(): array
-    {
-        return $this->superannuationTypes;
-    }
-    /**
-     * @param list<array<string, mixed>> $superannuationTypes
-     */
-    public function setSuperannuationTypes(array $superannuationTypes): self
-    {
-        $this->superannuationTypes = $superannuationTypes;
-        return $this;
-    }
-
-    /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
@@ -111,7 +93,6 @@ final class PayItem extends Model
             'DeductionTypes' => Field::array()->using('setDeductionTypes'),
             'LeaveTypes' => Field::array()->using('setLeaveTypes'),
             'ReimbursementTypes' => Field::array()->using('setReimbursementTypes'),
-            'SuperannuationTypes' => Field::array()->using('setSuperannuationTypes'),
         ];
     }
 }

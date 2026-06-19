@@ -6,6 +6,7 @@ namespace Sujip\Xero\Tests\Support;
 
 use LogicException;
 use PHPUnit\Framework\TestCase;
+use Sujip\Xero\Support\AttachmentDetail;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
 
@@ -35,6 +36,20 @@ final class ModelTest extends TestCase
         self::assertCount(1, $model->getData());
         self::assertSame('t1', $model->getTaxes()[0]->getName());
         self::assertSame('i1', $model->getItems()[0]->getName());
+    }
+
+    public function test_attachment_detail_getters_and_setters(): void
+    {
+        $attachment = (new AttachmentDetail())
+            ->setUrl('https://example.test/file.pdf')
+            ->setMimeType('application/pdf')
+            ->setContentLength(1024)
+            ->setIncludeOnline(true);
+
+        self::assertSame('https://example.test/file.pdf', $attachment->getUrl());
+        self::assertSame('application/pdf', $attachment->getMimeType());
+        self::assertSame(1024, $attachment->getContentLength());
+        self::assertTrue($attachment->getIncludeOnline());
     }
 
     public function test_it_skips_unknown_payload_keys(): void

@@ -46,11 +46,9 @@ final class FilesTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'file-1',
-                'Name' => 'contract.pdf',
-                'MimeType' => 'application/pdf',
-            ]],
+            'Id' => 'file-1',
+            'Name' => 'contract.pdf',
+            'MimeType' => 'application/pdf',
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: 'pdf-binary-content'));
 
@@ -70,12 +68,10 @@ final class FilesTest extends TestCase
     {
         $transport = (new FakeTransport())->push(
             new Response(200, body: json_encode([
-                'Items' => [[
-                    'Id' => 'file-1',
-                    'Name' => 'contract.pdf',
-                    'MimeType' => 'application/pdf',
-                    'FolderId' => 'folder-1',
-                ]],
+                'Id' => 'file-1',
+                'Name' => 'contract.pdf',
+                'MimeType' => 'application/pdf',
+                'FolderId' => 'folder-1',
             ], JSON_THROW_ON_ERROR))
         );
 
@@ -92,12 +88,11 @@ final class FilesTest extends TestCase
 
         self::assertSame('POST', $request->method);
         self::assertSame('/files.xro/1.0/Files/folder-1', $request->path);
-        self::assertSame('contract.pdf', $request->query['name']);
-        self::assertSame('contract.pdf', $request->query['filename']);
-        self::assertSame('application/pdf', $request->query['mimeType']);
-        self::assertSame('application/pdf', $request->headers['Content-Type']);
+        self::assertStringStartsWith('multipart/form-data; boundary=', $request->headers['Content-Type']);
         self::assertSame('upload-key', $request->headers['Idempotency-Key']);
-        self::assertSame('binary-data', $request->body);
+        self::assertStringContainsString('Content-Disposition: form-data; name="contract.pdf"; filename="contract.pdf"', $request->body ?? '');
+        self::assertStringContainsString('Content-Type: application/pdf', $request->body ?? '');
+        self::assertStringContainsString('binary-data', $request->body ?? '');
         self::assertSame('folder-1', $file->getFolderId());
     }
 
@@ -105,18 +100,14 @@ final class FilesTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'file-1',
-                'Name' => 'contract.pdf',
-                'FolderId' => 'folder-1',
-            ]],
+            'Id' => 'file-1',
+            'Name' => 'contract.pdf',
+            'FolderId' => 'folder-1',
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'file-1',
-                'Name' => 'contract-v2.pdf',
-                'FolderId' => 'folder-2',
-            ]],
+            'Id' => 'file-1',
+            'Name' => 'contract-v2.pdf',
+            'FolderId' => 'folder-2',
         ], JSON_THROW_ON_ERROR)));
 
         $file = Xero::withAccessToken('token', $transport)
@@ -138,19 +129,15 @@ final class FilesTest extends TestCase
     public function test_it_can_list_and_create_file_associations(): void
     {
         $transport = new FakeTransport();
-        $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'ObjectId' => 'invoice-1',
-                'ObjectType' => 'Invoice',
-                'ObjectGroup' => 'Invoices',
-            ]],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'ObjectId' => 'invoice-2',
-                'ObjectType' => 'Invoice',
-                'ObjectGroup' => 'Invoices',
-            ]],
+        $transport->push(new Response(200, body: json_encode([[
+            'ObjectId' => 'invoice-1',
+            'ObjectType' => 'Invoice',
+            'ObjectGroup' => 'Invoices',
+        ]], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(201, body: json_encode([
+            'ObjectId' => 'invoice-2',
+            'ObjectType' => 'Invoice',
+            'ObjectGroup' => 'Invoices',
         ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
@@ -158,6 +145,7 @@ final class FilesTest extends TestCase
         $associations = $client->files()->associations('file-1')->get();
         $created = $client->files()->associations('file-1')
             ->attach('invoice-2', 'Invoice', 'Invoices')
+            ->idempotencyKey('idem-key-1')
             ->save();
 
         self::assertSame('/files.xro/1.0/Files/file-1/Associations', $transport->requests()[0]->path);
@@ -166,23 +154,25 @@ final class FilesTest extends TestCase
         $json1 = $transport->requests()[1]->json ?? [];
         self::assertSame('invoice-2', $json1['ObjectId'] ?? null);
         self::assertSame('Invoice', $created->getObjectType());
+        self::assertSame('idem-key-1', $transport->requests()[1]->headers['Idempotency-Key'] ?? null);
     }
 
     public function test_it_can_list_files_associated_with_an_object_and_delete_an_association(): void
     {
         $transport = new FakeTransport();
-        $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'file-1',
-                'Name' => 'invoice.pdf',
-                'MimeType' => 'application/pdf',
-            ]],
-        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([[
+            'FileId' => 'file-1',
+            'ObjectId' => 'invoice-1',
+            'ObjectGroup' => 'Invoices',
+            'ObjectType' => 'Invoice',
+            'Name' => 'invoice.pdf',
+            'Size' => 1024,
+        ]], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(204));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
-        $files = $client->files()
+        $associations = $client->files()
             ->forObject('invoice-1')
             ->orderBy('CreatedDateUTC', 'DESC')
             ->page(2)
@@ -198,7 +188,10 @@ final class FilesTest extends TestCase
         self::assertSame('DESC', $transport->requests()[0]->query['direction']);
         self::assertSame(2, $transport->requests()[0]->query['page']);
         self::assertSame(25, $transport->requests()[0]->query['pagesize']);
-        self::assertNotNull($files->first());
+        $association = $associations->first();
+        self::assertNotNull($association);
+        self::assertSame('file-1', $association->getFileId());
+        self::assertSame('invoice.pdf', $association->getName());
         self::assertSame('/files.xro/1.0/Files/file-1/Associations/invoice-1', $transport->requests()[1]->path);
         self::assertTrue($deleted);
     }
@@ -206,10 +199,8 @@ final class FilesTest extends TestCase
     public function test_it_can_get_association_counts_for_objects(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'ObjectId' => 'invoice-1',
-                'Count' => 3,
-            ]],
+            'invoice-1' => 3,
+            'invoice-2' => 1,
         ], JSON_THROW_ON_ERROR)));
 
         $counts = Xero::withAccessToken('token', $transport)
@@ -220,17 +211,18 @@ final class FilesTest extends TestCase
 
         self::assertSame('/files.xro/1.0/Associations/Count', $transport->requests()[0]->path);
         self::assertSame('invoice-1,invoice-2', $transport->requests()[0]->query['ObjectIds']);
-        self::assertSame(3, $counts->first()?->getCount());
+        $count = $counts->first();
+        self::assertNotNull($count);
+        self::assertSame('invoice-1', $count->getObjectId());
+        self::assertSame(3, $count->getCount());
     }
 
     public function test_loaded_file_can_be_deleted(): void
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'file-1',
-                'Name' => 'contract.pdf',
-            ]],
+            'Id' => 'file-1',
+            'Name' => 'contract.pdf',
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(204));
 

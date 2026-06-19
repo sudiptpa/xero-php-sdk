@@ -84,11 +84,6 @@ final class PayrollCalendars implements PaginatesResults, DefinesScopes
         return new Payload($this->client);
     }
 
-    public function update(string $payrollCalendarId): Payload
-    {
-        return new Payload($this->client, $payrollCalendarId);
-    }
-
     /**
      * @param array<string, mixed> $calendar
      */

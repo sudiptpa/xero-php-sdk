@@ -1,29 +1,25 @@
 # Roadmap
 
-This page keeps the current work short and clear.
+## Current state
 
-## Current Focus
-
-Use these pages as the source of truth:
+All API families are implemented and passing the field-level audit against the OpenAPI specs. See the status pages for details:
 
 - [package-status.md](package-status.md)
 - [implementation-status.md](implementation-status.md)
 
-The current work is:
+## Release rule
 
-1. finish the remaining payroll helpers that still matter in real apps
-2. recheck Accounting for any last low-traffic helper
-3. finish the last docs cleanup around scopes and first-run setup
+Do not tag a release until:
 
-## Release Rule
+- `.github/scripts/schema_audit.py` reports zero findings
+- `.github/scripts/audit.py` is clean
+- the pre-release checklist in PROGRESS.md is done
 
-The package is not ready to call fully covered until the open items in the status pages are closed or intentionally marked out of scope.
+## Quality bar
 
-## Quality Bar
-
-Every completed resource should have:
+Every completed resource must have:
 
 - a fluent public API
-- rich models
+- typed models that match the OpenAPI spec exactly
 - tests
 - scope metadata

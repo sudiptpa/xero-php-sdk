@@ -43,7 +43,7 @@ final class PayRunCalendars implements PaginatesResults, DefinesScopes
         $payload = $response->json();
         $items = array_map(
             fn (array $calendar): PayRunCalendar => $this->mapPayRunCalendar($calendar),
-            Json::extractList($payload, 'PayrollCalendars') ?: Json::extractList($payload, 'PayRunCalendars')
+            Json::extractList($payload, 'payRunCalendars')
         );
 
         return new ResourceCollection($items);
@@ -74,18 +74,7 @@ final class PayRunCalendars implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $calendar = Json::extractFirst($payload, 'PayrollCalendars')
-            ?? Json::extractFirst($payload, 'PayRunCalendars');
-
-        if ($calendar === null) {
-            $obj = Json::extractObject($payload, 'PayrollCalendar');
-            $calendar = $obj !== [] ? $obj : null;
-        }
-
-        if ($calendar === null) {
-            $obj = Json::extractObject($payload, 'PayRunCalendar');
-            $calendar = $obj !== [] ? $obj : null;
-        }
+        $calendar = Json::extractFirst($payload, 'payRunCalendars') ?? Json::extractObject($payload, 'payRunCalendar') ?: null;
 
         return $calendar !== null ? $this->mapPayRunCalendar($calendar) : null;
     }

@@ -23,6 +23,11 @@ final class PayRun extends Model
     private ?string $calendarType = null;
     private ?string $postedDateTime = null;
 
+    /**
+     * @var list<Payslip>
+     */
+    private array $paySlips = [];
+
     public function __construct(
         private ?Client $client = null
     ) {
@@ -161,30 +166,38 @@ final class PayRun extends Model
     }
 
     /**
+     * @return list<Payslip>
+     */
+    public function getPaySlips(): array
+    {
+        return $this->paySlips;
+    }
+
+    public function addPaySlip(Payslip $paySlip): self
+    {
+        $this->paySlips[] = $paySlip;
+
+        return $this;
+    }
+
+    /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
     {
         return [
-            'PayRunID' => Field::string()->using('setPayRunID'),
-            'PayrollCalendarID' => Field::string()->using('setPayrollCalendarID'),
-            'PayRunStatus' => Field::string()->using('setPayRunStatus'),
-            'Status' => Field::string()->using('setPayRunStatus'),
-            'PaymentDate' => Field::string()->using('setPaymentDate'),
-            'PeriodStartDate' => Field::string()->using('setPeriodStartDate'),
+            'payRunID' => Field::string()->using('setPayRunID'),
+            'payrollCalendarID' => Field::string()->using('setPayrollCalendarID'),
             'periodStartDate' => Field::string()->using('setPeriodStartDate'),
-            'PeriodEndDate' => Field::string()->using('setPeriodEndDate'),
             'periodEndDate' => Field::string()->using('setPeriodEndDate'),
-            'TotalCost' => Field::number()->using('setTotalCost'),
+            'paymentDate' => Field::string()->using('setPaymentDate'),
             'totalCost' => Field::number()->using('setTotalCost'),
-            'TotalPay' => Field::number()->using('setTotalPay'),
             'totalPay' => Field::number()->using('setTotalPay'),
-            'PayRunType' => Field::string()->using('setPayRunType'),
+            'payRunStatus' => Field::string()->using('setPayRunStatus'),
             'payRunType' => Field::string()->using('setPayRunType'),
-            'CalendarType' => Field::string()->using('setCalendarType'),
             'calendarType' => Field::string()->using('setCalendarType'),
-            'PostedDateTime' => Field::string()->using('setPostedDateTime'),
             'postedDateTime' => Field::string()->using('setPostedDateTime'),
+            'paySlips' => Field::many(Payslip::class),
         ];
     }
 

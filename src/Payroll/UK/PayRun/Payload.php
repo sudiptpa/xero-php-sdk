@@ -24,7 +24,15 @@ final class Payload
     public function payrollCalendar(string $payrollCalendarId): self
     {
         $clone = clone $this;
-        $clone->payload['PayrollCalendarID'] = $payrollCalendarId;
+        $clone->payload['payrollCalendarID'] = $payrollCalendarId;
+
+        return $clone;
+    }
+
+    public function paymentDate(string $paymentDate): self
+    {
+        $clone = clone $this;
+        $clone->payload['paymentDate'] = $paymentDate;
 
         return $clone;
     }
@@ -42,11 +50,11 @@ final class Payload
         $response = $this->client
             ->post('/payroll.xro/2.0/PayRuns')
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
-            ->withJson(['PayRun' => $this->payload])
+            ->withJson($this->payload)
             ->send();
 
         $payload = $response->json();
-        $payRun = Json::extractFirst($payload, 'PayRuns') ?? Json::extractObject($payload, 'PayRun');
+        $payRun = Json::extractFirst($payload, 'payRuns') ?? Json::extractObject($payload, 'payRun');
 
         if ($payRun === []) {
             return new PayRun();

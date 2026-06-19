@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Assets\Type;
 
+use Sujip\Xero\Assets\Asset\BookDepreciationSetting;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
 
@@ -18,6 +19,10 @@ final class Type extends Model
     private ?string $depreciationExpenseAccountId = null;
 
     private ?string $accumulatedDepreciationAccountId = null;
+
+    private ?BookDepreciationSetting $bookDepreciationSetting = null;
+
+    private int|float|null $locks = null;
 
     public function getAssetTypeId(): ?string
     {
@@ -79,17 +84,43 @@ final class Type extends Model
         return $this;
     }
 
+    public function getBookDepreciationSetting(): ?BookDepreciationSetting
+    {
+        return $this->bookDepreciationSetting;
+    }
+
+    public function setBookDepreciationSetting(?BookDepreciationSetting $bookDepreciationSetting): self
+    {
+        $this->bookDepreciationSetting = $bookDepreciationSetting;
+
+        return $this;
+    }
+
+    public function getLocks(): int|float|null
+    {
+        return $this->locks;
+    }
+
+    public function setLocks(int|float|null $locks): self
+    {
+        $this->locks = $locks;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
     {
         return [
-            'AssetTypeId' => Field::string(),
-            'AssetTypeName' => Field::string(),
-            'FixedAssetAccountId' => Field::string(),
-            'DepreciationExpenseAccountId' => Field::string(),
-            'AccumulatedDepreciationAccountId' => Field::string(),
+            'assetTypeId' => Field::string(),
+            'assetTypeName' => Field::string(),
+            'fixedAssetAccountId' => Field::string(),
+            'depreciationExpenseAccountId' => Field::string(),
+            'accumulatedDepreciationAccountId' => Field::string(),
+            'bookDepreciationSetting' => Field::object(BookDepreciationSetting::class),
+            'locks' => Field::number(),
         ];
     }
 }

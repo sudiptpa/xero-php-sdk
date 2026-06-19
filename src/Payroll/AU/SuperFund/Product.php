@@ -9,50 +9,59 @@ use Sujip\Xero\Support\Model;
 
 final class Product extends Model
 {
-    /**
-     */
     public function __construct(
-        private ?string $superFundProductID = null,
-        private ?string $name = null,
-        private ?string $uSI = null,
-        private ?string $aBN = null,
+        private ?string $abn = null,
+        private ?string $usi = null,
+        private ?string $spin = null,
+        private ?string $productName = null,
     ) {
     }
 
-    public function getSuperFundProductID(): ?string
+    public function getAbn(): ?string
     {
-        return $this->superFundProductID;
+        return $this->abn;
     }
-    public function setSuperFundProductID(?string $superFundProductID): self
+
+    public function setAbn(?string $abn): self
     {
-        $this->superFundProductID = $superFundProductID;
+        $this->abn = $abn;
+
         return $this;
     }
-    public function getName(): ?string
+
+    public function getUsi(): ?string
     {
-        return $this->name;
+        return $this->usi;
     }
-    public function setName(?string $name): self
+
+    public function setUsi(?string $usi): self
     {
-        $this->name = $name;
+        $this->usi = $usi;
+
         return $this;
     }
-    public function getUSI(): ?string
+
+    public function getSpin(): ?string
     {
-        return $this->uSI;
+        return $this->spin;
     }
-    public function setUSI(?string $uSI): self
+
+    public function setSpin(?string $spin): self
     {
-        $this->uSI = $uSI;
+        $this->spin = $spin;
+
         return $this;
     }
-    public function getABN(): ?string
+
+    public function getProductName(): ?string
     {
-        return $this->aBN;
+        return $this->productName;
     }
-    public function setABN(?string $aBN): self
+
+    public function setProductName(?string $productName): self
     {
-        $this->aBN = $aBN;
+        $this->productName = $productName;
+
         return $this;
     }
 
@@ -62,10 +71,10 @@ final class Product extends Model
     protected static function getDefinitions(): array
     {
         return [
-            'SuperFundProductID' => Field::string()->using('setSuperFundProductID'),
-            'Name' => Field::string()->using('setName'),
-            'USI' => Field::string()->using('setUSI'),
-            'ABN' => Field::string()->using('setABN'),
+            'ABN' => Field::string()->using('setAbn'),
+            'USI' => Field::string()->using('setUsi'),
+            'SPIN' => Field::string()->using('setSpin'),
+            'ProductName' => Field::string()->using('setProductName'),
         ];
     }
 }

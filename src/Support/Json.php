@@ -19,6 +19,16 @@ final class Json
     }
 
     /**
+     * @param list<array<string, mixed>> $value
+     */
+    public static function encodeList(array $value): string
+    {
+        self::ensureAvailable();
+
+        return json_encode($value, JSON_THROW_ON_ERROR);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public static function decodeObject(string $value): array
@@ -63,6 +73,30 @@ final class Json
 
         $result = [];
         foreach ($raw as $item) {
+            if (is_array($item)) {
+                $typed = [];
+                foreach ($item as $k => $v) {
+                    $typed[(string) $k] = $v;
+                }
+                $result[] = $typed;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Extracts the array-valued entries of a payload that was itself a bare
+     * JSON array (decoded with string-keyed numeric indices).
+     *
+     * @param array<string, mixed> $payload
+     * @return list<array<string, mixed>>
+     */
+    public static function extractRows(array $payload): array
+    {
+        $result = [];
+
+        foreach ($payload as $item) {
             if (is_array($item)) {
                 $typed = [];
                 foreach ($item as $k => $v) {

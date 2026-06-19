@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Sujip\Xero\Payroll\NZ\Employee;
 
 use Sujip\Xero\Client;
-use Sujip\Xero\Payroll\NZ\LeaveType\LeaveType;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
@@ -55,7 +54,7 @@ final class Employees implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_map(fn (array $employee): Employee => $this->mapEmployee($employee), Json::extractList($payload, 'Employees'));
+        $items = array_map(fn (array $employee): Employee => $this->mapEmployee($employee), Json::extractList($payload, 'employees'));
 
         return new ResourceCollection($items);
     }
@@ -85,7 +84,7 @@ final class Employees implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $employee = Json::extractFirst($payload, 'Employees') ?? Json::extractObject($payload, 'Employee') ?: null;
+        $employee = Json::extractFirst($payload, 'employees') ?? Json::extractObject($payload, 'employee') ?: null;
 
         return $employee !== null ? $this->mapEmployee($employee) : null;
     }
@@ -101,7 +100,82 @@ final class Employees implements PaginatesResults, DefinesScopes
     }
 
     /**
-     * @return ResourceCollection<LeaveType>
+     * @return ResourceCollection<EarningsTemplate>
+     */
+    public function payTemplate(string $employeeId): ResourceCollection
+    {
+        $response = $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/PayTemplates')
+            ->send();
+
+        $payTemplate = Json::extractObject($response->json(), 'payTemplate');
+        $items = array_map(
+            fn (array $template): EarningsTemplate => $this->mapEarningsTemplate($template),
+            Json::extractList($payTemplate, 'earningTemplates')
+        );
+
+        return new ResourceCollection($items);
+    }
+
+    public function createEarningsTemplate(string $employeeId, EarningsTemplate $template, ?string $idempotencyKey = null): EarningsTemplate
+    {
+        $payload = $this->client
+            ->post('/payroll.xro/2.0/Employees/' . $employeeId . '/PayTemplates/Earnings')
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withJson($template->toRequest())
+            ->send()
+            ->json();
+
+        return $this->mapEarningsTemplate(Json::extractObject($payload, 'earningTemplate'));
+    }
+
+    public function updateEarningsTemplate(string $employeeId, string $payTemplateEarningId, EarningsTemplate $template, ?string $idempotencyKey = null): EarningsTemplate
+    {
+        $payload = $this->client
+            ->put('/payroll.xro/2.0/Employees/' . $employeeId . '/PayTemplates/Earnings/' . $payTemplateEarningId)
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withJson($template->toRequest())
+            ->send()
+            ->json();
+
+        return $this->mapEarningsTemplate(Json::extractObject($payload, 'earningTemplate'));
+    }
+
+    public function deleteEarningsTemplate(string $employeeId, string $payTemplateEarningId): bool
+    {
+        $this->client
+            ->delete('/payroll.xro/2.0/Employees/' . $employeeId . '/PayTemplates/Earnings/' . $payTemplateEarningId)
+            ->send();
+
+        return true;
+    }
+
+    /**
+     * @param list<EarningsTemplate> $templates
+     * @return ResourceCollection<EarningsTemplate>
+     */
+    public function createEarningsTemplates(string $employeeId, array $templates, ?string $idempotencyKey = null): ResourceCollection
+    {
+        $body = array_map(static fn (EarningsTemplate $template): array => $template->toRequest(), $templates);
+
+        $payload = $this->client
+            ->post('/payroll.xro/2.0/Employees/' . $employeeId . '/PayTemplateEarnings')
+            ->contentTypeJson()
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withBody(Json::encodeList($body))
+            ->send()
+            ->json();
+
+        $items = array_map(
+            fn (array $template): EarningsTemplate => $this->mapEarningsTemplate($template),
+            Json::extractList($payload, 'earningTemplates')
+        );
+
+        return new ResourceCollection($items);
+    }
+
+    /**
+     * @return ResourceCollection<EmployeeLeaveType>
      */
     public function leaveTypes(string $employeeId): ResourceCollection
     {
@@ -111,8 +185,8 @@ final class Employees implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $items = array_map(
-            fn (array $leaveType): LeaveType => $this->mapLeaveType($leaveType),
-            Json::extractList($payload, 'LeaveTypes')
+            fn (array $leaveType): EmployeeLeaveType => $this->mapLeaveType($leaveType),
+            Json::extractList($payload, 'leaveTypes')
         );
 
         return new ResourceCollection($items);
@@ -248,17 +322,6 @@ final class Employees implements PaginatesResults, DefinesScopes
     /**
      * @return array<string, mixed>
      */
-    public function employment(string $employeeId): array
-    {
-        return $this->client
-            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/Employment')
-            ->send()
-            ->json();
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
     public function salaryAndWages(string $employeeId, int $page = 1): array
     {
         return $this->client
@@ -290,8 +353,16 @@ final class Employees implements PaginatesResults, DefinesScopes
     /**
      * @param array<string, mixed> $leaveType
      */
-    public function mapLeaveType(array $leaveType): LeaveType
+    public function mapLeaveType(array $leaveType): EmployeeLeaveType
     {
-        return (new LeaveType())->fill($leaveType);
+        return (new EmployeeLeaveType())->fill($leaveType);
+    }
+
+    /**
+     * @param array<string, mixed> $template
+     */
+    public function mapEarningsTemplate(array $template): EarningsTemplate
+    {
+        return (new EarningsTemplate())->fill($template);
     }
 }

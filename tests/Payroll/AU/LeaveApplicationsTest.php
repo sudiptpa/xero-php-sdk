@@ -115,6 +115,32 @@ final class LeaveApplicationsTest extends TestCase
         self::assertSame(['payroll.employees.read', 'payroll.employees'], $scopes->granular);
     }
 
+    public function test_it_queries_v2_leave_applications_including_requests(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode([
+                'LeaveApplications' => [[
+                    'LeaveApplicationID' => 'leave-1',
+                    'EmployeeID' => 'employee-1',
+                    'Status' => 'SCHEDULED',
+                ]],
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        $applications = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->au()
+            ->leaveApplications()
+            ->where('Status=="SCHEDULED"')
+            ->v2();
+
+        $request = $transport->requests()[0];
+        self::assertSame('/payroll.xro/1.0/LeaveApplications/v2', $request->path);
+        self::assertSame('Status=="SCHEDULED"', $request->query['where']);
+        self::assertSame('leave-1', $applications->first()?->getLeaveApplicationID());
+    }
+
     public function test_it_can_paginate_leave_applications(): void
     {
         $transport = (new FakeTransport())->push(
@@ -132,6 +158,37 @@ final class LeaveApplicationsTest extends TestCase
         self::assertSame(20, $transport->requests()[0]->query['pageSize']);
         self::assertSame(2, $page->page);
         self::assertSame(20, $page->perPage);
+    }
+
+    public function test_leave_application_exposes_all_spec_fields(): void
+    {
+        $application = (new LeaveApplication())->fill([
+            'LeaveApplicationID' => 'leave-1',
+            'EmployeeID' => 'employee-1',
+            'LeaveTypeID' => 'type-1',
+            'Title' => 'Annual Leave',
+            'StartDate' => '/Date(1743465600000+0000)/',
+            'EndDate' => '/Date(1743552000000+0000)/',
+            'Description' => 'Family holiday',
+            'PayOutType' => 'CASHED_OUT',
+            'LeavePeriods' => [[
+                'NumberOfUnits' => 22.8,
+                'PayPeriodStartDate' => '/Date(1743465600000+0000)/',
+                'PayPeriodEndDate' => '/Date(1743552000000+0000)/',
+            ]],
+            'Status' => 'SCHEDULED',
+            'UpdatedDateUTC' => '/Date(1583967733054+0000)/',
+            'ValidationErrors' => [['Message' => 'Invalid leave application']],
+        ]);
+
+        self::assertSame('Family holiday', $application->getDescription());
+        self::assertSame('CASHED_OUT', $application->getPayOutType());
+        self::assertSame(22.8, $application->getLeavePeriods()[0]['NumberOfUnits']);
+        self::assertSame('/Date(1743465600000+0000)/', $application->getLeavePeriods()[0]['PayPeriodStartDate']);
+        self::assertSame('/Date(1743552000000+0000)/', $application->getLeavePeriods()[0]['PayPeriodEndDate']);
+        self::assertSame('/Date(1583967733054+0000)/', $application->getUpdatedDateUTC());
+        self::assertCount(1, $application->getValidationErrors());
+        self::assertSame('Invalid leave application', $application->getValidationErrors()[0]->getMessage());
     }
 
     public function test_model_getters_and_status_helper(): void

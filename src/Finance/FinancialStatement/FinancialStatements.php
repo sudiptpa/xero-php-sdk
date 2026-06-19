@@ -7,9 +7,7 @@ namespace Sujip\Xero\Finance\FinancialStatement;
 use DateTimeInterface;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
-use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
-use Sujip\Xero\Support\Json;
 
 final readonly class FinancialStatements implements DefinesScopes
 {
@@ -26,113 +24,113 @@ final readonly class FinancialStatements implements DefinesScopes
         );
     }
 
-    public function balanceSheet(?DateTimeInterface $balanceDate = null): Statement
-    {
-        return $this->statement(
-            '/finance.xro/1.0/FinancialStatements/BalanceSheet',
-            'balance_sheet',
-            $balanceDate === null ? [] : ['balanceDate' => $balanceDate->format('Y-m-d')]
-        );
-    }
-
-    public function cashflow(?DateTimeInterface $startDate = null, ?DateTimeInterface $endDate = null): Statement
-    {
-        return $this->statement('/finance.xro/1.0/FinancialStatements/Cashflow', 'cashflow', $this->dateRange($startDate, $endDate));
-    }
-
-    public function profitAndLoss(?DateTimeInterface $startDate = null, ?DateTimeInterface $endDate = null): Statement
-    {
-        return $this->statement('/finance.xro/1.0/FinancialStatements/ProfitAndLoss', 'profit_and_loss', $this->dateRange($startDate, $endDate));
-    }
-
-    public function trialBalance(?DateTimeInterface $balanceDate = null): Statement
-    {
-        return $this->statement(
-            '/finance.xro/1.0/FinancialStatements/TrialBalance',
-            'trial_balance',
-            $balanceDate === null ? [] : ['balanceDate' => $balanceDate->format('Y-m-d')]
-        );
-    }
-
-    /**
-     * @param list<string> $contactIds
-     * @return ResourceCollection<ContactStatement>
-     */
-    public function contactExpenses(array $contactIds = [], ?DateTimeInterface $startDate = null, ?DateTimeInterface $endDate = null): ResourceCollection
-    {
-        return $this->contactStatementCollection(
-            '/finance.xro/1.0/FinancialStatements/contacts/expense',
-            $contactIds,
-            $startDate,
-            $endDate
-        );
-    }
-
-    /**
-     * @param list<string> $contactIds
-     * @return ResourceCollection<ContactStatement>
-     */
-    public function contactRevenue(array $contactIds = [], ?DateTimeInterface $startDate = null, ?DateTimeInterface $endDate = null): ResourceCollection
-    {
-        return $this->contactStatementCollection(
-            '/finance.xro/1.0/FinancialStatements/contacts/revenue',
-            $contactIds,
-            $startDate,
-            $endDate
-        );
-    }
-
-    /**
-     * @param array<string, scalar|array<int, scalar>|null> $query
-     */
-    private function statement(string $path, string $type, array $query): Statement
+    public function balanceSheet(?DateTimeInterface $balanceDate = null): BalanceSheet
     {
         $payload = $this->client
-            ->get($path)
-            ->withQuery($query)
+            ->get('/finance.xro/1.0/FinancialStatements/BalanceSheet')
+            ->withQuery($balanceDate === null ? [] : ['balanceDate' => $balanceDate->format('Y-m-d')])
             ->send()
             ->json();
 
-        $statement = Json::extractObject($payload, 'FinancialStatement')
-            ?: Json::extractObject($payload, 'Report')
-            ?: $payload;
+        return (new BalanceSheet())->fill($payload);
+    }
 
-        if ($statement === []) {
-            return new Statement($type);
-        }
+    public function cashflow(?DateTimeInterface $startDate = null, ?DateTimeInterface $endDate = null): Cashflow
+    {
+        $payload = $this->client
+            ->get('/finance.xro/1.0/FinancialStatements/Cashflow')
+            ->withQuery($this->dateRange($startDate, $endDate))
+            ->send()
+            ->json();
 
-        return (new Statement())
-            ->fill(['Type' => $type] + $statement);
+        return (new Cashflow())->fill($payload);
+    }
+
+    public function profitAndLoss(?DateTimeInterface $startDate = null, ?DateTimeInterface $endDate = null): ProfitAndLoss
+    {
+        $payload = $this->client
+            ->get('/finance.xro/1.0/FinancialStatements/ProfitAndLoss')
+            ->withQuery($this->dateRange($startDate, $endDate))
+            ->send()
+            ->json();
+
+        return (new ProfitAndLoss())->fill($payload);
+    }
+
+    public function trialBalance(?DateTimeInterface $endDate = null): TrialBalance
+    {
+        $payload = $this->client
+            ->get('/finance.xro/1.0/FinancialStatements/TrialBalance')
+            ->withQuery($endDate === null ? [] : ['endDate' => $endDate->format('Y-m-d')])
+            ->send()
+            ->json();
+
+        return (new TrialBalance())->fill($payload);
     }
 
     /**
      * @param list<string> $contactIds
-     * @return ResourceCollection<ContactStatement>
      */
-    private function contactStatementCollection(
+    public function contactExpenses(
+        array $contactIds = [],
+        ?DateTimeInterface $startDate = null,
+        ?DateTimeInterface $endDate = null,
+        ?bool $includeManualJournals = null
+    ): IncomeByContact {
+        return $this->incomeByContact(
+            '/finance.xro/1.0/FinancialStatements/contacts/expense',
+            $contactIds,
+            $startDate,
+            $endDate,
+            $includeManualJournals
+        );
+    }
+
+    /**
+     * @param list<string> $contactIds
+     */
+    public function contactRevenue(
+        array $contactIds = [],
+        ?DateTimeInterface $startDate = null,
+        ?DateTimeInterface $endDate = null,
+        ?bool $includeManualJournals = null
+    ): IncomeByContact {
+        return $this->incomeByContact(
+            '/finance.xro/1.0/FinancialStatements/contacts/revenue',
+            $contactIds,
+            $startDate,
+            $endDate,
+            $includeManualJournals
+        );
+    }
+
+    /**
+     * @param list<string> $contactIds
+     */
+    private function incomeByContact(
         string $path,
         array $contactIds,
         ?DateTimeInterface $startDate,
-        ?DateTimeInterface $endDate
-    ): ResourceCollection {
+        ?DateTimeInterface $endDate,
+        ?bool $includeManualJournals
+    ): IncomeByContact {
         $query = $this->dateRange($startDate, $endDate);
 
         if ($contactIds !== []) {
             $query['contactIds'] = $contactIds;
         }
 
+        if ($includeManualJournals !== null) {
+            $query['includeManualJournals'] = $includeManualJournals ? 'true' : 'false';
+        }
+
         $payload = $this->client
             ->get($path)
             ->withQuery($query)
             ->send()
             ->json();
 
-        $items = array_map(
-            fn (array $statement): ContactStatement => $this->mapContactStatement($statement),
-            Json::extractList($payload, 'Items') ?: Json::extractList($payload, 'Contacts')
-        );
-
-        return new ResourceCollection($items);
+        return (new IncomeByContact())->fill($payload);
     }
 
     /**
@@ -151,13 +149,5 @@ final readonly class FinancialStatements implements DefinesScopes
         }
 
         return $query;
-    }
-
-    /**
-     * @param array<string, mixed> $statement
-     */
-    private function mapContactStatement(array $statement): ContactStatement
-    {
-        return (new ContactStatement())->fill($statement);
     }
 }

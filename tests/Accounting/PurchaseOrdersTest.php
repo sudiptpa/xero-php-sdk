@@ -33,6 +33,28 @@ final class PurchaseOrdersTest extends TestCase
                     'Quantity' => 1,
                     'UnitAmount' => 250,
                 ]],
+                'Date' => '2026-03-25',
+                'DeliveryDate' => '2026-04-01',
+                'LineAmountTypes' => 'Exclusive',
+                'BrandingThemeID' => 'theme-1',
+                'CurrencyCode' => 'NZD',
+                'CurrencyRate' => 1.0,
+                'SentToContact' => true,
+                'DeliveryAddress' => '123 Main St',
+                'AttentionTo' => 'Jane Doe',
+                'Telephone' => '0123456789',
+                'DeliveryInstructions' => 'Leave at the back door',
+                'ExpectedArrivalDate' => '2026-04-05',
+                'SubTotal' => 250,
+                'TotalTax' => 25,
+                'Total' => 275,
+                'TotalDiscount' => 0,
+                'HasAttachments' => true,
+                'UpdatedDateUTC' => '2026-03-25T01:00:00',
+                'StatusAttributeString' => 'OK',
+                'ValidationErrors' => [['Message' => 'Some error']],
+                'Warnings' => [['Message' => 'Some warning']],
+                'Attachments' => [['AttachmentID' => 'attachment-1', 'FileName' => 'file.pdf']],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -54,6 +76,31 @@ final class PurchaseOrdersTest extends TestCase
         self::assertSame('po-1', $purchaseOrder?->getPurchaseOrderID());
         self::assertSame('contact-1', $firstPo->getContact()?->getContactID());
         self::assertSame('Hardware', $firstPo->getLineItems()[0]->getDescription());
+        self::assertSame('2026-03-25', $firstPo->getDate());
+        self::assertSame('2026-04-01', $firstPo->getDeliveryDate());
+        self::assertSame('Exclusive', $firstPo->getLineAmountTypes());
+        self::assertSame('theme-1', $firstPo->getBrandingThemeID());
+        self::assertSame('NZD', $firstPo->getCurrencyCode());
+        self::assertSame(1, $firstPo->getCurrencyRate());
+        self::assertTrue($firstPo->getSentToContact());
+        self::assertSame('123 Main St', $firstPo->getDeliveryAddress());
+        self::assertSame('Jane Doe', $firstPo->getAttentionTo());
+        self::assertSame('0123456789', $firstPo->getTelephone());
+        self::assertSame('Leave at the back door', $firstPo->getDeliveryInstructions());
+        self::assertSame('2026-04-05', $firstPo->getExpectedArrivalDate());
+        self::assertSame(250, $firstPo->getSubTotal());
+        self::assertSame(25, $firstPo->getTotalTax());
+        self::assertSame(275, $firstPo->getTotal());
+        self::assertSame(0, $firstPo->getTotalDiscount());
+        self::assertTrue($firstPo->getHasAttachments());
+        self::assertSame('2026-03-25T01:00:00', $firstPo->getUpdatedDateUTC());
+        self::assertSame('OK', $firstPo->getStatusAttributeString());
+        self::assertCount(1, $firstPo->getValidationErrors());
+        self::assertSame('Some error', $firstPo->getValidationErrors()[0]->getMessage());
+        self::assertCount(1, $firstPo->getWarnings());
+        self::assertSame('Some warning', $firstPo->getWarnings()[0]->getMessage());
+        self::assertCount(1, $firstPo->getAttachments());
+        self::assertSame('attachment-1', $firstPo->getAttachments()[0]->getAttachmentID());
     }
 
     public function test_it_can_create_and_update_purchase_orders(): void
@@ -199,6 +246,78 @@ final class PurchaseOrdersTest extends TestCase
 
         self::assertSame('%PDF-1.4 po', $pdf);
         self::assertSame('/api.xro/2.0/PurchaseOrders/po-1/pdf', $transport->requests()[1]->path);
+    }
+
+    public function test_it_serializes_writable_purchase_order_fields_to_request(): void
+    {
+        $purchaseOrder = (new PurchaseOrder())
+            ->setDate('2026-03-25')
+            ->setDeliveryDate('2026-04-01')
+            ->setLineAmountTypes('Exclusive')
+            ->setBrandingThemeID('theme-1')
+            ->setCurrencyCode('NZD')
+            ->setCurrencyRate(1.0)
+            ->setSentToContact(true)
+            ->setDeliveryAddress('123 Main St')
+            ->setAttentionTo('Jane Doe')
+            ->setTelephone('0123456789')
+            ->setDeliveryInstructions('Leave at the back door')
+            ->setExpectedArrivalDate('2026-04-05');
+
+        $request = $purchaseOrder->toRequest();
+
+        self::assertSame('2026-03-25', $request['Date']);
+        self::assertSame('2026-04-01', $request['DeliveryDate']);
+        self::assertSame('Exclusive', $request['LineAmountTypes']);
+        self::assertSame('theme-1', $request['BrandingThemeID']);
+        self::assertSame('NZD', $request['CurrencyCode']);
+        self::assertSame(1.0, $request['CurrencyRate']);
+        self::assertTrue($request['SentToContact']);
+        self::assertSame('123 Main St', $request['DeliveryAddress']);
+        self::assertSame('Jane Doe', $request['AttentionTo']);
+        self::assertSame('0123456789', $request['Telephone']);
+        self::assertSame('Leave at the back door', $request['DeliveryInstructions']);
+        self::assertSame('2026-04-05', $request['ExpectedArrivalDate']);
+        self::assertArrayNotHasKey('SubTotal', $request);
+        self::assertArrayNotHasKey('TotalTax', $request);
+        self::assertArrayNotHasKey('Total', $request);
+        self::assertArrayNotHasKey('TotalDiscount', $request);
+        self::assertArrayNotHasKey('HasAttachments', $request);
+        self::assertArrayNotHasKey('UpdatedDateUTC', $request);
+        self::assertArrayNotHasKey('StatusAttributeString', $request);
+        self::assertArrayNotHasKey('ValidationErrors', $request);
+        self::assertArrayNotHasKey('Warnings', $request);
+        self::assertArrayNotHasKey('Attachments', $request);
+    }
+
+    public function test_purchase_order_setters_compose_remaining_fields(): void
+    {
+        $purchaseOrder = (new PurchaseOrder())
+            ->setSubTotal(250)
+            ->setTotalTax(25)
+            ->setTotal(275)
+            ->setTotalDiscount(0)
+            ->setHasAttachments(true)
+            ->setUpdatedDateUTC('2026-03-25T01:00:00')
+            ->setStatusAttributeString('OK');
+
+        $purchaseOrder->addValidationError((new \Sujip\Xero\Support\ValidationError())->setMessage('Some error'));
+        $purchaseOrder->addWarning((new \Sujip\Xero\Support\ValidationError())->setMessage('Some warning'));
+        $purchaseOrder->addAttachment((new \Sujip\Xero\Support\AttachmentDetail())->setAttachmentID('attachment-1'));
+
+        self::assertSame(250, $purchaseOrder->getSubTotal());
+        self::assertSame(25, $purchaseOrder->getTotalTax());
+        self::assertSame(275, $purchaseOrder->getTotal());
+        self::assertSame(0, $purchaseOrder->getTotalDiscount());
+        self::assertTrue($purchaseOrder->getHasAttachments());
+        self::assertSame('2026-03-25T01:00:00', $purchaseOrder->getUpdatedDateUTC());
+        self::assertSame('OK', $purchaseOrder->getStatusAttributeString());
+        self::assertCount(1, $purchaseOrder->getValidationErrors());
+        self::assertSame('Some error', $purchaseOrder->getValidationErrors()[0]->getMessage());
+        self::assertCount(1, $purchaseOrder->getWarnings());
+        self::assertSame('Some warning', $purchaseOrder->getWarnings()[0]->getMessage());
+        self::assertCount(1, $purchaseOrder->getAttachments());
+        self::assertSame('attachment-1', $purchaseOrder->getAttachments()[0]->getAttachmentID());
     }
 
     public function test_saving_without_a_client_throws(): void

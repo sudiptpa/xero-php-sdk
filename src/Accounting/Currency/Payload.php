@@ -56,7 +56,7 @@ final class Payload
     public function save(): Currency
     {
         $response = $this->client
-            ->post('/api.xro/2.0/Currencies')
+            ->put('/api.xro/2.0/Currencies')
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
             ->withJson($this->currency->toRequest())
             ->send();

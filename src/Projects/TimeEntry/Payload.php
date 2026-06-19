@@ -97,7 +97,13 @@ final class Payload
         $timeEntry = TimeEntries::single($payload);
 
         if (! is_array($timeEntry)) {
-            return (new TimeEntry($this->client))->setProjectID($this->projectId);
+            $fallback = (new TimeEntry($this->client))->fill($this->payload)->setProjectId($this->projectId);
+
+            if ($this->timeEntryId !== null) {
+                $fallback->setTimeEntryId($this->timeEntryId);
+            }
+
+            return $fallback;
         }
 
         return (new TimeEntries($this->client, $this->projectId))->mapTimeEntry($timeEntry);

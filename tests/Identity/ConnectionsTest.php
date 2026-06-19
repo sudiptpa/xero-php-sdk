@@ -43,6 +43,35 @@ final class ConnectionsTest extends TestCase
         self::assertSame('tenant-1', $firstConn->getTenantId());
     }
 
+    public function test_it_can_filter_connections_by_auth_event_id(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode([
+                [
+                    'id' => 'connection-1',
+                    'authEventId' => 'event-1',
+                    'tenantId' => 'tenant-1',
+                    'tenantName' => 'Acme Pty Ltd',
+                    'tenantType' => 'ORGANISATION',
+                    'createdDateUtc' => '2026-03-25T00:00:00',
+                    'updatedDateUtc' => '2026-03-25T00:00:00',
+                ],
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        $connections = Xero::withAccessToken('token', $transport)
+            ->identity()
+            ->connections()
+            ->get('event-1');
+
+        $request = $transport->requests()[0];
+
+        self::assertSame('/connections?authEventId=event-1', $request->path . '?' . http_build_query($request->query));
+        $firstConn = $connections->first();
+        self::assertNotNull($firstConn);
+        self::assertSame('event-1', $firstConn->getAuthEventId());
+    }
+
     public function test_it_can_find_a_connection_by_tenant(): void
     {
         $transport = (new FakeTransport())->push(

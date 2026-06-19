@@ -41,9 +41,8 @@ final class Payload
         $clone->manualJournal = clone $this->manualJournal;
         $clone->manualJournal->addJournalLine(
             (new JournalLine())
-                ->setLineAmount($lineAmount)
+                ->setLineAmount($isDebit ? abs($lineAmount) : -abs($lineAmount))
                 ->setAccountCode($accountCode)
-                ->setIsDebit($isDebit)
         );
 
         return $clone;

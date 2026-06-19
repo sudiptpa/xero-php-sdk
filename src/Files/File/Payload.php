@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Files\File;
 
+use RuntimeException;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Json;
 
 final class Payload
 {
@@ -58,12 +58,12 @@ final class Payload
 
     public function save(): File
     {
-        $path = $this->id === null ? self::BASE_PATH : self::BASE_PATH . '/' . $this->id;
-        $request = $this->id === null
-            ? $this->client->post($path)
-            : $this->client->put($path);
+        if ($this->id === null) {
+            throw new RuntimeException('Cannot update a file without a file id.');
+        }
 
-        $response = $request
+        $response = $this->client
+            ->put(self::BASE_PATH . '/' . $this->id)
             ->withHeaders($this->headers())
             ->withJson([
                 'Name' => $this->name,
@@ -71,14 +71,7 @@ final class Payload
             ])
             ->send();
 
-        $payload = $response->json();
-        $file = Json::extractFirst($payload, 'Items') ?? [];
-
-        if ($file === []) {
-            return new File($this->client);
-        }
-
-        return (new Files($this->client))->mapFile($file);
+        return (new Files($this->client))->mapFile($response->json());
     }
 
     /**

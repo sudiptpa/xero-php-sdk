@@ -37,7 +37,7 @@ final class Types implements DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $items = array_map(fn (array $type): Type => $this->mapType($type), Json::extractList($payload, 'Items'));
+        $items = array_map(fn (array $type): Type => $this->mapType($type), Json::extractRows($payload));
 
         return new ResourceCollection($items);
     }

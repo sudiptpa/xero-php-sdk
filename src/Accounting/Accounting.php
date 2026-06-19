@@ -9,6 +9,7 @@ use Sujip\Xero\Accounting\BankTransaction\BankTransactions as BankTransactionsRe
 use Sujip\Xero\Accounting\BankTransfer\BankTransfers as BankTransfersResource;
 use Sujip\Xero\Accounting\BatchPayment\BatchPayments as BatchPaymentsResource;
 use Sujip\Xero\Accounting\BrandingTheme\BrandingThemes as BrandingThemesResource;
+use Sujip\Xero\Accounting\Budget\Budgets as BudgetsResource;
 use Sujip\Xero\Accounting\Contact\Contacts as ContactsResource;
 use Sujip\Xero\Accounting\ContactGroup\ContactGroups as ContactGroupsResource;
 use Sujip\Xero\Accounting\CreditNote\CreditNotes as CreditNotesResource;
@@ -31,6 +32,7 @@ use Sujip\Xero\Accounting\Quote\Quotes as QuotesResource;
 use Sujip\Xero\Accounting\Receipt\Receipts as ReceiptsResource;
 use Sujip\Xero\Accounting\RepeatingInvoice\RepeatingInvoices as RepeatingInvoicesResource;
 use Sujip\Xero\Accounting\Report\Reports as ReportsResource;
+use Sujip\Xero\Accounting\Setup\Payload as SetupPayload;
 use Sujip\Xero\Accounting\TaxRate\TaxRates as TaxRatesResource;
 use Sujip\Xero\Accounting\TrackingCategory\TrackingCategories as TrackingCategoriesResource;
 use Sujip\Xero\Accounting\User\Users as UsersResource;
@@ -191,5 +193,15 @@ final readonly class Accounting
     public function payments(): PaymentsResource
     {
         return new PaymentsResource($this->client);
+    }
+
+    public function budgets(): BudgetsResource
+    {
+        return new BudgetsResource($this->client);
+    }
+
+    public function setup(): SetupPayload
+    {
+        return new SetupPayload($this->client);
     }
 }

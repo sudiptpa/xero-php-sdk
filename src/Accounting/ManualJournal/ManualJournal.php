@@ -7,8 +7,10 @@ namespace Sujip\Xero\Accounting\ManualJournal;
 use Sujip\Xero\Accounting\History;
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\AttachmentDetail;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\ValidationError;
 use Sujip\Xero\Support\Contracts\SerializesRequest;
 
 final class ManualJournal extends Model implements SerializesRequest
@@ -28,6 +30,35 @@ final class ManualJournal extends Model implements SerializesRequest
      * @var list<JournalLine>
      */
     private array $journalLines = [];
+
+    private ?string $date = null;
+
+    private ?string $lineAmountTypes = null;
+
+    private ?string $url = null;
+
+    private ?bool $showOnCashBasisReports = null;
+
+    private ?bool $hasAttachments = null;
+
+    private ?string $updatedDateUTC = null;
+
+    private ?string $statusAttributeString = null;
+
+    /**
+     * @var list<ValidationError>
+     */
+    private array $warnings = [];
+
+    /**
+     * @var list<ValidationError>
+     */
+    private array $validationErrors = [];
+
+    /**
+     * @var list<AttachmentDetail>
+     */
+    private array $attachments = [];
 
     public function getManualJournalID(): ?string
     {
@@ -90,6 +121,135 @@ final class ManualJournal extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getDate(): ?string
+    {
+        return $this->date;
+    }
+
+    public function setDate(?string $date): self
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    public function getLineAmountTypes(): ?string
+    {
+        return $this->lineAmountTypes;
+    }
+
+    public function setLineAmountTypes(?string $lineAmountTypes): self
+    {
+        $this->lineAmountTypes = $lineAmountTypes;
+
+        return $this;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url): self
+    {
+        $this->url = $url;
+
+        return $this;
+    }
+
+    public function getShowOnCashBasisReports(): ?bool
+    {
+        return $this->showOnCashBasisReports;
+    }
+
+    public function setShowOnCashBasisReports(?bool $showOnCashBasisReports): self
+    {
+        $this->showOnCashBasisReports = $showOnCashBasisReports;
+
+        return $this;
+    }
+
+    public function getHasAttachments(): ?bool
+    {
+        return $this->hasAttachments;
+    }
+
+    public function setHasAttachments(?bool $hasAttachments): self
+    {
+        $this->hasAttachments = $hasAttachments;
+
+        return $this;
+    }
+
+    public function getUpdatedDateUTC(): ?string
+    {
+        return $this->updatedDateUTC;
+    }
+
+    public function setUpdatedDateUTC(?string $updatedDateUTC): self
+    {
+        $this->updatedDateUTC = $updatedDateUTC;
+
+        return $this;
+    }
+
+    public function getStatusAttributeString(): ?string
+    {
+        return $this->statusAttributeString;
+    }
+
+    public function setStatusAttributeString(?string $statusAttributeString): self
+    {
+        $this->statusAttributeString = $statusAttributeString;
+
+        return $this;
+    }
+
+    /**
+     * @return list<ValidationError>
+     */
+    public function getWarnings(): array
+    {
+        return $this->warnings;
+    }
+
+    public function addWarning(ValidationError $warning): self
+    {
+        $this->warnings[] = $warning;
+
+        return $this;
+    }
+
+    /**
+     * @return list<ValidationError>
+     */
+    public function getValidationErrors(): array
+    {
+        return $this->validationErrors;
+    }
+
+    public function addValidationError(ValidationError $validationError): self
+    {
+        $this->validationErrors[] = $validationError;
+
+        return $this;
+    }
+
+    /**
+     * @return list<AttachmentDetail>
+     */
+    public function getAttachments(): array
+    {
+        return $this->attachments;
+    }
+
+    public function addAttachment(AttachmentDetail $attachment): self
+    {
+        $this->attachments[] = $attachment;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -100,6 +260,16 @@ final class ManualJournal extends Model implements SerializesRequest
             'Status' => Field::string(),
             'Narration' => Field::string(),
             'JournalLines' => Field::many(JournalLine::class),
+            'Date' => Field::string(),
+            'LineAmountTypes' => Field::string(),
+            'Url' => Field::string(),
+            'ShowOnCashBasisReports' => Field::boolean(),
+            'HasAttachments' => Field::boolean(),
+            'UpdatedDateUTC' => Field::string(),
+            'StatusAttributeString' => Field::string(),
+            'Warnings' => Field::many(ValidationError::class),
+            'ValidationErrors' => Field::many(ValidationError::class),
+            'Attachments' => Field::many(AttachmentDetail::class),
         ];
     }
 
@@ -116,6 +286,10 @@ final class ManualJournal extends Model implements SerializesRequest
                 static fn (JournalLine $journalLine): array => $journalLine->toRequest(),
                 $this->getJournalLines()
             ),
+            'Date' => $this->getDate(),
+            'LineAmountTypes' => $this->getLineAmountTypes(),
+            'Url' => $this->getUrl(),
+            'ShowOnCashBasisReports' => $this->getShowOnCashBasisReports(),
         ], static fn (mixed $value): bool => $value !== null);
     }
 
@@ -128,9 +302,8 @@ final class ManualJournal extends Model implements SerializesRequest
     {
         return $this->addJournalLine(
             (new JournalLine())
-                ->setLineAmount($lineAmount)
+                ->setLineAmount($isDebit ? abs($lineAmount) : -abs($lineAmount))
                 ->setAccountCode($accountCode)
-                ->setIsDebit($isDebit)
         );
     }
 

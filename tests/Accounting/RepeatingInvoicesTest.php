@@ -6,9 +6,12 @@ namespace Sujip\Xero\Tests\Accounting;
 
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Accounting\RepeatingInvoice\RepeatingInvoice;
+use Sujip\Xero\Accounting\RepeatingInvoice\Schedule;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\AttachmentDetail;
 use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
@@ -28,7 +31,32 @@ final class RepeatingInvoicesTest extends TestCase
         $transport->push(new Response(200, body: json_encode([
             'RepeatingInvoices' => [[
                 'RepeatingInvoiceID' => 'repeat-1',
+                'ID' => 'guid-1',
                 'Type' => 'ACCREC',
+                'Contact' => ['ContactID' => 'contact-1'],
+                'Schedule' => [
+                    'Period' => 1,
+                    'Unit' => 'MONTHLY',
+                    'DueDate' => 10,
+                    'DueDateType' => 'DAYSAFTERBILLDATE',
+                    'StartDate' => '2026-01-01T00:00:00',
+                    'NextScheduledDate' => '2026-07-01T00:00:00',
+                    'EndDate' => '2027-01-01T00:00:00',
+                ],
+                'LineItems' => [['Description' => 'Monthly support', 'Quantity' => 1, 'UnitAmount' => 99]],
+                'LineAmountTypes' => 'Exclusive',
+                'Status' => 'AUTHORISED',
+                'BrandingThemeID' => 'brand-1',
+                'CurrencyCode' => 'NZD',
+                'SubTotal' => 99,
+                'TotalTax' => 0,
+                'Total' => 99,
+                'HasAttachments' => true,
+                'Attachments' => [['AttachmentID' => 'attach-1', 'FileName' => 'invoice.pdf']],
+                'ApprovedForSending' => true,
+                'SendCopy' => false,
+                'MarkAsSent' => true,
+                'IncludePDF' => false,
             ]],
         ], JSON_THROW_ON_ERROR)));
 
@@ -42,8 +70,87 @@ final class RepeatingInvoicesTest extends TestCase
         self::assertSame('ACCREC', $repeatingInvoices->first()->getType());
         self::assertSame('DRAFT', $repeatingInvoices->first()->getStatus());
         self::assertSame('/api.xro/2.0/RepeatingInvoices/repeat-1', $transport->requests()[1]->path);
-        self::assertSame('repeat-1', $repeatingInvoice?->getRepeatingInvoiceID());
+        self::assertNotNull($repeatingInvoice);
+        self::assertSame('repeat-1', $repeatingInvoice->getRepeatingInvoiceID());
+        self::assertSame('guid-1', $repeatingInvoice->getID());
+        self::assertSame('contact-1', $repeatingInvoice->getContact()?->getContactID());
+        self::assertSame('MONTHLY', $repeatingInvoice->getSchedule()?->getUnit());
+        self::assertSame(1, $repeatingInvoice->getSchedule()->getPeriod());
+        self::assertSame(10, $repeatingInvoice->getSchedule()->getDueDate());
+        self::assertSame('DAYSAFTERBILLDATE', $repeatingInvoice->getSchedule()->getDueDateType());
+        self::assertSame('2026-01-01T00:00:00', $repeatingInvoice->getSchedule()->getStartDate());
+        self::assertSame('2026-07-01T00:00:00', $repeatingInvoice->getSchedule()->getNextScheduledDate());
+        self::assertSame('2027-01-01T00:00:00', $repeatingInvoice->getSchedule()->getEndDate());
+        self::assertCount(1, $repeatingInvoice->getLineItems());
+        self::assertSame('Monthly support', $repeatingInvoice->getLineItems()[0]->getDescription());
+        self::assertSame('Exclusive', $repeatingInvoice->getLineAmountTypes());
+        self::assertSame('AUTHORISED', $repeatingInvoice->getStatus());
+        self::assertSame('brand-1', $repeatingInvoice->getBrandingThemeID());
+        self::assertSame('NZD', $repeatingInvoice->getCurrencyCode());
+        self::assertSame(99, $repeatingInvoice->getSubTotal());
+        self::assertSame(0, $repeatingInvoice->getTotalTax());
+        self::assertSame(99, $repeatingInvoice->getTotal());
+        self::assertTrue($repeatingInvoice->getHasAttachments());
+        self::assertCount(1, $repeatingInvoice->getAttachments());
+        self::assertSame('attach-1', $repeatingInvoice->getAttachments()[0]->getAttachmentID());
+        self::assertTrue($repeatingInvoice->getApprovedForSending());
+        self::assertFalse($repeatingInvoice->getSendCopy());
+        self::assertTrue($repeatingInvoice->getMarkAsSent());
+        self::assertFalse($repeatingInvoice->getIncludePDF());
         self::assertNotSame([], $client->accounting()->repeatingInvoices()->scopes()->broad);
+    }
+
+    public function test_repeating_invoice_setters_compose_a_model(): void
+    {
+        $repeatingInvoice = (new RepeatingInvoice())
+            ->setRepeatingInvoiceID('repeat-1')
+            ->setID('guid-1')
+            ->setSchedule((new Schedule())
+                ->setPeriod(1)
+                ->setUnit('MONTHLY')
+                ->setDueDate(10)
+                ->setDueDateType('DAYSAFTERBILLDATE')
+                ->setStartDate('2026-01-01T00:00:00')
+                ->setNextScheduledDate('2026-07-01T00:00:00')
+                ->setEndDate('2027-01-01T00:00:00'))
+            ->setLineAmountTypes('Exclusive')
+            ->setBrandingThemeID('brand-1')
+            ->setCurrencyCode('NZD')
+            ->setSubTotal(99)
+            ->setTotalTax(0)
+            ->setTotal(99)
+            ->setHasAttachments(true)
+            ->setApprovedForSending(true)
+            ->setSendCopy(false)
+            ->setMarkAsSent(true)
+            ->setIncludePDF(false);
+
+        $repeatingInvoice->addAttachment((new AttachmentDetail())->setAttachmentID('attach-1'));
+        $repeatingInvoice->setLineItems([(new LineItem())->setDescription('First')]);
+        $repeatingInvoice->setLineItems([(new LineItem())->setDescription('Second')]);
+
+        self::assertSame('guid-1', $repeatingInvoice->getID());
+        self::assertSame('MONTHLY', $repeatingInvoice->getSchedule()?->getUnit());
+        self::assertSame(10, $repeatingInvoice->getSchedule()->getDueDate());
+        self::assertSame('DAYSAFTERBILLDATE', $repeatingInvoice->getSchedule()->getDueDateType());
+        self::assertSame('2026-01-01T00:00:00', $repeatingInvoice->getSchedule()->getStartDate());
+        self::assertSame('2026-07-01T00:00:00', $repeatingInvoice->getSchedule()->getNextScheduledDate());
+        self::assertSame('2027-01-01T00:00:00', $repeatingInvoice->getSchedule()->getEndDate());
+        self::assertSame('Exclusive', $repeatingInvoice->getLineAmountTypes());
+        self::assertSame('brand-1', $repeatingInvoice->getBrandingThemeID());
+        self::assertSame('NZD', $repeatingInvoice->getCurrencyCode());
+        self::assertSame(99, $repeatingInvoice->getSubTotal());
+        self::assertSame(0, $repeatingInvoice->getTotalTax());
+        self::assertSame(99, $repeatingInvoice->getTotal());
+        self::assertTrue($repeatingInvoice->getHasAttachments());
+        self::assertTrue($repeatingInvoice->getApprovedForSending());
+        self::assertFalse($repeatingInvoice->getSendCopy());
+        self::assertTrue($repeatingInvoice->getMarkAsSent());
+        self::assertFalse($repeatingInvoice->getIncludePDF());
+        self::assertCount(1, $repeatingInvoice->getAttachments());
+        self::assertSame('attach-1', $repeatingInvoice->getAttachments()[0]->getAttachmentID());
+        self::assertCount(1, $repeatingInvoice->getLineItems());
+        self::assertSame('Second', $repeatingInvoice->getLineItems()[0]->getDescription());
     }
 
     public function test_it_can_create_and_update_repeating_invoices(): void

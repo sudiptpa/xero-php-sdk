@@ -119,9 +119,16 @@ final class PayRuns implements PaginatesResults, DefinesScopes
         return (new Payload($this->client))->id($payRunId);
     }
 
-    public function payslips(string $payRunId): Payslips
+    public function payslip(string $payslipId): ?Payslip
     {
-        return new Payslips($this->client, $payRunId);
+        $response = $this->client
+            ->get('/payroll.xro/1.0/Payslip/' . $payslipId)
+            ->send();
+
+        $payload = $response->json();
+        $payslip = Json::extractObject($payload, 'Payslip');
+
+        return $payslip !== [] ? (new Payslip())->fill($payslip) : null;
     }
 
     /**

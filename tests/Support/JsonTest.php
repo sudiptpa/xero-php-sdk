@@ -15,6 +15,14 @@ final class JsonTest extends TestCase
         self::assertSame('{"name":"Acme"}', Json::encode(['name' => 'Acme']));
     }
 
+    public function test_it_encodes_a_list_to_json(): void
+    {
+        self::assertSame(
+            '[{"id":1},{"id":2}]',
+            Json::encodeList([['id' => 1], ['id' => 2]])
+        );
+    }
+
     public function test_it_decodes_a_json_object(): void
     {
         self::assertSame(['name' => 'Acme'], Json::decodeObject('{"name":"Acme"}'));

@@ -53,6 +53,54 @@ final class Payload
         return $clone;
     }
 
+    public function bsb(string $bsb): self
+    {
+        $clone = clone $this;
+        $clone->attributes['BSB'] = $bsb;
+
+        return $clone;
+    }
+
+    public function accountNumber(string $accountNumber): self
+    {
+        $clone = clone $this;
+        $clone->attributes['AccountNumber'] = $accountNumber;
+
+        return $clone;
+    }
+
+    public function accountName(string $accountName): self
+    {
+        $clone = clone $this;
+        $clone->attributes['AccountName'] = $accountName;
+
+        return $clone;
+    }
+
+    public function electronicServiceAddress(string $electronicServiceAddress): self
+    {
+        $clone = clone $this;
+        $clone->attributes['ElectronicServiceAddress'] = $electronicServiceAddress;
+
+        return $clone;
+    }
+
+    public function employerNumber(string $employerNumber): self
+    {
+        $clone = clone $this;
+        $clone->attributes['EmployerNumber'] = $employerNumber;
+
+        return $clone;
+    }
+
+    public function spin(string $spin): self
+    {
+        $clone = clone $this;
+        $clone->attributes['SPIN'] = $spin;
+
+        return $clone;
+    }
+
     public function idempotencyKey(string $key): self
     {
         $clone = clone $this;

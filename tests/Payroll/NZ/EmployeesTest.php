@@ -8,7 +8,9 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Payroll\NZ\Employee\EarningsTemplate;
 use Sujip\Xero\Payroll\NZ\Employee\Employee;
+use Sujip\Xero\Payroll\NZ\Employee\EmployeeLeaveType;
 use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
@@ -18,42 +20,38 @@ final class EmployeesTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Employees' => [[
-                'EmployeeID' => 'employee-1',
-                'FirstName' => 'Ada',
-                'LastName' => 'Lovelace',
-                'Status' => 'ACTIVE',
+            'employees' => [[
+                'employeeID' => 'employee-1',
+                'firstName' => 'Ada',
+                'lastName' => 'Lovelace',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Employee' => [
-                'EmployeeID' => 'employee-1',
-                'FirstName' => 'Ada',
-                'LastName' => 'Lovelace',
-                'Status' => 'ACTIVE',
+            'employee' => [
+                'employeeID' => 'employee-1',
+                'firstName' => 'Ada',
+                'lastName' => 'Lovelace',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Employee' => [
-                'EmployeeID' => 'employee-2',
-                'FirstName' => 'Grace',
-                'LastName' => 'Hopper',
-                'Status' => 'ACTIVE',
+            'employee' => [
+                'employeeID' => 'employee-2',
+                'firstName' => 'Grace',
+                'lastName' => 'Hopper',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Employee' => [
-                'EmployeeID' => 'employee-2',
-                'FirstName' => 'Grace',
-                'LastName' => 'Hopper',
-                'Status' => 'ACTIVE',
+            'employee' => [
+                'employeeID' => 'employee-2',
+                'firstName' => 'Grace',
+                'lastName' => 'Hopper',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'LeaveTypes' => [[
-                'LeaveTypeID' => 'leave-type-1',
-                'Name' => 'Annual Leave',
-                'IsActive' => true,
+            'leaveTypes' => [[
+                'leaveTypeID' => 'leave-type-1',
+                'scheduleOfAccrual' => 'AnnuallyAfter6Months',
+                'openingBalance' => 100,
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -103,18 +101,13 @@ final class EmployeesTest extends TestCase
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'EmployeeLeaveSetup' => [
-                'EmployeeID' => 'employee-1',
+                'employeeID' => 'employee-1',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'EmployeeOpeningBalances' => [[
                 'PeriodEndDate' => '2026-03-31',
             ]],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Employment' => [
-                'StartDate' => '2020-01-15',
-            ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'SalaryAndWages' => [[
@@ -190,7 +183,6 @@ final class EmployeesTest extends TestCase
             ->grossEarnings(1730.77)
             ->idempotencyKey('opening-balances-key')
             ->save();
-        $employment = $employee?->employment();
         $salaryAndWages = $employee?->salaryAndWages(page: 2);
         $salaryAndWage = $employee?->salaryAndWage('wage-1');
         $createdEmployment = $employee?->createEmployment()
@@ -240,26 +232,25 @@ final class EmployeesTest extends TestCase
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Working-Patterns/pattern-1', $transport->requests()[12]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeaveSetup', $transport->requests()[13]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/OpeningBalances', $transport->requests()[14]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Employment', $transport->requests()[15]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages', $transport->requests()[16]->path);
-        self::assertSame(2, $transport->requests()[16]->query['page']);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages/wage-1', $transport->requests()[17]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Employment', $transport->requests()[18]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[19]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PaymentMethods', $transport->requests()[20]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages', $transport->requests()[21]->path);
-        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Working-Patterns', $transport->requests()[22]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages', $transport->requests()[15]->path);
+        self::assertSame(2, $transport->requests()[15]->query['page']);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages/wage-1', $transport->requests()[16]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Employment', $transport->requests()[17]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[18]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PaymentMethods', $transport->requests()[19]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages', $transport->requests()[20]->path);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/Working-Patterns', $transport->requests()[21]->path);
         self::assertSame('leave-setup-key', $transport->requests()[13]->headers['Idempotency-Key']);
         self::assertSame('opening-balances-key', $transport->requests()[14]->headers['Idempotency-Key']);
-        self::assertSame('employment-key', $transport->requests()[18]->headers['Idempotency-Key']);
-        self::assertSame('leave-key', $transport->requests()[19]->headers['Idempotency-Key']);
-        self::assertSame('payment-method-key', $transport->requests()[20]->headers['Idempotency-Key']);
-        self::assertSame('salary-key', $transport->requests()[21]->headers['Idempotency-Key']);
-        self::assertSame('working-pattern-key', $transport->requests()[22]->headers['Idempotency-Key']);
+        self::assertSame('employment-key', $transport->requests()[17]->headers['Idempotency-Key']);
+        self::assertSame('leave-key', $transport->requests()[18]->headers['Idempotency-Key']);
+        self::assertSame('payment-method-key', $transport->requests()[19]->headers['Idempotency-Key']);
+        self::assertSame('salary-key', $transport->requests()[20]->headers['Idempotency-Key']);
+        self::assertSame('working-pattern-key', $transport->requests()[21]->headers['Idempotency-Key']);
         self::assertSame('employee-1', $employee?->getEmployeeID());
         self::assertSame('employee-2', $created->getEmployeeID());
         self::assertSame('employee-2', $updated->getEmployeeID());
-        self::assertSame('Annual Leave', $leaveTypes?->first()?->getName());
+        self::assertSame('AnnuallyAfter6Months', $leaveTypes?->first()?->getScheduleOfAccrual());
         self::assertSame('2026-01-01', (Json::extractList($leavePeriods ?? [], 'LeavePeriods')[0] ?? [])['StartDate'] ?? null);
         self::assertEquals(24.5, (Json::extractList($leaveBalances ?? [], 'LeaveBalances')[0] ?? [])['Balance'] ?? null);
         self::assertSame('leave-1', (Json::extractList($leaves ?? [], 'Leave')[0] ?? [])['LeaveID'] ?? null);
@@ -268,9 +259,8 @@ final class EmployeesTest extends TestCase
         self::assertSame('M', Json::extractObject($tax ?? [], 'Tax')['TaxCode'] ?? null);
         self::assertSame('pattern-1', (Json::extractList($workingPatterns ?? [], 'WorkingPatterns')[0] ?? [])['EmployeeWorkingPatternID'] ?? null);
         self::assertSame('pattern-1', Json::extractObject($workingPattern ?? [], 'WorkingPattern')['EmployeeWorkingPatternID'] ?? null);
-        self::assertSame('employee-1', Json::extractObject($leaveSetup ?? [], 'EmployeeLeaveSetup')['EmployeeID'] ?? null);
+        self::assertSame('employee-1', Json::extractObject($leaveSetup ?? [], 'EmployeeLeaveSetup')['employeeID'] ?? null);
         self::assertSame('2026-03-31', (Json::extractList($openingBalances ?? [], 'EmployeeOpeningBalances')[0] ?? [])['PeriodEndDate'] ?? null);
-        self::assertSame('2020-01-15', Json::extractObject($employment ?? [], 'Employment')['StartDate'] ?? null);
         self::assertSame('wage-1', (Json::extractList($salaryAndWages ?? [], 'SalaryAndWages')[0] ?? [])['SalaryAndWagesID'] ?? null);
         self::assertSame('wage-1', Json::extractObject($salaryAndWage ?? [], 'SalaryAndWages')['SalaryAndWagesID'] ?? null);
         self::assertSame('2026-04-01', Json::extractObject($createdEmployment ?? [], 'Employment')['StartDate'] ?? null);
@@ -296,7 +286,7 @@ final class EmployeesTest extends TestCase
     public function test_it_can_paginate_employees(): void
     {
         $transport = (new FakeTransport())->push(
-            new Response(200, body: json_encode(['Employees' => []], JSON_THROW_ON_ERROR))
+            new Response(200, body: json_encode(['employees' => []], JSON_THROW_ON_ERROR))
         );
 
         $page = Xero::withAccessToken('token', $transport)
@@ -315,39 +305,76 @@ final class EmployeesTest extends TestCase
     public function test_employee_exposes_all_fields(): void
     {
         $employee = (new Employee())->fill([
-            'EmployeeID' => 'employee-1',
-            'FirstName' => 'Ada',
-            'LastName' => 'Lovelace',
-            'EmailAddress' => 'ada@example.test',
-            'Status' => 'ACTIVE',
+            'employeeID' => 'employee-1',
+            'title' => 'Mrs',
+            'firstName' => 'Ada',
+            'lastName' => 'Lovelace',
+            'dateOfBirth' => '1990-01-02',
+            'email' => 'ada@example.test',
+            'gender' => 'F',
+            'phoneNumber' => '415-555-1212',
+            'startDate' => '2020-01-19',
+            'endDate' => '2026-01-19',
+            'payrollCalendarID' => 'calendar-1',
+            'updatedDateUTC' => '2026-04-08T00:00:00',
+            'createdDateUTC' => '2020-01-19T00:00:00',
+            'jobTitle' => 'General Manager',
+            'engagementType' => 'Permanent',
+            'fixedTermEndDate' => '2026-12-31',
+            'address' => [
+                'addressLine1' => '19 Taranaki Street',
+                'addressLine2' => 'Apt 4',
+                'city' => 'Wellington',
+                'suburb' => 'Te Aro',
+                'postCode' => '6011',
+                'countryName' => 'NEW ZEALAND',
+            ],
         ]);
 
         self::assertSame('employee-1', $employee->getEmployeeID());
+        self::assertSame('Mrs', $employee->getTitle());
         self::assertSame('Ada', $employee->getFirstName());
         self::assertSame('Lovelace', $employee->getLastName());
+        self::assertSame('1990-01-02', $employee->getDateOfBirth());
         self::assertSame('ada@example.test', $employee->getEmailAddress());
-        self::assertSame('ACTIVE', $employee->getStatus());
+        self::assertSame('F', $employee->getGender());
+        self::assertSame('415-555-1212', $employee->getPhoneNumber());
+        self::assertSame('2020-01-19', $employee->getStartDate());
+        self::assertSame('2026-01-19', $employee->getEndDate());
+        self::assertSame('calendar-1', $employee->getPayrollCalendarID());
+        self::assertSame('2026-04-08T00:00:00', $employee->getUpdatedDateUTC());
+        self::assertSame('2020-01-19T00:00:00', $employee->getCreatedDateUTC());
+        self::assertSame('General Manager', $employee->getJobTitle());
+        self::assertSame('Permanent', $employee->getEngagementType());
+        self::assertSame('2026-12-31', $employee->getFixedTermEndDate());
+
+        $address = $employee->getAddress();
+        self::assertNotNull($address);
+        self::assertSame('19 Taranaki Street', $address->getAddressLine1());
+        self::assertSame('Apt 4', $address->getAddressLine2());
+        self::assertSame('Wellington', $address->getCity());
+        self::assertSame('Te Aro', $address->getSuburb());
+        self::assertSame('6011', $address->getPostCode());
+        self::assertSame('NEW ZEALAND', $address->getCountryName());
     }
 
     public function test_it_can_save_a_found_employee(): void
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Employee' => [
-                'EmployeeID' => 'employee-1',
-                'FirstName' => 'Ada',
-                'LastName' => 'Lovelace',
-                'EmailAddress' => 'ada@example.test',
-                'Status' => 'ACTIVE',
+            'employee' => [
+                'employeeID' => 'employee-1',
+                'firstName' => 'Ada',
+                'lastName' => 'Lovelace',
+                'email' => 'ada@example.test',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Employee' => [
-                'EmployeeID' => 'employee-1',
-                'FirstName' => 'Ada',
-                'LastName' => 'King',
-                'EmailAddress' => 'ada@example.test',
-                'Status' => 'ACTIVE',
+            'employee' => [
+                'employeeID' => 'employee-1',
+                'firstName' => 'Ada',
+                'lastName' => 'King',
+                'email' => 'ada@example.test',
             ],
         ], JSON_THROW_ON_ERROR)));
 
@@ -356,15 +383,13 @@ final class EmployeesTest extends TestCase
         $employee = $client->payroll()->nz()->employees()->find('employee-1');
         $saved = $employee?->setLastName('King')->save();
 
-        self::assertSame('POST', $transport->requests()[1]->method);
+        self::assertSame('PUT', $transport->requests()[1]->method);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1', $transport->requests()[1]->path);
         self::assertSame([
-            'Employee' => [
-                'FirstName' => 'Ada',
-                'LastName' => 'King',
-                'EmailAddress' => 'ada@example.test',
-                'EmployeeID' => 'employee-1',
-            ],
+            'firstName' => 'Ada',
+            'lastName' => 'King',
+            'email' => 'ada@example.test',
+            'employeeID' => 'employee-1',
         ], $transport->requests()[1]->json);
         self::assertSame('King', $saved?->getLastName());
     }
@@ -387,11 +412,9 @@ final class EmployeesTest extends TestCase
 
         self::assertSame('key-123', $transport->requests()[0]->headers['Idempotency-Key']);
         self::assertSame([
-            'Employee' => [
-                'FirstName' => 'Ada',
-                'LastName' => 'Lovelace',
-                'DateOfBirth' => '1990-01-15',
-            ],
+            'firstName' => 'Ada',
+            'lastName' => 'Lovelace',
+            'dateOfBirth' => '1990-01-15',
         ], $transport->requests()[0]->json);
         self::assertNull($employee->getEmployeeID());
     }
@@ -546,13 +569,6 @@ final class EmployeesTest extends TestCase
         (new Employee())->createWorkingPattern();
     }
 
-    public function test_employment_without_a_client_throws(): void
-    {
-        $this->expectException(RuntimeException::class);
-
-        (new Employee())->employment();
-    }
-
     public function test_salary_and_wages_without_a_client_throws(): void
     {
         $this->expectException(RuntimeException::class);
@@ -565,5 +581,181 @@ final class EmployeesTest extends TestCase
         $this->expectException(RuntimeException::class);
 
         (new Employee())->salaryAndWage('wage-1');
+    }
+
+    public function test_employee_leave_type_exposes_all_fields(): void
+    {
+        $leaveType = (new EmployeeLeaveType())->fill([
+            'leaveTypeID' => 'leave-type-1',
+            'scheduleOfAccrual' => 'AnnuallyAfter6Months',
+            'unitsAccruedAnnually' => 10,
+            'typeOfUnitsToAccrue' => 'Hours',
+            'maximumToAccrue' => 80,
+            'openingBalance' => 100,
+            'openingBalanceTypeOfUnits' => 'Hours',
+            'rateAccruedHourly' => 0.5,
+            'percentageOfGrossEarnings' => 8,
+            'includeHolidayPayEveryPay' => true,
+            'showAnnualLeaveInAdvance' => false,
+            'annualLeaveTotalAmountPaid' => 250.75,
+            'scheduleOfAccrualDate' => '2026-04-01',
+        ]);
+
+        self::assertSame('leave-type-1', $leaveType->getLeaveTypeID());
+        self::assertSame('AnnuallyAfter6Months', $leaveType->getScheduleOfAccrual());
+        self::assertSame(10.0, $leaveType->getUnitsAccruedAnnually());
+        self::assertSame('Hours', $leaveType->getTypeOfUnitsToAccrue());
+        self::assertSame(80.0, $leaveType->getMaximumToAccrue());
+        self::assertSame(100.0, $leaveType->getOpeningBalance());
+        self::assertSame('Hours', $leaveType->getOpeningBalanceTypeOfUnits());
+        self::assertSame(0.5, $leaveType->getRateAccruedHourly());
+        self::assertSame(8.0, $leaveType->getPercentageOfGrossEarnings());
+        self::assertTrue($leaveType->getIncludeHolidayPayEveryPay());
+        self::assertFalse($leaveType->getShowAnnualLeaveInAdvance());
+        self::assertSame(250.75, $leaveType->getAnnualLeaveTotalAmountPaid());
+        self::assertSame('2026-04-01', $leaveType->getScheduleOfAccrualDate());
+    }
+
+    public function test_it_manages_employee_pay_template_earnings(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'payTemplate' => [
+                'employeeID' => 'employee-1',
+                'earningTemplates' => [[
+                    'payTemplateEarningID' => 'earning-1',
+                    'ratePerUnit' => 20,
+                    'numberOfUnits' => 8,
+                    'fixedAmount' => null,
+                    'earningsRateID' => 'rate-1',
+                    'name' => 'Ordinary Time',
+                ]],
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'earningTemplate' => [
+                'payTemplateEarningID' => 'earning-2',
+                'ratePerUnit' => 25,
+                'numberOfUnits' => 4,
+                'earningsRateID' => 'rate-1',
+                'name' => 'Overtime',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'earningTemplate' => [
+                'payTemplateEarningID' => 'earning-2',
+                'ratePerUnit' => 30,
+                'numberOfUnits' => 4,
+                'earningsRateID' => 'rate-1',
+                'name' => 'Overtime',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: '{}'));
+        $transport->push(new Response(200, body: json_encode([
+            'earningTemplates' => [
+                ['payTemplateEarningID' => 'earning-3', 'earningsRateID' => 'rate-2', 'name' => 'Salary'],
+                ['payTemplateEarningID' => 'earning-4', 'earningsRateID' => 'rate-3', 'name' => 'Bonus'],
+            ],
+        ], JSON_THROW_ON_ERROR)));
+
+        $employees = Xero::withAccessToken('token', $transport)->tenant('tenant-123')
+            ->payroll()->nz()->employees();
+
+        $templates = $employees->payTemplate('employee-1');
+        $created = $employees->createEarningsTemplate(
+            'employee-1',
+            (new EarningsTemplate())->setRatePerUnit(25.0)->setNumberOfUnits(4.0)->setEarningsRateID('rate-1'),
+            'create-key'
+        );
+        $updated = $employees->updateEarningsTemplate(
+            'employee-1',
+            'earning-2',
+            (new EarningsTemplate())->setRatePerUnit(30.0)->setNumberOfUnits(4.0)->setEarningsRateID('rate-1')
+        );
+        $deleted = $employees->deleteEarningsTemplate('employee-1', 'earning-2');
+        $bulk = $employees->createEarningsTemplates(
+            'employee-1',
+            [
+                (new EarningsTemplate())->setEarningsRateID('rate-2')->setNumberOfUnits(8.0),
+                (new EarningsTemplate())->setEarningsRateID('rate-3')->setNumberOfUnits(8.0),
+            ],
+            'bulk-key'
+        );
+
+        self::assertCount(1, $templates->all());
+        $firstTemplate = $templates->first();
+        self::assertNotNull($firstTemplate);
+        self::assertSame('earning-1', $firstTemplate->getPayTemplateEarningID());
+        self::assertSame(20.0, $firstTemplate->getRatePerUnit());
+        self::assertSame('Ordinary Time', $firstTemplate->getName());
+
+        $getRequest = $transport->requests()[0];
+        self::assertSame('GET', $getRequest->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PayTemplates', $getRequest->path);
+
+        $createRequest = $transport->requests()[1];
+        self::assertSame('POST', $createRequest->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PayTemplates/Earnings', $createRequest->path);
+        self::assertSame('create-key', $createRequest->headers['Idempotency-Key']);
+        self::assertSame([
+            'ratePerUnit' => 25.0,
+            'numberOfUnits' => 4.0,
+            'earningsRateID' => 'rate-1',
+        ], $createRequest->json);
+        self::assertSame('earning-2', $created->getPayTemplateEarningID());
+
+        $updateRequest = $transport->requests()[2];
+        self::assertSame('PUT', $updateRequest->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PayTemplates/Earnings/earning-2', $updateRequest->path);
+        self::assertArrayNotHasKey('Idempotency-Key', $updateRequest->headers);
+        self::assertSame(30.0, $updated->getRatePerUnit());
+
+        self::assertSame('DELETE', $transport->requests()[3]->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PayTemplates/Earnings/earning-2', $transport->requests()[3]->path);
+        self::assertTrue($deleted);
+
+        $bulkRequest = $transport->requests()[4];
+        self::assertSame('POST', $bulkRequest->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/PayTemplateEarnings', $bulkRequest->path);
+        self::assertSame('application/json', $bulkRequest->headers['Content-Type']);
+        self::assertSame('bulk-key', $bulkRequest->headers['Idempotency-Key']);
+        self::assertSame(
+            json_encode([
+                ['numberOfUnits' => 8.0, 'earningsRateID' => 'rate-2'],
+                ['numberOfUnits' => 8.0, 'earningsRateID' => 'rate-3'],
+            ], JSON_THROW_ON_ERROR),
+            $bulkRequest->body
+        );
+        self::assertCount(2, $bulk->all());
+        $firstBulk = $bulk->first();
+        self::assertNotNull($firstBulk);
+        self::assertSame('earning-3', $firstBulk->getPayTemplateEarningID());
+    }
+
+    public function test_it_hydrates_every_earnings_template_field(): void
+    {
+        $template = (new EarningsTemplate())->fill([
+            'payTemplateEarningID' => 'earning-1',
+            'ratePerUnit' => 20.5,
+            'numberOfUnits' => 8,
+            'fixedAmount' => 50,
+            'earningsRateID' => 'rate-1',
+            'name' => 'Ordinary Time',
+        ]);
+
+        self::assertSame('earning-1', $template->getPayTemplateEarningID());
+        self::assertSame(20.5, $template->getRatePerUnit());
+        self::assertSame(8.0, $template->getNumberOfUnits());
+        self::assertSame(50.0, $template->getFixedAmount());
+        self::assertSame('rate-1', $template->getEarningsRateID());
+        self::assertSame('Ordinary Time', $template->getName());
+        self::assertSame([
+            'payTemplateEarningID' => 'earning-1',
+            'ratePerUnit' => 20.5,
+            'numberOfUnits' => 8.0,
+            'fixedAmount' => 50.0,
+            'earningsRateID' => 'rate-1',
+            'name' => 'Ordinary Time',
+        ], $template->toRequest());
     }
 }

@@ -19,7 +19,10 @@ final class BrandingThemesTest extends TestCase
             'BrandingThemes' => [[
                 'BrandingThemeID' => 'branding-1',
                 'Name' => 'Standard',
+                'LogoUrl' => 'https://example.test/logo.png',
+                'Type' => 'INVOICE',
                 'SortOrder' => 1,
+                'CreatedDateUTC' => '2026-03-25T00:00:00',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -38,9 +41,58 @@ final class BrandingThemesTest extends TestCase
         self::assertSame('/api.xro/2.0/BrandingThemes', $transport->requests()[0]->path);
         self::assertInstanceOf(BrandingTheme::class, $themes->first());
         self::assertSame('Standard', $themes->first()->getName());
-        self::assertSame('1', $themes->first()->getSortOrder());
+        self::assertSame(1, $themes->first()->getSortOrder());
+        self::assertSame('https://example.test/logo.png', $themes->first()->getLogoUrl());
+        self::assertSame('INVOICE', $themes->first()->getType());
+        self::assertSame('2026-03-25T00:00:00', $themes->first()->getCreatedDateUTC());
         self::assertSame('/api.xro/2.0/BrandingThemes/branding-1', $transport->requests()[1]->path);
         self::assertSame('branding-1', $theme?->getBrandingThemeID());
+    }
+
+    public function test_it_lists_branding_theme_payment_services(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'PaymentServices' => [[
+                'PaymentServiceID' => 'service-1',
+                'PaymentServiceName' => 'ACME Payment',
+                'PaymentServiceUrl' => 'https://www.payupnow.com/',
+                'PaymentServiceType' => 'Custom',
+                'PayNowText' => 'Pay Now',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $services = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->brandingThemes()
+            ->paymentServices('branding-1');
+
+        self::assertSame('/api.xro/2.0/BrandingThemes/branding-1/PaymentServices', $transport->requests()[0]->path);
+        $service = $services->first();
+        self::assertNotNull($service);
+        self::assertSame('service-1', $service->getPaymentServiceID());
+        self::assertSame('Custom', $service->getPaymentServiceType());
+        self::assertSame('ACME Payment', $service->getPaymentServiceName());
+    }
+
+    public function test_it_applies_a_payment_service_to_a_branding_theme(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'PaymentServices' => [['PaymentServiceID' => 'service-1', 'PaymentServiceName' => 'ACME Payment']],
+        ], JSON_THROW_ON_ERROR)));
+
+        $services = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->brandingThemes()
+            ->applyPaymentService('branding-1', 'service-1', 'service-key');
+
+        $request = $transport->requests()[0];
+        self::assertSame('POST', $request->method);
+        self::assertSame('/api.xro/2.0/BrandingThemes/branding-1/PaymentServices', $request->path);
+        self::assertSame(['PaymentServices' => [['PaymentServiceID' => 'service-1']]], $request->json);
+        self::assertSame('service-key', $request->headers['Idempotency-Key']);
+        self::assertSame('service-1', $services->first()?->getPaymentServiceID());
     }
 
     public function test_it_exposes_required_scopes(): void

@@ -28,9 +28,29 @@ final class JournalsAndReportsTest extends TestCase
         $transport->push(new Response(200, body: json_encode([
             'Journals' => [[
                 'JournalID' => 'journal-1',
+                'JournalDate' => '2026-03-25T00:00:00',
                 'JournalNumber' => 1250,
+                'CreatedDateUTC' => '2026-03-25T01:00:00',
+                'Reference' => 'INV-001',
                 'SourceType' => 'ACCPAY',
                 'SourceID' => 'source-1',
+                'JournalLines' => [[
+                    'JournalLineID' => 'line-1',
+                    'AccountID' => 'account-1',
+                    'AccountCode' => '200',
+                    'AccountType' => 'REVENUE',
+                    'AccountName' => 'Sales',
+                    'Description' => 'Sale of goods',
+                    'NetAmount' => 100.0,
+                    'GrossAmount' => 115.0,
+                    'TaxAmount' => 15.0,
+                    'TaxType' => 'OUTPUT2',
+                    'TaxName' => 'GST on Income',
+                    'TrackingCategories' => [[
+                        'TrackingCategoryID' => 'category-1',
+                        'Name' => 'Region',
+                    ]],
+                ]],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -63,6 +83,22 @@ final class JournalsAndReportsTest extends TestCase
         self::assertSame('journal-1', $journal?->getJournalID());
         self::assertSame('ACCPAY', $journal->getSourceType());
         self::assertSame('source-1', $journal->getSourceID());
+        self::assertSame('2026-03-25T00:00:00', $journal->getJournalDate());
+        self::assertSame('2026-03-25T01:00:00', $journal->getCreatedDateUTC());
+        self::assertSame('INV-001', $journal->getReference());
+        $journalLine = $journal->getJournalLines()[0];
+        self::assertSame('line-1', $journalLine->getJournalLineID());
+        self::assertSame('account-1', $journalLine->getAccountID());
+        self::assertSame('200', $journalLine->getAccountCode());
+        self::assertSame('REVENUE', $journalLine->getAccountType());
+        self::assertSame('Sales', $journalLine->getAccountName());
+        self::assertSame('Sale of goods', $journalLine->getDescription());
+        self::assertSame(100, $journalLine->getNetAmount());
+        self::assertSame(115, $journalLine->getGrossAmount());
+        self::assertSame(15, $journalLine->getTaxAmount());
+        self::assertSame('OUTPUT2', $journalLine->getTaxType());
+        self::assertSame('GST on Income', $journalLine->getTaxName());
+        self::assertSame('category-1', $journalLine->getTrackingCategories()[0]->getTrackingCategoryID());
         self::assertNotSame([], $client->accounting()->journals()->scopes()->granular);
     }
 
@@ -95,6 +131,36 @@ final class JournalsAndReportsTest extends TestCase
                 'ReportID' => 'report-ar',
                 'ReportName' => 'Aged Receivables By Contact',
                 'ReportTitles' => ['Aged Receivables By Contact'],
+                'ReportTitle' => 'Aged Receivables By Contact',
+                'ReportDate' => '25 March 2026',
+                'UpdatedDateUTC' => '2026-03-25T00:00:00',
+                'Contacts' => [[
+                    'Name' => 'Acme Ltd',
+                    'Box1' => 1000,
+                    'Box2' => 2,
+                    'Box3' => 3,
+                    'Box4' => 4,
+                    'Box5' => 5,
+                    'Box6' => 6,
+                    'Box7' => 7,
+                    'Box8' => 8,
+                    'Box9' => 9,
+                    'Box10' => 10,
+                    'Box11' => 11,
+                    'Box13' => 13,
+                    'Box14' => 14,
+                    'City' => 'Auckland',
+                    'FederalTaxIDType' => 'EIN',
+                    'Zip' => '1010',
+                    'State' => 'AUK',
+                    'Email' => 'acme@example.test',
+                    'StreetAddress' => '1 Queen Street',
+                    'TaxID' => 'tax-1',
+                    'ContactId' => 'contact-1',
+                    'LegalName' => 'Acme Limited',
+                    'BusinessName' => 'Acme',
+                    'FederalTaxClassification' => 'C_CORP',
+                ]],
             ]],
         ], JSON_THROW_ON_ERROR)));
 
@@ -124,6 +190,35 @@ final class JournalsAndReportsTest extends TestCase
         self::assertSame('Custom Report', $custom?->getTitle());
         self::assertSame('Profit and Loss', $profitAndLoss?->getTitle());
         self::assertSame('Aged Receivables By Contact', $agedReceivables?->getTitle());
+        self::assertSame('Aged Receivables By Contact', $agedReceivables->getReportTitle());
+        self::assertSame('25 March 2026', $agedReceivables->getReportDate());
+        self::assertSame('2026-03-25T00:00:00', $agedReceivables->getUpdatedDateUTC());
+        $reportContact = $agedReceivables->getContacts()[0];
+        self::assertSame('Acme Ltd', $reportContact->getName());
+        self::assertSame(1000, $reportContact->getBox1());
+        self::assertSame(2, $reportContact->getBox2());
+        self::assertSame(3, $reportContact->getBox3());
+        self::assertSame(4, $reportContact->getBox4());
+        self::assertSame(5, $reportContact->getBox5());
+        self::assertSame(6, $reportContact->getBox6());
+        self::assertSame(7, $reportContact->getBox7());
+        self::assertSame(8, $reportContact->getBox8());
+        self::assertSame(9, $reportContact->getBox9());
+        self::assertSame(10, $reportContact->getBox10());
+        self::assertSame(11, $reportContact->getBox11());
+        self::assertSame(13, $reportContact->getBox13());
+        self::assertSame(14, $reportContact->getBox14());
+        self::assertSame('Auckland', $reportContact->getCity());
+        self::assertSame('EIN', $reportContact->getFederalTaxIDType());
+        self::assertSame('1010', $reportContact->getZip());
+        self::assertSame('AUK', $reportContact->getState());
+        self::assertSame('acme@example.test', $reportContact->getEmail());
+        self::assertSame('1 Queen Street', $reportContact->getStreetAddress());
+        self::assertSame('tax-1', $reportContact->getTaxID());
+        self::assertSame('contact-1', $reportContact->getContactId());
+        self::assertSame('Acme Limited', $reportContact->getLegalName());
+        self::assertSame('Acme', $reportContact->getBusinessName());
+        self::assertSame('C_CORP', $reportContact->getFederalTaxClassification());
     }
 
     public function test_it_can_fetch_every_named_report_type(): void

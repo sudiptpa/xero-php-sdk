@@ -6,18 +6,68 @@ namespace Sujip\Xero\Payroll\AU;
 
 use RuntimeException;
 use Sujip\Xero\Client;
+use Sujip\Xero\Payroll\AU\Employee\HomeAddress;
+use Sujip\Xero\Payroll\AU\Employee\OpeningBalances;
+use Sujip\Xero\Payroll\AU\Employee\PayTemplate;
+use Sujip\Xero\Payroll\AU\Employee\TaxDeclaration;
 use Sujip\Xero\Payroll\AU\LeaveApplication\Payload as LeaveApplicationPayload;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
+use Sujip\Xero\Support\ValidationError;
 
 final class Employee extends Model
 {
     private ?string $employeeID = null;
     private ?string $firstName = null;
     private ?string $lastName = null;
-    private ?string $emailAddress = null;
-    private ?string $status = null;
+    private ?HomeAddress $homeAddress = null;
+    private ?string $dateOfBirth = null;
+    private ?string $startDate = null;
+    private ?string $title = null;
+    private ?string $middleNames = null;
+    private ?string $email = null;
+    private ?string $gender = null;
+    private ?string $phone = null;
+    private ?string $mobile = null;
+    private ?string $twitterUserName = null;
+    private ?bool $isAuthorisedToApproveLeave = null;
+    private ?bool $isAuthorisedToApproveTimesheets = null;
+    private ?string $jobTitle = null;
+    private ?string $classification = null;
+    private ?string $ordinaryEarningsRateID = null;
+    private ?string $payrollCalendarID = null;
+    private ?string $employeeGroupName = null;
+    private ?string $terminationDate = null;
+    private ?string $terminationReason = null;
 
+    /**
+     * @var list<array<string, mixed>>
+     */
+    private array $bankAccounts = [];
+    private ?PayTemplate $payTemplate = null;
+    private ?OpeningBalances $openingBalances = null;
+    private ?TaxDeclaration $taxDeclaration = null;
+    private ?string $incomeType = null;
+    private ?string $employmentType = null;
+    private ?string $countryOfResidence = null;
+    private ?bool $isSTP2Qualified = null;
+
+    /**
+     * @var list<array<string, mixed>>
+     */
+    private array $leaveBalances = [];
+
+    /**
+     * @var list<array<string, mixed>>
+     */
+    private array $superMemberships = [];
+    private ?string $status = null;
+    private ?string $updatedDateUTC = null;
+
+    /**
+     * @var list<ValidationError>
+     */
+    private array $validationErrors = [];
 
     public function __construct(
         private ?Client $client = null
@@ -57,14 +107,340 @@ final class Employee extends Model
         return $this;
     }
 
-    public function getEmailAddress(): ?string
+    public function getHomeAddress(): ?HomeAddress
     {
-        return $this->emailAddress;
+        return $this->homeAddress;
     }
 
-    public function setEmailAddress(?string $emailAddress): self
+    public function setHomeAddress(?HomeAddress $homeAddress): self
     {
-        $this->emailAddress = $emailAddress;
+        $this->homeAddress = $homeAddress;
+        return $this;
+    }
+
+    public function getDateOfBirth(): ?string
+    {
+        return $this->dateOfBirth;
+    }
+
+    public function setDateOfBirth(?string $dateOfBirth): self
+    {
+        $this->dateOfBirth = $dateOfBirth;
+        return $this;
+    }
+
+    public function getStartDate(): ?string
+    {
+        return $this->startDate;
+    }
+
+    public function setStartDate(?string $startDate): self
+    {
+        $this->startDate = $startDate;
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): self
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    public function getMiddleNames(): ?string
+    {
+        return $this->middleNames;
+    }
+
+    public function setMiddleNames(?string $middleNames): self
+    {
+        $this->middleNames = $middleNames;
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): self
+    {
+        $this->email = $email;
+        return $this;
+    }
+
+    public function getGender(): ?string
+    {
+        return $this->gender;
+    }
+
+    public function setGender(?string $gender): self
+    {
+        $this->gender = $gender;
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): self
+    {
+        $this->phone = $phone;
+        return $this;
+    }
+
+    public function getMobile(): ?string
+    {
+        return $this->mobile;
+    }
+
+    public function setMobile(?string $mobile): self
+    {
+        $this->mobile = $mobile;
+        return $this;
+    }
+
+    public function getTwitterUserName(): ?string
+    {
+        return $this->twitterUserName;
+    }
+
+    public function setTwitterUserName(?string $twitterUserName): self
+    {
+        $this->twitterUserName = $twitterUserName;
+        return $this;
+    }
+
+    public function getIsAuthorisedToApproveLeave(): ?bool
+    {
+        return $this->isAuthorisedToApproveLeave;
+    }
+
+    public function setIsAuthorisedToApproveLeave(?bool $isAuthorisedToApproveLeave): self
+    {
+        $this->isAuthorisedToApproveLeave = $isAuthorisedToApproveLeave;
+        return $this;
+    }
+
+    public function getIsAuthorisedToApproveTimesheets(): ?bool
+    {
+        return $this->isAuthorisedToApproveTimesheets;
+    }
+
+    public function setIsAuthorisedToApproveTimesheets(?bool $isAuthorisedToApproveTimesheets): self
+    {
+        $this->isAuthorisedToApproveTimesheets = $isAuthorisedToApproveTimesheets;
+        return $this;
+    }
+
+    public function getJobTitle(): ?string
+    {
+        return $this->jobTitle;
+    }
+
+    public function setJobTitle(?string $jobTitle): self
+    {
+        $this->jobTitle = $jobTitle;
+        return $this;
+    }
+
+    public function getClassification(): ?string
+    {
+        return $this->classification;
+    }
+
+    public function setClassification(?string $classification): self
+    {
+        $this->classification = $classification;
+        return $this;
+    }
+
+    public function getOrdinaryEarningsRateID(): ?string
+    {
+        return $this->ordinaryEarningsRateID;
+    }
+
+    public function setOrdinaryEarningsRateID(?string $ordinaryEarningsRateID): self
+    {
+        $this->ordinaryEarningsRateID = $ordinaryEarningsRateID;
+        return $this;
+    }
+
+    public function getPayrollCalendarID(): ?string
+    {
+        return $this->payrollCalendarID;
+    }
+
+    public function setPayrollCalendarID(?string $payrollCalendarID): self
+    {
+        $this->payrollCalendarID = $payrollCalendarID;
+        return $this;
+    }
+
+    public function getEmployeeGroupName(): ?string
+    {
+        return $this->employeeGroupName;
+    }
+
+    public function setEmployeeGroupName(?string $employeeGroupName): self
+    {
+        $this->employeeGroupName = $employeeGroupName;
+        return $this;
+    }
+
+    public function getTerminationDate(): ?string
+    {
+        return $this->terminationDate;
+    }
+
+    public function setTerminationDate(?string $terminationDate): self
+    {
+        $this->terminationDate = $terminationDate;
+        return $this;
+    }
+
+    public function getTerminationReason(): ?string
+    {
+        return $this->terminationReason;
+    }
+
+    public function setTerminationReason(?string $terminationReason): self
+    {
+        $this->terminationReason = $terminationReason;
+        return $this;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getBankAccounts(): array
+    {
+        return $this->bankAccounts;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $bankAccounts
+     */
+    public function setBankAccounts(array $bankAccounts): self
+    {
+        $this->bankAccounts = $bankAccounts;
+        return $this;
+    }
+
+    public function getPayTemplate(): ?PayTemplate
+    {
+        return $this->payTemplate;
+    }
+
+    public function setPayTemplate(?PayTemplate $payTemplate): self
+    {
+        $this->payTemplate = $payTemplate;
+        return $this;
+    }
+
+    public function getOpeningBalances(): ?OpeningBalances
+    {
+        return $this->openingBalances;
+    }
+
+    public function setOpeningBalances(?OpeningBalances $openingBalances): self
+    {
+        $this->openingBalances = $openingBalances;
+        return $this;
+    }
+
+    public function getTaxDeclaration(): ?TaxDeclaration
+    {
+        return $this->taxDeclaration;
+    }
+
+    public function setTaxDeclaration(?TaxDeclaration $taxDeclaration): self
+    {
+        $this->taxDeclaration = $taxDeclaration;
+        return $this;
+    }
+
+    public function getIncomeType(): ?string
+    {
+        return $this->incomeType;
+    }
+
+    public function setIncomeType(?string $incomeType): self
+    {
+        $this->incomeType = $incomeType;
+        return $this;
+    }
+
+    public function getEmploymentType(): ?string
+    {
+        return $this->employmentType;
+    }
+
+    public function setEmploymentType(?string $employmentType): self
+    {
+        $this->employmentType = $employmentType;
+        return $this;
+    }
+
+    public function getCountryOfResidence(): ?string
+    {
+        return $this->countryOfResidence;
+    }
+
+    public function setCountryOfResidence(?string $countryOfResidence): self
+    {
+        $this->countryOfResidence = $countryOfResidence;
+        return $this;
+    }
+
+    public function getIsSTP2Qualified(): ?bool
+    {
+        return $this->isSTP2Qualified;
+    }
+
+    public function setIsSTP2Qualified(?bool $isSTP2Qualified): self
+    {
+        $this->isSTP2Qualified = $isSTP2Qualified;
+        return $this;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getLeaveBalances(): array
+    {
+        return $this->leaveBalances;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $leaveBalances
+     */
+    public function setLeaveBalances(array $leaveBalances): self
+    {
+        $this->leaveBalances = $leaveBalances;
+        return $this;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getSuperMemberships(): array
+    {
+        return $this->superMemberships;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $superMemberships
+     */
+    public function setSuperMemberships(array $superMemberships): self
+    {
+        $this->superMemberships = $superMemberships;
         return $this;
     }
 
@@ -79,6 +455,31 @@ final class Employee extends Model
         return $this;
     }
 
+    public function getUpdatedDateUTC(): ?string
+    {
+        return $this->updatedDateUTC;
+    }
+
+    public function setUpdatedDateUTC(?string $updatedDateUTC): self
+    {
+        $this->updatedDateUTC = $updatedDateUTC;
+        return $this;
+    }
+
+    /**
+     * @return list<ValidationError>
+     */
+    public function getValidationErrors(): array
+    {
+        return $this->validationErrors;
+    }
+
+    public function addValidationError(ValidationError $validationError): self
+    {
+        $this->validationErrors[] = $validationError;
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -88,8 +489,38 @@ final class Employee extends Model
             'EmployeeID' => Field::string()->using('setEmployeeID'),
             'FirstName' => Field::string()->using('setFirstName'),
             'LastName' => Field::string()->using('setLastName'),
-            'EmailAddress' => Field::string()->using('setEmailAddress'),
+            'HomeAddress' => Field::object(HomeAddress::class)->using('setHomeAddress'),
+            'DateOfBirth' => Field::string()->using('setDateOfBirth'),
+            'StartDate' => Field::string()->using('setStartDate'),
+            'Title' => Field::string()->using('setTitle'),
+            'MiddleNames' => Field::string()->using('setMiddleNames'),
+            'Email' => Field::string()->using('setEmail'),
+            'Gender' => Field::string()->using('setGender'),
+            'Phone' => Field::string()->using('setPhone'),
+            'Mobile' => Field::string()->using('setMobile'),
+            'TwitterUserName' => Field::string()->using('setTwitterUserName'),
+            'IsAuthorisedToApproveLeave' => Field::boolean()->using('setIsAuthorisedToApproveLeave'),
+            'IsAuthorisedToApproveTimesheets' => Field::boolean()->using('setIsAuthorisedToApproveTimesheets'),
+            'JobTitle' => Field::string()->using('setJobTitle'),
+            'Classification' => Field::string()->using('setClassification'),
+            'OrdinaryEarningsRateID' => Field::string()->using('setOrdinaryEarningsRateID'),
+            'PayrollCalendarID' => Field::string()->using('setPayrollCalendarID'),
+            'EmployeeGroupName' => Field::string()->using('setEmployeeGroupName'),
+            'TerminationDate' => Field::string()->using('setTerminationDate'),
+            'TerminationReason' => Field::string()->using('setTerminationReason'),
+            'BankAccounts' => Field::array()->using('setBankAccounts'),
+            'PayTemplate' => Field::object(PayTemplate::class)->using('setPayTemplate'),
+            'OpeningBalances' => Field::object(OpeningBalances::class)->using('setOpeningBalances'),
+            'TaxDeclaration' => Field::object(TaxDeclaration::class)->using('setTaxDeclaration'),
+            'IncomeType' => Field::string()->using('setIncomeType'),
+            'EmploymentType' => Field::string()->using('setEmploymentType'),
+            'CountryOfResidence' => Field::string()->using('setCountryOfResidence'),
+            'IsSTP2Qualified' => Field::boolean()->using('setIsSTP2Qualified'),
+            'LeaveBalances' => Field::array()->using('setLeaveBalances'),
+            'SuperMemberships' => Field::array()->using('setSuperMemberships'),
             'Status' => Field::string()->using('setStatus'),
+            'UpdatedDateUTC' => Field::string()->using('setUpdatedDateUTC'),
+            'ValidationErrors' => Field::many(ValidationError::class),
         ];
     }
 
@@ -110,21 +541,14 @@ final class Employee extends Model
         if ($this->lastName !== null) {
             $payload = $payload->lastName($this->lastName);
         }
-        if ($this->emailAddress !== null) {
-            $payload = $payload->emailAddress($this->emailAddress);
+        if ($this->email !== null) {
+            $payload = $payload->email($this->email);
+        }
+        if ($this->dateOfBirth !== null) {
+            $payload = $payload->dateOfBirth($this->dateOfBirth);
         }
 
         return $payload->save();
-    }
-
-    /** @return array<string, mixed> */
-    public function leaveBalances(): array
-    {
-        if ($this->client === null || $this->employeeID === null) {
-            throw new RuntimeException('Cannot load leave balances without a bound client context and employee id.');
-        }
-
-        return (new Employees($this->client))->leaveBalances($this->employeeID);
     }
 
     public function createLeaveApplication(): LeaveApplicationPayload

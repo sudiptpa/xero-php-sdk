@@ -9,7 +9,6 @@ use DateTimeImmutable;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\AU\Employee;
-use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class EmployeesTest extends TestCase
@@ -22,7 +21,7 @@ final class EmployeesTest extends TestCase
                 'EmployeeID' => 'employee-1',
                 'FirstName' => 'Jane',
                 'LastName' => 'Smith',
-                'EmailAddress' => 'jane@example.test',
+                'Email' => 'jane@example.test',
                 'Status' => 'ACTIVE',
             ]],
         ], JSON_THROW_ON_ERROR)));
@@ -31,7 +30,7 @@ final class EmployeesTest extends TestCase
                 'EmployeeID' => 'employee-1',
                 'FirstName' => 'Jane',
                 'LastName' => 'Smith',
-                'EmailAddress' => 'jane@example.test',
+                'Email' => 'jane@example.test',
                 'Status' => 'ACTIVE',
             ],
         ], JSON_THROW_ON_ERROR)));
@@ -40,7 +39,7 @@ final class EmployeesTest extends TestCase
                 'EmployeeID' => 'employee-2',
                 'FirstName' => 'Grace',
                 'LastName' => 'Hopper',
-                'EmailAddress' => 'grace@example.test',
+                'Email' => 'grace@example.test',
                 'Status' => 'ACTIVE',
             ],
         ], JSON_THROW_ON_ERROR)));
@@ -49,7 +48,7 @@ final class EmployeesTest extends TestCase
                 'EmployeeID' => 'employee-2',
                 'FirstName' => 'Grace',
                 'LastName' => 'Hopper',
-                'EmailAddress' => 'grace@example.test',
+                'Email' => 'grace@example.test',
                 'Status' => 'ACTIVE',
             ],
         ], JSON_THROW_ON_ERROR)));
@@ -67,12 +66,12 @@ final class EmployeesTest extends TestCase
         $created = $client->payroll()->au()->employees()->create()
             ->firstName('Grace')
             ->lastName('Hopper')
-            ->emailAddress('grace@example.test')
+            ->email('grace@example.test')
             ->save();
         $updated = $client->payroll()->au()->employees()->update('employee-2')
             ->firstName('Grace')
             ->lastName('Hopper')
-            ->emailAddress('grace@example.test')
+            ->email('grace@example.test')
             ->save();
 
         self::assertSame('/payroll.xro/1.0/Employees', $transport->requests()[0]->path);
@@ -90,7 +89,7 @@ final class EmployeesTest extends TestCase
         self::assertSame('employee-2', $updated->getEmployeeID());
     }
 
-    public function test_it_can_load_payroll_au_employee_leave_balances(): void
+    public function test_it_can_create_a_leave_application_for_an_employee(): void
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
@@ -99,12 +98,6 @@ final class EmployeesTest extends TestCase
                 'FirstName' => 'Jane',
                 'LastName' => 'Smith',
             ],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'LeaveBalances' => [[
-                'LeaveName' => 'Annual Leave',
-                'Balance' => 18.25,
-            ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'LeaveApplication' => [
@@ -117,7 +110,6 @@ final class EmployeesTest extends TestCase
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $employee = $client->payroll()->au()->employees()->find('employee-1');
-        $leaveBalances = $employee?->leaveBalances();
         $leaveApplication = $employee?->createLeaveApplication()
             ->leaveType('leave-type-1')
             ->title('Annual Leave')
@@ -126,11 +118,7 @@ final class EmployeesTest extends TestCase
             ->save();
 
         self::assertSame('/payroll.xro/1.0/Employees/employee-1', $transport->requests()[0]->path);
-        self::assertSame('/payroll.xro/1.0/Employees/employee-1/LeaveBalances', $transport->requests()[1]->path);
-        self::assertSame('/payroll.xro/1.0/LeaveApplications', $transport->requests()[2]->path);
-        $lb = Json::extractFirst($leaveBalances ?? [], 'LeaveBalances');
-        self::assertNotNull($lb);
-        self::assertEquals(18.25, $lb['Balance']);
+        self::assertSame('/payroll.xro/1.0/LeaveApplications', $transport->requests()[1]->path);
         self::assertNotNull($leaveApplication);
         self::assertSame('employee-1', $leaveApplication->getEmployeeID());
     }
@@ -183,7 +171,7 @@ final class EmployeesTest extends TestCase
                 'EmployeeID' => 'employee-1',
                 'FirstName' => 'Jane',
                 'LastName' => 'Smith',
-                'EmailAddress' => 'jane@example.test',
+                'Email' => 'jane@example.test',
                 'Status' => 'ACTIVE',
             ],
         ], JSON_THROW_ON_ERROR)));
@@ -192,7 +180,7 @@ final class EmployeesTest extends TestCase
                 'EmployeeID' => 'employee-1',
                 'FirstName' => 'Janet',
                 'LastName' => 'Smithson',
-                'EmailAddress' => 'janet@example.test',
+                'Email' => 'janet@example.test',
             ],
         ], JSON_THROW_ON_ERROR)));
 
@@ -201,13 +189,14 @@ final class EmployeesTest extends TestCase
         $employee = $client->payroll()->au()->employees()->find('employee-1');
         self::assertNotNull($employee);
         self::assertSame('Smith', $employee->getLastName());
-        self::assertSame('jane@example.test', $employee->getEmailAddress());
+        self::assertSame('jane@example.test', $employee->getEmail());
         self::assertSame('ACTIVE', $employee->getStatus());
 
         $saved = $employee
             ->setFirstName('Janet')
             ->setLastName('Smithson')
-            ->setEmailAddress('janet@example.test')
+            ->setEmail('janet@example.test')
+            ->setDateOfBirth('1990-01-15')
             ->save();
 
         self::assertSame('/payroll.xro/1.0/Employees/employee-1', $transport->requests()[1]->path);
@@ -241,18 +230,184 @@ final class EmployeesTest extends TestCase
         self::assertNull($employee->getEmployeeID());
     }
 
+    public function test_employee_exposes_all_spec_fields(): void
+    {
+        $employee = (new Employee())->fill([
+            'EmployeeID' => 'employee-1',
+            'FirstName' => 'Jane',
+            'LastName' => 'Smith',
+            'DateOfBirth' => '1990-01-15',
+            'StartDate' => '2020-02-01',
+            'Title' => 'Mrs',
+            'MiddleNames' => 'Adena',
+            'Email' => 'jane@example.test',
+            'Gender' => 'F',
+            'Phone' => '415-555-1212',
+            'Mobile' => '415-234-5678',
+            'TwitterUserName' => 'xeroapi',
+            'IsAuthorisedToApproveLeave' => true,
+            'IsAuthorisedToApproveTimesheets' => true,
+            'JobTitle' => 'Manager',
+            'Classification' => '99383',
+            'OrdinaryEarningsRateID' => 'rate-1',
+            'PayrollCalendarID' => 'calendar-1',
+            'EmployeeGroupName' => 'marketing',
+            'TerminationDate' => '2026-03-01',
+            'TerminationReason' => 'V',
+            'IncomeType' => 'SALARYANDWAGES',
+            'EmploymentType' => 'EMPLOYEE',
+            'CountryOfResidence' => 'AU',
+            'IsSTP2Qualified' => true,
+            'Status' => 'ACTIVE',
+            'UpdatedDateUTC' => '2026-03-25T00:00:00Z',
+            'ValidationErrors' => [['Message' => 'Invalid employee']],
+            'HomeAddress' => [
+                'AddressLine1' => '123 Main St',
+                'AddressLine2' => 'Apt 4',
+                'City' => 'St. Kilda',
+                'Region' => 'VIC',
+                'PostalCode' => '3182',
+                'Country' => 'AUSTRALIA',
+            ],
+            'TaxDeclaration' => [
+                'EmployeeID' => 'employee-1',
+                'EmploymentBasis' => 'FULLTIME',
+                'TFNExemptionType' => 'NOTQUOTED',
+                'TaxFileNumber' => '123123123',
+                'ABN' => '21006819692',
+                'AustralianResidentForTaxPurposes' => true,
+                'ResidencyStatus' => 'AUSTRALIANRESIDENT',
+                'TaxScaleType' => 'REGULAR',
+                'WorkCondition' => 'NONE',
+                'SeniorMaritalStatus' => 'SINGLE',
+                'TaxFreeThresholdClaimed' => true,
+                'TaxOffsetEstimatedAmount' => 100,
+                'HasHELPDebt' => false,
+                'HasSFSSDebt' => false,
+                'HasTradeSupportLoanDebt' => false,
+                'UpwardVariationTaxWithholdingAmount' => 50,
+                'EligibleToReceiveLeaveLoading' => false,
+                'ApprovedWithholdingVariationPercentage' => 75,
+                'HasStudentStartupLoan' => true,
+                'HasLoanOrStudentDebt' => true,
+                'UpdatedDateUTC' => '2026-03-25T00:00:00Z',
+                'IncludeLeaveLoadingInQualifyingEarnings' => true,
+            ],
+            'BankAccounts' => [['AccountName' => 'James Lebron Savings', 'BSB' => '122344', 'AccountNumber' => '345678']],
+            'LeaveBalances' => [['LeaveName' => 'Annual Leave', 'LeaveTypeID' => 'leave-type-1', 'NumberOfUnits' => 81.2602, 'TypeOfUnits' => 'Hours']],
+            'SuperMemberships' => [['SuperFundID' => 'fund-1', 'EmployeeNumber' => '1234']],
+            'PayTemplate' => [
+                'EarningsLines' => [['EarningsRateID' => 'rate-1']],
+                'DeductionLines' => [['DeductionTypeID' => 'deduction-1']],
+                'SuperLines' => [['SuperMembershipID' => 'super-1']],
+                'ReimbursementLines' => [['ReimbursementTypeID' => 'reimbursement-1']],
+                'LeaveLines' => [['LeaveTypeID' => 'leave-1']],
+            ],
+            'OpeningBalances' => [
+                'OpeningBalanceDate' => '2026-01-01',
+                'Tax' => '100.00',
+                'EarningsLines' => [['EarningsRateID' => 'rate-1']],
+                'DeductionLines' => [['DeductionTypeID' => 'deduction-1']],
+                'SuperLines' => [['SuperMembershipID' => 'super-1']],
+                'ReimbursementLines' => [['ReimbursementTypeID' => 'reimbursement-1']],
+                'LeaveLines' => [['LeaveTypeID' => 'leave-1']],
+                'PaidLeaveEarningsLines' => [['LeaveTypeID' => 'leave-1', 'Amount' => 500.0]],
+            ],
+        ]);
+
+        self::assertSame('employee-1', $employee->getEmployeeID());
+        self::assertSame('Jane', $employee->getFirstName());
+        self::assertSame('Smith', $employee->getLastName());
+        self::assertSame('1990-01-15', $employee->getDateOfBirth());
+        self::assertSame('2020-02-01', $employee->getStartDate());
+        self::assertSame('Mrs', $employee->getTitle());
+        self::assertSame('Adena', $employee->getMiddleNames());
+        self::assertSame('jane@example.test', $employee->getEmail());
+        self::assertSame('F', $employee->getGender());
+        self::assertSame('415-555-1212', $employee->getPhone());
+        self::assertSame('415-234-5678', $employee->getMobile());
+        self::assertSame('xeroapi', $employee->getTwitterUserName());
+        self::assertTrue($employee->getIsAuthorisedToApproveLeave());
+        self::assertTrue($employee->getIsAuthorisedToApproveTimesheets());
+        self::assertSame('Manager', $employee->getJobTitle());
+        self::assertSame('99383', $employee->getClassification());
+        self::assertSame('rate-1', $employee->getOrdinaryEarningsRateID());
+        self::assertSame('calendar-1', $employee->getPayrollCalendarID());
+        self::assertSame('marketing', $employee->getEmployeeGroupName());
+        self::assertSame('2026-03-01', $employee->getTerminationDate());
+        self::assertSame('V', $employee->getTerminationReason());
+        self::assertSame('SALARYANDWAGES', $employee->getIncomeType());
+        self::assertSame('EMPLOYEE', $employee->getEmploymentType());
+        self::assertSame('AU', $employee->getCountryOfResidence());
+        self::assertTrue($employee->getIsSTP2Qualified());
+        self::assertSame('ACTIVE', $employee->getStatus());
+        self::assertSame('2026-03-25T00:00:00Z', $employee->getUpdatedDateUTC());
+        self::assertCount(1, $employee->getValidationErrors());
+        self::assertSame('Invalid employee', $employee->getValidationErrors()[0]->getMessage());
+
+        $homeAddress = $employee->getHomeAddress();
+        self::assertNotNull($homeAddress);
+        self::assertSame('123 Main St', $homeAddress->getAddressLine1());
+        self::assertSame('Apt 4', $homeAddress->getAddressLine2());
+        self::assertSame('St. Kilda', $homeAddress->getCity());
+        self::assertSame('VIC', $homeAddress->getRegion());
+        self::assertSame('3182', $homeAddress->getPostalCode());
+        self::assertSame('AUSTRALIA', $homeAddress->getCountry());
+
+        $taxDeclaration = $employee->getTaxDeclaration();
+        self::assertNotNull($taxDeclaration);
+        self::assertSame('employee-1', $taxDeclaration->getEmployeeID());
+        self::assertSame('FULLTIME', $taxDeclaration->getEmploymentBasis());
+        self::assertSame('NOTQUOTED', $taxDeclaration->getTFNExemptionType());
+        self::assertSame('123123123', $taxDeclaration->getTaxFileNumber());
+        self::assertSame('21006819692', $taxDeclaration->getABN());
+        self::assertTrue($taxDeclaration->getAustralianResidentForTaxPurposes());
+        self::assertSame('AUSTRALIANRESIDENT', $taxDeclaration->getResidencyStatus());
+        self::assertSame('REGULAR', $taxDeclaration->getTaxScaleType());
+        self::assertSame('NONE', $taxDeclaration->getWorkCondition());
+        self::assertSame('SINGLE', $taxDeclaration->getSeniorMaritalStatus());
+        self::assertTrue($taxDeclaration->getTaxFreeThresholdClaimed());
+        self::assertSame(100.0, $taxDeclaration->getTaxOffsetEstimatedAmount());
+        self::assertFalse($taxDeclaration->getHasHELPDebt());
+        self::assertFalse($taxDeclaration->getHasSFSSDebt());
+        self::assertFalse($taxDeclaration->getHasTradeSupportLoanDebt());
+        self::assertSame(50.0, $taxDeclaration->getUpwardVariationTaxWithholdingAmount());
+        self::assertFalse($taxDeclaration->getEligibleToReceiveLeaveLoading());
+        self::assertSame(75.0, $taxDeclaration->getApprovedWithholdingVariationPercentage());
+        self::assertTrue($taxDeclaration->getHasStudentStartupLoan());
+        self::assertTrue($taxDeclaration->getHasLoanOrStudentDebt());
+        self::assertSame('2026-03-25T00:00:00Z', $taxDeclaration->getUpdatedDateUTC());
+        self::assertTrue($taxDeclaration->getIncludeLeaveLoadingInQualifyingEarnings());
+
+        $payTemplate = $employee->getPayTemplate();
+        self::assertNotNull($payTemplate);
+        self::assertSame('rate-1', $payTemplate->getEarningsLines()[0]['EarningsRateID']);
+        self::assertSame('deduction-1', $payTemplate->getDeductionLines()[0]['DeductionTypeID']);
+        self::assertSame('super-1', $payTemplate->getSuperLines()[0]['SuperMembershipID']);
+        self::assertSame('reimbursement-1', $payTemplate->getReimbursementLines()[0]['ReimbursementTypeID']);
+        self::assertSame('leave-1', $payTemplate->getLeaveLines()[0]['LeaveTypeID']);
+
+        $openingBalances = $employee->getOpeningBalances();
+        self::assertNotNull($openingBalances);
+        self::assertSame('2026-01-01', $openingBalances->getOpeningBalanceDate());
+        self::assertSame('100.00', $openingBalances->getTax());
+        self::assertSame('rate-1', $openingBalances->getEarningsLines()[0]['EarningsRateID']);
+        self::assertSame('deduction-1', $openingBalances->getDeductionLines()[0]['DeductionTypeID']);
+        self::assertSame('super-1', $openingBalances->getSuperLines()[0]['SuperMembershipID']);
+        self::assertSame('reimbursement-1', $openingBalances->getReimbursementLines()[0]['ReimbursementTypeID']);
+        self::assertSame('leave-1', $openingBalances->getLeaveLines()[0]['LeaveTypeID']);
+        self::assertSame(500.0, $openingBalances->getPaidLeaveEarningsLines()[0]['Amount']);
+
+        self::assertSame('James Lebron Savings', $employee->getBankAccounts()[0]['AccountName']);
+        self::assertSame('Annual Leave', $employee->getLeaveBalances()[0]['LeaveName']);
+        self::assertSame('fund-1', $employee->getSuperMemberships()[0]['SuperFundID']);
+    }
+
     public function test_saving_without_a_client_throws(): void
     {
         $this->expectException(\RuntimeException::class);
 
         (new Employee())->save();
-    }
-
-    public function test_leave_balances_without_a_client_throws(): void
-    {
-        $this->expectException(\RuntimeException::class);
-
-        (new Employee())->leaveBalances();
     }
 
     public function test_create_leave_application_without_a_client_throws(): void

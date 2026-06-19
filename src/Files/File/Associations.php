@@ -37,10 +37,9 @@ final class Associations implements DefinesScopes
             ->get(self::BASE_PATH . '/' . $this->fileId . '/Associations')
             ->send();
 
-        $payload = $response->json();
         $items = array_map(
             fn (array $association): Association => $this->mapAssociation($association),
-            Json::extractList($payload, 'Items')
+            Json::extractRows($response->json())
         );
 
         return new ResourceCollection($items);
@@ -59,10 +58,13 @@ final class Associations implements DefinesScopes
             ->send()
             ->json();
 
-        $items = array_map(
-            fn (array $count): AssociationCount => $this->mapAssociationCount($count),
-            Json::extractList($payload, 'Items')
-        );
+        $items = [];
+
+        foreach ($payload as $objectId => $count) {
+            $items[] = (new AssociationCount())
+                ->setObjectId((string) $objectId)
+                ->setCount(is_numeric($count) ? (int) $count : null);
+        }
 
         return new ResourceCollection($items);
     }
@@ -92,11 +94,4 @@ final class Associations implements DefinesScopes
         return (new Association())->fill($payload);
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    public function mapAssociationCount(array $payload): AssociationCount
-    {
-        return (new AssociationCount())->fill($payload);
-    }
 }

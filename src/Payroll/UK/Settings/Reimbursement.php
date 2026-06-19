@@ -9,12 +9,11 @@ use Sujip\Xero\Support\Model;
 
 final class Reimbursement extends Model
 {
-    /**
-     */
     public function __construct(
         private ?string $reimbursementID = null,
         private ?string $name = null,
-        private ?string $accountCode = null,
+        private ?string $accountID = null,
+        private ?bool $currentRecord = null,
     ) {
     }
 
@@ -22,27 +21,47 @@ final class Reimbursement extends Model
     {
         return $this->reimbursementID;
     }
+
     public function setReimbursementID(?string $reimbursementID): self
     {
         $this->reimbursementID = $reimbursementID;
+
         return $this;
     }
+
     public function getName(): ?string
     {
         return $this->name;
     }
+
     public function setName(?string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
-    public function getAccountCode(): ?string
+
+    public function getAccountID(): ?string
     {
-        return $this->accountCode;
+        return $this->accountID;
     }
-    public function setAccountCode(?string $accountCode): self
+
+    public function setAccountID(?string $accountID): self
     {
-        $this->accountCode = $accountCode;
+        $this->accountID = $accountID;
+
+        return $this;
+    }
+
+    public function getCurrentRecord(): ?bool
+    {
+        return $this->currentRecord;
+    }
+
+    public function setCurrentRecord(?bool $currentRecord): self
+    {
+        $this->currentRecord = $currentRecord;
+
         return $this;
     }
 
@@ -52,9 +71,10 @@ final class Reimbursement extends Model
     protected static function getDefinitions(): array
     {
         return [
-            'ReimbursementID' => Field::string()->using('setReimbursementID'),
-            'Name' => Field::string()->using('setName'),
-            'AccountCode' => Field::string()->using('setAccountCode'),
+            'reimbursementID' => Field::string()->using('setReimbursementID'),
+            'name' => Field::string()->using('setName'),
+            'accountID' => Field::string()->using('setAccountID'),
+            'currentRecord' => Field::boolean()->using('setCurrentRecord'),
         ];
     }
 }

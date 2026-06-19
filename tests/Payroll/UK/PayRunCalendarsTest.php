@@ -16,17 +16,17 @@ final class PayRunCalendarsTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'PayRunCalendars' => [[
-                'PayrollCalendarID' => 'calendar-1',
-                'Name' => 'Monthly',
-                'CalendarType' => 'MONTHLY',
+            'payRunCalendars' => [[
+                'payrollCalendarID' => 'calendar-1',
+                'name' => 'Fortnightly',
+                'calendarType' => 'Fortnightly',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'PayRunCalendar' => [
-                'PayrollCalendarID' => 'calendar-1',
-                'Name' => 'Monthly',
-                'CalendarType' => 'MONTHLY',
+            'payRunCalendar' => [
+                'payrollCalendarID' => 'calendar-1',
+                'name' => 'Fortnightly',
+                'calendarType' => 'Fortnightly',
             ],
         ], JSON_THROW_ON_ERROR)));
 
@@ -58,7 +58,7 @@ final class PayRunCalendarsTest extends TestCase
     public function test_it_can_paginate_pay_run_calendars(): void
     {
         $transport = (new FakeTransport())->push(
-            new Response(200, body: json_encode(['PayRunCalendars' => []], JSON_THROW_ON_ERROR))
+            new Response(200, body: json_encode(['payRunCalendars' => []], JSON_THROW_ON_ERROR))
         );
 
         $page = Xero::withAccessToken('token', $transport)
@@ -77,15 +77,21 @@ final class PayRunCalendarsTest extends TestCase
     public function test_pay_run_calendar_exposes_all_fields(): void
     {
         $calendar = (new PayRunCalendar())->fill([
-            'PayrollCalendarID' => 'calendar-1',
-            'Name' => 'Monthly',
-            'CalendarType' => 'MONTHLY',
-            'PeriodStartDate' => '2026-03-01',
+            'payrollCalendarID' => 'calendar-1',
+            'name' => 'Fortnightly',
+            'calendarType' => 'Fortnightly',
+            'periodStartDate' => '2026-04-01',
+            'periodEndDate' => '2026-04-14',
+            'paymentDate' => '2026-04-15',
+            'updatedDateUTC' => '2026-04-15T00:00:00',
         ]);
 
         self::assertSame('calendar-1', $calendar->getPayrollCalendarID());
-        self::assertSame('Monthly', $calendar->getName());
-        self::assertSame('MONTHLY', $calendar->getCalendarType());
-        self::assertSame('2026-03-01', $calendar->getPeriodStartDate());
+        self::assertSame('Fortnightly', $calendar->getName());
+        self::assertSame('Fortnightly', $calendar->getCalendarType());
+        self::assertSame('2026-04-01', $calendar->getPeriodStartDate());
+        self::assertSame('2026-04-14', $calendar->getPeriodEndDate());
+        self::assertSame('2026-04-15', $calendar->getPaymentDate());
+        self::assertSame('2026-04-15T00:00:00', $calendar->getUpdatedDateUTC());
     }
 }

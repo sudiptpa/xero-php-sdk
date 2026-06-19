@@ -1,69 +1,12 @@
 # Accounting
-The package covers the main Accounting surface and the helper paths commonly used in production integrations:
 
-- contacts
-- invoices
-- payments
-- accounts
-- items
-- tax rates
-- tracking categories
-- currencies
-- branding themes
-- organisations
-- users
-- credit notes
-- bank transactions
-- bank transfers
-- linked transactions
-- overpayments
-- prepayments
-- batch payments
-- manual journals
-- contact groups
-- employees
-- expense claims
-- journals
-- purchase orders
-- quotes
-- receipts
-- repeating invoices
-- payment services
-- reports
-- invoice attachments
-- invoice attachment downloads
-- invoice history
-- invoice PDF
-- invoice reminder settings
-- credit note attachments
-- credit note attachment downloads
-- credit note history
-- credit note PDF
-- bank transaction history
-- batch payment history
-- item history
-- payment history
-- purchase order attachments
-- purchase order attachment downloads
-- purchase order history
-- purchase order PDF
-- quote PDF
-- receipt history
-- receipt attachments
-- receipt attachment downloads
-- manual journal attachments
-- manual journal attachment downloads
-- manual journal history
+Covers the main Accounting API surface used in production integrations. For the full resource matrix, see [Accounting Coverage](accounting-coverage.md).
 
-If you want the full current Accounting API picture, use the Accounting coverage guide:
+## Scopes
 
-- [Accounting Coverage](accounting-coverage.md)
-
-## Scope Notes
-
-- `accounting.contacts.read` and `accounting.contacts` for contacts
-- `accounting.settings.read` and `accounting.settings` for settings-style resources like accounts, items, tax rates, tracking categories, branding themes, organisations, and users
-- `accounting.transactions.read` and `accounting.transactions` for invoices, payments, credit notes, bank transactions, manual journals, purchase orders, quotes, receipts, repeating invoices, and similar workflow resources
+- `accounting.contacts.read` / `accounting.contacts`: contacts and contact groups
+- `accounting.settings.read` / `accounting.settings`: accounts, items, tax rates, tracking categories, branding themes, organisations, users
+- `accounting.transactions.read` / `accounting.transactions`: invoices, payments, credit notes, bank transactions, manual journals, purchase orders, quotes, receipts, repeating invoices
 
 ## Contacts
 
@@ -175,7 +118,7 @@ $pdf = $xero->accounting()
     ->pdf('invoice-id');
 ```
 
-## Invoice Attachments
+## Invoice attachments
 
 ```php
 $attachment = $xero->accounting()
@@ -194,7 +137,7 @@ $binary = $xero->accounting()
     ->download('invoice.pdf', 'application/pdf');
 ```
 
-## Invoice History
+## Invoice history
 
 ```php
 $history = $xero->accounting()
@@ -203,7 +146,7 @@ $history = $xero->accounting()
     ->record('Invoice synced from back office');
 ```
 
-## Invoice Reminders
+## Invoice reminders
 
 ```php
 $settings = $xero->accounting()
@@ -350,7 +293,7 @@ $history = $xero->accounting()
     ->record('Item updated from ERP');
 ```
 
-## Tax Rates
+## Tax rates
 
 ```php
 $taxRates = $xero->accounting()
@@ -377,7 +320,7 @@ $taxRate = $xero->accounting()
     ->save();
 ```
 
-## Tracking Categories
+## Tracking categories
 
 ```php
 $categories = $xero->accounting()
@@ -429,7 +372,7 @@ $currency = $xero->accounting()
     ->save();
 ```
 
-## Branding Themes
+## Branding themes
 
 ```php
 $themes = $xero->accounting()
@@ -445,7 +388,7 @@ $organisation = $xero->accounting()
     ->current();
 ```
 
-## Contact Groups
+## Contact groups
 
 ```php
 $groups = $xero->accounting()
@@ -475,7 +418,7 @@ $users = $xero->accounting()
 
 ## Employees
 
-This endpoint is still documented by Xero today, but it is deprecated and scheduled for removal on April 28, 2026. It is supported here so existing integrations have a clean path, but it should not be treated as a long-term foundation for new product design.
+This endpoint is deprecated by Xero. Use the Payroll API for employee management.
 
 ```php
 $employees = $xero->accounting()
@@ -499,7 +442,7 @@ $employee = $xero->accounting()
     ->save();
 ```
 
-## Credit Notes
+## Credit notes
 
 ```php
 $creditNotes = $xero->accounting()
@@ -557,7 +500,7 @@ $pdf = $xero->accounting()
     ->pdf('credit-note-id');
 ```
 
-## Bank Transactions
+## Bank transactions
 
 ```php
 $transactions = $xero->accounting()
@@ -592,7 +535,7 @@ $transaction = $xero->accounting()
     ->save();
 ```
 
-## Bank Transfers
+## Bank transfers
 
 ```php
 $bankTransfers = $xero->accounting()
@@ -612,7 +555,7 @@ $bankTransfer = $xero->accounting()
     ->save();
 ```
 
-## Linked Transactions
+## Linked transactions
 
 ```php
 $links = $xero->accounting()
@@ -650,7 +593,7 @@ $prepayments = $xero->accounting()
     ->get();
 ```
 
-## Batch Payments
+## Batch payments
 
 ```php
 $batchPayments = $xero->accounting()
@@ -669,7 +612,7 @@ $batchPayment = $xero->accounting()
     ->save();
 ```
 
-## Manual Journals
+## Manual journals
 
 ```php
 $manualJournals = $xero->accounting()
@@ -695,7 +638,7 @@ $binary = $xero->accounting()
     ->download('journal.pdf', 'application/pdf');
 ```
 
-## Purchase Orders
+## Purchase orders
 
 ```php
 $purchaseOrders = $xero->accounting()
@@ -788,7 +731,7 @@ $receipts = $xero->accounting()
     ->get();
 ```
 
-## Repeating Invoices
+## Repeating invoices
 
 ```php
 $repeatingInvoices = $xero->accounting()
@@ -808,7 +751,7 @@ $repeatingInvoice = $xero->accounting()
     ->save();
 ```
 
-## Payment Services
+## Payment services
 
 ```php
 $services = $xero->accounting()
@@ -830,7 +773,7 @@ $service = $xero->accounting()
     ->save();
 ```
 
-## Expense Claims
+## Expense claims
 
 ```php
 $claims = $xero->accounting()
@@ -892,55 +835,5 @@ $profitAndLoss = $xero->accounting()
         'toDate' => new DateTimeImmutable('2026-03-25'),
     ]);
 
-$title = $profitAndLoss?->getTitle();
+$title = $profitAndLoss?->getReportTitle();
 ```
-
-## Scope Notes
-
-Accounting is the broadest family in the package, so it is also the easiest place to ask for too many scopes.
-
-Use this rule of thumb:
-
-- reads can use granular `*.read` scopes where Xero exposes them
-- writes and action endpoints need the corresponding write scopes
-- attachments, history actions, and PDFs should be treated as resource-specific operations, not as “free extras”
-
-For the current per-resource implementation picture, use:
-
-- [Accounting Coverage](accounting-coverage.md)
-
-The package carries scope metadata on these resources already.
-
-Current scope shape:
-
-- contacts: broad `accounting.contacts`, granular `accounting.contacts.read`, `accounting.contacts`
-- invoices: broad `accounting.transactions`, granular `accounting.invoices.read`, `accounting.invoices`; PDF stays under the same invoice scope family
-- payments: broad `accounting.transactions`, granular `accounting.payments.read`, `accounting.payments`
-- accounts: broad `accounting.settings`, granular `accounting.settings.read`, `accounting.settings`
-- items: broad `accounting.settings`, granular `accounting.settings.read`, `accounting.settings`
-- tax rates: broad `accounting.settings`, granular `accounting.settings.read`, `accounting.settings`
-- tracking categories: broad `accounting.settings`, granular `accounting.settings.read`, `accounting.settings`
-- currencies: broad `accounting.settings`, granular `accounting.settings.read`, `accounting.settings`
-- branding themes: broad `accounting.settings`, granular `accounting.settings.read`, `accounting.settings`
-- organisations: broad `accounting.settings`, granular `accounting.settings.read`, `accounting.settings`
-- users: broad `accounting.settings`, granular `accounting.settings.read`, `accounting.settings`
-- credit notes: broad `accounting.transactions`, granular `accounting.transactions.read`, `accounting.transactions`; attachments additionally use `accounting.attachments.read` or `accounting.attachments`
-- bank transactions: broad `accounting.transactions`, granular `accounting.transactions.read`, `accounting.transactions`
-- bank transfers: broad `accounting.transactions`, granular `accounting.transactions.read`, `accounting.transactions`
-- linked transactions: broad `accounting.transactions`, granular `accounting.transactions.read`, `accounting.transactions`
-- overpayments: broad `accounting.transactions`, granular `accounting.transactions.read`, `accounting.transactions`
-- prepayments: broad `accounting.transactions`, granular `accounting.transactions.read`, `accounting.transactions`
-- batch payments: broad `accounting.transactions`, granular `accounting.transactions.read`, `accounting.transactions`
-- manual journals: broad `accounting.transactions`, granular `accounting.transactions.read`, `accounting.transactions`
-- contact groups: broad `accounting.contacts`, granular `accounting.contacts.read`, `accounting.contacts`
-- employees: broad `accounting.settings`, granular `accounting.settings.read`, `accounting.settings`
-- expense claims: broad `accounting.transactions`, granular `accounting.transactions.read`, `accounting.transactions`
-- journals: granular `accounting.journals.read`
-- purchase orders: broad `accounting.transactions`, granular `accounting.transactions.read`, `accounting.transactions`; attachments additionally use `accounting.attachments.read` or `accounting.attachments`
-- quotes: broad `accounting.transactions`, granular `accounting.transactions.read`, `accounting.transactions`; PDF stays under the same quote scope family
-- receipts: broad `accounting.transactions`, granular `accounting.transactions.read`, `accounting.transactions`
-- repeating invoices: broad `accounting.transactions`, granular `accounting.transactions.read`, `accounting.transactions`
-- payment services: broad `paymentservices`, granular scope shape still needs to be clarified in docs if Xero expands it
-- reports: granular `accounting.reports.read`
-
-That is only the current implemented coverage. The broader Accounting target is tracked separately in [Accounting Coverage](accounting-coverage.md).

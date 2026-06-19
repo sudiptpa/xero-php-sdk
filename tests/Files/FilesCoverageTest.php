@@ -11,6 +11,7 @@ use Sujip\Xero\Files\File\Association;
 use Sujip\Xero\Files\File\AssociationCount;
 use Sujip\Xero\Files\File\File;
 use Sujip\Xero\Files\File\Payload as FilePayload;
+use Sujip\Xero\Files\File\User;
 use Sujip\Xero\Files\Folder\Folder;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
@@ -29,7 +30,7 @@ final class FilesCoverageTest extends TestCase
         $transport->push(new Response(200, body: '{"Items":[]}')); // paginate -> get
         $transport->push(new Response(200, body: 'binary-content')); // content
         $transport->push(new Response(204)); // delete
-        $transport->push(new Response(200, body: '{"Items":[{"Id":"file-1","Name":"Renamed"}]}')); // update -> save
+        $transport->push(new Response(200, body: '{"Id":"file-1","Name":"Renamed"}')); // update -> save
 
         $client = $this->client($transport);
         $facade = $client->files();
@@ -57,23 +58,31 @@ final class FilesCoverageTest extends TestCase
             ->setFolderId('folder-1')
             ->setCreatedDateUTC('2026-03-01T00:00:00')
             ->setUpdatedDateUTC('2026-03-02T00:00:00')
-            ->setUser('Jane');
+            ->setUser((new User())->setName('Jane'));
 
         self::assertSame('file-1', $file->getId());
         self::assertSame('application/pdf', $file->getMimeType());
         self::assertSame(1024, $file->getSize());
         self::assertSame('2026-03-01T00:00:00', $file->getCreatedDateUTC());
         self::assertSame('2026-03-02T00:00:00', $file->getUpdatedDateUTC());
-        self::assertSame('Jane', $file->getUser());
+        self::assertSame('Jane', $file->getUser()?->getName());
 
-        $hydrated = (new File())->fill(['FolderId' => ['Id' => 'folder-9']]);
+        $hydrated = (new File())->fill([
+            'FolderId' => 'folder-9',
+            'CreatedDateUtc' => '2026-03-01T00:00:00',
+            'UpdatedDateUtc' => '2026-03-02T00:00:00',
+            'User' => ['Id' => 'user-1', 'Name' => 'jane@example.com', 'FirstName' => 'Jane', 'LastName' => 'Doe', 'FullName' => 'Jane Doe'],
+        ]);
         self::assertSame('folder-9', $hydrated->getFolderId());
+        self::assertSame('2026-03-01T00:00:00', $hydrated->getCreatedDateUTC());
+        self::assertSame('2026-03-02T00:00:00', $hydrated->getUpdatedDateUTC());
+        self::assertSame('Jane Doe', $hydrated->getUser()?->getFullName());
     }
 
     public function test_file_entity_guards_and_association_navigation(): void
     {
         $guards = [
-            ['save', 'Cannot save a file without a bound client context.'],
+            ['save', 'Cannot save a file without a bound client context and file id. Use upload() to create a new file.'],
             ['content', 'Cannot fetch file content without a bound client context and file id.'],
             ['associations', 'Cannot access file associations without a bound client context and file id.'],
             ['delete', 'Cannot delete a file without a bound client context and file id.'],
@@ -88,26 +97,54 @@ final class FilesCoverageTest extends TestCase
             }
         }
 
-        $transport = (new FakeTransport())->push(new Response(200, body: '{"Items":[{"Id":"file-1"}]}'));
+        $transport = (new FakeTransport())->push(new Response(200, body: '{"Id":"file-1"}'));
         $file = $this->client($transport)->files()->find('file-1');
         self::assertNotNull($file);
         self::assertSame(['files'], $file->associations()->scopes()->broad);
+
+        $missing = (new FakeTransport())->push(new Response(200, body: '{}'));
+        self::assertNull($this->client($missing)->files()->find('missing'));
     }
 
-    public function test_file_payload_supports_post_idempotency_and_empty_response(): void
+    public function test_association_payload_save_without_idempotency_key(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(201, body: '{"ObjectId":"invoice-2"}'));
+
+        $created = $this->client($transport)->files()->associations('file-1')
+            ->attach('invoice-2', 'Invoice', 'Invoices')
+            ->save();
+
+        $request = $transport->requests()[0];
+        self::assertArrayNotHasKey('Idempotency-Key', $request->headers);
+        self::assertSame('invoice-2', $created->getObjectId());
+    }
+
+    public function test_file_payload_supports_put_idempotency_and_empty_response(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
 
         $file = (new FilePayload($this->client($transport)))
+            ->id('file-1')
             ->name('contract.pdf')
             ->folder('folder-1')
             ->idempotencyKey('key-1')
             ->save();
 
         $request = $transport->requests()[0];
-        self::assertSame('POST', $request->method);
+        self::assertSame('PUT', $request->method);
+        self::assertSame('/files.xro/1.0/Files/file-1', $request->path);
         self::assertSame('key-1', $request->headers['Idempotency-Key']);
         self::assertNull($file->getId());
+    }
+
+    public function test_file_payload_requires_a_file_id_to_save(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Cannot update a file without a file id.');
+
+        (new FilePayload($this->client(new FakeTransport())))
+            ->name('contract.pdf')
+            ->save();
     }
 
     public function test_upload_without_folder_and_empty_response(): void
@@ -126,10 +163,18 @@ final class FilesCoverageTest extends TestCase
     {
         $association = (new Association())
             ->setObjectId('object-1')
-            ->setObjectGroup('Invoices');
+            ->setObjectGroup('Invoices')
+            ->setSendWithObject(true)
+            ->setSize(1024)
+            ->setCreatedDateUTC('2026-01-01T00:00:00Z')
+            ->setAssociationDateUTC('2026-01-02T00:00:00Z');
 
         self::assertSame('object-1', $association->getObjectId());
         self::assertSame('Invoices', $association->getObjectGroup());
+        self::assertTrue($association->getSendWithObject());
+        self::assertSame(1024, $association->getSize());
+        self::assertSame('2026-01-01T00:00:00Z', $association->getCreatedDateUTC());
+        self::assertSame('2026-01-02T00:00:00Z', $association->getAssociationDateUTC());
 
         $count = (new AssociationCount())
             ->setObjectId('object-1')
@@ -137,6 +182,15 @@ final class FilesCoverageTest extends TestCase
 
         self::assertSame('object-1', $count->getObjectId());
         self::assertSame(3, $count->getCount());
+
+        $user = (new User())
+            ->setId('user-1')
+            ->setFirstName('Ada')
+            ->setLastName('Lovelace');
+
+        self::assertSame('user-1', $user->getId());
+        self::assertSame('Ada', $user->getFirstName());
+        self::assertSame('Lovelace', $user->getLastName());
     }
 
     public function test_associations_and_object_associations_scopes_and_pagination(): void

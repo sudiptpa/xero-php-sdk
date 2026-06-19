@@ -18,7 +18,7 @@ final readonly class ContactAssignments
     public function attach(string ...$contactIds): ContactGroup
     {
         $response = $this->client
-            ->post('/api.xro/2.0/ContactGroups/' . $this->contactGroupId . '/Contacts')
+            ->put('/api.xro/2.0/ContactGroups/' . $this->contactGroupId . '/Contacts')
             ->withJson([
                 'Contacts' => array_map(
                     static fn (string $contactId): array => ['ContactID' => $contactId],

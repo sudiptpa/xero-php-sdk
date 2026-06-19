@@ -12,10 +12,18 @@ use Sujip\Xero\Support\Model;
 final class Timesheet extends Model
 {
     private ?string $timesheetID = null;
+    private ?string $payrollCalendarID = null;
     private ?string $employeeID = null;
     private ?string $startDate = null;
     private ?string $endDate = null;
     private ?string $status = null;
+    private ?float $totalHours = null;
+    private ?string $updatedDateUTC = null;
+
+    /**
+     * @var list<TimesheetLine>
+     */
+    private array $timesheetLines = [];
 
     public function __construct(
         private ?Client $client = null
@@ -30,6 +38,18 @@ final class Timesheet extends Model
     public function setTimesheetID(?string $timesheetID): self
     {
         $this->timesheetID = $timesheetID;
+
+        return $this;
+    }
+
+    public function getPayrollCalendarID(): ?string
+    {
+        return $this->payrollCalendarID;
+    }
+
+    public function setPayrollCalendarID(?string $payrollCalendarID): self
+    {
+        $this->payrollCalendarID = $payrollCalendarID;
 
         return $this;
     }
@@ -82,17 +102,60 @@ final class Timesheet extends Model
         return $this;
     }
 
+    public function getTotalHours(): ?float
+    {
+        return $this->totalHours;
+    }
+
+    public function setTotalHours(?float $totalHours): self
+    {
+        $this->totalHours = $totalHours;
+
+        return $this;
+    }
+
+    public function getUpdatedDateUTC(): ?string
+    {
+        return $this->updatedDateUTC;
+    }
+
+    public function setUpdatedDateUTC(?string $updatedDateUTC): self
+    {
+        $this->updatedDateUTC = $updatedDateUTC;
+
+        return $this;
+    }
+
+    /**
+     * @return list<TimesheetLine>
+     */
+    public function getTimesheetLines(): array
+    {
+        return $this->timesheetLines;
+    }
+
+    public function addTimesheetLine(TimesheetLine $timesheetLine): self
+    {
+        $this->timesheetLines[] = $timesheetLine;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
     {
         return [
-            'TimesheetID' => Field::string()->using('setTimesheetID'),
-            'EmployeeID' => Field::string()->using('setEmployeeID'),
-            'StartDate' => Field::string()->using('setStartDate'),
-            'EndDate' => Field::string()->using('setEndDate'),
-            'Status' => Field::string()->using('setStatus'),
+            'timesheetID' => Field::string()->using('setTimesheetID'),
+            'payrollCalendarID' => Field::string()->using('setPayrollCalendarID'),
+            'employeeID' => Field::string()->using('setEmployeeID'),
+            'startDate' => Field::string()->using('setStartDate'),
+            'endDate' => Field::string()->using('setEndDate'),
+            'status' => Field::string()->using('setStatus'),
+            'totalHours' => Field::number()->using('setTotalHours'),
+            'updatedDateUTC' => Field::string()->using('setUpdatedDateUTC'),
+            'timesheetLines' => Field::many(TimesheetLine::class),
         ];
     }
 
@@ -104,8 +167,8 @@ final class Timesheet extends Model
 
         $payload = new Payload($this->client);
 
-        if ($this->timesheetID !== null) {
-            $payload = $payload->id($this->timesheetID);
+        if ($this->payrollCalendarID !== null) {
+            $payload = $payload->payrollCalendar($this->payrollCalendarID);
         }
 
         if ($this->employeeID !== null) {

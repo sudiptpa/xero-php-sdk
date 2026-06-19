@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\CreditNote;
 
+use Sujip\Xero\Accounting\Allocations;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
@@ -109,6 +110,11 @@ final class CreditNotes implements PaginatesResults, DefinesScopes
     public function history(string $creditNoteId): History
     {
         return new History($this->client, $creditNoteId);
+    }
+
+    public function allocations(string $creditNoteId): Allocations
+    {
+        return new Allocations($this->client, '/api.xro/2.0/CreditNotes/' . $creditNoteId . '/Allocations');
     }
 
     public function pdf(string $creditNoteId): string

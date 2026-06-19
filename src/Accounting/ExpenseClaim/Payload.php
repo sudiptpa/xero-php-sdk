@@ -71,8 +71,11 @@ final class Payload
             $this->payload['ExpenseClaimID'] = $this->expenseClaimId;
         }
 
-        $response = $this->client
-            ->post('/api.xro/2.0/ExpenseClaims')
+        $request = $this->expenseClaimId === null
+            ? $this->client->put('/api.xro/2.0/ExpenseClaims')
+            : $this->client->post('/api.xro/2.0/ExpenseClaims/' . $this->expenseClaimId);
+
+        $response = $request
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
             ->withJson(['ExpenseClaims' => [$this->payload]])
             ->send();

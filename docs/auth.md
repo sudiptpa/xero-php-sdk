@@ -1,13 +1,16 @@
 # Auth
-OAuth, tenant discovery, refresh, and custom connections.
 
-1. send the user to Xero
-2. exchange the code for a token
-3. list available connections
-4. choose a tenant
-5. keep the token fresh
+OAuth 2.0 setup, tenant selection, token refresh, and custom connections.
 
-## Basic Flow
+Steps:
+
+1. Redirect the user to Xero
+2. Exchange the code for a token
+3. List available connections
+4. Pick a tenant
+5. Keep the token fresh
+
+## Authorization flow
 
 ```php
 use Sujip\Xero\Auth\ConnectionManager;
@@ -42,9 +45,7 @@ $connected = $connections->connectTenant($availableTenants[0]->getTenantId());
 $xero = $connected->tenant();
 ```
 
-Use `tenant()` for the fluent tenant-scoped path. `getClient()` is also available if you prefer a more explicit accessor.
-
-At that point you can make a normal API call:
+Call `tenant()` to get a client scoped to that tenant. `getClient()` works too.
 
 ```php
 $contacts = $xero->accounting()
@@ -53,7 +54,9 @@ $contacts = $xero->accounting()
     ->get();
 ```
 
-If you are using PKCE, pass the original verifier when you exchange the code:
+## PKCE
+
+Pass the verifier when exchanging the code:
 
 ```php
 use Sujip\Xero\Auth\Pkce;
@@ -70,9 +73,9 @@ $url = $connections->authorizationUrl(
 $connected = $connections->exchangeAndConnect($code, 'tenant-id', $verifier);
 ```
 
-Use `exchangeAndConnect()` when the tenant is already known. Use `exchange()` plus `connections()` when the user still needs to choose.
+Use `exchangeAndConnect()` when the tenant is already known. Use `exchange()` then `connections()` when the user still needs to choose.
 
-## Refreshing Tokens
+## Refresh tokens
 
 ```php
 $freshToken = $connections->refresh();
@@ -83,16 +86,16 @@ $accessTokenExpiresAt = $freshToken->getExpiresAt();
 $refreshTokenExpiresAt = $freshToken->getRefreshTokenExpiresAt();
 ```
 
-The in-memory repository is only for tests and examples. Real apps should store tokens somewhere persistent.
+`InMemoryTokenRepository` is for tests only. Production apps should store tokens in a database or cache.
 
-The token model tracks both:
+The token tracks two expiry times:
 
-- access token expiry through `getExpiresAt()`
-- refresh token expiry through `getRefreshTokenExpiresAt()`
+- access token expiry via `getExpiresAt()`
+- refresh token expiry via `getRefreshTokenExpiresAt()`
 
-## Custom Connections
+## Custom connections
 
-Xero custom connections use the client credentials flow. They do not use tenant discovery in the usual way.
+Custom connections use client credentials. There is no tenant discovery step.
 
 ```php
 $client = $connections->customConnection([
@@ -100,28 +103,27 @@ $client = $connections->customConnection([
 ]);
 ```
 
-Keep the scope list small.
+Request only the scopes the integration actually needs.
 
-## Tenant Discovery
+## Tenant discovery
 
-Tenant discovery uses `identity()->connections()` and does not send a tenant header. Tenant-scoped calls should happen only after you choose a tenant.
+Tenant discovery calls `identity()->connections()` and does not send a tenant header. Make tenant-scoped API calls only after picking a tenant.
 
-If you need to disconnect an existing connection, use the connection manager after you have a token:
+To disconnect a connection:
 
 ```php
 $connections->disconnectTenant('tenant-id');
 ```
 
-## Scope Notes
+## Scopes
 
-- normal user-consent flows usually need `openid`, `profile`, `email`, and `offline_access` plus the API scopes you actually use
-- `accounting.contacts.read` is enough for read-only contact sync
-- `accounting.contacts` is for contact writes
-- `accounting.transactions.read` is for invoices, payments, credit notes, and similar transaction reads
-- `accounting.transactions` is for transaction writes
-- payroll, files, assets, finance, and app-store flows should each keep their own scope list small
-- apps created on or after 2 March 2026 should use granular scopes
-- apps created before 2 March 2026 can begin requesting granular scopes from April 2026
-- existing apps have until September 2027 to move off broad scopes
-- stop building new integrations around broad scopes when granular scopes are available for the app you are shipping
-- custom connections should request only the scopes that the fixed integration actually needs
+- User-consent flows need `openid`, `profile`, `email`, and `offline_access` plus the API scopes you use
+- `accounting.contacts.read`: read contacts
+- `accounting.contacts`: write contacts
+- `accounting.transactions.read`: read invoices, payments, credit notes
+- `accounting.transactions`: write transactions
+- Keep scope lists small for payroll, files, assets, finance, and app-store flows
+- Apps created on or after 2 March 2026 must use granular scopes
+- Apps created before 2 March 2026 can start requesting granular scopes from April 2026
+- All apps must migrate off broad scopes by September 2027
+- Do not use broad scopes for new integrations when granular scopes are available

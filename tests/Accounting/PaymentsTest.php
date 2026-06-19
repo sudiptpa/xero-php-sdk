@@ -26,6 +26,28 @@ final class PaymentsTest extends TestCase
                     'Account' => [
                         'AccountID' => 'account-1',
                     ],
+                    'CreditNote' => ['CreditNoteID' => 'creditnote-1'],
+                    'Prepayment' => ['PrepaymentID' => 'prepayment-1'],
+                    'Overpayment' => ['OverpaymentID' => 'overpayment-1'],
+                    'InvoiceNumber' => 'INV-1001',
+                    'CreditNoteNumber' => 'CN-1001',
+                    'BatchPayment' => ['BatchPaymentID' => 'batch-1'],
+                    'BatchPaymentID' => 'batch-1',
+                    'Code' => '001',
+                    'CurrencyRate' => 1.0,
+                    'BankAmount' => 150,
+                    'IsReconciled' => true,
+                    'Status' => 'AUTHORISED',
+                    'PaymentType' => 'ACCRECPAYMENT',
+                    'UpdatedDateUTC' => '2026-03-25T01:00:00',
+                    'BankAccountNumber' => '123-456',
+                    'Particulars' => 'particulars',
+                    'Details' => 'details',
+                    'HasAccount' => true,
+                    'HasValidationErrors' => false,
+                    'StatusAttributeString' => 'OK',
+                    'ValidationErrors' => [['Message' => 'Some error']],
+                    'Warnings' => [['Message' => 'Some warning']],
                 ]],
             ], JSON_THROW_ON_ERROR))
         );
@@ -46,6 +68,30 @@ final class PaymentsTest extends TestCase
         self::assertNotNull($firstPayment);
         self::assertSame(150.0, $firstPayment->getAmount());
         self::assertSame('account-1', $firstPayment->getAccount()?->getAccountID());
+        self::assertSame('creditnote-1', $firstPayment->getCreditNote()?->getCreditNoteID());
+        self::assertSame('prepayment-1', $firstPayment->getPrepayment()?->getPrepaymentID());
+        self::assertSame('overpayment-1', $firstPayment->getOverpayment()?->getOverpaymentID());
+        self::assertSame('INV-1001', $firstPayment->getInvoiceNumber());
+        self::assertSame('CN-1001', $firstPayment->getCreditNoteNumber());
+        self::assertSame('batch-1', $firstPayment->getBatchPayment()?->getBatchPaymentID());
+        self::assertSame('batch-1', $firstPayment->getBatchPaymentID());
+        self::assertSame('001', $firstPayment->getCode());
+        self::assertSame(1, $firstPayment->getCurrencyRate());
+        self::assertSame(150, $firstPayment->getBankAmount());
+        self::assertTrue($firstPayment->getIsReconciled());
+        self::assertSame('AUTHORISED', $firstPayment->getStatus());
+        self::assertSame('ACCRECPAYMENT', $firstPayment->getPaymentType());
+        self::assertSame('2026-03-25T01:00:00', $firstPayment->getUpdatedDateUTC());
+        self::assertSame('123-456', $firstPayment->getBankAccountNumber());
+        self::assertSame('particulars', $firstPayment->getParticulars());
+        self::assertSame('details', $firstPayment->getDetails());
+        self::assertTrue($firstPayment->getHasAccount());
+        self::assertFalse($firstPayment->getHasValidationErrors());
+        self::assertSame('OK', $firstPayment->getStatusAttributeString());
+        self::assertCount(1, $firstPayment->getValidationErrors());
+        self::assertSame('Some error', $firstPayment->getValidationErrors()[0]->getMessage());
+        self::assertCount(1, $firstPayment->getWarnings());
+        self::assertSame('Some warning', $firstPayment->getWarnings()[0]->getMessage());
     }
 
     public function test_it_can_create_a_payment_with_a_nested_account(): void
@@ -198,6 +244,71 @@ final class PaymentsTest extends TestCase
 
         self::assertSame('invoice-9', $payment->getInvoiceID());
         self::assertSame('account-9', $payment->getAccountID());
+    }
+
+    public function test_it_serializes_writable_payment_fields_to_request(): void
+    {
+        $payment = (new Payment())
+            ->setInvoiceID('invoice-1')
+            ->setInvoiceNumber('INV-1001')
+            ->setCreditNoteNumber('CN-1001')
+            ->setCode('001')
+            ->setCurrencyRate(0.75)
+            ->setBankAmount(150)
+            ->setIsReconciled(true)
+            ->setStatus('AUTHORISED')
+            ->setBankAccountNumber('123-456')
+            ->setParticulars('particulars')
+            ->setDetails('details')
+            ->setCreditNote((new \Sujip\Xero\Accounting\CreditNote\CreditNote())->setCreditNoteID('creditnote-1'));
+
+        $request = $payment->toRequest();
+
+        self::assertSame('INV-1001', $request['InvoiceNumber']);
+        self::assertSame('CN-1001', $request['CreditNoteNumber']);
+        self::assertSame('001', $request['Code']);
+        self::assertSame(0.75, $request['CurrencyRate']);
+        self::assertSame(150, $request['BankAmount']);
+        self::assertTrue($request['IsReconciled']);
+        self::assertSame('AUTHORISED', $request['Status']);
+        self::assertSame('123-456', $request['BankAccountNumber']);
+        self::assertSame('particulars', $request['Particulars']);
+        self::assertSame('details', $request['Details']);
+        self::assertSame('creditnote-1', Json::extractObject(['CreditNote' => $request['CreditNote']], 'CreditNote')['CreditNoteID']);
+        self::assertArrayNotHasKey('PaymentType', $request);
+        self::assertArrayNotHasKey('UpdatedDateUTC', $request);
+        self::assertArrayNotHasKey('StatusAttributeString', $request);
+        self::assertArrayNotHasKey('ValidationErrors', $request);
+        self::assertArrayNotHasKey('Warnings', $request);
+    }
+
+    public function test_payment_setters_compose_remaining_fields(): void
+    {
+        $payment = (new Payment())
+            ->setPrepayment((new \Sujip\Xero\Accounting\Prepayment\Prepayment())->setPrepaymentID('prepayment-1'))
+            ->setOverpayment((new \Sujip\Xero\Accounting\Overpayment\Overpayment())->setOverpaymentID('overpayment-1'))
+            ->setBatchPaymentID('batch-1')
+            ->setPaymentType('ACCRECPAYMENT')
+            ->setUpdatedDateUTC('2026-03-25T01:00:00')
+            ->setHasAccount(true)
+            ->setHasValidationErrors(false)
+            ->setStatusAttributeString('OK');
+
+        $payment->addValidationError((new \Sujip\Xero\Support\ValidationError())->setMessage('Some error'));
+        $payment->addWarning((new \Sujip\Xero\Support\ValidationError())->setMessage('Some warning'));
+
+        self::assertSame('prepayment-1', $payment->getPrepayment()?->getPrepaymentID());
+        self::assertSame('overpayment-1', $payment->getOverpayment()?->getOverpaymentID());
+        self::assertSame('batch-1', $payment->getBatchPaymentID());
+        self::assertSame('ACCRECPAYMENT', $payment->getPaymentType());
+        self::assertSame('2026-03-25T01:00:00', $payment->getUpdatedDateUTC());
+        self::assertTrue($payment->getHasAccount());
+        self::assertFalse($payment->getHasValidationErrors());
+        self::assertSame('OK', $payment->getStatusAttributeString());
+        self::assertCount(1, $payment->getValidationErrors());
+        self::assertSame('Some error', $payment->getValidationErrors()[0]->getMessage());
+        self::assertCount(1, $payment->getWarnings());
+        self::assertSame('Some warning', $payment->getWarnings()[0]->getMessage());
     }
 
     public function test_model_fluent_helpers_set_fields(): void

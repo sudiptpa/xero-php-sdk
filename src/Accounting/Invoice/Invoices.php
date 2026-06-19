@@ -118,6 +118,31 @@ final class Invoices implements PaginatesResults, DefinesScopes
         return new History($this->client, $invoiceId);
     }
 
+    public function email(string $invoiceId, ?string $idempotencyKey = null): void
+    {
+        $this->client
+            ->post('/api.xro/2.0/Invoices/' . $invoiceId . '/Email')
+            ->withHeaders(array_merge(
+                ['Content-Type' => 'application/json'],
+                $idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey]
+            ))
+            ->withBody('{}')
+            ->send();
+    }
+
+    public function onlineInvoiceUrl(string $invoiceId): ?string
+    {
+        $payload = $this->client
+            ->get('/api.xro/2.0/Invoices/' . $invoiceId . '/OnlineInvoice')
+            ->send()
+            ->json();
+
+        $online = Json::extractFirst($payload, 'OnlineInvoices');
+        $url = $online['OnlineInvoiceUrl'] ?? null;
+
+        return is_string($url) ? $url : null;
+    }
+
     public function pdf(string $invoiceId): string
     {
         $response = $this->client

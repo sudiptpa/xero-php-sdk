@@ -1,106 +1,46 @@
 # Finance
-Read-only finance statements and analysis endpoints.
 
-Important note: Xero’s changelog says the Accounting Activities API is being decommissioned effective April 6, 2026. The SDK still exposes that surface for compatibility, but new integrations should stop building on it now and existing integrations should plan to move off it before April 6, 2026.
+Read-only finance statements and bank statement analysis.
 
-Coverage:
-
-- accounting activities
-  - account usage
-  - lock history
-  - report history
-  - user activities
-- bank statement accounting
-- cash validation
-- financial statements
-  - balance sheet
-  - cashflow
-  - profit and loss
-  - trial balance
-  - contact expenses
-  - contact revenue
-
-## Accounting Activities
+## Bank statement accounting
 
 ```php
-$activities = $xero->finance()
-    ->accountingActivities()
+$result = $xero->finance()
+    ->bankStatementAccounting()
     ->get(
+        'bank-account-id',
         new DateTimeImmutable('2026-03-01'),
         new DateTimeImmutable('2026-03-31'),
     );
 
-$month = $activities->first()?->getMonth();
-$income = $activities->first()?->getTotalIncome();
+$accountName = $result->getBankAccountName();
+$statements = $result->getStatements();
 ```
 
-```php
-$accountUsage = $xero->finance()
-    ->accountingActivities()
-    ->accountUsage('2025-04', '2026-03');
-
-$accountCode = $accountUsage->first()?->getAccountCode();
-$amount = $accountUsage->first()?->getAmount();
-```
+## Cash validation
 
 ```php
-$reportHistory = $xero->finance()
-    ->accountingActivities()
-    ->reportHistory(new DateTimeImmutable('2026-03-31'));
-
-$reportName = $reportHistory->first()?->getReportName();
-```
-
-```php
-$lockHistory = $xero->finance()
-    ->accountingActivities()
-    ->lockHistory(new DateTimeImmutable('2026-03-31'));
-
-$lockType = $lockHistory->first()?->getLockType();
-```
-
-```php
-$userActivities = $xero->finance()
-    ->accountingActivities()
-    ->userActivities('2026-02');
-
-$userName = $userActivities->first()?->getFullName();
-```
-
-## Bank Statement Accounting
-
-```php
-$entries = $xero->finance()
-    ->bankStatementAccounting()
-    ->get(
-        new DateTimeImmutable('2026-03-31'),
-        new DateTimeImmutable('2026-03-31'),
-    );
-
-$accountName = $entries->first()?->getAccountName();
-$statementBalance = $entries->first()?->getStatementBalance();
-```
-
-## Cash Validation
-
-```php
-$validation = $xero->finance()
+$results = $xero->finance()
     ->cashValidation()
     ->get(new DateTimeImmutable('2026-03-31'));
 
-$status = $validation->getStatus();
-$currency = $validation->getCurrency();
+$accountId = $results->first()?->getAccountId();
+$statementBalance = $results->first()?->getStatementBalance()?->getValue();
 ```
 
-## Financial Statements
+## Balance sheet
 
 ```php
 $balanceSheet = $xero->finance()
     ->statements()
     ->balanceSheet(new DateTimeImmutable('2026-03-31'));
 
-$rows = $balanceSheet->getRows();
+$asset = $balanceSheet->getAsset();
+$liability = $balanceSheet->getLiability();
+$equity = $balanceSheet->getEquity();
 ```
+
+## Profit and loss
 
 ```php
 $profitAndLoss = $xero->finance()
@@ -110,8 +50,31 @@ $profitAndLoss = $xero->finance()
         new DateTimeImmutable('2026-03-31'),
     );
 
-$statementType = $profitAndLoss->getType();
+$revenue = $profitAndLoss->getRevenue();
+$expense = $profitAndLoss->getExpense();
+$netProfitLoss = $profitAndLoss->getNetProfitLoss();
 ```
+
+## Cashflow
+
+```php
+$cashflow = $xero->finance()
+    ->statements()
+    ->cashflow(
+        new DateTimeImmutable('2026-03-01'),
+        new DateTimeImmutable('2026-03-31'),
+    );
+```
+
+## Trial balance
+
+```php
+$trialBalance = $xero->finance()
+    ->statements()
+    ->trialBalance(new DateTimeImmutable('2026-03-31'));
+```
+
+## Contact revenue
 
 ```php
 $contactRevenue = $xero->finance()
@@ -122,14 +85,24 @@ $contactRevenue = $xero->finance()
         new DateTimeImmutable('2026-03-31'),
     );
 
-$contactName = $contactRevenue->first()?->getName();
-$contactTotal = $contactRevenue->first()?->getTotal();
+$total = $contactRevenue->getTotal();
+$contacts = $contactRevenue->getContacts();
 ```
 
-## Scope Notes
+## Contact expenses
 
-The current Finance coverage is read-only and uses:
+```php
+$contactExpenses = $xero->finance()
+    ->statements()
+    ->contactExpenses(
+        ['contact-id'],
+        new DateTimeImmutable('2026-03-01'),
+        new DateTimeImmutable('2026-03-31'),
+    );
+```
 
-- `finance.accountingactivity.read` for accounting activity views
-- `finance.cashvalidation.read` for cash validation
-- `finance.statements.read` for financial statements
+## Scopes
+
+- `finance.cashvalidation.read`: cash validation
+- `finance.statements.read`: balance sheet, cashflow, profit and loss, trial balance, contact revenue, contact expenses
+- `finance.bankstatementsplus.read`: bank statement accounting

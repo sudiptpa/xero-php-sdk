@@ -26,21 +26,16 @@ final readonly class Settings implements DefinesScopes
     }
 
     /**
-     * @return ResourceCollection<TrackingCategory>
+     * @return array<string, mixed>
      */
-    public function trackingCategories(): ResourceCollection
+    public function trackingCategories(): array
     {
         $payload = $this->client
             ->get('/payroll.xro/2.0/Settings/trackingCategories')
             ->send()
             ->json();
 
-        $items = array_map(
-            fn (array $trackingCategory): TrackingCategory => $this->mapTrackingCategory($trackingCategory),
-            Json::extractList($payload, 'TrackingCategories')
-        );
-
-        return new ResourceCollection($items);
+        return Json::extractObject($payload, 'trackingCategories');
     }
 
     /**
@@ -55,7 +50,7 @@ final readonly class Settings implements DefinesScopes
 
         $items = array_map(
             fn (array $reimbursement): Reimbursement => $this->mapReimbursement($reimbursement),
-            Json::extractList($payload, 'Reimbursements')
+            Json::extractList($payload, 'reimbursements')
         );
 
         return new ResourceCollection($items);
@@ -68,7 +63,7 @@ final readonly class Settings implements DefinesScopes
             ->send()
             ->json();
 
-        $reimbursement = Json::extractFirst($payload, 'Reimbursements') ?? Json::extractObject($payload, 'Reimbursement') ?: null;
+        $reimbursement = Json::extractFirst($payload, 'reimbursements') ?? Json::extractObject($payload, 'reimbursement') ?: null;
 
         return $reimbursement !== null ? $this->mapReimbursement($reimbursement) : null;
     }
@@ -78,29 +73,22 @@ final readonly class Settings implements DefinesScopes
         return new ReimbursementPayload($this->client);
     }
 
-    public function statutoryLeaveSummary(string $employeeId): StatutoryLeaveSummary
+    /**
+     * @return ResourceCollection<StatutoryLeaveSummary>
+     */
+    public function statutoryLeaveSummary(string $employeeId): ResourceCollection
     {
         $payload = $this->client
             ->get('/payroll.xro/2.0/StatutoryLeaves/Summary/' . $employeeId)
             ->send()
             ->json();
 
-        /** @var array<string, mixed>|null $summary */
-        $summary = $payload['StatutoryLeaveSummary'] ?? null;
+        $items = array_map(
+            fn (array $summary): StatutoryLeaveSummary => $this->mapStatutoryLeaveSummary($summary),
+            Json::extractList($payload, 'statutoryLeaves')
+        );
 
-        if (! is_array($summary)) {
-            return new StatutoryLeaveSummary();
-        }
-
-        return $this->mapStatutoryLeaveSummary($summary);
-    }
-
-    /**
-     * @param array<string, mixed> $trackingCategory
-     */
-    public function mapTrackingCategory(array $trackingCategory): TrackingCategory
-    {
-        return (new TrackingCategory())->fill($trackingCategory);
+        return new ResourceCollection($items);
     }
 
     /**

@@ -56,7 +56,7 @@ final class Payload
     public function save(): PaymentService
     {
         $response = $this->client
-            ->post('/api.xro/2.0/PaymentServices')
+            ->put('/api.xro/2.0/PaymentServices')
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
             ->withJson(['PaymentServices' => [$this->payload]])
             ->send();

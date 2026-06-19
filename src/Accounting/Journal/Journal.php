@@ -11,11 +11,22 @@ final class Journal extends Model
 {
     private ?string $journalID = null;
 
+    private ?string $journalDate = null;
+
     private ?int $journalNumber = null;
+
+    private ?string $createdDateUTC = null;
+
+    private ?string $reference = null;
 
     private ?string $sourceType = null;
 
     private ?string $sourceID = null;
+
+    /**
+     * @var list<JournalLine>
+     */
+    private array $journalLines = [];
 
     public function getJournalID(): ?string
     {
@@ -29,6 +40,18 @@ final class Journal extends Model
         return $this;
     }
 
+    public function getJournalDate(): ?string
+    {
+        return $this->journalDate;
+    }
+
+    public function setJournalDate(?string $journalDate): self
+    {
+        $this->journalDate = $journalDate;
+
+        return $this;
+    }
+
     public function getJournalNumber(): ?int
     {
         return $this->journalNumber;
@@ -37,6 +60,30 @@ final class Journal extends Model
     public function setJournalNumber(?int $journalNumber): self
     {
         $this->journalNumber = $journalNumber;
+
+        return $this;
+    }
+
+    public function getCreatedDateUTC(): ?string
+    {
+        return $this->createdDateUTC;
+    }
+
+    public function setCreatedDateUTC(?string $createdDateUTC): self
+    {
+        $this->createdDateUTC = $createdDateUTC;
+
+        return $this;
+    }
+
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    public function setReference(?string $reference): self
+    {
+        $this->reference = $reference;
 
         return $this;
     }
@@ -66,15 +113,34 @@ final class Journal extends Model
     }
 
     /**
+     * @return list<JournalLine>
+     */
+    public function getJournalLines(): array
+    {
+        return $this->journalLines;
+    }
+
+    public function addJournalLine(JournalLine $journalLine): self
+    {
+        $this->journalLines[] = $journalLine;
+
+        return $this;
+    }
+
+    /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
     {
         return [
             'JournalID' => Field::string(),
+            'JournalDate' => Field::string(),
             'JournalNumber' => Field::number(),
+            'CreatedDateUTC' => Field::string(),
+            'Reference' => Field::string(),
             'SourceType' => Field::string(),
             'SourceID' => Field::string(),
+            'JournalLines' => Field::many(JournalLine::class),
         ];
     }
 }

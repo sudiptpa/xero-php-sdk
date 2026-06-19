@@ -11,85 +11,97 @@ use Sujip\Xero\Support\Model;
 
 final class TimeEntry extends Model
 {
-    private ?string $timeEntryID = null;
+    private ?string $timeEntryId = null;
 
-    private ?string $taskID = null;
+    private ?string $userId = null;
 
-    private ?string $userID = null;
+    private ?string $projectId = null;
 
-    private ?string $dateUTC = null;
+    private ?string $taskId = null;
 
-    private ?string $status = null;
+    private ?string $dateUtc = null;
+
+    private ?string $dateEnteredUtc = null;
 
     private int|float|null $duration = null;
 
-    private ?string $projectID = null;
-
-    private ?string $dateEnteredUTC = null;
-
     private ?string $description = null;
+
+    private ?string $status = null;
 
     public function __construct(
         private ?Client $client = null
     ) {
     }
 
-    public function getTimeEntryID(): ?string
+    public function getTimeEntryId(): ?string
     {
-        return $this->timeEntryID;
+        return $this->timeEntryId;
     }
 
-    public function setTimeEntryID(?string $timeEntryID): self
+    public function setTimeEntryId(?string $timeEntryId): self
     {
-        $this->timeEntryID = $timeEntryID;
+        $this->timeEntryId = $timeEntryId;
 
         return $this;
     }
 
-    public function getTaskID(): ?string
+    public function getUserId(): ?string
     {
-        return $this->taskID;
+        return $this->userId;
     }
 
-    public function setTaskID(?string $taskID): self
+    public function setUserId(?string $userId): self
     {
-        $this->taskID = $taskID;
+        $this->userId = $userId;
 
         return $this;
     }
 
-    public function getUserID(): ?string
+    public function getProjectId(): ?string
     {
-        return $this->userID;
+        return $this->projectId;
     }
 
-    public function setUserID(?string $userID): self
+    public function setProjectId(?string $projectId): self
     {
-        $this->userID = $userID;
+        $this->projectId = $projectId;
 
         return $this;
     }
 
-    public function getDateUTC(): ?string
+    public function getTaskId(): ?string
     {
-        return $this->dateUTC;
+        return $this->taskId;
     }
 
-    public function setDateUTC(?string $dateUTC): self
+    public function setTaskId(?string $taskId): self
     {
-        $this->dateUTC = $dateUTC;
+        $this->taskId = $taskId;
 
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getDateUtc(): ?string
     {
-        return $this->status;
+        return $this->dateUtc;
     }
 
-    public function setStatus(?string $status): self
+    public function setDateUtc(?string $dateUtc): self
     {
-        $this->status = $status === null ? null : strtoupper($status);
+        $this->dateUtc = $dateUtc;
+
+        return $this;
+    }
+
+    public function getDateEnteredUtc(): ?string
+    {
+        return $this->dateEnteredUtc;
+    }
+
+    public function setDateEnteredUtc(?string $dateEnteredUtc): self
+    {
+        $this->dateEnteredUtc = $dateEnteredUtc;
 
         return $this;
     }
@@ -106,30 +118,6 @@ final class TimeEntry extends Model
         return $this;
     }
 
-    public function getProjectID(): ?string
-    {
-        return $this->projectID;
-    }
-
-    public function setProjectID(?string $projectID): self
-    {
-        $this->projectID = $projectID;
-
-        return $this;
-    }
-
-    public function getDateEnteredUTC(): ?string
-    {
-        return $this->dateEnteredUTC;
-    }
-
-    public function setDateEnteredUTC(?string $dateEnteredUTC): self
-    {
-        $this->dateEnteredUTC = $dateEnteredUTC;
-
-        return $this;
-    }
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -142,35 +130,33 @@ final class TimeEntry extends Model
         return $this;
     }
 
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status === null ? null : strtoupper($status);
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array
     {
         return [
-            'TimeEntryID' => Field::string()->using('setTimeEntryID'),
-            'TimeEntryId' => Field::string()->using('setTimeEntryID'),
-            'timeEntryId' => Field::string()->using('setTimeEntryID'),
-            'TaskID' => Field::string()->using('setTaskID'),
-            'TaskId' => Field::string()->using('setTaskID'),
-            'taskId' => Field::string()->using('setTaskID'),
-            'UserID' => Field::string()->using('setUserID'),
-            'UserId' => Field::string()->using('setUserID'),
-            'userId' => Field::string()->using('setUserID'),
-            'DateUTC' => Field::string()->using('setDateUTC'),
-            'DateUtc' => Field::string()->using('setDateUTC'),
-            'dateUtc' => Field::string()->using('setDateUTC'),
-            'DateEnteredUtc' => Field::string()->using('setDateEnteredUTC'),
-            'dateEnteredUtc' => Field::string()->using('setDateEnteredUTC'),
-            'Status' => Field::string(),
-            'status' => Field::string()->using('setStatus'),
-            'Duration' => Field::number(),
-            'duration' => Field::number()->using('setDuration'),
-            'ProjectID' => Field::string()->using('setProjectID'),
-            'ProjectId' => Field::string()->using('setProjectID'),
-            'projectId' => Field::string()->using('setProjectID'),
-            'Description' => Field::string()->using('setDescription'),
-            'description' => Field::string()->using('setDescription'),
+            'timeEntryId' => Field::string(),
+            'userId' => Field::string(),
+            'projectId' => Field::string(),
+            'taskId' => Field::string(),
+            'dateUtc' => Field::string(),
+            'dateEnteredUtc' => Field::string(),
+            'duration' => Field::number(),
+            'description' => Field::string(),
+            'status' => Field::string(),
         ];
     }
 
@@ -181,30 +167,34 @@ final class TimeEntry extends Model
 
     public function save(): self
     {
-        if ($this->client === null || $this->projectID === null) {
+        if ($this->client === null || $this->projectId === null) {
             throw new RuntimeException('Cannot save a time entry without a bound client context and project id.');
         }
 
-        $payload = new Payload($this->client, $this->projectID);
+        $payload = new Payload($this->client, $this->projectId);
 
-        if ($this->timeEntryID !== null) {
-            $payload = $payload->id($this->timeEntryID);
+        if ($this->timeEntryId !== null) {
+            $payload = $payload->id($this->timeEntryId);
         }
 
-        if ($this->taskID !== null) {
-            $payload = $payload->task($this->taskID);
+        if ($this->taskId !== null) {
+            $payload = $payload->task($this->taskId);
         }
 
-        if ($this->userID !== null) {
-            $payload = $payload->user($this->userID);
+        if ($this->userId !== null) {
+            $payload = $payload->user($this->userId);
         }
 
-        if ($this->dateUTC !== null) {
-            $payload = $payload->date($this->dateUTC);
+        if ($this->dateUtc !== null) {
+            $payload = $payload->date($this->dateUtc);
         }
 
         if ($this->duration !== null) {
             $payload = $payload->durationMinutes((int) $this->duration);
+        }
+
+        if ($this->description !== null) {
+            $payload = $payload->description($this->description);
         }
 
         return $payload->save();
@@ -212,10 +202,10 @@ final class TimeEntry extends Model
 
     public function delete(): void
     {
-        if ($this->client === null || $this->projectID === null || $this->timeEntryID === null) {
+        if ($this->client === null || $this->projectId === null || $this->timeEntryId === null) {
             throw new RuntimeException('Cannot delete a time entry without a bound client context, project id, and time entry id.');
         }
 
-        (new TimeEntries($this->client, $this->projectID))->delete($this->timeEntryID);
+        (new TimeEntries($this->client, $this->projectId))->delete($this->timeEntryId);
     }
 }

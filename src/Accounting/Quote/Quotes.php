@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Accounting\Quote;
 
+use Sujip\Xero\Accounting\Attachments;
+use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\BuildsQueries;
 use Sujip\Xero\Support\Concerns\HasPagination;
@@ -97,6 +99,16 @@ final class Quotes implements PaginatesResults, DefinesScopes
     public function update(string $quoteId): Payload
     {
         return (new Payload($this->client))->id($quoteId);
+    }
+
+    public function history(string $quoteId): History
+    {
+        return new History($this->client, '/api.xro/2.0/Quotes/' . $quoteId . '/History');
+    }
+
+    public function attachments(string $quoteId): Attachments
+    {
+        return new Attachments($this->client, '/api.xro/2.0/Quotes/' . $quoteId . '/Attachments');
     }
 
     public function pdf(string $quoteId): string

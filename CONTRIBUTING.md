@@ -4,14 +4,14 @@ This file defines the package coding standard.
 
 Use it for code, tests, docs, examples, and reviews.
 
-## Source Of Truth
+## Source of truth
 
-- use `developer.xero.com` as the primary source of truth
-- use official Xero field names and resource names
-- use generated references only for path details when needed
-- do not invent public API shapes that are not supported by the official docs
+- The official Xero OpenAPI specs at [github.com/XeroAPI/Xero-OpenAPI](https://github.com/XeroAPI/Xero-OpenAPI) are the primary source of truth for every field name, type, path, and HTTP verb
+- Use official Xero field names and resource names exactly as they appear in the spec
+- Corroborate against `developer.xero.com` and the live API when the spec is ambiguous
+- Do not invent public API shapes that are not in the official spec
 
-## PHP Standard
+## PHP
 
 - target `php:>=8.2 <8.6`
 - use `declare(strict_types=1);`
@@ -26,7 +26,7 @@ Rules:
 - keep nullability explicit
 - use constructor promotion when it improves readability
 
-## Framework Standard
+## Framework
 
 - the package must stay framework-agnostic
 - follow a fluent API design similar to Laravel without using framework contracts
@@ -37,7 +37,7 @@ Rules:
 - framework users should be able to adopt the package directly
 - prefer package-native abstractions over framework-coupled abstractions
 
-## Public API Standard
+## Public API
 
 - public API must be fluent, readable, and predictable
 - public API must stay close to Xero docs naming
@@ -46,19 +46,14 @@ Rules:
 
 ### Naming
 
-- keep Xero field identity
-- convert names into normal PHP method style
-- prefer `getContactID()` / `setContactID(...)`
-- prefer `getEmailAddress()` / `setEmailAddress(...)`
+- keep Xero field identity: use spec field names exactly, converting to PHP getter/setter style
+- prefer `getContactID()` / `setContactID(...)` for PascalCase spec fields
+- prefer `getContactId()` / `setContactId(...)` for camelCase spec fields
 - prefer `getLineItems()` / `setLineItems(...)` / `addLineItem(...)`
 
-Avoid renamed synonyms like:
+The Xero API uses both PascalCase (Accounting) and camelCase (Projects, AppStore, Finance) field names. Match the spec exactly.
 
-- `id()`
-- `email()`
-- `items()`
-
-### Rich Models
+### Rich models
 
 Rich models are the public data shape.
 
@@ -119,7 +114,7 @@ Avoid:
 - abstractions that hide normal Xero behavior
 - framework-specific contracts or helpers in the public API
 
-## Internal Architecture
+## Internal architecture
 
 - keep internal code simple
 - keep mapping code inside the SDK
@@ -132,18 +127,18 @@ Do not make these part of the package standard:
 - public `Serializer` classes
 - public mapping helpers that introduce framework-style contracts
 
-## Coverage Standard
+## Coverage
 
 When adding support:
 
-1. check the official Xero docs
+1. check the official Xero OpenAPI spec
 2. implement the feature in package style
 3. add or update tests
 4. update the docs
 
 Do not leave docs claiming support that the code does not have.
 
-## Tests And Verification
+## Tests and verification
 
 Default checks:
 
@@ -160,7 +155,7 @@ Rules:
 - start with focused checks when the change is local
 - run broader checks when the batch stabilizes
 
-## Docs Standard
+## Docs
 
 Docs must be:
 
@@ -187,7 +182,7 @@ Avoid overusing words like:
 
 Use simpler words when possible.
 
-## Style Rules
+## Style
 
 - prefer ASCII unless the file already uses Unicode meaningfully
 - keep comments short and useful
@@ -195,7 +190,7 @@ Use simpler words when possible.
 - keep methods and files easy to read
 - preserve the domain-first structure
 
-## Package Shape
+## Package shape
 
 Primary package areas:
 
@@ -215,7 +210,7 @@ Prefer nested resource folders when they make the public API clearer.
 
 Before marking work done, check:
 
-- official Xero docs were used
+- official Xero OpenAPI spec was used
 - public API follows package naming rules
 - rich models are used where appropriate
 - arrays are not the public default

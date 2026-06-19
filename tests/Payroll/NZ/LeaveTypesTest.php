@@ -16,17 +16,17 @@ final class LeaveTypesTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'LeaveTypes' => [[
-                'LeaveTypeID' => 'leave-type-1',
-                'Name' => 'Annual Leave',
-                'IsActive' => true,
+            'leaveTypes' => [[
+                'leaveTypeID' => 'leave-type-1',
+                'name' => 'Annual Leave',
+                'isActive' => true,
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'LeaveType' => [
-                'LeaveTypeID' => 'leave-type-1',
-                'Name' => 'Annual Leave',
-                'IsActive' => true,
+            'leaveType' => [
+                'leaveTypeID' => 'leave-type-1',
+                'name' => 'Annual Leave',
+                'isActive' => true,
             ],
         ], JSON_THROW_ON_ERROR)));
 
@@ -59,7 +59,7 @@ final class LeaveTypesTest extends TestCase
     public function test_it_can_paginate_leave_types(): void
     {
         $transport = (new FakeTransport())->push(
-            new Response(200, body: json_encode(['LeaveTypes' => []], JSON_THROW_ON_ERROR))
+            new Response(200, body: json_encode(['leaveTypes' => []], JSON_THROW_ON_ERROR))
         );
 
         $page = Xero::withAccessToken('token', $transport)
@@ -78,13 +78,23 @@ final class LeaveTypesTest extends TestCase
     public function test_leave_type_exposes_all_fields(): void
     {
         $type = (new LeaveType())->fill([
-            'LeaveTypeID' => 'leave-type-1',
-            'Name' => 'Annual Leave',
-            'IsActive' => true,
+            'leaveTypeID' => 'leave-type-1',
+            'name' => 'Annual Leave',
+            'isPaidLeave' => true,
+            'showOnPayslip' => true,
+            'updatedDateUTC' => '2026-03-29T00:00:00',
+            'isActive' => true,
+            'typeOfUnits' => 'Hours',
+            'typeOfUnitsToAccrue' => 'Days',
         ]);
 
         self::assertSame('leave-type-1', $type->getLeaveTypeID());
         self::assertSame('Annual Leave', $type->getName());
+        self::assertTrue($type->getIsPaidLeave());
+        self::assertTrue($type->getShowOnPayslip());
+        self::assertSame('2026-03-29T00:00:00', $type->getUpdatedDateUTC());
         self::assertTrue($type->getIsActive());
+        self::assertSame('Hours', $type->getTypeOfUnits());
+        self::assertSame('Days', $type->getTypeOfUnitsToAccrue());
     }
 }

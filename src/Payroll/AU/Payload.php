@@ -47,10 +47,10 @@ final class Payload
         return $clone;
     }
 
-    public function emailAddress(string $emailAddress): self
+    public function email(string $email): self
     {
         $clone = clone $this;
-        $clone->payload['EmailAddress'] = $emailAddress;
+        $clone->payload['Email'] = $email;
 
         return $clone;
     }

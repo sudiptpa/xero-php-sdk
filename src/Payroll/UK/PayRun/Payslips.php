@@ -32,13 +32,14 @@ final readonly class Payslips implements DefinesScopes
     public function get(): ResourceCollection
     {
         $payload = $this->client
-            ->get('/payroll.xro/2.0/PayRuns/' . $this->payRunId . '/Payslips')
+            ->get('/payroll.xro/2.0/Payslips')
+            ->withQuery(['PayRunID' => $this->payRunId])
             ->send()
             ->json();
 
         $items = array_map(
             fn (array $payslip): Payslip => $this->mapPayslip($payslip),
-            Json::extractList($payload, 'Payslips')
+            Json::extractList($payload, 'paySlips')
         );
 
         return new ResourceCollection($items);
@@ -47,11 +48,11 @@ final readonly class Payslips implements DefinesScopes
     public function find(string $payslipId): ?Payslip
     {
         $payload = $this->client
-            ->get('/payroll.xro/2.0/PayRuns/' . $this->payRunId . '/Payslips/' . $payslipId)
+            ->get('/payroll.xro/2.0/Payslips/' . $payslipId)
             ->send()
             ->json();
 
-        $payslip = Json::extractFirst($payload, 'Payslips') ?? Json::extractObject($payload, 'Payslip') ?: null;
+        $payslip = Json::extractFirst($payload, 'paySlips') ?? Json::extractObject($payload, 'paySlip') ?: null;
 
         return $payslip !== null ? $this->mapPayslip($payslip) : null;
     }

@@ -12,21 +12,13 @@
 
 [![Sponsor](https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/sudiptpa)
 
-If this package has been useful to you, GitHub Sponsors is a simple way to support ongoing maintenance, improvements, and future releases.
+If this package saves you time, [GitHub Sponsors](https://github.com/sponsors/sudiptpa) is a simple way to support it.
 
-A fluent, framework-agnostic Xero SDK for PHP 8.2 to 8.5 with rich models, a fluent API, and no runtime dependencies.
+A fluent, framework-agnostic Xero SDK for PHP 8.2 to 8.5. No runtime dependencies.
 
-- Rich models for reads and writes
-- Fluent request flows across Xero families
-- Aligned to the official Xero docs
-
-## Why We Built It
-
-- Build Xero integrations with rich models instead of raw payload arrays.
-- Use one consistent API across Accounting, Files, Assets, Projects, Payroll, Finance, App Store, Identity, and Webhooks.
-- Keep integration code readable in plain PHP or inside any framework.
-
-This package is built for developers who want a modern Xero PHP SDK with a clear API for accounting, payroll, OAuth2, files, webhooks, and tenant-aware integrations.
+- Typed models for every Xero API response
+- Fluent builders for reads and writes
+- Covers Accounting, Payroll, Files, Assets, Projects, Finance, App Store, Identity, and Webhooks
 
 ## Installation
 
@@ -34,76 +26,15 @@ This package is built for developers who want a modern Xero PHP SDK with a clear
 composer require sudiptpa/xero-php-sdk
 ```
 
-Runtime Notes:
+Requires:
 
 - PHP 8.2 to 8.5
-- `ext-json` for JSON request and response handling
-- `ext-curl` for the built-in native transport
+- `ext-json`
+- `ext-curl` (for the built-in transport)
 
-If `ext-curl` is installed, `Xero::withAccessToken(...)` uses the built-in native transport by default.
+If `ext-curl` is not available, supply your own transport (see [Custom transport](#custom-transport)).
 
-If `ext-curl` is not installed, requests throw a transport exception when sent. In that case, supply your own transport such as a Guzzle-based transport.
-
-## Custom Transport
-
-If you want to use a custom transport, pass it explicitly.
-
-### Guzzle Example
-
-```php
-use GuzzleHttp\Client as GuzzleClient;
-use GuzzleHttp\Exception\GuzzleException;
-use Sujip\Xero\Exceptions\TransportException;
-use Sujip\Xero\Http\Request;
-use Sujip\Xero\Http\Response;
-use Sujip\Xero\Http\Transport;
-use Sujip\Xero\Xero;
-
-final class GuzzleTransport implements Transport
-{
-    public function __construct(
-        private readonly GuzzleClient $client = new GuzzleClient()
-    ) {
-    }
-
-    public function send(Request $request): Response
-    {
-        try {
-            $response = $this->client->request($request->method, $request->url(), [
-                'headers' => $request->headers,
-                'json' => $request->json,
-                'body' => $request->body,
-            ]);
-        } catch (GuzzleException $exception) {
-            throw new TransportException($exception->getMessage(), previous: $exception);
-        }
-
-        return new Response(
-            $response->getStatusCode(),
-            array_map(
-                static fn (array $values): string => $values[0] ?? '',
-                $response->getHeaders()
-            ),
-            (string) $response->getBody(),
-        );
-    }
-}
-
-$xero = Xero::withAccessToken('token', new GuzzleTransport())
-    ->tenant('tenant-id');
-```
-
-## Quick Start
-
-Most Xero integrations follow the same path:
-
-1. build an authorization URL
-2. exchange the callback code for a token
-3. list available tenant connections
-4. choose one tenant
-5. make your first API call
-
-This is the shortest useful path:
+## Quick start
 
 ```php
 use Sujip\Xero\Auth\InMemoryTokenRepository;
@@ -121,13 +52,13 @@ $url = $manager->authorizationUrl(
 );
 ```
 
-When Xero redirects back:
+After Xero redirects back with a code:
 
 ```php
 $token = $manager->exchange($code);
 $tenants = $manager->connections();
 
-$connected = $manager->connectTenant($tenants[0]->tenantId);
+$connected = $manager->connectTenant($tenants[0]->getTenantId());
 
 $contacts = $connected->tenant()
     ->accounting()
@@ -136,9 +67,9 @@ $contacts = $connected->tenant()
     ->get();
 ```
 
-Use `tenant()` for the fluent tenant-scoped path. `getClient()` is also available if you prefer a more explicit accessor.
+Call `tenant()` to get a client scoped to that tenant. `getClient()` works too.
 
-If you already know the tenant id, `exchangeAndConnect()` is the shorter path:
+If you already know the tenant id:
 
 ```php
 $connected = $manager->exchangeAndConnect($code, 'tenant-id');
@@ -280,7 +211,7 @@ $project = $xero->projects()
     ->estimateAmount(1200)
     ->save();
 
-$projectId = $project->getProjectID();
+$projectId = $project->getProjectId();
 ```
 
 ```php
@@ -359,21 +290,67 @@ $verifier->assertValid($rawPayload, $signatureHeader);
 $webhook = $verifier->parse($rawPayload);
 ```
 
-## Granular Scopes
+## Custom transport
 
-- Apps created on or after 2 March 2026 use granular scopes
-- Apps created before 2 March 2026 can begin requesting granular scopes from April 2026
-- Existing apps have until September 2027 to complete migration from broad scopes
+Implement the `Transport` interface to use a different HTTP client.
 
-- Ask only for the scopes the integration actually uses.
-- Prefer `.read` scopes for read-only jobs.
-- Expect `401` insufficient-scope responses if an app is missing a required scope.
+```php
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Exception\GuzzleException;
+use Sujip\Xero\Exceptions\TransportException;
+use Sujip\Xero\Http\Request;
+use Sujip\Xero\Http\Response;
+use Sujip\Xero\Http\Transport;
+use Sujip\Xero\Xero;
 
-## Identity And Tenants
+final class GuzzleTransport implements Transport
+{
+    public function __construct(
+        private readonly GuzzleClient $client = new GuzzleClient()
+    ) {
+    }
 
-Use `identity()->connections()` to discover which tenants a token can access. Use `tenant(...)` when you make tenant-scoped API calls such as Accounting, Files, Projects, Assets, Finance, and Payroll requests.
+    public function send(Request $request): Response
+    {
+        try {
+            $response = $this->client->request($request->method, $request->url(), [
+                'headers' => $request->headers,
+                'json' => $request->json,
+                'body' => $request->body,
+            ]);
+        } catch (GuzzleException $exception) {
+            throw new TransportException($exception->getMessage(), previous: $exception);
+        }
 
-## Auth Flow
+        return new Response(
+            $response->getStatusCode(),
+            array_map(
+                static fn (array $values): string => $values[0] ?? '',
+                $response->getHeaders()
+            ),
+            (string) $response->getBody(),
+        );
+    }
+}
+
+$xero = Xero::withAccessToken('token', new GuzzleTransport())
+    ->tenant('tenant-id');
+```
+
+## Scopes
+
+- Apps created on or after 2 March 2026 must use granular scopes
+- Apps created before 2 March 2026 can start requesting granular scopes from April 2026
+- All apps must migrate off broad scopes by September 2027
+- Request only the scopes the integration actually uses
+- Use `.read` scopes for read-only work
+- A missing scope returns a `401` insufficient-scope response
+
+## Tenants
+
+Use `identity()->connections()` to list which tenants a token can access. Make tenant-scoped API calls (Accounting, Files, Projects, Assets, Finance, Payroll) only after calling `tenant(...)`.
+
+## Auth flow
 
 ```php
 use Sujip\Xero\Auth\InMemoryTokenRepository;
@@ -400,7 +377,7 @@ $connected = $manager->connectTenant('tenant-id');
 $xero = $connected->tenant();
 ```
 
-See [Auth](docs/auth.md) for PKCE, refresh, tenant selection, and custom connection flows.
+See [Auth](docs/auth.md) for PKCE, token refresh, tenant selection, and custom connection flows.
 
 ## Supported APIs
 
@@ -434,7 +411,4 @@ See [Auth](docs/auth.md) for PKCE, refresh, tenant selection, and custom connect
 
 ## Contributing
 
-If you want to help, start with:
-
-- [Contributing](CONTRIBUTING.md)
-- [Changelog](CHANGELOG.md)
+See [Contributing](CONTRIBUTING.md) and [Changelog](CHANGELOG.md).
