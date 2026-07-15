@@ -40,6 +40,14 @@ final class BankTransfers implements DefinesScopes
         return $clone;
     }
 
+    public function includeDeleted(bool $includeDeleted = true): self
+    {
+        $clone = clone $this;
+        $clone->query['includeDeleted'] = $includeDeleted ? 'true' : 'false';
+
+        return $clone;
+    }
+
     /**
      * @return ResourceCollection<BankTransfer>
      */
@@ -74,6 +82,47 @@ final class BankTransfers implements DefinesScopes
     public function create(): Payload
     {
         return new Payload($this->client);
+    }
+
+    public function delete(string $bankTransferId): BankTransfer
+    {
+        $response = $this->client
+            ->post('/api.xro/2.0/BankTransfers/' . $bankTransferId)
+            ->withJson(['Status' => 'DELETED'])
+            ->send();
+
+        $payload = $response->json();
+        $bankTransfer = Json::extractFirst($payload, 'BankTransfers') ?? [];
+
+        return $this->mapBankTransfer($bankTransfer);
+    }
+
+    /**
+     * @param list<string> $bankTransferIds
+     * @return ResourceCollection<BankTransfer>
+     */
+    public function deleteMany(array $bankTransferIds): ResourceCollection
+    {
+        $response = $this->client
+            ->post('/api.xro/2.0/BankTransfers')
+            ->withJson([
+                'BankTransfers' => array_map(
+                    static fn (string $bankTransferId): array => [
+                        'BankTransferID' => $bankTransferId,
+                        'Status' => 'DELETED',
+                    ],
+                    $bankTransferIds
+                ),
+            ])
+            ->send();
+
+        $payload = $response->json();
+        $items = array_map(
+            fn (array $bankTransfer): BankTransfer => $this->mapBankTransfer($bankTransfer),
+            Json::extractList($payload, 'BankTransfers')
+        );
+
+        return new ResourceCollection($items);
     }
 
     public function history(string $bankTransferId): History
