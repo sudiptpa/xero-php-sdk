@@ -2,6 +2,17 @@
 
 All notable changes to this package are documented here.
 
+## 3.1.0 (2026-07-15)
+
+Xero updated the Accounting OpenAPI spec (16.0.0 to 16.1.0), adding a new field and new
+bank transfer operations. These are additive and do not change existing method signatures.
+
+### Added
+
+- `Invoice`, `CreditNote`, `Payment`, `Overpayment`, `Prepayment`: `getUpdatedDateUTCString()`, an ISO-8601 formatted version of `UpdatedDateUTC`
+- `BankTransfer`: `getStatus()`, `getFromTracking()`, `getToTracking()` (tracking categories on the source and destination accounts)
+- `BankTransfers`: `delete($id)` to soft-delete a single transfer, `deleteMany($ids)` to soft-delete several at once, and `includeDeleted()` to include deleted transfers in `get()`
+
 ## 3.0.0 (2026-06-19)
 
 ### Added
