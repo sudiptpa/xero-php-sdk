@@ -43,6 +43,8 @@ final class Prepayment extends Model
 
     private ?string $updatedDateUTC = null;
 
+    private ?string $updatedDateUTCString = null;
+
     private ?string $currencyCode = null;
 
     private ?string $brandingThemeID = null;
@@ -239,6 +241,18 @@ final class Prepayment extends Model
         return $this;
     }
 
+    public function getUpdatedDateUTCString(): ?string
+    {
+        return $this->updatedDateUTCString;
+    }
+
+    public function setUpdatedDateUTCString(?string $updatedDateUTCString): self
+    {
+        $this->updatedDateUTCString = $updatedDateUTCString;
+
+        return $this;
+    }
+
     public function getCurrencyCode(): ?string
     {
         return $this->currencyCode;
@@ -375,6 +389,7 @@ final class Prepayment extends Model
             'Reference' => Field::string(),
             'InvoiceNumber' => Field::string(),
             'UpdatedDateUTC' => Field::string(),
+            'UpdatedDateUTCString' => Field::string(),
             'CurrencyCode' => Field::string(),
             'BrandingThemeID' => Field::string(),
             'CurrencyRate' => Field::number(),
