@@ -41,6 +41,7 @@ final class CreditNotesTest extends TestCase
                 'CISDeduction' => 1,
                 'CISRate' => 0.2,
                 'UpdatedDateUTC' => '2026-03-25T01:00:00',
+                'UpdatedDateUTCString' => '2026-03-25T01:00:00Z',
                 'CurrencyCode' => 'NZD',
                 'FullyPaidOnDate' => '2026-04-01',
                 'CreditNoteNumber' => 'CN-1001',
@@ -98,6 +99,7 @@ final class CreditNotesTest extends TestCase
         self::assertSame(1, $firstCn->getCISDeduction());
         self::assertSame(0.2, $firstCn->getCISRate());
         self::assertSame('2026-03-25T01:00:00', $firstCn->getUpdatedDateUTC());
+        self::assertSame('2026-03-25T01:00:00Z', $firstCn->getUpdatedDateUTCString());
         self::assertSame('NZD', $firstCn->getCurrencyCode());
         self::assertSame('2026-04-01', $firstCn->getFullyPaidOnDate());
         self::assertSame('CN-1001', $firstCn->getCreditNoteNumber());
@@ -332,6 +334,7 @@ final class CreditNotesTest extends TestCase
         self::assertArrayNotHasKey('CISDeduction', $request);
         self::assertArrayNotHasKey('CISRate', $request);
         self::assertArrayNotHasKey('UpdatedDateUTC', $request);
+        self::assertArrayNotHasKey('UpdatedDateUTCString', $request);
         self::assertArrayNotHasKey('SentToContact', $request);
         self::assertArrayNotHasKey('RemainingCredit', $request);
         self::assertArrayNotHasKey('Allocations', $request);
@@ -353,6 +356,7 @@ final class CreditNotesTest extends TestCase
             ->setCISDeduction(1)
             ->setCISRate(0.2)
             ->setUpdatedDateUTC('2026-03-25T01:00:00')
+            ->setUpdatedDateUTCString('2026-03-25T01:00:00Z')
             ->setFullyPaidOnDate('2026-04-01')
             ->setSentToContact(true)
             ->setRemainingCredit(10)
@@ -371,6 +375,7 @@ final class CreditNotesTest extends TestCase
         self::assertSame(1, $creditNote->getCISDeduction());
         self::assertSame(0.2, $creditNote->getCISRate());
         self::assertSame('2026-03-25T01:00:00', $creditNote->getUpdatedDateUTC());
+        self::assertSame('2026-03-25T01:00:00Z', $creditNote->getUpdatedDateUTCString());
         self::assertSame('2026-04-01', $creditNote->getFullyPaidOnDate());
         self::assertTrue($creditNote->getSentToContact());
         self::assertSame(10, $creditNote->getRemainingCredit());

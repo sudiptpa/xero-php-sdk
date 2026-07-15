@@ -39,6 +39,8 @@ final class Overpayment extends Model
 
     private ?string $updatedDateUTC = null;
 
+    private ?string $updatedDateUTCString = null;
+
     private ?string $currencyCode = null;
 
     private int|float|null $currencyRate = null;
@@ -211,6 +213,18 @@ final class Overpayment extends Model
         return $this;
     }
 
+    public function getUpdatedDateUTCString(): ?string
+    {
+        return $this->updatedDateUTCString;
+    }
+
+    public function setUpdatedDateUTCString(?string $updatedDateUTCString): self
+    {
+        $this->updatedDateUTCString = $updatedDateUTCString;
+
+        return $this;
+    }
+
     public function getCurrencyCode(): ?string
     {
         return $this->currencyCode;
@@ -345,6 +359,7 @@ final class Overpayment extends Model
             'TotalTax' => Field::number(),
             'Total' => Field::number(),
             'UpdatedDateUTC' => Field::string(),
+            'UpdatedDateUTCString' => Field::string(),
             'CurrencyCode' => Field::string(),
             'CurrencyRate' => Field::number(),
             'RemainingCredit' => Field::number(),

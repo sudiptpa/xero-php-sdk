@@ -39,6 +39,9 @@ final class BankTransfersTest extends TestCase
                 'ToIsReconciled' => false,
                 'HasAttachments' => true,
                 'CreatedDateUTC' => '2026-03-25T01:00:00',
+                'Status' => 'AUTHORISED',
+                'FromTracking' => [['TrackingCategoryID' => 'category-1', 'TrackingOptionID' => 'option-1', 'Name' => 'Region', 'Option' => 'North']],
+                'ToTracking' => [['TrackingCategoryID' => 'category-2', 'TrackingOptionID' => 'option-2', 'Name' => 'Region', 'Option' => 'South']],
                 'ValidationErrors' => [['Message' => 'Bad transfer']],
             ]],
         ], JSON_THROW_ON_ERROR)));
@@ -76,6 +79,11 @@ final class BankTransfersTest extends TestCase
         self::assertFalse($found->getToIsReconciled());
         self::assertTrue($found->getHasAttachments());
         self::assertSame('2026-03-25T01:00:00', $found->getCreatedDateUTC());
+        self::assertSame('AUTHORISED', $found->getStatus());
+        self::assertCount(1, $found->getFromTracking());
+        self::assertSame('category-1', $found->getFromTracking()[0]->getTrackingCategoryID());
+        self::assertCount(1, $found->getToTracking());
+        self::assertSame('category-2', $found->getToTracking()[0]->getTrackingCategoryID());
         self::assertCount(1, $found->getValidationErrors());
         self::assertSame('Bad transfer', $found->getValidationErrors()[0]->getMessage());
         self::assertSame('bank-a', $found->getFromBankAccount()?->getAccountID());

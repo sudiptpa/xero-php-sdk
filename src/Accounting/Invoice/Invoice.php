@@ -100,6 +100,8 @@ final class Invoice extends Model implements SerializesRequest
 
     private ?string $updatedDateUTC = null;
 
+    private ?string $updatedDateUTCString = null;
+
     /**
      * @var list<CreditNote>
      */
@@ -578,6 +580,18 @@ final class Invoice extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getUpdatedDateUTCString(): ?string
+    {
+        return $this->updatedDateUTCString;
+    }
+
+    public function setUpdatedDateUTCString(?string $updatedDateUTCString): self
+    {
+        $this->updatedDateUTCString = $updatedDateUTCString;
+
+        return $this;
+    }
+
     /**
      * @return list<CreditNote>
      */
@@ -717,6 +731,7 @@ final class Invoice extends Model implements SerializesRequest
             'FullyPaidOnDate' => Field::string(),
             'AmountCredited' => Field::number(),
             'UpdatedDateUTC' => Field::string(),
+            'UpdatedDateUTCString' => Field::string(),
             'CreditNotes' => Field::many(CreditNote::class),
             'Attachments' => Field::many(AttachmentDetail::class),
             'HasErrors' => Field::boolean(),

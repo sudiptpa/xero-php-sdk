@@ -37,6 +37,7 @@ final class OverpaymentsAndPrepaymentsTest extends TestCase
                 'TotalTax' => 0,
                 'Total' => 20,
                 'UpdatedDateUTC' => '2026-04-01T01:00:00',
+                'UpdatedDateUTCString' => '2026-04-01T01:00:00Z',
                 'CurrencyCode' => 'NZD',
                 'CurrencyRate' => 1.0,
                 'RemainingCredit' => 20,
@@ -82,6 +83,7 @@ final class OverpaymentsAndPrepaymentsTest extends TestCase
         self::assertSame(0, $overpayment->getTotalTax());
         self::assertSame(20, $overpayment->getTotal());
         self::assertSame('2026-04-01T01:00:00', $overpayment->getUpdatedDateUTC());
+        self::assertSame('2026-04-01T01:00:00Z', $overpayment->getUpdatedDateUTCString());
         self::assertSame('NZD', $overpayment->getCurrencyCode());
         self::assertSame(1, $overpayment->getCurrencyRate());
         self::assertCount(1, $overpayment->getAllocations());
@@ -134,6 +136,7 @@ final class OverpaymentsAndPrepaymentsTest extends TestCase
                 'Reference' => 'INV-PRE-1',
                 'InvoiceNumber' => 'INV-PRE-1',
                 'UpdatedDateUTC' => '2026-04-01T01:00:00',
+                'UpdatedDateUTCString' => '2026-04-01T01:00:00Z',
                 'CurrencyCode' => 'NZD',
                 'BrandingThemeID' => 'brand-1',
                 'CurrencyRate' => 1.0,
@@ -181,6 +184,7 @@ final class OverpaymentsAndPrepaymentsTest extends TestCase
         self::assertSame('INV-PRE-1', $prepayment->getReference());
         self::assertSame('INV-PRE-1', $prepayment->getInvoiceNumber());
         self::assertSame('2026-04-01T01:00:00', $prepayment->getUpdatedDateUTC());
+        self::assertSame('2026-04-01T01:00:00Z', $prepayment->getUpdatedDateUTCString());
         self::assertSame('NZD', $prepayment->getCurrencyCode());
         self::assertSame('brand-1', $prepayment->getBrandingThemeID());
         self::assertSame(1, $prepayment->getCurrencyRate());

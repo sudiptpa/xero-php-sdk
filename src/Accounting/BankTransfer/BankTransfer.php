@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\BankTransfer;
 
 use RuntimeException;
+use Sujip\Xero\Accounting\Invoice\LineItemTracking;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
@@ -37,6 +38,18 @@ final class BankTransfer extends Model
     private ?bool $hasAttachments = null;
 
     private ?string $createdDateUTC = null;
+
+    private ?string $status = null;
+
+    /**
+     * @var list<LineItemTracking>
+     */
+    private array $fromTracking = [];
+
+    /**
+     * @var list<LineItemTracking>
+     */
+    private array $toTracking = [];
 
     /**
      * @var list<ValidationError>
@@ -232,6 +245,48 @@ final class BankTransfer extends Model
         return $this;
     }
 
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return list<LineItemTracking>
+     */
+    public function getFromTracking(): array
+    {
+        return $this->fromTracking;
+    }
+
+    public function addFromTracking(LineItemTracking $fromTracking): self
+    {
+        $this->fromTracking[] = $fromTracking;
+
+        return $this;
+    }
+
+    /**
+     * @return list<LineItemTracking>
+     */
+    public function getToTracking(): array
+    {
+        return $this->toTracking;
+    }
+
+    public function addToTracking(LineItemTracking $toTracking): self
+    {
+        $this->toTracking[] = $toTracking;
+
+        return $this;
+    }
+
     /**
      * @return list<ValidationError>
      */
@@ -266,6 +321,9 @@ final class BankTransfer extends Model
             'Reference' => Field::string(),
             'HasAttachments' => Field::boolean(),
             'CreatedDateUTC' => Field::string(),
+            'Status' => Field::string(),
+            'FromTracking' => Field::many(LineItemTracking::class),
+            'ToTracking' => Field::many(LineItemTracking::class),
             'ValidationErrors' => Field::many(ValidationError::class),
         ];
     }

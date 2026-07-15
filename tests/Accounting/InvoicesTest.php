@@ -151,6 +151,7 @@ final class InvoicesTest extends TestCase
                     'FullyPaidOnDate' => '2026-02-03T00:00:00',
                     'AmountCredited' => 0.01,
                     'UpdatedDateUTC' => '2026-01-02T00:00:00',
+                    'UpdatedDateUTCString' => '2026-01-02T00:00:00Z',
                     'CreditNotes' => [['CreditNoteID' => 'credit-note-1']],
                     'Attachments' => [['AttachmentID' => 'attachment-1', 'FileName' => 'receipt.pdf']],
                     'HasErrors' => false,
@@ -196,6 +197,7 @@ final class InvoicesTest extends TestCase
         self::assertSame('2026-02-03T00:00:00', $invoice->getFullyPaidOnDate());
         self::assertSame(0.01, $invoice->getAmountCredited());
         self::assertSame('2026-01-02T00:00:00', $invoice->getUpdatedDateUTC());
+        self::assertSame('2026-01-02T00:00:00Z', $invoice->getUpdatedDateUTCString());
         self::assertFalse($invoice->getHasErrors());
         self::assertSame('OK', $invoice->getStatusAttributeString());
 
