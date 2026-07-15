@@ -59,6 +59,8 @@ final class Payment extends Model implements SerializesRequest
 
     private ?string $updatedDateUTC = null;
 
+    private ?string $updatedDateUTCString = null;
+
     private ?string $bankAccountNumber = null;
 
     private ?string $particulars = null;
@@ -340,6 +342,18 @@ final class Payment extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getUpdatedDateUTCString(): ?string
+    {
+        return $this->updatedDateUTCString;
+    }
+
+    public function setUpdatedDateUTCString(?string $updatedDateUTCString): self
+    {
+        $this->updatedDateUTCString = $updatedDateUTCString;
+
+        return $this;
+    }
+
     public function getBankAccountNumber(): ?string
     {
         return $this->bankAccountNumber;
@@ -468,6 +482,7 @@ final class Payment extends Model implements SerializesRequest
             'Status' => Field::string(),
             'PaymentType' => Field::string(),
             'UpdatedDateUTC' => Field::string(),
+            'UpdatedDateUTCString' => Field::string(),
             'BankAccountNumber' => Field::string(),
             'Particulars' => Field::string(),
             'Details' => Field::string(),

@@ -40,6 +40,7 @@ final class PaymentsTest extends TestCase
                     'Status' => 'AUTHORISED',
                     'PaymentType' => 'ACCRECPAYMENT',
                     'UpdatedDateUTC' => '2026-03-25T01:00:00',
+                    'UpdatedDateUTCString' => '2026-03-25T01:00:00Z',
                     'BankAccountNumber' => '123-456',
                     'Particulars' => 'particulars',
                     'Details' => 'details',
@@ -82,6 +83,7 @@ final class PaymentsTest extends TestCase
         self::assertSame('AUTHORISED', $firstPayment->getStatus());
         self::assertSame('ACCRECPAYMENT', $firstPayment->getPaymentType());
         self::assertSame('2026-03-25T01:00:00', $firstPayment->getUpdatedDateUTC());
+        self::assertSame('2026-03-25T01:00:00Z', $firstPayment->getUpdatedDateUTCString());
         self::assertSame('123-456', $firstPayment->getBankAccountNumber());
         self::assertSame('particulars', $firstPayment->getParticulars());
         self::assertSame('details', $firstPayment->getDetails());
@@ -277,6 +279,7 @@ final class PaymentsTest extends TestCase
         self::assertSame('creditnote-1', Json::extractObject(['CreditNote' => $request['CreditNote']], 'CreditNote')['CreditNoteID']);
         self::assertArrayNotHasKey('PaymentType', $request);
         self::assertArrayNotHasKey('UpdatedDateUTC', $request);
+        self::assertArrayNotHasKey('UpdatedDateUTCString', $request);
         self::assertArrayNotHasKey('StatusAttributeString', $request);
         self::assertArrayNotHasKey('ValidationErrors', $request);
         self::assertArrayNotHasKey('Warnings', $request);
@@ -290,6 +293,7 @@ final class PaymentsTest extends TestCase
             ->setBatchPaymentID('batch-1')
             ->setPaymentType('ACCRECPAYMENT')
             ->setUpdatedDateUTC('2026-03-25T01:00:00')
+            ->setUpdatedDateUTCString('2026-03-25T01:00:00Z')
             ->setHasAccount(true)
             ->setHasValidationErrors(false)
             ->setStatusAttributeString('OK');
@@ -302,6 +306,7 @@ final class PaymentsTest extends TestCase
         self::assertSame('batch-1', $payment->getBatchPaymentID());
         self::assertSame('ACCRECPAYMENT', $payment->getPaymentType());
         self::assertSame('2026-03-25T01:00:00', $payment->getUpdatedDateUTC());
+        self::assertSame('2026-03-25T01:00:00Z', $payment->getUpdatedDateUTCString());
         self::assertTrue($payment->getHasAccount());
         self::assertFalse($payment->getHasValidationErrors());
         self::assertSame('OK', $payment->getStatusAttributeString());
