@@ -56,6 +56,8 @@ final class CreditNote extends Model implements SerializesRequest
 
     private ?string $updatedDateUTC = null;
 
+    private ?string $updatedDateUTCString = null;
+
     private ?string $currencyCode = null;
 
     private ?string $fullyPaidOnDate = null;
@@ -296,6 +298,18 @@ final class CreditNote extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getUpdatedDateUTCString(): ?string
+    {
+        return $this->updatedDateUTCString;
+    }
+
+    public function setUpdatedDateUTCString(?string $updatedDateUTCString): self
+    {
+        $this->updatedDateUTCString = $updatedDateUTCString;
+
+        return $this;
+    }
+
     public function getCurrencyCode(): ?string
     {
         return $this->currencyCode;
@@ -524,6 +538,7 @@ final class CreditNote extends Model implements SerializesRequest
             'CISDeduction' => Field::number(),
             'CISRate' => Field::number(),
             'UpdatedDateUTC' => Field::string(),
+            'UpdatedDateUTCString' => Field::string(),
             'CurrencyCode' => Field::string(),
             'FullyPaidOnDate' => Field::string(),
             'CreditNoteNumber' => Field::string(),
