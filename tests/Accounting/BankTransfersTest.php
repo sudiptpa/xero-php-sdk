@@ -173,4 +173,62 @@ final class BankTransfersTest extends TestCase
 
         (new BankTransfer())->amount(100)->save();
     }
+
+    public function test_it_deletes_a_single_bank_transfer(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'BankTransfers' => [[
+                'BankTransferID' => 'transfer-1',
+                'Status' => 'DELETED',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $deleted = $client->accounting()->bankTransfers()->delete('transfer-1');
+
+        self::assertSame('POST', $transport->requests()[0]->method);
+        self::assertSame('/api.xro/2.0/BankTransfers/transfer-1', $transport->requests()[0]->path);
+        self::assertSame(['Status' => 'DELETED'], $transport->requests()[0]->json);
+        self::assertSame('DELETED', $deleted->getStatus());
+    }
+
+    public function test_it_deletes_multiple_bank_transfers(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'BankTransfers' => [
+                ['BankTransferID' => 'transfer-1', 'Status' => 'DELETED'],
+                ['BankTransferID' => 'transfer-2', 'Status' => 'DELETED'],
+            ],
+        ], JSON_THROW_ON_ERROR)));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $deleted = $client->accounting()->bankTransfers()->deleteMany(['transfer-1', 'transfer-2']);
+
+        self::assertSame('POST', $transport->requests()[0]->method);
+        self::assertSame('/api.xro/2.0/BankTransfers', $transport->requests()[0]->path);
+        self::assertSame([
+            'BankTransfers' => [
+                ['BankTransferID' => 'transfer-1', 'Status' => 'DELETED'],
+                ['BankTransferID' => 'transfer-2', 'Status' => 'DELETED'],
+            ],
+        ], $transport->requests()[0]->json);
+        self::assertCount(2, $deleted);
+        self::assertSame('DELETED', $deleted->first()?->getStatus());
+    }
+
+    public function test_it_includes_deleted_bank_transfers_in_the_index(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode(['BankTransfers' => []], JSON_THROW_ON_ERROR)));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $client->accounting()->bankTransfers()->includeDeleted()->get();
+
+        self::assertSame('true', $transport->requests()[0]->query['includeDeleted']);
+    }
 }
