@@ -2,6 +2,15 @@
 
 All notable changes to this package are documented here.
 
+## 3.2.0 (2026-08-15)
+
+Xero updated the Accounting OpenAPI spec (16.1.0 to 17.0.0), adding two new fields to
+Item. Additive, no change to existing method signatures.
+
+### Added
+
+- `Item`: `getQuantityAvailable()`, `getQuantityOnBackOrder()` (read only, reported by Xero alongside `QuantityOnHand`)
+
 ## 3.1.0 (2026-07-15)
 
 Xero updated the Accounting OpenAPI spec (16.0.0 to 16.1.0), adding a new field and new
