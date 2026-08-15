@@ -43,6 +43,10 @@ final class Item extends Model implements SerializesRequest
 
     private int|float|null $quantityOnHand = null;
 
+    private int|float|null $quantityAvailable = null;
+
+    private int|float|null $quantityOnBackOrder = null;
+
     private int|float|null $totalCostPool = null;
 
     private ?string $statusAttributeString = null;
@@ -198,6 +202,30 @@ final class Item extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getQuantityAvailable(): int|float|null
+    {
+        return $this->quantityAvailable;
+    }
+
+    public function setQuantityAvailable(int|float|null $quantityAvailable): self
+    {
+        $this->quantityAvailable = $quantityAvailable;
+
+        return $this;
+    }
+
+    public function getQuantityOnBackOrder(): int|float|null
+    {
+        return $this->quantityOnBackOrder;
+    }
+
+    public function setQuantityOnBackOrder(int|float|null $quantityOnBackOrder): self
+    {
+        $this->quantityOnBackOrder = $quantityOnBackOrder;
+
+        return $this;
+    }
+
     public function getTotalCostPool(): int|float|null
     {
         return $this->totalCostPool;
@@ -267,6 +295,8 @@ final class Item extends Model implements SerializesRequest
             'PurchaseDetails' => Field::object(Purchase::class),
             'SalesDetails' => Field::object(Purchase::class),
             'QuantityOnHand' => Field::number(),
+            'QuantityAvailable' => Field::number(),
+            'QuantityOnBackOrder' => Field::number(),
             'TotalCostPool' => Field::number(),
             'StatusAttributeString' => Field::string(),
             'UpdatedDateUTC' => Field::string(),
