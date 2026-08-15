@@ -47,6 +47,8 @@ final class ItemsTest extends TestCase
                     'TaxType' => 'OUTPUT2',
                 ],
                 'QuantityOnHand' => 15,
+                'QuantityAvailable' => 12,
+                'QuantityOnBackOrder' => 0,
                 'TotalCostPool' => 157.5,
                 'StatusAttributeString' => 'ERROR',
                 'UpdatedDateUTC' => '2026-04-01T01:00:00',
@@ -81,6 +83,8 @@ final class ItemsTest extends TestCase
         self::assertSame('200', $item->getSalesDetails()->getAccountCode());
         self::assertSame('OUTPUT2', $item->getSalesDetails()->getTaxType());
         self::assertSame(15, $item->getQuantityOnHand());
+        self::assertSame(12, $item->getQuantityAvailable());
+        self::assertSame(0, $item->getQuantityOnBackOrder());
         self::assertSame(157.5, $item->getTotalCostPool());
         self::assertSame('ERROR', $item->getStatusAttributeString());
         self::assertSame('2026-04-01T01:00:00', $item->getUpdatedDateUTC());
