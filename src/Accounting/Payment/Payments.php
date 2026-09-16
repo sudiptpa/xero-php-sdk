@@ -50,6 +50,7 @@ final class Payments implements PaginatesResults, DefinesScopes
     {
         $response = $this->client
             ->get('/api.xro/2.0/Payments')
+            ->withHeaders($this->queryHeaders())
             ->withQuery(array_merge($this->queryParameters(), $this->paginationQuery()))
             ->send();
 

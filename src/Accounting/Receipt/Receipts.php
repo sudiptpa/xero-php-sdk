@@ -46,6 +46,7 @@ final class Receipts implements DefinesScopes
     {
         $response = $this->client
             ->get('/api.xro/2.0/Receipts')
+            ->withHeaders($this->queryHeaders())
             ->withQuery($this->queryParameters())
             ->send();
 

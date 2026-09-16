@@ -14,11 +14,21 @@ final class Payload
      */
     private array $attributes = [];
 
+    private ?string $superFundId = null;
+
     private ?string $idempotencyKey = null;
 
     public function __construct(
         private readonly Client $client
     ) {
+    }
+
+    public function id(string $superFundId): self
+    {
+        $clone = clone $this;
+        $clone->superFundId = $superFundId;
+
+        return $clone;
     }
 
     public function type(string $type): self
@@ -111,10 +121,18 @@ final class Payload
 
     public function save(): SuperFund
     {
-        $payload = $this->client
-            ->post('/payroll.xro/1.0/SuperFunds')
+        $request = $this->superFundId === null
+            ? $this->client->post('/payroll.xro/1.0/SuperFunds')
+            : $this->client->post('/payroll.xro/1.0/SuperFunds/' . $this->superFundId);
+
+        if ($this->superFundId !== null) {
+            $this->attributes['SuperFundID'] = $this->superFundId;
+        }
+
+        $payload = $request
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
-            ->withJson($this->attributes)
+            ->contentTypeJson()
+            ->withBody(Json::encodeList([$this->attributes]))
             ->send()
             ->json();
 

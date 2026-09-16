@@ -53,6 +53,7 @@ final class TrackingCategories implements DefinesScopes
     {
         $response = $this->client
             ->get('/api.xro/2.0/TrackingCategories')
+            ->withHeaders($this->queryHeaders())
             ->withQuery($this->queryParameters())
             ->send();
 

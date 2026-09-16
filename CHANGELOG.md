@@ -2,6 +2,16 @@
 
 All notable changes to this package are documented here.
 
+## Unreleased
+
+Add invoice rounding fields and writable totals, credit note delivery flags,
+invoice backorder options, and reference filters for bank transactions and
+prepayments. Document payment webhook events and UK off-payroll worker status.
+Add AU Pay Items creation, AU payslip updates, and AU super fund updates.
+Add NZ and UK payroll create helpers for leave types and pay run calendars,
+NZ reimbursement helpers, and the UK settings reader. Correct AU payroll
+request bodies, response parsing, and date filters.
+
 ## 3.2.0 (2026-08-15)
 
 Xero updated the Accounting OpenAPI spec (16.1.0 to 17.0.0), adding two new fields to
@@ -75,13 +85,15 @@ These are bug fixes against the official Xero OpenAPI specs. The affected calls 
   - `PayRuns`: request/response bodies are bare camelCase; full schema exposed; added `paymentDate()` builder for create
   - `PayRunCalendars`: response unwraps from camelCase `payRunCalendars`/`payRunCalendar`; full schema exposed
 - `Payroll UK`:
+  - `Settings`: added the missing `get()` reader for `GET /Settings` and its `accounts` payload.
   - `Employees`: payment methods endpoint is `/PaymentMethods` (plural, was singular)
   - `Employees`: leave types now return `EmployeeLeaveType` (was incorrectly mapped to `LeaveType`)
   - `Settings`: `trackingCategories()` returns the single `trackingCategories` object; `Reimbursement` corrected to `accountID`/`currentRecord`; `statutoryLeaveSummary()` returns a collection of `EmployeeStatutoryLeaveSummary`
   - `Payslips`: unwrap from `paySlips`/`paySlip`; corrected to the real schema; payslip access hits the real `GET /Payslips?PayRunID=` and `GET /Payslips/{id}` endpoints
 - `Payroll NZ`:
-  - `LeaveTypes`: unwraps from camelCase `leaveTypes`/`leaveType` with the full schema; employee leave types now return `EmployeeLeaveType`
-  - `Settings`: `GET /Settings` unwraps from camelCase `settings`; `trackingCategories()` moved to its own call; `StatutoryDeduction` corrected to real schema
+  - `LeaveTypes`: unwraps from camelCase `leaveTypes`/`leaveType` with the full schema; employee leave types now return `EmployeeLeaveType`; create helpers send bare camelCase payloads.
+  - `PayRunCalendars`: added create helpers that send bare camelCase payloads.
+  - `Settings`: `GET /Settings` unwraps from camelCase `settings`; `trackingCategories()` moved to its own call; `StatutoryDeduction` corrected to real schema; reimbursements are listed, found, created, and mapped with all spec fields.
 - `Payroll AU`:
   - removed the phantom `PayrollCalendars::update()` (only `GET`/`POST` exist)
   - `PayRun::payslips()` now returns embedded `PayslipSummary[]` from the pay run response; added `PayRuns::payslip($id)` for the full `Payslip`; removed phantom `Payslips` collection

@@ -4,6 +4,11 @@ UK payroll resources.
 
 ## Employees
 
+Employee contracts expose `employmentStatus` through
+`$employee->getContracts()[0]->getEmploymentStatus()`. Supported spec values are
+`Employee`, `Worker`, `Unspecified`, and `OffPayrollWorker`. The separate
+`$employee->getIsOffPayrollWorker()` method reads the employee-level boolean.
+
 ```php
 $employees = $xero->payroll()
     ->uk()
@@ -49,6 +54,27 @@ $createdLeaveType = $employee->createLeaveType()
     ->save();
 ```
 
+## Leave types
+
+```php
+$leaveTypes = $xero->payroll()
+    ->uk()
+    ->leaveTypes()
+    ->get();
+
+$leaveTypeId = $leaveTypes->first()?->getLeaveTypeID();
+```
+
+```php
+$leaveType = $xero->payroll()
+    ->uk()
+    ->leaveTypes()
+    ->create([
+        'name' => 'Volunteer Day',
+        'isPaidLeave' => true,
+    ]);
+```
+
 ## Pay run calendars
 
 ```php
@@ -58,6 +84,18 @@ $calendars = $xero->payroll()
     ->get();
 
 $calendarName = $calendars->first()?->getName();
+```
+
+```php
+$calendar = $xero->payroll()
+    ->uk()
+    ->payRunCalendars()
+    ->create([
+        'name' => 'Weekly',
+        'calendarType' => 'WEEKLY',
+        'startDate' => '2026-04-01',
+        'paymentDate' => '2026-04-08',
+    ]);
 ```
 
 ## Pay runs
@@ -121,6 +159,15 @@ $reverted = $approved->revert();
 ```
 
 ## Settings
+
+```php
+$settings = $xero->payroll()
+    ->uk()
+    ->settings()
+    ->get();
+
+$accounts = $settings->getAccounts();
+```
 
 ```php
 $trackingCategories = $xero->payroll()

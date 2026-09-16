@@ -684,6 +684,6 @@ final class ContactsTest extends TestCase
         self::assertSame('id-1,id-2', $request->query['IDs']);
         self::assertSame('true', $request->query['createdByMyApp']);
         self::assertSame(4, $request->query['unitdp']);
-        self::assertSame('Wed, 25 Mar 2026 00:00:00 GMT', $request->query['If-Modified-Since']);
+        self::assertSame('Wed, 25 Mar 2026 00:00:00 GMT', $request->headers['If-Modified-Since']);
     }
 }

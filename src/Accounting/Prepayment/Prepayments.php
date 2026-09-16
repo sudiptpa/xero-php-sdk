@@ -44,6 +44,22 @@ final class Prepayments implements PaginatesResults, DefinesScopes
         return $clone;
     }
 
+    public function references(string ...$references): self
+    {
+        $clone = clone $this;
+        $clone->query['References'] = implode(',', $references);
+
+        return $clone;
+    }
+
+    public function invoiceNumbers(string ...$invoiceNumbers): self
+    {
+        $clone = clone $this;
+        $clone->query['InvoiceNumbers'] = implode(',', $invoiceNumbers);
+
+        return $clone;
+    }
+
     /**
      * @return ResourceCollection<Prepayment>
      */
@@ -51,6 +67,7 @@ final class Prepayments implements PaginatesResults, DefinesScopes
     {
         $response = $this->client
             ->get('/api.xro/2.0/Prepayments')
+            ->withHeaders($this->queryHeaders())
             ->withQuery(array_merge($this->queryParameters(), $this->paginationQuery()))
             ->send();
 

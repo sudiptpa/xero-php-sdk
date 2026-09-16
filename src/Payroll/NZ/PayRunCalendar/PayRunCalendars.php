@@ -82,6 +82,23 @@ final class PayRunCalendars implements PaginatesResults, DefinesScopes
     /**
      * @param array<string, mixed> $calendar
      */
+    public function create(array $calendar, ?string $idempotencyKey = null): PayRunCalendar
+    {
+        $payload = $this->client
+            ->post('/payroll.xro/2.0/PayRunCalendars')
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withJson($calendar)
+            ->send()
+            ->json();
+
+        $calendar = Json::extractObject($payload, 'payRunCalendar');
+
+        return $calendar !== [] ? $this->mapPayRunCalendar($calendar) : new PayRunCalendar();
+    }
+
+    /**
+     * @param array<string, mixed> $calendar
+     */
     public function mapPayRunCalendar(array $calendar): PayRunCalendar
     {
         return (new PayRunCalendar())->fill($calendar);

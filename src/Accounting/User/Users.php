@@ -45,6 +45,7 @@ final class Users implements DefinesScopes
     {
         $response = $this->client
             ->get('/api.xro/2.0/Users')
+            ->withHeaders($this->queryHeaders())
             ->withQuery($this->queryParameters())
             ->send();
 

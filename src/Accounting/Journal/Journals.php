@@ -51,6 +51,7 @@ final class Journals implements DefinesScopes
     {
         $response = $this->client
             ->get('/api.xro/2.0/Journals')
+            ->withHeaders($this->queryHeaders())
             ->withQuery($this->queryParameters())
             ->send();
 

@@ -89,6 +89,16 @@ $leaveTypes = $xero->payroll()
 $leaveTypeId = $leaveTypes->first()?->getLeaveTypeID();
 ```
 
+```php
+$leaveType = $xero->payroll()
+    ->nz()
+    ->leaveTypes()
+    ->create([
+        'name' => 'Volunteer Day',
+        'isPaidLeave' => true,
+    ]);
+```
+
 ## Pay run calendars
 
 ```php
@@ -98,6 +108,18 @@ $calendars = $xero->payroll()
     ->get();
 
 $calendarName = $calendars->first()?->getName();
+```
+
+```php
+$calendar = $xero->payroll()
+    ->nz()
+    ->payRunCalendars()
+    ->create([
+        'name' => 'Weekly',
+        'calendarType' => 'WEEKLY',
+        'startDate' => '2026-04-01',
+        'paymentDate' => '2026-04-08',
+    ]);
 ```
 
 ## Pay runs
@@ -168,6 +190,23 @@ $deductions = $xero->payroll()
     ->statutoryDeductions();
 
 $deductionName = $deductions->first()?->getName();
+```
+
+```php
+$reimbursement = $xero->payroll()
+    ->nz()
+    ->settings()
+    ->createReimbursement()
+    ->name('Mileage')
+    ->account('account-id')
+    ->category('NonTaxable')
+    ->calculationType('FixedAmount')
+    ->standardAmount('25.00')
+    ->standardTypeOfUnits('Kilometres')
+    ->standardRatePerUnit(0.95)
+    ->save();
+
+$reimbursementId = $reimbursement->getReimbursementID();
 ```
 
 ## Scopes

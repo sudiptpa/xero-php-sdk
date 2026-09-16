@@ -23,6 +23,9 @@ final class PayItems implements PaginatesResults, DefinesScopes
      */
     private array $query = [];
 
+    /** @var array<string, string> */
+    private array $headers = [];
+
     public function __construct(
         private readonly Client $client
     ) {
@@ -39,7 +42,7 @@ final class PayItems implements PaginatesResults, DefinesScopes
     public function modifiedSince(DateTimeInterface $date): self
     {
         $clone = clone $this;
-        $clone->query['If-Modified-Since'] = $date->format(DateTimeInterface::ATOM);
+        $clone->headers['If-Modified-Since'] = $date->format(DateTimeInterface::ATOM);
 
         return $clone;
     }
@@ -67,16 +70,20 @@ final class PayItems implements PaginatesResults, DefinesScopes
     {
         $response = $this->client
             ->get('/payroll.xro/1.0/PayItems')
+            ->withHeaders($this->headers)
             ->withQuery(array_merge($this->query, $this->paginationQuery()))
             ->send();
 
         $payload = $response->json();
-        $items = array_map(
-            fn (array $payItem): PayItem => $this->mapPayItem($payItem),
-            Json::extractList($payload, 'PayItems')
-        );
+        $payItem = Json::extractObject($payload, 'PayItems');
+        $items = $payItem === [] ? [] : [$this->mapPayItem($payItem)];
 
         return new ResourceCollection($items);
+    }
+
+    public function create(): Payload
+    {
+        return new Payload($this->client);
     }
 
     /**

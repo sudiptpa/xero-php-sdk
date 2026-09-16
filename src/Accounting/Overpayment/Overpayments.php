@@ -51,6 +51,7 @@ final class Overpayments implements PaginatesResults, DefinesScopes
     {
         $response = $this->client
             ->get('/api.xro/2.0/Overpayments')
+            ->withHeaders($this->queryHeaders())
             ->withQuery(array_merge($this->queryParameters(), $this->paginationQuery()))
             ->send();
 

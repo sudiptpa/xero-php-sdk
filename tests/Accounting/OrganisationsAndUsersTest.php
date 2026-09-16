@@ -175,7 +175,7 @@ final class OrganisationsAndUsersTest extends TestCase
         self::assertSame('/api.xro/2.0/Users', $transport->requests()[0]->path);
         self::assertSame('IsSubscriber == true', $transport->requests()[0]->query['where']);
         self::assertSame('LastName ASC', $transport->requests()[0]->query['order']);
-        self::assertSame('Wed, 25 Mar 2026 00:00:00 GMT', $transport->requests()[0]->query['If-Modified-Since']);
+        self::assertSame('Wed, 25 Mar 2026 00:00:00 GMT', $transport->requests()[0]->headers['If-Modified-Since']);
         self::assertInstanceOf(User::class, $users->first());
         self::assertSame('bruce@example.test', $users->first()->getEmailAddress());
         self::assertSame('user-1', $users->first()->getUserID());

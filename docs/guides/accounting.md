@@ -118,6 +118,42 @@ $pdf = $xero->accounting()
     ->pdf('invoice-id');
 ```
 
+## Invoice totals and backorders
+
+Invoice models expose `RoundingAmount` and `EnteredTotal` through
+`getRoundingAmount()` and `getEnteredTotal()`. Their setters accept a number or
+`null`. `toRequest()` includes these values and `SubTotal`, `TotalTax`, and `Total`
+when set, including zero. A `null` value is omitted.
+
+Xero must enable invoice rounding for the organisation. It applies to `ACCPAY`
+and `ACCREC` invoices. For `SUBMITTED` and `AUTHORISED` invoices, send `SubTotal`,
+`TotalTax`, and `Total` together. `RoundingAmount` must be between -0.10 and 0.10.
+`EnteredTotal` is writable only while the invoice is `DRAFT`. These fields are
+returned by create, update, and single-invoice requests, not invoice lists.
+
+```php
+$invoice = $xero->accounting()->invoices()->find('invoice-id');
+$rounding = $invoice?->getRoundingAmount();
+$entered = $invoice?->getEnteredTotal();
+```
+
+Invoice drafts support `allowBackorders()`, `unitDp()`, and `idempotencyKey()` on
+both create and update requests. They return a new builder. Backorders remain
+unset unless explicitly enabled or disabled.
+
+```php
+$saved = $xero->accounting()->invoices()->update('invoice-id')
+    ->allowBackorders()
+    ->unitDp(4)
+    ->idempotencyKey('invoice-update-42')
+    ->save();
+```
+
+Backorders apply to tracked inventory. Xero does not currently support them in
+Canada or Singapore. Reuse an idempotency key only when retrying the same request.
+
+Source: [Xero invoice schema and operations](https://github.com/XeroAPI/Xero-OpenAPI/blob/448060d7829cae23166a2e443be48c2f2422280f/xero_accounting.yaml).
+
 ## Invoice attachments
 
 ```php
@@ -444,6 +480,10 @@ $employee = $xero->accounting()
 
 ## Credit notes
 
+`CreditNote::setSentToContact(true)` includes `SentToContact` in create and update
+requests. `false` is sent explicitly; `null` omits the field. This records the
+sent flag. It does not send an email.
+
 ```php
 $creditNotes = $xero->accounting()
     ->creditNotes()
@@ -501,6 +541,9 @@ $pdf = $xero->accounting()
 ```
 
 ## Bank transactions
+
+Use `references('Deposit A', 'Deposit B')` to filter by the API's `References`
+query parameter. Each call returns a new query builder.
 
 ```php
 $transactions = $xero->accounting()
@@ -585,6 +628,10 @@ $overpayments = $xero->accounting()
 ```
 
 ## Prepayments
+
+Use `references('Deposit A', 'Deposit B')` and
+`invoiceNumbers('INV-101', 'INV-102')` to filter by the API's `References` and
+`InvoiceNumbers` parameters. Values are sent as comma-separated lists.
 
 ```php
 $prepayments = $xero->accounting()

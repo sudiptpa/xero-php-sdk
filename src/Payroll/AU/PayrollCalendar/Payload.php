@@ -66,7 +66,8 @@ final class Payload
         $payload = $this->client
             ->post('/payroll.xro/1.0/PayrollCalendars')
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
-            ->withJson($this->attributes)
+            ->contentTypeJson()
+            ->withBody(Json::encodeList([$this->attributes]))
             ->send()
             ->json();
 

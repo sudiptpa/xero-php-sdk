@@ -18,7 +18,7 @@ If this package saves you time, [GitHub Sponsors](https://github.com/sponsors/su
 
 A fluent, framework-agnostic Xero SDK for PHP 8.2 to 8.5. No runtime dependencies. Drop it into Laravel, Symfony, or a plain PHP project; it runs anywhere PHP runs.
 
-- Typed models for every Xero API response
+- Typed models and array responses for Xero resources
 - Fluent builders for reads and writes
 - Covers Accounting, Payroll, Files, Assets, Projects, Finance, App Store, Identity, and Webhooks
 
@@ -379,7 +379,7 @@ $connected = $manager->connectTenant('tenant-id');
 $xero = $connected->tenant();
 ```
 
-See [Auth](docs/auth.md) for PKCE, token refresh, tenant selection, and custom connection flows.
+See [Auth](docs/guides/auth.md) for PKCE, token refresh, tenant selection, and custom connection flows.
 
 ## Supported APIs
 
@@ -397,18 +397,19 @@ See [Auth](docs/auth.md) for PKCE, token refresh, tenant selection, and custom c
 
 ## Documentation
 
-- [Architecture](docs/architecture.md)
-- [Auth](docs/auth.md)
-- [Accounting](docs/accounting.md)
-- [Files](docs/files.md)
-- [Assets](docs/assets.md)
-- [Projects](docs/projects.md)
-- [Payroll AU](docs/payroll-au.md)
-- [Payroll NZ](docs/payroll-nz.md)
-- [Payroll UK](docs/payroll-uk.md)
-- [Finance](docs/finance.md)
-- [App Store](docs/app-store.md)
-- [Webhooks](docs/webhooks.md)
+- [Field and method reference](docs/reference/index.md)
+- [Architecture](docs/guides/architecture.md)
+- [Auth](docs/guides/auth.md)
+- [Accounting](docs/guides/accounting.md)
+- [Files](docs/guides/files.md)
+- [Assets](docs/guides/assets.md)
+- [Projects](docs/guides/projects.md)
+- [Payroll AU](docs/guides/payroll-au.md)
+- [Payroll NZ](docs/guides/payroll-nz.md)
+- [Payroll UK](docs/guides/payroll-uk.md)
+- [Finance](docs/guides/finance.md)
+- [App Store](docs/guides/app-store.md)
+- [Webhooks](docs/guides/webhooks.md)
 
 ## Contributing
 

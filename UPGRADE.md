@@ -1,5 +1,22 @@
 # Upgrade Guide
 
+## Unreleased
+
+Invoice requests now include non-null `SubTotal`, `TotalTax`, and `Total` values.
+When saving a previously fetched invoice, those totals are sent back to Xero.
+Clear them with their setters if Xero should calculate fresh totals after line
+item changes. Invoice rounding requires Xero to enable the feature for the
+organisation; see [invoice totals](docs/guides/accounting.md#invoice-totals-and-backorders).
+
+Credit note requests now include a non-null `SentToContact` value. Saving a
+fetched credit note preserves that flag. Set it to `null` to omit it.
+
+AU Pay Items now reads the API's `PayItems` object correctly. `get()` still
+returns a collection, with the object as its first item. Its four nested lists
+contain the earnings rates, deductions, leave types, and reimbursements. Update
+test fixtures that wrapped `PayItems` in a list. `modifiedSince()` now sends the
+timestamp as a header, as required by the API.
+
 ## Upgrading to 3.0
 
 This release fixes endpoints, request bodies, and response shapes that did not match the official Xero OpenAPI specs. Most affected calls previously 404'd, returned no data, or sent a payload Xero ignores. These are bug fixes, but the corrected method signatures and serialized payloads are breaking changes for any code relying on the old (incorrect) behaviour.

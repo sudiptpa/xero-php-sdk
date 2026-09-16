@@ -9,6 +9,7 @@ use DateTimeImmutable;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\AU\Employee;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class EmployeesTest extends TestCase
@@ -160,7 +161,7 @@ final class EmployeesTest extends TestCase
             ->modifiedSince(new DateTimeImmutable('2026-03-25T00:00:00+00:00'))
             ->get();
 
-        self::assertSame('2026-03-25T00:00:00+00:00', $transport->requests()[0]->query['If-Modified-Since']);
+        self::assertSame('2026-03-25T00:00:00+00:00', $transport->requests()[0]->headers['If-Modified-Since']);
     }
 
     public function test_loaded_employee_exposes_getters_and_can_be_saved(): void
@@ -221,12 +222,12 @@ final class EmployeesTest extends TestCase
 
         self::assertSame('key-123', $transport->requests()[0]->headers['Idempotency-Key']);
         self::assertSame([
-            'Employee' => [
+            [
                 'FirstName' => 'Grace',
                 'LastName' => 'Hopper',
                 'DateOfBirth' => '1990-01-15',
             ],
-        ], $transport->requests()[0]->json);
+        ], Json::decode((string) $transport->requests()[0]->body));
         self::assertNull($employee->getEmployeeID());
     }
 

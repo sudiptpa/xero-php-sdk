@@ -15,6 +15,79 @@ use Sujip\Xero\Xero;
 
 final class InvoicesTest extends TestCase
 {
+    public function test_invoice_write_options_are_immutable_and_sent_outside_the_body(): void
+    {
+        $transport = new FakeTransport();
+        for ($i = 0; $i < 3; $i++) {
+            $transport->push(new Response(200, body: '{"Invoices":[{"InvoiceID":"invoice-1"}]}'));
+        }
+        $base = Xero::withAccessToken('token', $transport)->tenant('tenant-1')
+            ->accounting()->invoices()->create();
+        $enabled = $base->allowBackorders()->unitDp(4)->idempotencyKey('invoice-attempt-1');
+        $enabled->save();
+        $enabled->allowBackorders(false)->id('invoice-1')->save();
+        $base->save();
+
+        $requests = $transport->requests();
+        self::assertSame(['allowBackorders' => 'true', 'unitdp' => 4], $requests[0]->query);
+        self::assertSame('invoice-attempt-1', $requests[0]->headers['Idempotency-Key']);
+        self::assertSame('POST', $requests[0]->method);
+        self::assertSame('/api.xro/2.0/Invoices', $requests[0]->path);
+        self::assertArrayNotHasKey('allowBackorders', Json::extractFirst($requests[0]->json ?? [], 'Invoices') ?? []);
+        self::assertSame(['allowBackorders' => 'false', 'unitdp' => 4], $requests[1]->query);
+        self::assertSame('/api.xro/2.0/Invoices/invoice-1', $requests[1]->path);
+        self::assertSame([], $requests[2]->query);
+        self::assertArrayNotHasKey('Idempotency-Key', $requests[2]->headers);
+    }
+
+    public function test_it_preserves_invoice_rounding_fields_when_reading_and_saving(): void
+    {
+        $fields = [
+            'InvoiceID' => 'invoice-1',
+            'Type' => 'ACCPAY',
+            'Status' => 'AUTHORISED',
+            'SubTotal' => 100,
+            'TotalTax' => 10,
+            'Total' => 110.05,
+            'RoundingAmount' => 0.05,
+            'EnteredTotal' => 110.05,
+        ];
+        $response = new Response(200, body: json_encode(['Invoices' => [$fields]], JSON_THROW_ON_ERROR));
+        $transport = (new FakeTransport())->push($response)->push($response);
+        $invoice = Xero::withAccessToken('token', $transport)->tenant('tenant-1')
+            ->accounting()->invoices()->find('invoice-1');
+
+        self::assertNotNull($invoice);
+        self::assertSame(0.05, $invoice->getRoundingAmount());
+        self::assertSame(110.05, $invoice->getEnteredTotal());
+        $invoice->save();
+        $request = $transport->requests()[1];
+        self::assertSame('POST', $request->method);
+        self::assertSame('/api.xro/2.0/Invoices/invoice-1', $request->path);
+        $sent = Json::extractFirst($request->json ?? [], 'Invoices');
+        self::assertNotNull($sent);
+        foreach ($fields as $key => $value) {
+            self::assertSame($value, $sent[$key]);
+        }
+    }
+
+    public function test_invoice_rounding_fields_keep_zero_and_omit_null(): void
+    {
+        $invoice = (new Invoice())->setSubTotal(0)->setTotalTax(0)->setTotal(0)
+            ->setRoundingAmount(0)->setEnteredTotal(0);
+        foreach (['SubTotal', 'TotalTax', 'Total', 'RoundingAmount', 'EnteredTotal'] as $field) {
+            self::assertSame(0, $invoice->toRequest()[$field]);
+        }
+
+        $invoice->setSubTotal(null)->setTotalTax(null)->setTotal(null)
+            ->setRoundingAmount(null)->setEnteredTotal(null);
+        foreach (['SubTotal', 'TotalTax', 'Total', 'RoundingAmount', 'EnteredTotal'] as $field) {
+            self::assertArrayNotHasKey($field, $invoice->toRequest());
+        }
+        self::assertNull($invoice->getRoundingAmount());
+        self::assertNull($invoice->getEnteredTotal());
+    }
+
     public function test_it_builds_a_fluent_invoice_draft_payload(): void
     {
         $transport = (new FakeTransport())->push(

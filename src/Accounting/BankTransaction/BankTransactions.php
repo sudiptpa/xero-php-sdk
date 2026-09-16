@@ -44,6 +44,14 @@ final class BankTransactions implements PaginatesResults, DefinesScopes
         return $clone;
     }
 
+    public function references(string ...$references): self
+    {
+        $clone = clone $this;
+        $clone->query['References'] = implode(',', $references);
+
+        return $clone;
+    }
+
     /**
      * @return ResourceCollection<BankTransaction>
      */
@@ -51,6 +59,7 @@ final class BankTransactions implements PaginatesResults, DefinesScopes
     {
         $response = $this->client
             ->get('/api.xro/2.0/BankTransactions')
+            ->withHeaders($this->queryHeaders())
             ->withQuery(array_merge($this->queryParameters(), $this->paginationQuery()))
             ->send();
 

@@ -95,6 +95,23 @@ final class LeaveTypes implements PaginatesResults, DefinesScopes
     /**
      * @param array<string, mixed> $leaveType
      */
+    public function create(array $leaveType, ?string $idempotencyKey = null): LeaveType
+    {
+        $payload = $this->client
+            ->post('/payroll.xro/2.0/LeaveTypes')
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withJson($leaveType)
+            ->send()
+            ->json();
+
+        $leaveType = Json::extractObject($payload, 'leaveType');
+
+        return $leaveType !== [] ? $this->mapLeaveType($leaveType) : new LeaveType();
+    }
+
+    /**
+     * @param array<string, mixed> $leaveType
+     */
     public function mapLeaveType(array $leaveType): LeaveType
     {
         return (new LeaveType())->fill($leaveType);

@@ -60,6 +60,11 @@ final readonly class SuperFunds implements DefinesScopes
         return new Payload($this->client);
     }
 
+    public function update(string $superFundId): Payload
+    {
+        return (new Payload($this->client))->id($superFundId);
+    }
+
     /**
      * @param array<string, mixed> $fund
      */

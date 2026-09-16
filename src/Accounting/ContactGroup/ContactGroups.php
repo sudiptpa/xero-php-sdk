@@ -45,6 +45,7 @@ final class ContactGroups implements DefinesScopes
     {
         $response = $this->client
             ->get('/api.xro/2.0/ContactGroups')
+            ->withHeaders($this->queryHeaders())
             ->withQuery($this->queryParameters())
             ->send();
 

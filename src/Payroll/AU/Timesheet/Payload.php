@@ -83,7 +83,8 @@ final class Payload
 
         $response = $request
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
-            ->withJson(['Timesheets' => [$this->payload]])
+            ->contentTypeJson()
+            ->withBody(Json::encodeList([$this->payload]))
             ->send();
 
         $payload = $response->json();

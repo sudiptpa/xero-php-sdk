@@ -12,6 +12,7 @@ use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\AU\PayRun\PayRun;
 use Sujip\Xero\Payroll\AU\PayRun\Payslip;
 use Sujip\Xero\Payroll\AU\PayRun\PayslipSummary;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class PayRunsTest extends TestCase
@@ -223,11 +224,11 @@ final class PayRunsTest extends TestCase
         self::assertSame('POST', $transport->requests()[1]->method);
         self::assertSame('/payroll.xro/1.0/PayRuns/payrun-1', $transport->requests()[1]->path);
         self::assertSame([
-            'PayRuns' => [[
+            [
                 'PayrollCalendarID' => 'calendar-1',
                 'PayRunID' => 'payrun-1',
-            ]],
-        ], $transport->requests()[1]->json);
+            ],
+        ], Json::decode((string) $transport->requests()[1]->body));
         self::assertSame('POSTED', $saved?->getPayRunStatus());
     }
 
@@ -259,6 +260,48 @@ final class PayRunsTest extends TestCase
 
         self::assertSame('key-123', $transport->requests()[0]->headers['Idempotency-Key']);
         self::assertNull($payRun->getPayRunID());
+    }
+
+    public function test_it_can_update_a_payslip(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'Payslips' => [[
+                'PayslipID' => 'payslip-1',
+                'EmployeeID' => 'employee-1',
+                'NetPay' => 1220.55,
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $payslip = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->au()
+            ->payRuns()
+            ->updatePayslip('payslip-1', [
+                'EarningsLines' => [[
+                    'EarningsRateID' => 'rate-1',
+                    'RatePerUnit' => 20,
+                    'NumberOfUnits' => 1,
+                ]],
+            ], 'payslip-key');
+
+        $request = $transport->requests()[0];
+
+        self::assertSame('POST', $request->method);
+        self::assertSame('/payroll.xro/1.0/Payslip/payslip-1', $request->path);
+        self::assertSame('payslip-key', $request->headers['Idempotency-Key']);
+        self::assertSame([
+            [
+                'EarningsLines' => [[
+                    'EarningsRateID' => 'rate-1',
+                    'RatePerUnit' => 20,
+                    'NumberOfUnits' => 1,
+                ]],
+            ],
+        ], Json::decode((string) $request->body));
+        self::assertNotNull($payslip);
+        self::assertSame('payslip-1', $payslip->getPayslipID());
+        self::assertSame(1220.55, $payslip->getNetPay());
     }
 
     public function test_payslip_exposes_all_fields(): void

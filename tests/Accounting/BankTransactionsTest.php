@@ -16,6 +16,20 @@ use Sujip\Xero\Xero;
 
 final class BankTransactionsTest extends TestCase
 {
+    public function test_it_filters_by_references_without_changing_the_original_query(): void
+    {
+        $transport = (new FakeTransport())
+            ->push(new Response(200, body: '{"BankTransactions":[]}'))
+            ->push(new Response(200, body: '{"BankTransactions":[]}'));
+        $base = Xero::withAccessToken('token', $transport)->tenant('tenant-1')->accounting()->bankTransactions();
+        $base->references('Deposit A', 'Deposit B')->get();
+        $base->get();
+
+        self::assertSame('Deposit A,Deposit B', $transport->requests()[0]->query['References']);
+        self::assertStringContainsString('References=Deposit+A%2CDeposit+B', $transport->requests()[0]->url());
+        self::assertArrayNotHasKey('References', $transport->requests()[1]->query);
+    }
+
     public function test_it_can_query_and_find_bank_transactions(): void
     {
         $transport = new FakeTransport();

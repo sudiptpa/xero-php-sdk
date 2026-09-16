@@ -67,6 +67,10 @@ final class Invoice extends Model implements SerializesRequest
 
     private int|float|null $total = null;
 
+    private int|float|null $roundingAmount = null;
+
+    private int|float|null $enteredTotal = null;
+
     private int|float|null $totalDiscount = null;
 
     private ?string $repeatingInvoiceID = null;
@@ -427,6 +431,30 @@ final class Invoice extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getRoundingAmount(): int|float|null
+    {
+        return $this->roundingAmount;
+    }
+
+    public function setRoundingAmount(int|float|null $roundingAmount): self
+    {
+        $this->roundingAmount = $roundingAmount;
+
+        return $this;
+    }
+
+    public function getEnteredTotal(): int|float|null
+    {
+        return $this->enteredTotal;
+    }
+
+    public function setEnteredTotal(int|float|null $enteredTotal): self
+    {
+        $this->enteredTotal = $enteredTotal;
+
+        return $this;
+    }
+
     public function getTotalDiscount(): int|float|null
     {
         return $this->totalDiscount;
@@ -719,6 +747,8 @@ final class Invoice extends Model implements SerializesRequest
             'SubTotal' => Field::number(),
             'TotalTax' => Field::number(),
             'Total' => Field::number(),
+            'RoundingAmount' => Field::number(),
+            'EnteredTotal' => Field::number(),
             'TotalDiscount' => Field::number(),
             'RepeatingInvoiceID' => Field::string(),
             'HasAttachments' => Field::boolean(),
@@ -784,6 +814,11 @@ final class Invoice extends Model implements SerializesRequest
             'Url' => $this->getUrl(),
             'CurrencyCode' => $this->getCurrencyCode(),
             'CurrencyRate' => $this->getCurrencyRate(),
+            'SubTotal' => $this->getSubTotal(),
+            'TotalTax' => $this->getTotalTax(),
+            'Total' => $this->getTotal(),
+            'RoundingAmount' => $this->getRoundingAmount(),
+            'EnteredTotal' => $this->getEnteredTotal(),
             'SentToContact' => $this->getSentToContact(),
             'ExpectedPaymentDate' => $this->getExpectedPaymentDate(),
             'PlannedPaymentDate' => $this->getPlannedPaymentDate(),

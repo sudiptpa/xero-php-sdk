@@ -594,6 +594,7 @@ final class CreditNote extends Model implements SerializesRequest
             'CurrencyRate' => $this->getCurrencyRate(),
             'CreditNoteNumber' => $this->getCreditNoteNumber(),
             'BrandingThemeID' => $this->getBrandingThemeID(),
+            'SentToContact' => $this->getSentToContact(),
             'InvoiceAddresses' => array_map(
                 static fn (InvoiceAddress $invoiceAddress): array => $invoiceAddress->toRequest(),
                 $this->getInvoiceAddresses()

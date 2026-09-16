@@ -17,6 +17,29 @@ use Sujip\Xero\Xero;
 
 final class EmployeesTest extends TestCase
 {
+    public function test_it_reads_off_payroll_worker_contracts(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'employee' => [
+                'employeeID' => 'employee-1',
+                'isOffPayrollWorker' => true,
+                'contracts' => [[
+                    'startDate' => '2026-09-01',
+                    'employmentStatus' => 'OffPayrollWorker',
+                ]],
+            ],
+        ], JSON_THROW_ON_ERROR)));
+
+        $employee = Xero::withAccessToken('token', $transport)->tenant('tenant-1')
+            ->payroll()->uk()->employees()->find('employee-1');
+
+        self::assertNotNull($employee);
+        self::assertTrue($employee->getIsOffPayrollWorker());
+        self::assertCount(1, $employee->getContracts());
+        self::assertSame('OffPayrollWorker', $employee->getContracts()[0]->getEmploymentStatus());
+        self::assertSame('2026-09-01', $employee->getContracts()[0]->getStartDate());
+    }
+
     public function test_it_can_query_find_create_update_and_load_employee_helpers_for_employees(): void
     {
         $transport = new FakeTransport();

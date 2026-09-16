@@ -51,6 +51,7 @@ final class Budgets implements DefinesScopes
     {
         $response = $this->client
             ->get('/api.xro/2.0/Budgets')
+            ->withHeaders($this->queryHeaders())
             ->withQuery($this->queryParameters())
             ->send();
 
@@ -67,6 +68,7 @@ final class Budgets implements DefinesScopes
     {
         $response = $this->client
             ->get('/api.xro/2.0/Budgets/' . $budgetId)
+            ->withHeaders($this->queryHeaders())
             ->withQuery($this->queryParameters())
             ->send();
 

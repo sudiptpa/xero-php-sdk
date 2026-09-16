@@ -13,10 +13,13 @@ trait BuildsQueries
      */
     private array $query = [];
 
+    /** @var array<string, string> */
+    private array $queryHeaders = [];
+
     public function modifiedSince(DateTimeInterface $date): static
     {
         $clone = clone $this;
-        $clone->query['If-Modified-Since'] = gmdate('D, d M Y H:i:s', $date->getTimestamp()) . ' GMT';
+        $clone->queryHeaders['If-Modified-Since'] = gmdate('D, d M Y H:i:s', $date->getTimestamp()) . ' GMT';
 
         return $clone;
     }
@@ -59,5 +62,11 @@ trait BuildsQueries
     protected function queryParameters(): array
     {
         return $this->query;
+    }
+
+    /** @return array<string, string> */
+    protected function queryHeaders(): array
+    {
+        return $this->queryHeaders;
     }
 }
