@@ -1,6 +1,6 @@
 # Upgrade Guide
 
-## Next major
+## 4.0.0
 
 ### Generic concerns and contracts
 

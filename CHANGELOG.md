@@ -2,7 +2,7 @@
 
 All notable changes to this package are documented here.
 
-## Unreleased
+## 4.0.0 (2026-09-16)
 
 Add invoice rounding fields and writable totals, credit note delivery flags,
 invoice backorder options, and reference filters for bank transactions and
