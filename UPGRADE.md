@@ -15,7 +15,7 @@ Update imports if your application referenced these internal extension points di
 
 Usage guides now live under `docs/guides/`, and generated reference pages live under `docs/reference/`. Update direct documentation links if needed.
 
-## Unreleased
+### Invoice, credit note, and AU payroll request changes
 
 Invoice requests now include non-null `SubTotal`, `TotalTax`, and `Total` values.
 When saving a previously fetched invoice, those totals are sent back to Xero.
