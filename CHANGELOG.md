@@ -12,7 +12,7 @@ Add NZ and UK payroll create helpers for leave types and pay run calendars,
 NZ reimbursement helpers, and the UK settings reader. Correct AU payroll
 request bodies, response parsing, and date filters. Reorganize docs into guides
 and reference pages, and move generic concerns and contracts to top-level
-namespaces for the next major release.
+namespaces for 4.0.0.
 
 ## 3.2.0 (2026-08-15)
 
