@@ -1,5 +1,20 @@
 # Upgrade Guide
 
+## Next major
+
+### Generic concerns and contracts
+
+Generic concerns and contracts moved out of `Sujip\Xero\Support` into top-level namespaces:
+
+- `Sujip\Xero\Support\Concerns\*` is now `Sujip\Xero\Concerns\*`
+- `Sujip\Xero\Support\Contracts\*` is now `Sujip\Xero\Contracts\*`
+
+Update imports if your application referenced these internal extension points directly.
+
+### Documentation paths
+
+Usage guides now live under `docs/guides/`, and generated reference pages live under `docs/reference/`. Update direct documentation links if needed.
+
 ## Unreleased
 
 Invoice requests now include non-null `SubTotal`, `TotalTax`, and `Total` values.

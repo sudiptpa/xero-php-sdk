@@ -494,13 +494,13 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 ### Public methods
 
 - [`page(int $page): static`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L13)
-- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L20)
+- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L21)
 - [`perPage(int $perPage): static`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L21)
-- [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L25)
-- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L36)
-- [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L55)
-- [`create(array $leaveType, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\UK\LeaveType\LeaveType`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L73)
-- [`mapLeaveType(array $leaveType): Sujip\Xero\Payroll\UK\LeaveType\LeaveType`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L90)
+- [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L26)
+- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L37)
+- [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L56)
+- [`create(array $leaveType, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\UK\LeaveType\LeaveType`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L74)
+- [`mapLeaveType(array $leaveType): Sujip\Xero\Payroll\UK\LeaveType\LeaveType`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L91)
 
 ## Payroll\UK\PayItem\Benefit
 
@@ -802,14 +802,14 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 ### Public methods
 
 - [`page(int $page): static`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L13)
-- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L20)
+- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L21)
 - [`perPage(int $perPage): static`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L21)
-- [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L25)
-- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L36)
-- [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L55)
-- [`find(string $payRunCalendarId): ?\Sujip\Xero\Payroll\UK\PayRunCalendar\PayRunCalendar`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L70)
-- [`create(array $calendar, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\UK\PayRunCalendar\PayRunCalendar`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L85)
-- [`mapPayRunCalendar(array $calendar): Sujip\Xero\Payroll\UK\PayRunCalendar\PayRunCalendar`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L102)
+- [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L26)
+- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L37)
+- [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L56)
+- [`find(string $payRunCalendarId): ?\Sujip\Xero\Payroll\UK\PayRunCalendar\PayRunCalendar`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L71)
+- [`create(array $calendar, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\UK\PayRunCalendar\PayRunCalendar`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L86)
+- [`mapPayRunCalendar(array $calendar): Sujip\Xero\Payroll\UK\PayRunCalendar\PayRunCalendar`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L103)
 
 ## Payroll\UK\PayRun\PayRun
 
@@ -1076,11 +1076,11 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/UK/Settings/ReimbursementPayload.php#L19)
-- [`name(string $name): Sujip\Xero\Payroll\UK\Settings\ReimbursementPayload`](../../src/Payroll/UK/Settings/ReimbursementPayload.php#L24)
-- [`account(string $accountId): Sujip\Xero\Payroll\UK\Settings\ReimbursementPayload`](../../src/Payroll/UK/Settings/ReimbursementPayload.php#L32)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\UK\Settings\ReimbursementPayload`](../../src/Payroll/UK/Settings/ReimbursementPayload.php#L40)
-- [`save(): Sujip\Xero\Payroll\UK\Settings\Reimbursement`](../../src/Payroll/UK/Settings/ReimbursementPayload.php#L48)
+- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/UK/Settings/ReimbursementPayload.php#L20)
+- [`name(string $name): Sujip\Xero\Payroll\UK\Settings\ReimbursementPayload`](../../src/Payroll/UK/Settings/ReimbursementPayload.php#L25)
+- [`account(string $accountId): Sujip\Xero\Payroll\UK\Settings\ReimbursementPayload`](../../src/Payroll/UK/Settings/ReimbursementPayload.php#L33)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\UK\Settings\ReimbursementPayload`](../../src/Payroll/UK/Settings/ReimbursementPayload.php#L41)
+- [`save(): Sujip\Xero\Payroll\UK\Settings\Reimbursement`](../../src/Payroll/UK/Settings/ReimbursementPayload.php#L49)
 
 ## Payroll\UK\Settings\Settings
 

@@ -6,9 +6,9 @@ namespace Sujip\Xero\Payroll\AU\PayItem;
 
 use DateTimeInterface;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Concerns\HasPagination;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
-use Sujip\Xero\Support\Contracts\PaginatesResults;
+use Sujip\Xero\Concerns\HasPagination;
+use Sujip\Xero\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\Json;

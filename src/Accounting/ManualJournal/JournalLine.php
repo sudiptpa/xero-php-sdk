@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\ManualJournal;
 
 use Sujip\Xero\Accounting\TrackingCategory\TrackingCategory;
-use Sujip\Xero\Support\Contracts\SerializesRequest;
+use Sujip\Xero\Contracts\SerializesRequest;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
 

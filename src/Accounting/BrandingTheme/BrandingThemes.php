@@ -6,7 +6,7 @@ namespace Sujip\Xero\Accounting\BrandingTheme;
 
 use Sujip\Xero\Accounting\PaymentService\PaymentService;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 use Sujip\Xero\Support\Json;

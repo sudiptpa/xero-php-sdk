@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\TaxRate;
 
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Concerns\BuildsQueries;
-use Sujip\Xero\Support\Concerns\InteractsWithBindings;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Concerns\BuildsQueries;
+use Sujip\Xero\Concerns\InteractsWithBindings;
+use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 use Sujip\Xero\Support\Json;

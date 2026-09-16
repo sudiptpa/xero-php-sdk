@@ -452,14 +452,14 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 - [`page(int $page): static`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L13)
 - [`perPage(int $perPage): static`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L21)
-- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L25)
-- [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L30)
-- [`activeOnly(bool $activeOnly = true): Sujip\Xero\Payroll\NZ\LeaveType\LeaveTypes`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L38)
-- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L49)
-- [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L68)
-- [`find(string $leaveTypeId): ?\Sujip\Xero\Payroll\NZ\LeaveType\LeaveType`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L83)
-- [`create(array $leaveType, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\NZ\LeaveType\LeaveType`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L98)
-- [`mapLeaveType(array $leaveType): Sujip\Xero\Payroll\NZ\LeaveType\LeaveType`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L115)
+- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L26)
+- [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L31)
+- [`activeOnly(bool $activeOnly = true): Sujip\Xero\Payroll\NZ\LeaveType\LeaveTypes`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L39)
+- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L50)
+- [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L69)
+- [`find(string $leaveTypeId): ?\Sujip\Xero\Payroll\NZ\LeaveType\LeaveType`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L84)
+- [`create(array $leaveType, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\NZ\LeaveType\LeaveType`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L99)
+- [`mapLeaveType(array $leaveType): Sujip\Xero\Payroll\NZ\LeaveType\LeaveType`](../../src/Payroll/NZ/LeaveType/LeaveTypes.php#L116)
 
 ## Payroll\NZ\PayItem\Deduction
 
@@ -672,14 +672,14 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 ### Public methods
 
 - [`page(int $page): static`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L13)
-- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L20)
+- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L21)
 - [`perPage(int $perPage): static`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L21)
-- [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L25)
-- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L36)
-- [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L55)
-- [`find(string $payRunCalendarId): ?\Sujip\Xero\Payroll\NZ\PayRunCalendar\PayRunCalendar`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L70)
-- [`create(array $calendar, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\NZ\PayRunCalendar\PayRunCalendar`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L85)
-- [`mapPayRunCalendar(array $calendar): Sujip\Xero\Payroll\NZ\PayRunCalendar\PayRunCalendar`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L102)
+- [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L26)
+- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L37)
+- [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L56)
+- [`find(string $payRunCalendarId): ?\Sujip\Xero\Payroll\NZ\PayRunCalendar\PayRunCalendar`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L71)
+- [`create(array $calendar, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\NZ\PayRunCalendar\PayRunCalendar`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L86)
+- [`mapPayRunCalendar(array $calendar): Sujip\Xero\Payroll\NZ\PayRunCalendar\PayRunCalendar`](../../src/Payroll/NZ/PayRunCalendar/PayRunCalendars.php#L103)
 
 ## Payroll\NZ\PayRun\PayRun
 
@@ -967,16 +967,16 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L19)
-- [`name(string $name): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L24)
-- [`account(string $accountId): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L32)
-- [`category(string $category): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L40)
-- [`calculationType(string $calculationType): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L48)
-- [`standardAmount(string $standardAmount): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L56)
-- [`standardTypeOfUnits(string $standardTypeOfUnits): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L64)
-- [`standardRatePerUnit(float $standardRatePerUnit): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L72)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L80)
-- [`save(): Sujip\Xero\Payroll\NZ\Settings\Reimbursement`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L88)
+- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L20)
+- [`name(string $name): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L25)
+- [`account(string $accountId): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L33)
+- [`category(string $category): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L41)
+- [`calculationType(string $calculationType): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L49)
+- [`standardAmount(string $standardAmount): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L57)
+- [`standardTypeOfUnits(string $standardTypeOfUnits): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L65)
+- [`standardRatePerUnit(float $standardRatePerUnit): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L73)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\NZ\Settings\ReimbursementPayload`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L81)
+- [`save(): Sujip\Xero\Payroll\NZ\Settings\Reimbursement`](../../src/Payroll/NZ/Settings/ReimbursementPayload.php#L89)
 
 ## Payroll\NZ\Settings\Settings
 

@@ -6,10 +6,10 @@ namespace Sujip\Xero\Payroll\AU;
 
 use DateTimeInterface;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\PaginatesResults;
+use Sujip\Xero\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
-use Sujip\Xero\Support\Concerns\HasPagination;
+use Sujip\Xero\Concerns\HasPagination;
 use Sujip\Xero\Support\Json;
 
 final class Employees implements PaginatesResults

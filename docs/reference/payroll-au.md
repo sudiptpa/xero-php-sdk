@@ -526,13 +526,13 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/AU/PayItem/Payload.php#L17)
-- [`earningsRates(array $rates): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L22)
-- [`deductionTypes(array $types): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L31)
-- [`leaveTypes(array $types): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L40)
-- [`reimbursementTypes(array $types): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L49)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L57)
-- [`save(): Sujip\Xero\Payroll\AU\PayItem\PayItem`](../../src/Payroll/AU/PayItem/Payload.php#L65)
+- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/AU/PayItem/Payload.php#L18)
+- [`earningsRates(array $rates): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L23)
+- [`deductionTypes(array $types): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L32)
+- [`leaveTypes(array $types): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L41)
+- [`reimbursementTypes(array $types): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L50)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L58)
+- [`save(): Sujip\Xero\Payroll\AU\PayItem\PayItem`](../../src/Payroll/AU/PayItem/Payload.php#L66)
 
 ## Payroll\AU\PayRun\PayRun
 

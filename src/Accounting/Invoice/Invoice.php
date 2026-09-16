@@ -16,7 +16,7 @@ use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\InvoiceAddress;
 use Sujip\Xero\Support\Model;
 use Sujip\Xero\Support\ValidationError;
-use Sujip\Xero\Support\Contracts\SerializesRequest;
+use Sujip\Xero\Contracts\SerializesRequest;
 
 final class Invoice extends Model implements SerializesRequest
 {

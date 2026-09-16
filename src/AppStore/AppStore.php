@@ -6,7 +6,7 @@ namespace Sujip\Xero\AppStore;
 
 use Sujip\Xero\Client;
 use Sujip\Xero\AppStore\Subscription\Subscriptions;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ScopeRequirements;
 
 final readonly class AppStore implements DefinesScopes

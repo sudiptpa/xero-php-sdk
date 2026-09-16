@@ -12,7 +12,7 @@ use Sujip\Xero\Projects\Project\Projects as ProjectsResource;
 use Sujip\Xero\Projects\ProjectUser\ProjectUsers;
 use Sujip\Xero\Projects\Task\Tasks;
 use Sujip\Xero\Projects\TimeEntry\TimeEntries;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;

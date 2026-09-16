@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Budget;
 
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Concerns\BuildsQueries;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Concerns\BuildsQueries;
+use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Json;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;

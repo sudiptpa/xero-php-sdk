@@ -15,6 +15,8 @@ source declares them. Parent links cover inherited methods.
 | [App Store](appstore.md) | 9 | 36 | 99 |
 | [Assets](assets.md) | 10 | 51 | 158 |
 | [Auth](auth.md) | 8 | 0 | 45 |
+| [Concerns](concerns.md) | 3 | 0 | 7 |
+| [Contracts](contracts.md) | 3 | 0 | 4 |
 | [Core](core.md) | 3 | 0 | 32 |
 | [Exceptions](exceptions.md) | 8 | 0 | 1 |
 | [Files](files.md) | 14 | 27 | 155 |
@@ -26,9 +28,9 @@ source declares them. Parent links cover inherited methods.
 | [Payroll NZ](payroll-nz.md) | 38 | 153 | 558 |
 | [Payroll UK](payroll-uk.md) | 41 | 201 | 628 |
 | [Projects](projects.md) | 14 | 51 | 228 |
-| [Support](support.md) | 15 | 16 | 69 |
+| [Support](support.md) | 10 | 16 | 60 |
 | [Webhooks](webhooks.md) | 4 | 11 | 63 |
-| Total | 397 | 1615 | 5351 |
+| Total | 398 | 1615 | 5353 |
 
 Counts cover declarations in this release. Constructors and public methods
 declared on each type are included. Inherited methods are listed on the declaring type.
@@ -53,3 +55,4 @@ does not guarantee that a write request sends it.
 - [Payroll UK](../guides/payroll-uk.md)
 - [Projects](../guides/projects.md)
 - [Webhooks](../guides/webhooks.md)
+- [Release process](../guides/release-process.md)

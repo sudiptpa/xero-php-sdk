@@ -395,6 +395,10 @@ See [Auth](docs/guides/auth.md) for PKCE, token refresh, tenant selection, and c
 - Identity
 - Webhooks
 
+## Stability
+
+This SDK is maintained against the official Xero OpenAPI specs and ships with full test coverage, static analysis, and formatting checks. Public API corrections that can affect existing callers are reserved for major releases. Patch and minor releases should remain backward compatible.
+
 ## Documentation
 
 - [Field and method reference](docs/reference/index.md)
@@ -410,7 +414,8 @@ See [Auth](docs/guides/auth.md) for PKCE, token refresh, tenant selection, and c
 - [Finance](docs/guides/finance.md)
 - [App Store](docs/guides/app-store.md)
 - [Webhooks](docs/guides/webhooks.md)
+- [Release process](docs/guides/release-process.md)
 
 ## Contributing
 
-See [Contributing](CONTRIBUTING.md) and [Changelog](CHANGELOG.md).
+See [Contributing](CONTRIBUTING.md), [Security policy](SECURITY.md), and [Changelog](CHANGELOG.md).

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\NZ\Employee;
 
-use Sujip\Xero\Support\Contracts\SerializesRequest;
+use Sujip\Xero\Contracts\SerializesRequest;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
 

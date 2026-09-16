@@ -6,7 +6,7 @@ namespace Sujip\Xero\Finance\FinancialStatement;
 
 use DateTimeInterface;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ScopeRequirements;
 
 final readonly class FinancialStatements implements DefinesScopes

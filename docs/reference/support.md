@@ -11,13 +11,8 @@ without a dedicated SDK model.
 ## Types
 
 - [Support\AttachmentDetail](#supportattachmentdetail)
-- [Support\Concerns\BuildsQueries](#supportconcernsbuildsqueries)
-- [Support\Concerns\HasPagination](#supportconcernshaspagination)
-- [Support\Concerns\InteractsWithBindings](#supportconcernsinteractswithbindings)
-- [Support\Contracts\DefinesScopes](#supportcontractsdefinesscopes)
-- [Support\Contracts\PaginatesResults](#supportcontractspaginatesresults)
-- [Support\Contracts\SerializesRequest](#supportcontractsserializesrequest)
 - [Support\Field](#supportfield)
+- [Support\Headers](#supportheaders)
 - [Support\InvoiceAddress](#supportinvoiceaddress)
 - [Support\Json](#supportjson)
 - [Support\Model](#supportmodel)
@@ -58,56 +53,6 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`getIncludeOnline(): ?bool`](../../src/Support/AttachmentDetail.php#L81)
 - [`setIncludeOnline(?bool $includeOnline): Sujip\Xero\Support\AttachmentDetail`](../../src/Support/AttachmentDetail.php#L86)
 
-## Support\Concerns\BuildsQueries
-
-[Source](../../src/Support/Concerns/BuildsQueries.php)
-
-### Public methods
-
-- [`modifiedSince(\DateTimeInterface $date): static`](../../src/Support/Concerns/BuildsQueries.php#L19)
-- [`orderBy(string $field, string $direction = 'ASC'): static`](../../src/Support/Concerns/BuildsQueries.php#L27)
-- [`ids(string ...$ids): static`](../../src/Support/Concerns/BuildsQueries.php#L35)
-- [`unitDp(int $unitDp): static`](../../src/Support/Concerns/BuildsQueries.php#L43)
-- [`createdByApp(bool $createdByApp = true): static`](../../src/Support/Concerns/BuildsQueries.php#L51)
-
-## Support\Concerns\HasPagination
-
-[Source](../../src/Support/Concerns/HasPagination.php)
-
-### Public methods
-
-- [`page(int $page): static`](../../src/Support/Concerns/HasPagination.php#L13)
-- [`perPage(int $perPage): static`](../../src/Support/Concerns/HasPagination.php#L21)
-
-## Support\Concerns\InteractsWithBindings
-
-[Source](../../src/Support/Concerns/InteractsWithBindings.php)
-
-## Support\Contracts\DefinesScopes
-
-[Source](../../src/Support/Contracts/DefinesScopes.php)
-
-### Public methods
-
-- [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Support/Contracts/DefinesScopes.php#L11)
-
-## Support\Contracts\PaginatesResults
-
-[Source](../../src/Support/Contracts/PaginatesResults.php)
-
-### Public methods
-
-- [`page(int $page): static`](../../src/Support/Contracts/PaginatesResults.php#L9)
-- [`perPage(int $perPage): static`](../../src/Support/Contracts/PaginatesResults.php#L11)
-
-## Support\Contracts\SerializesRequest
-
-[Source](../../src/Support/Contracts/SerializesRequest.php)
-
-### Public methods
-
-- [`toRequest(): array`](../../src/Support/Contracts/SerializesRequest.php#L12)
-
 ## Support\Field
 
 [Source](../../src/Support/Field.php)
@@ -121,6 +66,14 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`object(string $class): Sujip\Xero\Support\Field`](../../src/Support/Field.php#L36)
 - [`many(string $class): Sujip\Xero\Support\Field`](../../src/Support/Field.php#L41)
 - [`using(string $method): Sujip\Xero\Support\Field`](../../src/Support/Field.php#L46)
+
+## Support\Headers
+
+[Source](../../src/Support/Headers.php)
+
+### Public methods
+
+- [`idempotency(?string $key): array`](../../src/Support/Headers.php#L12)
 
 ## Support\InvoiceAddress
 
@@ -178,7 +131,8 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`extractRows(array $payload): array`](../../src/Support/Json.php#L95)
 - [`extractFirst(array $payload, string $key): ?array`](../../src/Support/Json.php#L116)
 - [`extractObject(array $payload, string $key): array`](../../src/Support/Json.php#L125)
-- [`ensureAvailable(): void`](../../src/Support/Json.php#L141)
+- [`extractFirstOrObject(array $payload, string $listKey, string $objectKey): ?array`](../../src/Support/Json.php#L145)
+- [`ensureAvailable(): void`](../../src/Support/Json.php#L150)
 
 ## Support\Model
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Support;
 
-use Sujip\Xero\Support\Contracts\SerializesRequest;
+use Sujip\Xero\Contracts\SerializesRequest;
 
 final class InvoiceAddress extends Model implements SerializesRequest
 {

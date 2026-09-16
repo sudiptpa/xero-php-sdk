@@ -10,7 +10,9 @@ prepayments. Document payment webhook events and UK off-payroll worker status.
 Add AU Pay Items creation, AU payslip updates, and AU super fund updates.
 Add NZ and UK payroll create helpers for leave types and pay run calendars,
 NZ reimbursement helpers, and the UK settings reader. Correct AU payroll
-request bodies, response parsing, and date filters.
+request bodies, response parsing, and date filters. Reorganize docs into guides
+and reference pages, and move generic concerns and contracts to top-level
+namespaces for the next major release.
 
 ## 3.2.0 (2026-08-15)
 

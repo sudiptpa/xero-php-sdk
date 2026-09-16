@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Payroll\AU\Settings;
 
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ScopeRequirements;
 
 final readonly class Settings implements DefinesScopes
