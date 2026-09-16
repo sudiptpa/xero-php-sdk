@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Sujip\Xero\Payroll\UK\PayRunCalendar;
 
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Concerns\HasPagination;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
-use Sujip\Xero\Support\Contracts\PaginatesResults;
+use Sujip\Xero\Concerns\HasPagination;
+use Sujip\Xero\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Headers;
 use Sujip\Xero\Support\Json;
 
 final class PayRunCalendars implements PaginatesResults, DefinesScopes
@@ -74,9 +75,26 @@ final class PayRunCalendars implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $calendar = Json::extractFirst($payload, 'payRunCalendars') ?? Json::extractObject($payload, 'payRunCalendar') ?: null;
+        $calendar = Json::extractFirstOrObject($payload, 'payRunCalendars', 'payRunCalendar');
 
         return $calendar !== null ? $this->mapPayRunCalendar($calendar) : null;
+    }
+
+    /**
+     * @param array<string, mixed> $calendar
+     */
+    public function create(array $calendar, ?string $idempotencyKey = null): PayRunCalendar
+    {
+        $payload = $this->client
+            ->post('/payroll.xro/2.0/PayRunCalendars')
+            ->withHeaders(Headers::idempotency($idempotencyKey))
+            ->withJson($calendar)
+            ->send()
+            ->json();
+
+        $calendar = Json::extractObject($payload, 'payRunCalendar');
+
+        return $calendar !== [] ? $this->mapPayRunCalendar($calendar) : new PayRunCalendar();
     }
 
     /**

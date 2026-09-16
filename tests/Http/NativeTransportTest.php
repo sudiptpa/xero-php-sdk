@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Http;
 
 use PHPUnit\Framework\TestCase;
+use DateTimeImmutable;
+use Sujip\Xero\Client;
+use Sujip\Xero\Context;
 use Sujip\Xero\Exceptions\TransportException;
 use Sujip\Xero\Exceptions\ValidationException;
 use Sujip\Xero\Http\NativeTransport;
@@ -81,6 +84,16 @@ final class NativeTransportTest extends TestCase
         self::assertSame(['Name' => 'Acme'], $response->json());
     }
 
+    public function test_resource_date_filters_reach_the_server_as_headers(): void
+    {
+        $client = new Client(Context::make(accessToken: 'test-token', baseUri: self::$baseUri));
+        $base = $client->accounting()->contacts();
+        $contacts = $base->modifiedSince(new DateTimeImmutable('2026-09-01T10:00:00+02:00'))->get();
+
+        self::assertSame('Header received', $contacts->first()?->getName());
+        self::assertSame('No filter', $base->get()->first()?->getName());
+    }
+
     public function test_it_sends_a_raw_request_body(): void
     {
         $response = (new NativeTransport())->send(
@@ -151,6 +164,18 @@ final class NativeTransportTest extends TestCase
             <?php
 
             $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+            if ($path === '/api.xro/2.0/Contacts') {
+                $date = $_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? null;
+                if (isset($_GET['If-Modified-Since']) || ($date !== null && $date !== 'Tue, 01 Sep 2026 08:00:00 GMT')) {
+                    http_response_code(400);
+                    echo json_encode(['Message' => 'Incorrect date filter']);
+                    return true;
+                }
+                header('Content-Type: application/json');
+                echo json_encode(['Contacts' => [['Name' => $date === null ? 'No filter' : 'Header received']]]);
+                return true;
+            }
 
             if ($path === '/json') {
                 header('Content-Type: application/json');

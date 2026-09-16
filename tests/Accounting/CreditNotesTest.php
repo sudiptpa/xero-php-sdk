@@ -15,6 +15,28 @@ use Sujip\Xero\Xero;
 
 final class CreditNotesTest extends TestCase
 {
+    public function test_it_sends_explicit_credit_note_delivery_flags(): void
+    {
+        $transport = new FakeTransport();
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-1');
+        foreach ([true, false, null] as $flag) {
+            $transport->push(new Response(200, body: '{"CreditNotes":[{"CreditNoteID":"credit-1"}]}'));
+            $client->accounting()->creditNotes()->create()
+                ->using((new CreditNote())->setCreditNoteID('credit-1')->setSentToContact($flag))
+                ->save();
+        }
+
+        $sent = Json::extractFirst($transport->requests()[0]->json ?? [], 'CreditNotes');
+        $unsent = Json::extractFirst($transport->requests()[1]->json ?? [], 'CreditNotes');
+        self::assertNotNull($sent);
+        self::assertNotNull($unsent);
+        self::assertArrayHasKey('SentToContact', $sent);
+        self::assertArrayHasKey('SentToContact', $unsent);
+        self::assertTrue($sent['SentToContact']);
+        self::assertFalse($unsent['SentToContact']);
+        self::assertArrayNotHasKey('SentToContact', Json::extractFirst($transport->requests()[2]->json ?? [], 'CreditNotes') ?? []);
+    }
+
     public function test_it_can_query_and_find_credit_notes(): void
     {
         $transport = new FakeTransport();

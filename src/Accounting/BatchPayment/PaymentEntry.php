@@ -6,7 +6,7 @@ namespace Sujip\Xero\Accounting\BatchPayment;
 
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
-use Sujip\Xero\Support\Contracts\SerializesRequest;
+use Sujip\Xero\Contracts\SerializesRequest;
 
 final class PaymentEntry extends Model implements SerializesRequest
 {

@@ -13,6 +13,21 @@ use Sujip\Xero\Xero;
 
 final class OverpaymentsAndPrepaymentsTest extends TestCase
 {
+    public function test_it_filters_prepayments_by_references_and_invoice_numbers(): void
+    {
+        $transport = (new FakeTransport())
+            ->push(new Response(200, body: '{"Prepayments":[]}'))
+            ->push(new Response(200, body: '{"Prepayments":[]}'));
+        $base = Xero::withAccessToken('token', $transport)->tenant('tenant-1')->accounting()->prepayments();
+        $base->references('Deposit A', 'Deposit B')->invoiceNumbers('INV-101', 'INV-102')->get();
+        $base->get();
+
+        self::assertSame('Deposit A,Deposit B', $transport->requests()[0]->query['References']);
+        self::assertSame('INV-101,INV-102', $transport->requests()[0]->query['InvoiceNumbers']);
+        self::assertArrayNotHasKey('References', $transport->requests()[1]->query);
+        self::assertArrayNotHasKey('InvoiceNumbers', $transport->requests()[1]->query);
+    }
+
     public function test_it_can_query_and_find_overpayments(): void
     {
         $transport = new FakeTransport();

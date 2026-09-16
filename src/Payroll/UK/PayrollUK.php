@@ -6,6 +6,7 @@ namespace Sujip\Xero\Payroll\UK;
 
 use Sujip\Xero\Payroll\Shared\PayrollRegion;
 use Sujip\Xero\Payroll\UK\Employee\Employees;
+use Sujip\Xero\Payroll\UK\LeaveType\LeaveTypes;
 use Sujip\Xero\Payroll\UK\PayItem\Benefits;
 use Sujip\Xero\Payroll\UK\PayItem\Deductions;
 use Sujip\Xero\Payroll\UK\PayItem\EarningsOrders;
@@ -21,6 +22,11 @@ final readonly class PayrollUK extends PayrollRegion
     public function employees(): Employees
     {
         return new Employees($this->client);
+    }
+
+    public function leaveTypes(): LeaveTypes
+    {
+        return new LeaveTypes($this->client);
     }
 
     public function benefits(): Benefits

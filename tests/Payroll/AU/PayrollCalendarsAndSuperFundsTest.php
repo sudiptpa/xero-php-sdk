@@ -10,6 +10,7 @@ use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\AU\PayrollCalendar\PayrollCalendar;
 use Sujip\Xero\Payroll\AU\SuperFund\Product;
 use Sujip\Xero\Payroll\AU\SuperFund\SuperFund;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class PayrollCalendarsAndSuperFundsTest extends TestCase
@@ -148,6 +149,13 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
                 'Type' => 'REGULATED',
             ],
         ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'SuperFunds' => [[
+                'SuperFundID' => 'fund-2',
+                'Name' => 'Updated Future Super',
+                'Type' => 'REGULATED',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
@@ -166,12 +174,18 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
             ->spin('FSF0001AU')
             ->idempotencyKey('superfund-key')
             ->save();
+        $updated = $client->payroll()->au()->superFunds()->update('fund-2')
+            ->type('REGULATED')
+            ->name('Updated Future Super')
+            ->uSI('40022701955002')
+            ->idempotencyKey('superfund-update-key')
+            ->save();
 
         self::assertSame('/payroll.xro/1.0/SuperFunds', $transport->requests()[0]->path);
         self::assertSame('/payroll.xro/1.0/SuperFunds/fund-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/1.0/SuperFunds', $transport->requests()[2]->path);
         self::assertSame('superfund-key', $transport->requests()[2]->headers['Idempotency-Key']);
-        $json2 = $transport->requests()[2]->json ?? [];
+        $json2 = Json::extractRows(Json::decodeObject((string) $transport->requests()[2]->body))[0] ?? [];
         self::assertSame('40022701955002', $json2['USI'] ?? null);
         self::assertSame('484-799', $json2['BSB'] ?? null);
         self::assertSame('123456789', $json2['AccountNumber'] ?? null);
@@ -179,9 +193,15 @@ final class PayrollCalendarsAndSuperFundsTest extends TestCase
         self::assertSame('FUTURESUPER', $json2['ElectronicServiceAddress'] ?? null);
         self::assertSame('EMP-1', $json2['EmployerNumber'] ?? null);
         self::assertSame('FSF0001AU', $json2['SPIN'] ?? null);
+        self::assertSame('/payroll.xro/1.0/SuperFunds/fund-2', $transport->requests()[3]->path);
+        self::assertSame('superfund-update-key', $transport->requests()[3]->headers['Idempotency-Key']);
+        $json3 = Json::extractRows(Json::decodeObject((string) $transport->requests()[3]->body))[0] ?? [];
+        self::assertSame('fund-2', $json3['SuperFundID'] ?? null);
+        self::assertSame('Updated Future Super', $json3['Name'] ?? null);
         self::assertNotNull($funds->first());
         self::assertSame('fund-1', $fund?->getSuperFundID());
         self::assertSame('fund-2', $created->getSuperFundID());
+        self::assertSame('Updated Future Super', $updated->getName());
     }
 
     public function test_it_can_load_super_fund_products(): void

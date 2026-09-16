@@ -7,9 +7,9 @@ namespace Sujip\Xero\Accounting\RepeatingInvoice;
 use Sujip\Xero\Accounting\Attachments;
 use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Concerns\BuildsQueries;
-use Sujip\Xero\Support\Concerns\InteractsWithBindings;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Concerns\BuildsQueries;
+use Sujip\Xero\Concerns\InteractsWithBindings;
+use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 use Sujip\Xero\Support\Json;
@@ -47,6 +47,7 @@ final class RepeatingInvoices implements DefinesScopes
     {
         $response = $this->client
             ->get('/api.xro/2.0/RepeatingInvoices')
+            ->withHeaders($this->queryHeaders())
             ->withQuery($this->queryParameters())
             ->send();
 

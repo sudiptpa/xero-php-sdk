@@ -11,6 +11,12 @@ final class Draft
 {
     private Invoice $invoice;
 
+    private ?bool $allowBackorders = null;
+
+    private ?int $unitDp = null;
+
+    private ?string $idempotencyKey = null;
+
     public function __construct(
         private readonly Client $client
     ) {
@@ -99,6 +105,11 @@ final class Draft
 
         $response = $this->client
             ->post($path)
+            ->withQuery(array_filter([
+                'allowBackorders' => $this->allowBackorders === null ? null : ($this->allowBackorders ? 'true' : 'false'),
+                'unitdp' => $this->unitDp,
+            ], static fn (mixed $value): bool => $value !== null))
+            ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
             ->withJson([
                 'Invoices' => [$this->invoice->toRequest()],
             ])
@@ -109,5 +120,29 @@ final class Draft
 
         return (new Invoices($this->client))
             ->mapInvoice($invoice);
+    }
+
+    public function allowBackorders(bool $allow = true): self
+    {
+        $clone = clone $this;
+        $clone->allowBackorders = $allow;
+
+        return $clone;
+    }
+
+    public function unitDp(int $unitDp): self
+    {
+        $clone = clone $this;
+        $clone->unitDp = $unitDp;
+
+        return $clone;
+    }
+
+    public function idempotencyKey(string $key): self
+    {
+        $clone = clone $this;
+        $clone->idempotencyKey = $key;
+
+        return $clone;
     }
 }

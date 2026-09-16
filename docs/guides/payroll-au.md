@@ -106,6 +106,40 @@ $payItems = $xero->payroll()
 $earningsRates = $payItems->first()?->getEarningsRates();
 ```
 
+Xero returns a single `PayItems` object containing four lists: `EarningsRates`,
+`DeductionTypes`, `LeaveTypes`, and `ReimbursementTypes`. The SDK keeps its
+collection return type and exposes that object as the first item. Each nested
+list contains arrays with the API field names unchanged.
+
+Create pay items with `create()`. The builder accepts those four lists through
+`earningsRates()`, `deductionTypes()`, `leaveTypes()`, and `reimbursementTypes()`.
+Only lists you supply are sent.
+
+```php
+$items = $xero->payroll()->au()->payItems()->create()
+    ->earningsRates([[
+        'Name' => 'Ordinary hours',
+        'AccountCode' => '477',
+        'EarningsType' => 'ORDINARYTIMEEARNINGS',
+        'RateType' => 'RATEPERUNIT',
+        'TypeOfUnits' => 'Hours',
+        'RatePerUnit' => 30,
+        'IsExemptFromTax' => false,
+        'IsQualifyingEarnings' => true,
+        'IsExemptFromSuper' => false,
+    ]])
+    ->idempotencyKey('ordinary-hours-1')
+    ->save();
+```
+
+Use an account code from your organisation. Xero requires `IsQualifyingEarnings`
+on earnings rates. When it is `true`, `IsExemptFromSuper` must be `false` for this
+request. The builder preserves explicit `false` and zero values and leaves
+validation to Xero. A successful create response may contain no item details;
+call `get()` to retrieve them.
+
+Source: [AU Payroll Pay Items schema](https://github.com/XeroAPI/Xero-OpenAPI/blob/448060d7829cae23166a2e443be48c2f2422280f/xero-payroll-au.yaml).
+
 ## Pay runs
 
 ```php
@@ -147,6 +181,22 @@ $payslip = $xero->payroll()
     ->payslip('payslip-id');
 
 $earningsLines = $payslip?->getEarningsLines();
+```
+
+Update payslip lines with `updatePayslip()`. Pass the line groups using Xero's
+field names. Only the supplied groups are sent.
+
+```php
+$payslip = $xero->payroll()
+    ->au()
+    ->payRuns()
+    ->updatePayslip('payslip-id', [
+        'EarningsLines' => [[
+            'EarningsRateID' => 'earnings-rate-id',
+            'RatePerUnit' => 30,
+            'NumberOfUnits' => 7.5,
+        ]],
+    ]);
 ```
 
 ## Timesheets
@@ -203,6 +253,17 @@ $superFund = $xero->payroll()
     ->name('Future Super')
     ->uSI('40022701955002')
     ->abn('12345678901')
+    ->save();
+```
+
+```php
+$superFund = $xero->payroll()
+    ->au()
+    ->superFunds()
+    ->update('super-fund-id')
+    ->type('REGULATED')
+    ->name('Future Super')
+    ->uSI('40022701955002')
     ->save();
 ```
 

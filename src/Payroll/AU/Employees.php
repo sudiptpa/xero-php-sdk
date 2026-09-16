@@ -6,10 +6,10 @@ namespace Sujip\Xero\Payroll\AU;
 
 use DateTimeInterface;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\PaginatesResults;
+use Sujip\Xero\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
-use Sujip\Xero\Support\Concerns\HasPagination;
+use Sujip\Xero\Concerns\HasPagination;
 use Sujip\Xero\Support\Json;
 
 final class Employees implements PaginatesResults
@@ -21,6 +21,9 @@ final class Employees implements PaginatesResults
      */
     private array $query = [];
 
+    /** @var array<string, string> */
+    private array $headers = [];
+
     public function __construct(
         private readonly Client $client
     ) {
@@ -29,7 +32,7 @@ final class Employees implements PaginatesResults
     public function modifiedSince(DateTimeInterface $date): self
     {
         $clone = clone $this;
-        $clone->query['If-Modified-Since'] = $date->format(DateTimeInterface::ATOM);
+        $clone->headers['If-Modified-Since'] = $date->format(DateTimeInterface::ATOM);
 
         return $clone;
     }
@@ -57,6 +60,7 @@ final class Employees implements PaginatesResults
     {
         $response = $this->client
             ->get('/payroll.xro/1.0/Employees')
+            ->withHeaders($this->headers)
             ->withQuery(array_merge($this->query, $this->paginationQuery()))
             ->send();
 

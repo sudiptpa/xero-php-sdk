@@ -7,6 +7,7 @@ namespace Sujip\Xero\Tests\Payroll\UK;
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Payroll\UK\Settings\PayrollSettings;
 use Sujip\Xero\Payroll\UK\Settings\Reimbursement;
 use Sujip\Xero\Payroll\UK\Settings\StatutoryLeaveSummary;
 use Sujip\Xero\Xero;
@@ -16,6 +17,13 @@ final class SettingsTest extends TestCase
     public function test_it_can_load_payroll_uk_settings_helpers(): void
     {
         $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'settings' => [
+                'accounts' => [
+                    ['accountID' => 'account-1', 'type' => 'WAGESPAYABLE', 'code' => '814', 'name' => 'Wages Payable'],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'trackingCategories' => [
                 'employeeGroupsTrackingCategoryID' => 'employee-groups-1',
@@ -58,6 +66,7 @@ final class SettingsTest extends TestCase
             ->uk()
             ->settings();
 
+        $payrollSettings = $settings->get();
         $trackingCategories = $settings->trackingCategories();
         $reimbursements = $settings->reimbursements();
         $reimbursement = $settings->reimbursement('reimbursement-1');
@@ -68,16 +77,18 @@ final class SettingsTest extends TestCase
             ->idempotencyKey('reimbursement-key')
             ->save();
 
-        self::assertSame('/payroll.xro/2.0/Settings/trackingCategories', $transport->requests()[0]->path);
-        self::assertSame('/payroll.xro/2.0/Reimbursements', $transport->requests()[1]->path);
-        self::assertSame('/payroll.xro/2.0/Reimbursements/reimbursement-1', $transport->requests()[2]->path);
-        self::assertSame('/payroll.xro/2.0/StatutoryLeaves/Summary/employee-1', $transport->requests()[3]->path);
-        self::assertSame('/payroll.xro/2.0/Reimbursements', $transport->requests()[4]->path);
-        self::assertSame('reimbursement-key', $transport->requests()[4]->headers['Idempotency-Key']);
+        self::assertSame('/payroll.xro/2.0/Settings', $transport->requests()[0]->path);
+        self::assertSame('/payroll.xro/2.0/Settings/trackingCategories', $transport->requests()[1]->path);
+        self::assertSame('/payroll.xro/2.0/Reimbursements', $transport->requests()[2]->path);
+        self::assertSame('/payroll.xro/2.0/Reimbursements/reimbursement-1', $transport->requests()[3]->path);
+        self::assertSame('/payroll.xro/2.0/StatutoryLeaves/Summary/employee-1', $transport->requests()[4]->path);
+        self::assertSame('/payroll.xro/2.0/Reimbursements', $transport->requests()[5]->path);
+        self::assertSame('reimbursement-key', $transport->requests()[5]->headers['Idempotency-Key']);
         self::assertSame([
             'name' => 'Meals',
             'accountID' => 'account-2',
-        ], $transport->requests()[4]->json);
+        ], $transport->requests()[5]->json);
+        self::assertSame('account-1', $payrollSettings->getAccounts()[0]['accountID'] ?? null);
         self::assertSame('employee-groups-1', $trackingCategories['employeeGroupsTrackingCategoryID'] ?? null);
         self::assertSame('timesheet-1', $trackingCategories['timesheetTrackingCategoryID'] ?? null);
         $firstReimb = $reimbursements->first();
@@ -113,6 +124,29 @@ final class SettingsTest extends TestCase
             ->statutoryLeaveSummary('employee-1');
 
         self::assertNull($summaries->first());
+    }
+
+    public function test_it_returns_blank_settings_when_response_has_no_settings_object(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $settings = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->settings()
+            ->get();
+
+        self::assertSame([], $settings->getAccounts());
+    }
+
+    public function test_payroll_settings_expose_all_fields(): void
+    {
+        $settings = (new PayrollSettings())->fill([
+            'accounts' => [['accountID' => 'account-1', 'type' => 'WAGESPAYABLE']],
+        ]);
+
+        self::assertSame('account-1', $settings->getAccounts()[0]['accountID'] ?? null);
     }
 
     public function test_reimbursement_save_returns_blank_model_on_empty_response(): void

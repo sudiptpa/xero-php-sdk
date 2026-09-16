@@ -76,6 +76,21 @@ final class JsonTest extends TestCase
         self::assertSame([], Json::extractObject(['Organisation' => 'nope'], 'Organisation'));
     }
 
+    public function test_it_extracts_the_first_list_item_or_single_object(): void
+    {
+        self::assertSame(
+            ['InvoiceID' => '1'],
+            Json::extractFirstOrObject(['Invoices' => [['InvoiceID' => '1']]], 'Invoices', 'Invoice')
+        );
+
+        self::assertSame(
+            ['InvoiceID' => '2'],
+            Json::extractFirstOrObject(['Invoice' => ['InvoiceID' => '2']], 'Invoices', 'Invoice')
+        );
+
+        self::assertNull(Json::extractFirstOrObject([], 'Invoices', 'Invoice'));
+    }
+
     public function test_ensure_available_passes_when_the_json_extension_is_loaded(): void
     {
         Json::ensureAvailable();

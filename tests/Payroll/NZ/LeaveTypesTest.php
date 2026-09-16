@@ -29,18 +29,49 @@ final class LeaveTypesTest extends TestCase
                 'isActive' => true,
             ],
         ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'leaveType' => [
+                'leaveTypeID' => 'leave-type-2',
+                'name' => 'Sick Leave',
+                'isPaidLeave' => true,
+                'showOnPayslip' => false,
+            ],
+        ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $types = $client->payroll()->nz()->leaveTypes()->activeOnly()->page(2)->get();
         $type = $client->payroll()->nz()->leaveTypes()->find('leave-type-1');
+        $created = $client->payroll()->nz()->leaveTypes()->create([
+            'name' => 'Sick Leave',
+            'isPaidLeave' => true,
+            'showOnPayslip' => false,
+        ], 'leave-type-key');
 
         self::assertSame('/payroll.xro/2.0/LeaveTypes', $transport->requests()[0]->path);
         self::assertTrue($transport->requests()[0]->query['ActiveOnly']);
         self::assertSame(2, $transport->requests()[0]->query['page']);
         self::assertInstanceOf(LeaveType::class, $types->first());
         self::assertSame('/payroll.xro/2.0/LeaveTypes/leave-type-1', $transport->requests()[1]->path);
+        self::assertSame('/payroll.xro/2.0/LeaveTypes', $transport->requests()[2]->path);
+        self::assertSame('leave-type-key', $transport->requests()[2]->headers['Idempotency-Key']);
+        self::assertSame(false, $transport->requests()[2]->json['showOnPayslip'] ?? null);
         self::assertSame('leave-type-1', $type?->getLeaveTypeID());
+        self::assertSame('leave-type-2', $created->getLeaveTypeID());
+    }
+
+    public function test_create_returns_blank_leave_type_on_empty_response(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $type = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->nz()
+            ->leaveTypes()
+            ->create(['name' => 'Sick Leave']);
+
+        self::assertNull($type->getLeaveTypeID());
     }
 
     public function test_it_exposes_scopes(): void

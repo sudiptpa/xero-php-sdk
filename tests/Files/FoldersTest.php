@@ -14,19 +14,15 @@ final class FoldersTest extends TestCase
     public function test_it_can_list_and_find_folders(): void
     {
         $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([[
+            'Id' => 'folder-1',
+            'Name' => 'Contracts',
+            'FileCount' => 3
+        ]], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'folder-1',
-                'Name' => 'Contracts',
-                'FileCount' => 3,
-            ]],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'folder-1',
-                'Name' => 'Contracts',
-                'FileCount' => 3,
-            ]],
+            'Id' => 'folder-1',
+            'Name' => 'Contracts',
+            'FileCount' => 3
         ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
@@ -45,12 +41,10 @@ final class FoldersTest extends TestCase
     {
         $transport = (new FakeTransport())->push(
             new Response(200, body: json_encode([
-                'Items' => [[
-                    'Id' => 'inbox-1',
-                    'Name' => 'Inbox',
-                    'IsInbox' => true,
-                    'Email' => 'inbox@xero.test',
-                ]],
+                'Id' => 'inbox-1',
+                'Name' => 'Inbox',
+                'IsInbox' => true,
+                'Email' => 'inbox@xero.test'
             ], JSON_THROW_ON_ERROR))
         );
 
@@ -68,16 +62,12 @@ final class FoldersTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'folder-1',
-                'Name' => 'Contracts',
-            ]],
+            'Id' => 'folder-1',
+            'Name' => 'Contracts'
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'folder-1',
-                'Name' => 'Contracts 2026',
-            ]],
+            'Id' => 'folder-1',
+            'Name' => 'Contracts 2026'
         ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
@@ -98,15 +88,13 @@ final class FoldersTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'folder-1',
-                'Name' => 'Contracts',
-            ]],
+            'Id' => 'folder-1',
+            'Name' => 'Contracts'
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'Items' => [[
                 'Id' => 'file-1',
-                'Name' => 'contract.pdf',
+            'Name' => 'contract.pdf',
                 'FolderId' => 'folder-1',
             ]],
         ], JSON_THROW_ON_ERROR)));
@@ -137,10 +125,8 @@ final class FoldersTest extends TestCase
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
-            'Items' => [[
-                'Id' => 'folder-1',
-                'Name' => 'Contracts',
-            ]],
+            'Id' => 'folder-1',
+            'Name' => 'Contracts'
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(204));
 

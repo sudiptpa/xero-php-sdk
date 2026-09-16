@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Assets\Type;
 
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 use Sujip\Xero\Support\Json;

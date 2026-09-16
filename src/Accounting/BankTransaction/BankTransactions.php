@@ -7,11 +7,11 @@ namespace Sujip\Xero\Accounting\BankTransaction;
 use Sujip\Xero\Accounting\Attachments;
 use Sujip\Xero\Accounting\History;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Concerns\BuildsQueries;
-use Sujip\Xero\Support\Concerns\HasPagination;
-use Sujip\Xero\Support\Concerns\InteractsWithBindings;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
-use Sujip\Xero\Support\Contracts\PaginatesResults;
+use Sujip\Xero\Concerns\BuildsQueries;
+use Sujip\Xero\Concerns\HasPagination;
+use Sujip\Xero\Concerns\InteractsWithBindings;
+use Sujip\Xero\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
@@ -44,6 +44,14 @@ final class BankTransactions implements PaginatesResults, DefinesScopes
         return $clone;
     }
 
+    public function references(string ...$references): self
+    {
+        $clone = clone $this;
+        $clone->query['References'] = implode(',', $references);
+
+        return $clone;
+    }
+
     /**
      * @return ResourceCollection<BankTransaction>
      */
@@ -51,6 +59,7 @@ final class BankTransactions implements PaginatesResults, DefinesScopes
     {
         $response = $this->client
             ->get('/api.xro/2.0/BankTransactions')
+            ->withHeaders($this->queryHeaders())
             ->withQuery(array_merge($this->queryParameters(), $this->paginationQuery()))
             ->send();
 

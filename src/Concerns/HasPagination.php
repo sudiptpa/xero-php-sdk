@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Sujip\Xero\Support\Concerns;
+namespace Sujip\Xero\Concerns;
 
 trait HasPagination
 {

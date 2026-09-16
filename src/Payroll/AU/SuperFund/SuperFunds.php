@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Payroll\AU\SuperFund;
 
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 use Sujip\Xero\Support\Json;
@@ -58,6 +58,11 @@ final readonly class SuperFunds implements DefinesScopes
     public function create(): Payload
     {
         return new Payload($this->client);
+    }
+
+    public function update(string $superFundId): Payload
+    {
+        return (new Payload($this->client))->id($superFundId);
     }
 
     /**

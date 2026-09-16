@@ -12,7 +12,7 @@ use Sujip\Xero\Assets\Type\Payload as AssetTypePayload;
 use Sujip\Xero\Assets\Type\Type;
 use Sujip\Xero\Assets\Type\Types;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;

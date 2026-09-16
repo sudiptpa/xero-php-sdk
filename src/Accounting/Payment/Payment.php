@@ -15,7 +15,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
 use Sujip\Xero\Support\ValidationError;
-use Sujip\Xero\Support\Contracts\SerializesRequest;
+use Sujip\Xero\Contracts\SerializesRequest;
 
 final class Payment extends Model implements SerializesRequest
 {

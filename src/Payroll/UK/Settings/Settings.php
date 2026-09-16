@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Payroll\UK\Settings;
 
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
 use Sujip\Xero\Support\Json;
@@ -23,6 +23,23 @@ final readonly class Settings implements DefinesScopes
             broad: ['payroll.settings'],
             granular: ['payroll.settings.read', 'payroll.settings']
         );
+    }
+
+    public function get(): PayrollSettings
+    {
+        $payload = $this->client
+            ->get('/payroll.xro/2.0/Settings')
+            ->send()
+            ->json();
+
+        /** @var array<string, mixed>|null $settings */
+        $settings = $payload['settings'] ?? null;
+
+        if (! is_array($settings)) {
+            return new PayrollSettings();
+        }
+
+        return $this->mapSettings($settings);
     }
 
     /**
@@ -89,6 +106,14 @@ final readonly class Settings implements DefinesScopes
         );
 
         return new ResourceCollection($items);
+    }
+
+    /**
+     * @param array<string, mixed> $settings
+     */
+    public function mapSettings(array $settings): PayrollSettings
+    {
+        return (new PayrollSettings())->fill($settings);
     }
 
     /**

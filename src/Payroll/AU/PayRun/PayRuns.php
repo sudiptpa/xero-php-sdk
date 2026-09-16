@@ -6,9 +6,9 @@ namespace Sujip\Xero\Payroll\AU\PayRun;
 
 use DateTimeInterface;
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Concerns\HasPagination;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
-use Sujip\Xero\Support\Contracts\PaginatesResults;
+use Sujip\Xero\Concerns\HasPagination;
+use Sujip\Xero\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
@@ -22,6 +22,9 @@ final class PayRuns implements PaginatesResults, DefinesScopes
      * @var array<string, scalar|array<int, scalar>|null>
      */
     private array $query = [];
+
+    /** @var array<string, string> */
+    private array $headers = [];
 
     public function __construct(
         private readonly Client $client
@@ -39,7 +42,7 @@ final class PayRuns implements PaginatesResults, DefinesScopes
     public function modifiedSince(DateTimeInterface $date): self
     {
         $clone = clone $this;
-        $clone->query['If-Modified-Since'] = $date->format(DateTimeInterface::ATOM);
+        $clone->headers['If-Modified-Since'] = $date->format(DateTimeInterface::ATOM);
 
         return $clone;
     }
@@ -67,6 +70,7 @@ final class PayRuns implements PaginatesResults, DefinesScopes
     {
         $response = $this->client
             ->get('/payroll.xro/1.0/PayRuns')
+            ->withHeaders($this->headers)
             ->withQuery(array_merge($this->query, $this->paginationQuery()))
             ->send();
 
@@ -127,6 +131,24 @@ final class PayRuns implements PaginatesResults, DefinesScopes
 
         $payload = $response->json();
         $payslip = Json::extractObject($payload, 'Payslip');
+
+        return $payslip !== [] ? (new Payslip())->fill($payslip) : null;
+    }
+
+    /**
+     * @param array<string, mixed> $payslipLines
+     */
+    public function updatePayslip(string $payslipId, array $payslipLines, ?string $idempotencyKey = null): ?Payslip
+    {
+        $response = $this->client
+            ->post('/payroll.xro/1.0/Payslip/' . $payslipId)
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->contentTypeJson()
+            ->withBody(Json::encodeList([$payslipLines]))
+            ->send();
+
+        $payload = $response->json();
+        $payslip = Json::extractFirst($payload, 'Payslips') ?? Json::extractObject($payload, 'Payslip');
 
         return $payslip !== [] ? (new Payslip())->fill($payslip) : null;
     }

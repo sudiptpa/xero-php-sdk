@@ -10,7 +10,7 @@ use Sujip\Xero\Accounting\Invoice\LineItem;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
-use Sujip\Xero\Support\Contracts\SerializesRequest;
+use Sujip\Xero\Contracts\SerializesRequest;
 use Sujip\Xero\Support\ValidationError;
 
 final class Quote extends Model implements SerializesRequest

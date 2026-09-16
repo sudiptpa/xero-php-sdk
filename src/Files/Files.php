@@ -13,7 +13,7 @@ use Sujip\Xero\Files\File\Payload as FilePayload;
 use Sujip\Xero\Files\File\Upload;
 use Sujip\Xero\Files\Folder\Folder;
 use Sujip\Xero\Files\Folder\Folders as FoldersResource;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;

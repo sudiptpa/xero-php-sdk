@@ -10,6 +10,45 @@ use Sujip\Xero\Xero;
 
 final class WebhookVerifierTest extends TestCase
 {
+    public function test_it_preserves_prepayment_and_overpayment_event_details(): void
+    {
+        foreach (['PREPAYMENT' => 'Prepayments', 'OVERPAYMENT' => 'Overpayments'] as $category => $resource) {
+            foreach (['CREATE', 'UPDATE'] as $eventType) {
+                $event = [
+                    'resourceUrl' => 'https://api.xero.com/api.xro/2.0/' . $resource . '/payment-1',
+                    'resourceId' => 'payment-1',
+                    'eventCategory' => $category,
+                    'eventType' => $eventType,
+                    'eventDateUtc' => '2026-09-03T01:15:39.902Z',
+                    'tenantId' => 'tenant-1',
+                    'tenantType' => 'ORGANISATION',
+                    'data' => [
+                        'Type' => 'RECEIVE-' . $category,
+                        'Status' => 'AUTHORISED',
+                        'UpdatedDateUTCString' => '2026-09-03T01:15:39Z',
+                    ],
+                ];
+                $raw = json_encode([
+                    'events' => [$event],
+                    'firstEventSequence' => 76,
+                    'lastEventSequence' => 76,
+                    'entropy' => 'event-entropy',
+                ], JSON_THROW_ON_ERROR);
+                $verifier = Xero::webhookVerifier('webhook-key');
+                $signature = base64_encode(hash_hmac('sha256', $raw, 'webhook-key', true));
+                $payload = $verifier->verifyAndParse($raw, $signature);
+                $parsed = $payload->first();
+
+                self::assertNotNull($parsed);
+                self::assertSame($event, $parsed->getPayload());
+                self::assertSame($event['data'], $parsed->getData());
+                self::assertSame($resource, $parsed->resourceName());
+                self::assertTrue($payload->contains(strtolower($category), strtolower($eventType)));
+                self::assertCount(1, $payload->only($category, $eventType));
+            }
+        }
+    }
+
     public function test_it_verifies_a_valid_signature(): void
     {
         $payload = json_encode([

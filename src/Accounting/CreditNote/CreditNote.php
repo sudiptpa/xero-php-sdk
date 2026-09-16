@@ -14,7 +14,7 @@ use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\InvoiceAddress;
 use Sujip\Xero\Support\Model;
 use Sujip\Xero\Support\ValidationError;
-use Sujip\Xero\Support\Contracts\SerializesRequest;
+use Sujip\Xero\Contracts\SerializesRequest;
 
 final class CreditNote extends Model implements SerializesRequest
 {
@@ -594,6 +594,7 @@ final class CreditNote extends Model implements SerializesRequest
             'CurrencyRate' => $this->getCurrencyRate(),
             'CreditNoteNumber' => $this->getCreditNoteNumber(),
             'BrandingThemeID' => $this->getBrandingThemeID(),
+            'SentToContact' => $this->getSentToContact(),
             'InvoiceAddresses' => array_map(
                 static fn (InvoiceAddress $invoiceAddress): array => $invoiceAddress->toRequest(),
                 $this->getInvoiceAddresses()

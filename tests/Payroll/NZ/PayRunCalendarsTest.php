@@ -29,17 +29,48 @@ final class PayRunCalendarsTest extends TestCase
                 'calendarType' => 'Fortnightly',
             ],
         ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'payRunCalendar' => [
+                'payrollCalendarID' => 'calendar-2',
+                'name' => 'Weekly',
+                'calendarType' => 'Weekly',
+            ],
+        ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $calendars = $client->payroll()->nz()->payRunCalendars()->page(2)->get();
         $calendar = $client->payroll()->nz()->payRunCalendars()->find('calendar-1');
+        $created = $client->payroll()->nz()->payRunCalendars()->create([
+            'name' => 'Weekly',
+            'calendarType' => 'Weekly',
+            'periodStartDate' => '2026-04-01',
+            'paymentDate' => '2026-04-08',
+        ], 'calendar-key');
 
         self::assertSame('/payroll.xro/2.0/PayRunCalendars', $transport->requests()[0]->path);
         self::assertSame(2, $transport->requests()[0]->query['page']);
         self::assertInstanceOf(PayRunCalendar::class, $calendars->first());
         self::assertSame('/payroll.xro/2.0/PayRunCalendars/calendar-1', $transport->requests()[1]->path);
+        self::assertSame('/payroll.xro/2.0/PayRunCalendars', $transport->requests()[2]->path);
+        self::assertSame('calendar-key', $transport->requests()[2]->headers['Idempotency-Key']);
+        self::assertSame('Weekly', $transport->requests()[2]->json['name'] ?? null);
         self::assertSame('calendar-1', $calendar?->getPayrollCalendarID());
+        self::assertSame('calendar-2', $created->getPayrollCalendarID());
+    }
+
+    public function test_create_returns_blank_pay_run_calendar_on_empty_response(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $calendar = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->nz()
+            ->payRunCalendars()
+            ->create(['name' => 'Weekly']);
+
+        self::assertNull($calendar->getPayrollCalendarID());
     }
 
     public function test_it_exposes_scopes(): void

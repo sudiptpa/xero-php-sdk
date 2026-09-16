@@ -10,6 +10,7 @@ use RuntimeException;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Payroll\AU\Timesheet\Timesheet;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class TimesheetsTest extends TestCase
@@ -176,14 +177,14 @@ final class TimesheetsTest extends TestCase
         self::assertSame('POST', $transport->requests()[1]->method);
         self::assertSame('/payroll.xro/1.0/Timesheets/timesheet-1', $transport->requests()[1]->path);
         self::assertSame([
-            'Timesheets' => [[
+            [
                 'EmployeeID' => 'employee-1',
                 'StartDate' => '2026-03-23',
                 'EndDate' => '2026-03-29',
                 'Status' => 'APPROVED',
                 'TimesheetID' => 'timesheet-1',
-            ]],
-        ], $transport->requests()[1]->json);
+            ],
+        ], Json::decode((string) $transport->requests()[1]->body));
         self::assertSame('APPROVED', $saved?->getStatus());
     }
 

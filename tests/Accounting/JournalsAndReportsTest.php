@@ -73,7 +73,7 @@ final class JournalsAndReportsTest extends TestCase
         $journalByNumber = $client->accounting()->journals()->number(1251);
 
         self::assertSame('/api.xro/2.0/Journals', $transport->requests()[0]->path);
-        self::assertSame('Wed, 25 Mar 2026 00:00:00 GMT', $transport->requests()[0]->query['If-Modified-Since']);
+        self::assertSame('Wed, 25 Mar 2026 00:00:00 GMT', $transport->requests()[0]->headers['If-Modified-Since']);
         self::assertSame(1200, $transport->requests()[0]->query['offset']);
         self::assertSame('true', $transport->requests()[0]->query['paymentsOnly']);
         self::assertInstanceOf(Journal::class, $journals->first());

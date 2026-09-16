@@ -243,7 +243,7 @@ final class FilesCoverageTest extends TestCase
     public function test_folders_scopes_update_and_payload_idempotency(): void
     {
         $transport = new FakeTransport();
-        $transport->push(new Response(200, body: '{"Items":[{"Id":"folder-1","Name":"Renamed"}]}')); // update -> save
+        $transport->push(new Response(200, body: '{"Id":"folder-1","Name":"Renamed"}')); // update -> save
         $transport->push(new Response(200, body: '{}')); // create -> save (empty)
 
         $folders = $this->client($transport)->files()->folders();

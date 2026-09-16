@@ -6,7 +6,7 @@ namespace Sujip\Xero\Accounting\TaxRate;
 
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
-use Sujip\Xero\Support\Contracts\SerializesRequest;
+use Sujip\Xero\Contracts\SerializesRequest;
 
 final class Component extends Model implements SerializesRequest
 {

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Sujip\Xero\Payroll\UK\Employee;
 
 use Sujip\Xero\Client;
-use Sujip\Xero\Support\Concerns\HasPagination;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
-use Sujip\Xero\Support\Contracts\PaginatesResults;
+use Sujip\Xero\Concerns\HasPagination;
+use Sujip\Xero\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
@@ -300,6 +300,142 @@ final class Employees implements PaginatesResults, DefinesScopes
     public function createLeaveType(string $employeeId): LeaveTypePayload
     {
         return new LeaveTypePayload($this->client, $employeeId);
+    }
+
+    /**
+     * @param array<string, mixed> $leave
+     * @return array<string, mixed>
+     */
+    public function updateLeave(string $employeeId, string $leaveId, array $leave, ?string $idempotencyKey = null): array
+    {
+        return $this->client
+            ->put('/payroll.xro/2.0/Employees/' . $employeeId . '/Leave/' . $leaveId)
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withJson($leave)
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function deleteLeave(string $employeeId, string $leaveId): array
+    {
+        return $this->client
+            ->delete('/payroll.xro/2.0/Employees/' . $employeeId . '/Leave/' . $leaveId)
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @param array<string, mixed> $salary
+     * @return array<string, mixed>
+     */
+    public function updateSalaryAndWage(string $employeeId, string $salaryAndWagesId, array $salary, ?string $idempotencyKey = null): array
+    {
+        return $this->client
+            ->put('/payroll.xro/2.0/Employees/' . $employeeId . '/SalaryAndWages/' . $salaryAndWagesId)
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withJson($salary)
+            ->send()
+            ->json();
+    }
+
+    public function deleteSalaryAndWage(string $employeeId, string $salaryAndWagesId): bool
+    {
+        $response = $this->client
+            ->delete('/payroll.xro/2.0/Employees/' . $employeeId . '/SalaryAndWages/' . $salaryAndWagesId)
+            ->send();
+
+        return $response->status === 200;
+    }
+
+    /**
+     * @param array<string, mixed> $employment
+     * @return array<string, mixed>
+     */
+    public function createEmployment(string $employeeId, array $employment, ?string $idempotencyKey = null): array
+    {
+        return $this->client
+            ->post('/payroll.xro/2.0/Employees/' . $employeeId . '/Employment')
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withJson($employment)
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @param array<string, mixed> $paymentMethod
+     * @return array<string, mixed>
+     */
+    public function createPaymentMethod(string $employeeId, array $paymentMethod, ?string $idempotencyKey = null): array
+    {
+        return $this->client
+            ->post('/payroll.xro/2.0/Employees/' . $employeeId . '/PaymentMethods')
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withJson($paymentMethod)
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @param array<string, mixed> $salary
+     * @return array<string, mixed>
+     */
+    public function createSalaryAndWage(string $employeeId, array $salary, ?string $idempotencyKey = null): array
+    {
+        return $this->client
+            ->post('/payroll.xro/2.0/Employees/' . $employeeId . '/SalaryAndWages')
+            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withJson($salary)
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function tax(string $employeeId): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/Tax')
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function leavePeriods(string $employeeId, string $startDate, string $endDate): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/LeavePeriods')
+            ->withQuery(['startDate' => $startDate, 'endDate' => $endDate])
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function salaryAndWages(string $employeeId, int $page = 1): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/SalaryAndWages')
+            ->withQuery(['page' => $page])
+            ->send()
+            ->json();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function salaryAndWage(string $employeeId, string $salaryAndWagesId): array
+    {
+        return $this->client
+            ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/SalaryAndWages/' . $salaryAndWagesId)
+            ->send()
+            ->json();
     }
 
     /**

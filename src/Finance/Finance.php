@@ -8,7 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Finance\BankStatementAccounting\BankStatementAccounting;
 use Sujip\Xero\Finance\CashValidation\CashValidation;
 use Sujip\Xero\Finance\FinancialStatement\FinancialStatements;
-use Sujip\Xero\Support\Contracts\DefinesScopes;
+use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Support\ScopeRequirements;
 
 final readonly class Finance implements DefinesScopes

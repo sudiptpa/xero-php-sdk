@@ -13,13 +13,57 @@ use Sujip\Xero\Xero;
 
 final class PayItemsTest extends TestCase
 {
+    public function test_it_creates_pay_items_with_qualifying_earnings_and_nested_fields(): void
+    {
+        $rates = [[
+            'Name' => 'Ordinary hours',
+            'AccountCode' => '477',
+            'EarningsType' => 'ORDINARYTIMEEARNINGS',
+            'RateType' => 'RATEPERUNIT',
+            'TypeOfUnits' => 'Hours',
+            'RatePerUnit' => 0,
+            'IsQualifyingEarnings' => true,
+            'IsExemptFromSuper' => false,
+            'IsExemptFromTax' => false,
+        ]];
+        $deductions = [['Name' => 'Union fee', 'AccountCode' => '826', 'ReducesTax' => false]];
+        $leave = [['Name' => 'Annual leave', 'TypeOfUnits' => 'Hours', 'IsPaidLeave' => true]];
+        $reimbursements = [['Name' => 'Travel', 'AccountCode' => '850']];
+        $expected = [
+            'EarningsRates' => $rates,
+            'DeductionTypes' => $deductions,
+            'LeaveTypes' => $leave,
+            'ReimbursementTypes' => $reimbursements,
+        ];
+        $transport = (new FakeTransport())
+            ->push(new Response(200, body: json_encode(['PayItems' => $expected], JSON_THROW_ON_ERROR)))
+            ->push(new Response(200, body: '{"PayItems":[]}'));
+        $base = Xero::withAccessToken('token', $transport)->tenant('tenant-1')
+            ->payroll()->au()->payItems()->create()->earningsRates($rates);
+        $saved = $base->deductionTypes($deductions)->leaveTypes($leave)
+            ->reimbursementTypes($reimbursements)->idempotencyKey('pay-items-1')->save();
+        $base->save();
+
+        $request = $transport->requests()[0];
+        self::assertSame('POST', $request->method);
+        self::assertSame('/payroll.xro/1.0/PayItems', $request->path);
+        self::assertSame('pay-items-1', $request->headers['Idempotency-Key']);
+        self::assertSame($expected, $request->json);
+        self::assertSame($rates, $saved->getEarningsRates());
+        self::assertSame($deductions, $saved->getDeductionTypes());
+        self::assertSame($leave, $saved->getLeaveTypes());
+        self::assertSame($reimbursements, $saved->getReimbursementTypes());
+        self::assertSame(['EarningsRates' => $rates], $transport->requests()[1]->json);
+        self::assertArrayNotHasKey('Idempotency-Key', $transport->requests()[1]->headers);
+    }
+
     public function test_it_can_query_pay_items(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
-            'PayItems' => [[
+            'PayItems' => [
                 'EarningsRates' => [['Name' => 'Ordinary Hours']],
                 'LeaveTypes' => [['Name' => 'Annual Leave']],
-            ]],
+            ],
         ], JSON_THROW_ON_ERROR)));
 
         $items = Xero::withAccessToken('token', $transport)
@@ -38,6 +82,10 @@ final class PayItemsTest extends TestCase
         self::assertSame('Name ASC', $transport->requests()[0]->query['order']);
         self::assertSame(2, $transport->requests()[0]->query['page']);
         self::assertInstanceOf(PayItem::class, $items->first());
+        self::assertSame('Ordinary Hours', $items->first()->getEarningsRates()[0]['Name']);
+        self::assertSame('Annual Leave', $items->first()->getLeaveTypes()[0]['Name']);
+        self::assertSame('2026-03-26T00:00:00+00:00', $transport->requests()[0]->headers['If-Modified-Since']);
+        self::assertArrayNotHasKey('If-Modified-Since', $transport->requests()[0]->query);
     }
 
     public function test_it_exposes_scopes(): void

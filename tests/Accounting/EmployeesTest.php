@@ -93,7 +93,7 @@ final class EmployeesTest extends TestCase
         self::assertSame('/api.xro/2.0/Employees', $transport->requests()[0]->path);
         self::assertSame('Status == "ACTIVE"', $transport->requests()[0]->query['where']);
         self::assertSame('LastName ASC', $transport->requests()[0]->query['order']);
-        self::assertSame('Wed, 25 Mar 2026 00:00:00 GMT', $transport->requests()[0]->query['If-Modified-Since']);
+        self::assertSame('Wed, 25 Mar 2026 00:00:00 GMT', $transport->requests()[0]->headers['If-Modified-Since']);
         self::assertNotNull($employees->first());
         self::assertSame('/api.xro/2.0/Employees/employee-1', $transport->requests()[1]->path);
         self::assertSame('/api.xro/2.0/Employees', $transport->requests()[2]->path);
