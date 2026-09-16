@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Payroll\UK\Settings;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Headers;
 use Sujip\Xero\Support\Json;
 
 final class ReimbursementPayload
@@ -49,7 +50,7 @@ final class ReimbursementPayload
     {
         $payload = $this->client
             ->post('/payroll.xro/2.0/Reimbursements')
-            ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
+            ->withHeaders(Headers::idempotency($this->idempotencyKey))
             ->withJson($this->payload)
             ->send()
             ->json();

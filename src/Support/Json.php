@@ -138,6 +138,15 @@ final class Json
         return $result;
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>|null
+     */
+    public static function extractFirstOrObject(array $payload, string $listKey, string $objectKey): ?array
+    {
+        return self::extractFirst($payload, $listKey) ?? self::extractObject($payload, $objectKey) ?: null;
+    }
+
     public static function ensureAvailable(): void
     {
         // The json extension is a hard requirement and cannot be unloaded at

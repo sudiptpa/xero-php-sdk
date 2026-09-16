@@ -11,6 +11,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Headers;
 use Sujip\Xero\Support\Json;
 
 final class LeaveTypes implements PaginatesResults, DefinesScopes
@@ -87,7 +88,7 @@ final class LeaveTypes implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $leaveType = Json::extractFirst($payload, 'leaveTypes') ?? Json::extractObject($payload, 'leaveType') ?: null;
+        $leaveType = Json::extractFirstOrObject($payload, 'leaveTypes', 'leaveType');
 
         return $leaveType !== null ? $this->mapLeaveType($leaveType) : null;
     }
@@ -99,7 +100,7 @@ final class LeaveTypes implements PaginatesResults, DefinesScopes
     {
         $payload = $this->client
             ->post('/payroll.xro/2.0/LeaveTypes')
-            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withHeaders(Headers::idempotency($idempotencyKey))
             ->withJson($leaveType)
             ->send()
             ->json();

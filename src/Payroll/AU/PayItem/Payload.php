@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Payroll\AU\PayItem;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Support\Headers;
 use Sujip\Xero\Support\Json;
 
 final class Payload
@@ -65,7 +66,7 @@ final class Payload
     public function save(): PayItem
     {
         $response = $this->client->post('/payroll.xro/1.0/PayItems')
-            ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
+            ->withHeaders(Headers::idempotency($this->idempotencyKey))
             ->withJson($this->payload)
             ->send();
 

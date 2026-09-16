@@ -11,6 +11,7 @@ use Sujip\Xero\Support\Contracts\PaginatesResults;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
+use Sujip\Xero\Support\Headers;
 use Sujip\Xero\Support\Json;
 
 final class PayRunCalendars implements PaginatesResults, DefinesScopes
@@ -74,7 +75,7 @@ final class PayRunCalendars implements PaginatesResults, DefinesScopes
             ->send();
 
         $payload = $response->json();
-        $calendar = Json::extractFirst($payload, 'payRunCalendars') ?? Json::extractObject($payload, 'payRunCalendar') ?: null;
+        $calendar = Json::extractFirstOrObject($payload, 'payRunCalendars', 'payRunCalendar');
 
         return $calendar !== null ? $this->mapPayRunCalendar($calendar) : null;
     }
@@ -86,7 +87,7 @@ final class PayRunCalendars implements PaginatesResults, DefinesScopes
     {
         $payload = $this->client
             ->post('/payroll.xro/2.0/PayRunCalendars')
-            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withHeaders(Headers::idempotency($idempotencyKey))
             ->withJson($calendar)
             ->send()
             ->json();

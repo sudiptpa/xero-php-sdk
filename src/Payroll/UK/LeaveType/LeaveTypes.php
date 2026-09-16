@@ -8,6 +8,7 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Concerns\HasPagination;
 use Sujip\Xero\Support\Contracts\DefinesScopes;
 use Sujip\Xero\Support\Contracts\PaginatesResults;
+use Sujip\Xero\Support\Headers;
 use Sujip\Xero\Support\Json;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
@@ -74,7 +75,7 @@ final class LeaveTypes implements PaginatesResults, DefinesScopes
     {
         $payload = $this->client
             ->post('/payroll.xro/2.0/LeaveTypes')
-            ->withHeaders($idempotencyKey === null ? [] : ['Idempotency-Key' => $idempotencyKey])
+            ->withHeaders(Headers::idempotency($idempotencyKey))
             ->withJson($leaveType)
             ->send()
             ->json();
