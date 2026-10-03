@@ -269,13 +269,8 @@ final class ExpenseClaim extends Model
         parent::fill($payload);
 
         $user = is_array($payload['User'] ?? null) ? $payload['User'] : [];
-        $employee = is_array($payload['Employee'] ?? null) ? $payload['Employee'] : [];
         $this->setEmployeeID(
-            isset($user['UserID']) && is_string($user['UserID'])
-                ? $user['UserID']
-                : (isset($employee['EmployeeID']) && is_string($employee['EmployeeID'])
-                    ? $employee['EmployeeID']
-                    : null)
+            isset($user['UserID']) && is_string($user['UserID']) ? $user['UserID'] : null
         );
 
         $receiptIds = [];
