@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Assets\Asset;
 
+use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Support\PaginatedCollection;
@@ -86,6 +87,10 @@ final class Assets implements DefinesScopes
      */
     public function get(): ResourceCollection
     {
+        if ($this->status === null) {
+            throw new RuntimeException('Xero requires a status when listing assets — call status() with Draft, Registered, or Disposed first.');
+        }
+
         $response = $this->client
             ->get(self::BASE_PATH)
             ->withQuery($this->query())
