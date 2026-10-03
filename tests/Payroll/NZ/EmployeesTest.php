@@ -122,8 +122,10 @@ final class EmployeesTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Employment' => [
-                'StartDate' => '2026-04-01',
+            'employment' => [
+                'payrollCalendarID' => 'calendar-1',
+                'startDate' => '2026-04-01',
+                'engagementType' => 'Permanent',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -190,6 +192,7 @@ final class EmployeesTest extends TestCase
         $createdEmployment = $employee?->createEmployment()
             ->startDate('2026-04-01')
             ->payrollCalendar('calendar-1')
+            ->engagementType('Permanent')
             ->idempotencyKey('employment-key')
             ->save();
         $createdLeave = $employee?->createLeave()
@@ -243,6 +246,11 @@ final class EmployeesTest extends TestCase
         self::assertSame(2, $transport->requests()[15]->query['page']);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages/wage-1', $transport->requests()[16]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Employment', $transport->requests()[17]->path);
+        self::assertSame([
+            'startDate' => '2026-04-01',
+            'payrollCalendarID' => 'calendar-1',
+            'engagementType' => 'Permanent',
+        ], $transport->requests()[17]->json);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[18]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/PaymentMethods', $transport->requests()[19]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages', $transport->requests()[20]->path);
@@ -270,7 +278,7 @@ final class EmployeesTest extends TestCase
         self::assertSame('2026-03-31', (Json::extractList($openingBalances ?? [], 'EmployeeOpeningBalances')[0] ?? [])['PeriodEndDate'] ?? null);
         self::assertSame('wage-1', (Json::extractList($salaryAndWages ?? [], 'SalaryAndWages')[0] ?? [])['SalaryAndWagesID'] ?? null);
         self::assertSame('wage-1', Json::extractObject($salaryAndWage ?? [], 'SalaryAndWages')['SalaryAndWagesID'] ?? null);
-        self::assertSame('2026-04-01', Json::extractObject($createdEmployment ?? [], 'Employment')['StartDate'] ?? null);
+        self::assertSame('2026-04-01', Json::extractObject($createdEmployment ?? [], 'employment')['startDate'] ?? null);
         self::assertSame('leave-2', Json::extractObject($createdLeave ?? [], 'EmployeeLeave')['LeaveID'] ?? null);
         self::assertSame('98-7654-1234567-00', Json::extractObject($createdPaymentMethod ?? [], 'PaymentMethod')['BankAccountNumber'] ?? null);
         self::assertSame('wage-2', Json::extractObject($createdSalaryAndWage ?? [], 'SalaryAndWages')['SalaryAndWagesID'] ?? null);

@@ -24,7 +24,7 @@ final class EmploymentPayload
     public function startDate(string $startDate): self
     {
         $clone = clone $this;
-        $clone->payload['StartDate'] = $startDate;
+        $clone->payload['startDate'] = $startDate;
 
         return $clone;
     }
@@ -32,7 +32,23 @@ final class EmploymentPayload
     public function payrollCalendar(string $payrollCalendarId): self
     {
         $clone = clone $this;
-        $clone->payload['PayrollCalendarID'] = $payrollCalendarId;
+        $clone->payload['payrollCalendarID'] = $payrollCalendarId;
+
+        return $clone;
+    }
+
+    public function engagementType(string $engagementType): self
+    {
+        $clone = clone $this;
+        $clone->payload['engagementType'] = $engagementType;
+
+        return $clone;
+    }
+
+    public function fixedTermEndDate(string $fixedTermEndDate): self
+    {
+        $clone = clone $this;
+        $clone->payload['fixedTermEndDate'] = $fixedTermEndDate;
 
         return $clone;
     }
