@@ -590,6 +590,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 | `standardAmount` | int, float, or null | `()` |
 | `percentage` | int, float, or null | `()` |
 | `companyMax` | int, float, or null | `()` |
+| `currentRecord` | bool or null | `()` |
 
 ### Public methods
 
@@ -611,7 +612,9 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`setPercentage(?float $percentage): Sujip\Xero\Payroll\NZ\PayItem\Superannuation`](../../src/Payroll/NZ/PayItem/Superannuation.php#L120)
 - [`getCompanyMax(): ?float`](../../src/Payroll/NZ/PayItem/Superannuation.php#L127)
 - [`setCompanyMax(?float $companyMax): Sujip\Xero\Payroll\NZ\PayItem\Superannuation`](../../src/Payroll/NZ/PayItem/Superannuation.php#L132)
-- [`toRequest(): array`](../../src/Payroll/NZ/PayItem/Superannuation.php#L160)
+- [`getCurrentRecord(): ?bool`](../../src/Payroll/NZ/PayItem/Superannuation.php#L141)
+- [`setCurrentRecord(?bool $currentRecord): Sujip\Xero\Payroll\NZ\PayItem\Superannuation`](../../src/Payroll/NZ/PayItem/Superannuation.php#L146)
+- [`toRequest(): array`](../../src/Payroll/NZ/PayItem/Superannuation.php#L175)
 
 ## Payroll\NZ\PayItem\Superannuations
 
