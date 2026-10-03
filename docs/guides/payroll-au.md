@@ -60,6 +60,48 @@ $employee = $xero->payroll()
     ->save();
 ```
 
+AU doesn't split tax declarations, bank accounts, pay templates, opening
+balances, or super memberships into separate endpoints the way NZ does —
+they're all just nested objects on the one `Employee` record, set through
+`create()`/`update()`. These builder methods take the raw API field names
+directly (not individually typed) since each one has its own set of line
+types with different required fields per line:
+
+```php
+$updated = $xero->payroll()
+    ->au()
+    ->employees()
+    ->update('employee-id')
+    ->taxDeclaration([
+        'EmploymentBasis' => 'FULLTIME',
+        'TaxFileNumber' => '123456782',
+        'AustralianResidentForTaxPurposes' => true,
+        'TaxFreeThresholdClaimed' => true,
+    ])
+    ->bankAccounts([[
+        'AccountName' => 'Grace Hopper',
+        'BSB' => '484799',
+        'AccountNumber' => '123456789',
+        'Remainder' => true,
+    ]])
+    ->payTemplate([
+        'EarningsLines' => [[
+            'EarningsRateID' => 'earnings-rate-id',
+            'CalculationType' => 'ANNUALSALARY',
+            'AnnualSalary' => 85000,
+        ]],
+    ])
+    ->openingBalances([
+        'OpeningBalanceDate' => '2026-07-01',
+        'EarningsLines' => [['EarningsRateID' => 'earnings-rate-id', 'Amount' => 2500]],
+    ])
+    ->superMemberships([[
+        'SuperFundID' => 'super-fund-id',
+        'EmployeeNumber' => 'EMP-001',
+    ]])
+    ->save();
+```
+
 ```php
 $leaveBalances = $employee->getLeaveBalances();
 

@@ -766,8 +766,13 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`email(string $email): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L50)
 - [`dateOfBirth(string $dateOfBirth): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L58)
 - [`homeAddress(string $addressLine1, string $city, ?string $region = null, ?string $postalCode = null, ?string $country = null, ?string $addressLine2 = null): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L66)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L87)
-- [`save(): Sujip\Xero\Payroll\AU\Employee`](../../src/Payroll/AU/Payload.php#L95)
+- [`taxDeclaration(array $taxDeclaration): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L88)
+- [`bankAccounts(array $bankAccounts): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L97)
+- [`payTemplate(array $payTemplate): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L106)
+- [`openingBalances(array $openingBalances): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L115)
+- [`superMemberships(array $superMemberships): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L124)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L132)
+- [`save(): Sujip\Xero\Payroll\AU\Employee`](../../src/Payroll/AU/Payload.php#L140)
 
 ## Payroll\AU\PayrollAU
 
