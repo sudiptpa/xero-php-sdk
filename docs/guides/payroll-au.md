@@ -55,6 +55,8 @@ $employee = $xero->payroll()
     ->firstName('Grace')
     ->lastName('Hopper')
     ->email('grace@example.test')
+    ->dateOfBirth('1990-05-12')
+    ->homeAddress('101 Green St', 'Island Bay', 'NSW', '6023', 'AUSTRALIA')
     ->save();
 ```
 

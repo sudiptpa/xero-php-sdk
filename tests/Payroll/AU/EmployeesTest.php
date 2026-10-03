@@ -68,6 +68,8 @@ final class EmployeesTest extends TestCase
             ->firstName('Grace')
             ->lastName('Hopper')
             ->email('grace@example.test')
+            ->dateOfBirth('1990-05-12')
+            ->homeAddress('101 Green St', 'Island Bay', 'NSW', '6023', 'AUSTRALIA')
             ->save();
         $updated = $client->payroll()->au()->employees()->update('employee-2')
             ->firstName('Grace')
@@ -83,6 +85,14 @@ final class EmployeesTest extends TestCase
         self::assertNotNull($firstEmp);
         self::assertSame('/payroll.xro/1.0/Employees/employee-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/1.0/Employees', $transport->requests()[2]->path);
+        $createdRow = Json::extractRows(Json::decodeObject((string) $transport->requests()[2]->body))[0] ?? [];
+        self::assertSame([
+            'AddressLine1' => '101 Green St',
+            'City' => 'Island Bay',
+            'Region' => 'NSW',
+            'PostalCode' => '6023',
+            'Country' => 'AUSTRALIA',
+        ], $createdRow['HomeAddress'] ?? null);
         self::assertSame('/payroll.xro/1.0/Employees/employee-2', $transport->requests()[3]->path);
         self::assertSame('Jane', $firstEmp->getFirstName());
         self::assertSame('employee-1', $employee?->getEmployeeID());

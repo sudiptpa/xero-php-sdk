@@ -765,8 +765,9 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`lastName(string $lastName): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L42)
 - [`email(string $email): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L50)
 - [`dateOfBirth(string $dateOfBirth): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L58)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L66)
-- [`save(): Sujip\Xero\Payroll\AU\Employee`](../../src/Payroll/AU/Payload.php#L74)
+- [`homeAddress(string $addressLine1, string $city, ?string $region = null, ?string $postalCode = null, ?string $country = null, ?string $addressLine2 = null): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L66)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L87)
+- [`save(): Sujip\Xero\Payroll\AU\Employee`](../../src/Payroll/AU/Payload.php#L95)
 
 ## Payroll\AU\PayrollAU
 
