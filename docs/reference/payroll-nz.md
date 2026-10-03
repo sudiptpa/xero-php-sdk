@@ -778,8 +778,9 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/NZ/PayRun/Payload.php#L19)
 - [`payrollCalendar(string $payrollCalendarId): Sujip\Xero\Payroll\NZ\PayRun\Payload`](../../src/Payroll/NZ/PayRun/Payload.php#L24)
 - [`paymentDate(string $paymentDate): Sujip\Xero\Payroll\NZ\PayRun\Payload`](../../src/Payroll/NZ/PayRun/Payload.php#L32)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\NZ\PayRun\Payload`](../../src/Payroll/NZ/PayRun/Payload.php#L40)
-- [`save(): Sujip\Xero\Payroll\NZ\PayRun\PayRun`](../../src/Payroll/NZ/PayRun/Payload.php#L48)
+- [`payRunType(string $payRunType): Sujip\Xero\Payroll\NZ\PayRun\Payload`](../../src/Payroll/NZ/PayRun/Payload.php#L40)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\NZ\PayRun\Payload`](../../src/Payroll/NZ/PayRun/Payload.php#L48)
+- [`save(): Sujip\Xero\Payroll\NZ\PayRun\PayRun`](../../src/Payroll/NZ/PayRun/Payload.php#L56)
 
 ## Payroll\NZ\PaySlip\PaySlip
 

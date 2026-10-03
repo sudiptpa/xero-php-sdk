@@ -44,6 +44,7 @@ final class PayRunsTest extends TestCase
         $created = $client->payroll()->nz()->payRuns()->create()
             ->payrollCalendar('calendar-1')
             ->paymentDate('2026-04-08')
+            ->payRunType('Scheduled')
             ->save();
 
         self::assertSame('/payroll.xro/2.0/PayRuns', $transport->requests()[0]->path);
@@ -55,6 +56,7 @@ final class PayRunsTest extends TestCase
         self::assertSame([
             'payrollCalendarID' => 'calendar-1',
             'paymentDate' => '2026-04-08',
+            'payRunType' => 'Scheduled',
         ], $transport->requests()[2]->json);
         self::assertSame('payrun-1', $run?->getPayRunID());
         self::assertSame('payrun-2', $created->getPayRunID());

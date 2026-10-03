@@ -150,6 +150,7 @@ $payRun = $xero->payroll()
     ->payRuns()
     ->create()
     ->payrollCalendar('calendar-id')
+    ->payRunType('Scheduled')
     ->save();
 ```
 
