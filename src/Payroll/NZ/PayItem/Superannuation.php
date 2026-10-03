@@ -28,6 +28,8 @@ final class Superannuation extends Model implements SerializesRequest
 
     private ?float $companyMax = null;
 
+    private ?bool $currentRecord = null;
+
     public function getId(): ?string
     {
         return $this->id;
@@ -136,6 +138,18 @@ final class Superannuation extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getCurrentRecord(): ?bool
+    {
+        return $this->currentRecord;
+    }
+
+    public function setCurrentRecord(?bool $currentRecord): self
+    {
+        $this->currentRecord = $currentRecord;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -151,6 +165,7 @@ final class Superannuation extends Model implements SerializesRequest
             'standardAmount' => Field::number(),
             'percentage' => Field::number(),
             'companyMax' => Field::number(),
+            'currentRecord' => Field::boolean(),
         ];
     }
 

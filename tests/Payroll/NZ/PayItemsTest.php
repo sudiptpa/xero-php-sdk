@@ -241,6 +241,7 @@ final class PayItemsTest extends TestCase
             'standardAmount' => 100,
             'percentage' => 3,
             'companyMax' => 500,
+            'currentRecord' => true,
         ]);
 
         self::assertSame('super-1', $superannuation->getId());
@@ -251,5 +252,6 @@ final class PayItemsTest extends TestCase
         self::assertSame(100.0, $superannuation->getStandardAmount());
         self::assertSame(3.0, $superannuation->getPercentage());
         self::assertSame(500.0, $superannuation->getCompanyMax());
+        self::assertTrue($superannuation->getCurrentRecord());
     }
 }

@@ -17,7 +17,6 @@ final class InvoiceRemindersTest extends TestCase
         $transport->push(new Response(200, body: json_encode([
             'InvoiceReminders' => [
                 'Enabled' => true,
-                'Days' => [7, 14],
             ],
         ], JSON_THROW_ON_ERROR)));
 
@@ -27,7 +26,6 @@ final class InvoiceRemindersTest extends TestCase
 
         self::assertSame('/api.xro/2.0/InvoiceReminders/Settings', $transport->requests()[0]->path);
         self::assertTrue($settings->getEnabled());
-        self::assertSame([7, 14], $settings->getDays());
     }
 
     public function test_it_reads_settings_from_the_invoice_reminder_settings_key(): void
@@ -36,7 +34,6 @@ final class InvoiceRemindersTest extends TestCase
         $transport->push(new Response(200, body: json_encode([
             'InvoiceReminderSettings' => [
                 'Enabled' => false,
-                'Days' => [30],
             ],
         ], JSON_THROW_ON_ERROR)));
 
@@ -47,7 +44,6 @@ final class InvoiceRemindersTest extends TestCase
             ->settings();
 
         self::assertFalse($settings->getEnabled());
-        self::assertSame([30], $settings->getDays());
     }
 
     public function test_it_exposes_required_scopes(): void

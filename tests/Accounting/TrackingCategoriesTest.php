@@ -111,8 +111,14 @@ final class TrackingCategoriesTest extends TestCase
 
         self::assertNotSame([], $categories->scopes()->broad);
 
-        $option = $categories->mapOption(['Name' => 'EMEA', 'TrackingOptionID' => 'opt-1', 'Status' => 'ACTIVE']);
+        $option = $categories->mapOption([
+            'Name' => 'EMEA',
+            'TrackingOptionID' => 'opt-1',
+            'Status' => 'ACTIVE',
+            'TrackingCategoryID' => 'category-1',
+        ]);
         self::assertSame('EMEA', $option->getName());
+        self::assertSame('category-1', $option->getTrackingCategoryID());
 
         $model = (new TrackingCategory())->option('APAC');
         self::assertSame('APAC', $model->getOptions()[0]->getName());
@@ -120,9 +126,10 @@ final class TrackingCategoriesTest extends TestCase
         $replaced = (new TrackingCategory())->setOptions([new Option()]);
         self::assertCount(1, $replaced->getOptions());
 
-        $opt = (new Option())->setTrackingOptionID('opt-9')->setStatus('ACTIVE');
+        $opt = (new Option())->setTrackingOptionID('opt-9')->setStatus('ACTIVE')->setTrackingCategoryID('category-9');
         self::assertSame('opt-9', $opt->getTrackingOptionID());
         self::assertSame('ACTIVE', $opt->getStatus());
+        self::assertSame('category-9', $opt->getTrackingCategoryID());
     }
 
     public function test_it_manages_tracking_options_via_dedicated_endpoints(): void
