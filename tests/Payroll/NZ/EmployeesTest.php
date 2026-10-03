@@ -78,8 +78,10 @@ final class EmployeesTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'PaymentMethod' => [
-                'BankAccountNumber' => '12-1234-1234567-00',
+            'paymentMethod' => [
+                'bankAccounts' => [
+                    ['accountName' => 'Grace Hopper', 'accountNumber' => '12123412345670', 'sortCode' => '123456'],
+                ],
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -135,8 +137,10 @@ final class EmployeesTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'PaymentMethod' => [
-                'BankAccountNumber' => '98-7654-1234567-00',
+            'paymentMethod' => [
+                'bankAccounts' => [
+                    ['accountName' => 'Grace Hopper', 'accountNumber' => '98765412345670', 'sortCode' => '123456'],
+                ],
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -202,7 +206,7 @@ final class EmployeesTest extends TestCase
             ->idempotencyKey('leave-key')
             ->save();
         $createdPaymentMethod = $employee?->createPaymentMethod()
-            ->bankAccountNumber('98-7654-1234567-00')
+            ->bankAccount('Grace Hopper', '98765412345670', '123456')
             ->idempotencyKey('payment-method-key')
             ->save();
         $createdSalaryAndWage = $employee?->createSalaryAndWage()
@@ -260,6 +264,11 @@ final class EmployeesTest extends TestCase
         self::assertSame('employment-key', $transport->requests()[17]->headers['Idempotency-Key']);
         self::assertSame('leave-key', $transport->requests()[18]->headers['Idempotency-Key']);
         self::assertSame('payment-method-key', $transport->requests()[19]->headers['Idempotency-Key']);
+        self::assertSame([
+            'bankAccounts' => [
+                ['accountName' => 'Grace Hopper', 'accountNumber' => '98765412345670', 'sortCode' => '123456'],
+            ],
+        ], $transport->requests()[19]->json);
         self::assertSame('salary-key', $transport->requests()[20]->headers['Idempotency-Key']);
         self::assertSame('working-pattern-key', $transport->requests()[21]->headers['Idempotency-Key']);
         self::assertSame('employee-1', $employee?->getEmployeeID());
@@ -270,7 +279,7 @@ final class EmployeesTest extends TestCase
         self::assertEquals(24.5, (Json::extractList($leaveBalances ?? [], 'LeaveBalances')[0] ?? [])['Balance'] ?? null);
         self::assertSame('leave-1', (Json::extractList($leaves ?? [], 'Leave')[0] ?? [])['LeaveID'] ?? null);
         self::assertSame('leave-1', Json::extractObject($leave ?? [], 'Leave')['LeaveID'] ?? null);
-        self::assertSame('12-1234-1234567-00', Json::extractObject($paymentMethod ?? [], 'PaymentMethod')['BankAccountNumber'] ?? null);
+        self::assertSame('12123412345670', Json::extractList(Json::extractObject($paymentMethod ?? [], 'paymentMethod'), 'bankAccounts')[0]['accountNumber'] ?? null);
         self::assertSame('M', Json::extractObject($tax ?? [], 'Tax')['TaxCode'] ?? null);
         self::assertSame('pattern-1', (Json::extractList($workingPatterns ?? [], 'WorkingPatterns')[0] ?? [])['EmployeeWorkingPatternID'] ?? null);
         self::assertSame('pattern-1', Json::extractObject($workingPattern ?? [], 'WorkingPattern')['EmployeeWorkingPatternID'] ?? null);
@@ -280,7 +289,7 @@ final class EmployeesTest extends TestCase
         self::assertSame('wage-1', Json::extractObject($salaryAndWage ?? [], 'SalaryAndWages')['SalaryAndWagesID'] ?? null);
         self::assertSame('2026-04-01', Json::extractObject($createdEmployment ?? [], 'employment')['startDate'] ?? null);
         self::assertSame('leave-2', Json::extractObject($createdLeave ?? [], 'EmployeeLeave')['LeaveID'] ?? null);
-        self::assertSame('98-7654-1234567-00', Json::extractObject($createdPaymentMethod ?? [], 'PaymentMethod')['BankAccountNumber'] ?? null);
+        self::assertSame('98765412345670', Json::extractList(Json::extractObject($createdPaymentMethod ?? [], 'paymentMethod'), 'bankAccounts')[0]['accountNumber'] ?? null);
         self::assertSame('wage-2', Json::extractObject($createdSalaryAndWage ?? [], 'SalaryAndWages')['SalaryAndWagesID'] ?? null);
         self::assertSame('pattern-2', Json::extractObject($createdWorkingPattern ?? [], 'WorkingPattern')['EmployeeWorkingPatternID'] ?? null);
     }

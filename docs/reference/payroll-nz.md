@@ -378,9 +378,9 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 ### Public methods
 
 - [`__construct(\Sujip\Xero\Client $client, string $employeeId)`](../../src/Payroll/NZ/Employee/PaymentMethodPayload.php#L18)
-- [`bankAccountNumber(string $accountNumber): Sujip\Xero\Payroll\NZ\Employee\PaymentMethodPayload`](../../src/Payroll/NZ/Employee/PaymentMethodPayload.php#L24)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\NZ\Employee\PaymentMethodPayload`](../../src/Payroll/NZ/Employee/PaymentMethodPayload.php#L34)
-- [`save(): array`](../../src/Payroll/NZ/Employee/PaymentMethodPayload.php#L45)
+- [`bankAccount(string $accountName, string $accountNumber, string $sortCode, ?string $particulars = NULL, ?string $code = NULL, ?float $dollarAmount = NULL, ?string $reference = NULL, ?string $calculationType = NULL): Sujip\Xero\Payroll\NZ\Employee\PaymentMethodPayload`](../../src/Payroll/NZ/Employee/PaymentMethodPayload.php#L24)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\NZ\Employee\PaymentMethodPayload`](../../src/Payroll/NZ/Employee/PaymentMethodPayload.php#L49)
+- [`save(): array`](../../src/Payroll/NZ/Employee/PaymentMethodPayload.php#L60)
 
 ## Payroll\NZ\Employee\SalaryAndWagePayload
 

@@ -51,7 +51,7 @@ $leave = $employee->createLeave()
     ->save();
 
 $paymentMethod = $employee->createPaymentMethod()
-    ->bankAccountNumber('12-1234-1234567-00')
+    ->bankAccount('Jane Doe', '12123412345670', '123456')
     ->save();
 
 $salaryAndWage = $employee->createSalaryAndWage()
