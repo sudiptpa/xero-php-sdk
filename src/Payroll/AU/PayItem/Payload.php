@@ -8,6 +8,12 @@ use Sujip\Xero\Client;
 use Sujip\Xero\Support\Headers;
 use Sujip\Xero\Support\Json;
 
+/**
+ * Xero treats each pay item type here as a full replace, not an append: any
+ * existing record of that type left out of the array (by its ID) gets
+ * deleted. Always include every existing record you want to keep alongside
+ * whatever you're adding or changing.
+ */
 final class Payload
 {
     /** @var array<string, list<array<string, mixed>>> */

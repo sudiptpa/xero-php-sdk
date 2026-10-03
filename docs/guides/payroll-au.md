@@ -117,6 +117,11 @@ Create pay items with `create()`. The builder accepts those four lists through
 `earningsRates()`, `deductionTypes()`, `leaveTypes()`, and `reimbursementTypes()`.
 Only lists you supply are sent.
 
+**Each list you supply replaces the full set, not just adds to it.** If you
+send `earningsRates()` with one new record and leave out your existing ones,
+Xero deletes the existing ones. Always include every record you want to
+keep (by its ID) alongside whatever you're adding or changing.
+
 ```php
 $items = $xero->payroll()->au()->payItems()->create()
     ->earningsRates([[
