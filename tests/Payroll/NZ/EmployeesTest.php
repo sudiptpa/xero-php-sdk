@@ -157,6 +157,8 @@ final class EmployeesTest extends TestCase
             ->firstName('Grace')
             ->lastName('Hopper')
             ->emailAddress('grace@example.test')
+            ->dateOfBirth('1992-07-15')
+            ->address('19 Taranaki Street', 'Wellington', '6011')
             ->save();
         $updated = $client->payroll()->nz()->employees()->update('employee-2')
             ->firstName('Grace')
@@ -218,6 +220,11 @@ final class EmployeesTest extends TestCase
         self::assertSame('Ada', $firstEmp->getFirstName());
         self::assertSame('/payroll.xro/2.0/Employees/employee-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/2.0/Employees', $transport->requests()[2]->path);
+        self::assertSame([
+            'addressLine1' => '19 Taranaki Street',
+            'city' => 'Wellington',
+            'postCode' => '6011',
+        ], $transport->requests()[2]->json['address'] ?? null);
         self::assertSame('/payroll.xro/2.0/Employees/employee-2', $transport->requests()[3]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeaveTypes', $transport->requests()[4]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeavePeriods', $transport->requests()[5]->path);

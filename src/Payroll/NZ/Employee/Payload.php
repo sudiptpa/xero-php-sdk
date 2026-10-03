@@ -63,6 +63,27 @@ final class Payload
         return $clone;
     }
 
+    public function address(
+        string $addressLine1,
+        string $city,
+        string $postCode,
+        ?string $addressLine2 = null,
+        ?string $suburb = null,
+        ?string $countryName = null,
+    ): self {
+        $clone = clone $this;
+        $clone->payload['address'] = array_filter([
+            'addressLine1' => $addressLine1,
+            'addressLine2' => $addressLine2,
+            'city' => $city,
+            'suburb' => $suburb,
+            'postCode' => $postCode,
+            'countryName' => $countryName,
+        ], static fn (mixed $value): bool => $value !== null);
+
+        return $clone;
+    }
+
     public function idempotencyKey(string $key): self
     {
         $clone = clone $this;
