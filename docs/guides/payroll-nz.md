@@ -27,6 +27,19 @@ $employee = $xero->payroll()
 ```
 
 ```php
+$updated = $xero->payroll()
+    ->nz()
+    ->employees()
+    ->update('employee-id')
+    ->firstName('Grace')
+    ->lastName('Hopper')
+    ->title('Dr')
+    ->gender('F')
+    ->phoneNumber('021-555-0100')
+    ->save();
+```
+
+```php
 $leaveTypes = $employee->leaveTypes();
 $leavePeriods = $employee->leavePeriods('2026-01-01', '2026-03-31');
 $leaveBalances = $employee->leaveBalances();

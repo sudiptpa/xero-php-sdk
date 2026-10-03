@@ -47,6 +47,30 @@ final class Payload
         return $clone;
     }
 
+    public function title(string $title): self
+    {
+        $clone = clone $this;
+        $clone->payload['title'] = $title;
+
+        return $clone;
+    }
+
+    public function gender(string $gender): self
+    {
+        $clone = clone $this;
+        $clone->payload['gender'] = $gender;
+
+        return $clone;
+    }
+
+    public function phoneNumber(string $phoneNumber): self
+    {
+        $clone = clone $this;
+        $clone->payload['phoneNumber'] = $phoneNumber;
+
+        return $clone;
+    }
+
     public function emailAddress(string $emailAddress): self
     {
         $clone = clone $this;

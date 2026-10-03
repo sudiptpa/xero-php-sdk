@@ -170,6 +170,9 @@ final class EmployeesTest extends TestCase
             ->firstName('Grace')
             ->lastName('Hopper')
             ->emailAddress('grace@example.test')
+            ->title('Dr')
+            ->gender('F')
+            ->phoneNumber('021-555-0100')
             ->save();
         $leaveTypes = $employee?->leaveTypes();
         $leavePeriods = $employee?->leavePeriods('2026-01-01', '2026-03-31');
@@ -242,6 +245,15 @@ final class EmployeesTest extends TestCase
             'postCode' => '6011',
         ], $transport->requests()[2]->json['address'] ?? null);
         self::assertSame('/payroll.xro/2.0/Employees/employee-2', $transport->requests()[3]->path);
+        self::assertSame([
+            'firstName' => 'Grace',
+            'lastName' => 'Hopper',
+            'email' => 'grace@example.test',
+            'title' => 'Dr',
+            'gender' => 'F',
+            'phoneNumber' => '021-555-0100',
+            'employeeID' => 'employee-2',
+        ], $transport->requests()[3]->json);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeaveTypes', $transport->requests()[4]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeavePeriods', $transport->requests()[5]->path);
         self::assertSame('2026-01-01', $transport->requests()[5]->query['startDate']);
@@ -354,6 +366,7 @@ final class EmployeesTest extends TestCase
             'jobTitle' => 'General Manager',
             'engagementType' => 'Permanent',
             'fixedTermEndDate' => '2026-12-31',
+            'employmentType' => 'Employee',
             'address' => [
                 'addressLine1' => '19 Taranaki Street',
                 'addressLine2' => 'Apt 4',
@@ -380,6 +393,7 @@ final class EmployeesTest extends TestCase
         self::assertSame('General Manager', $employee->getJobTitle());
         self::assertSame('Permanent', $employee->getEngagementType());
         self::assertSame('2026-12-31', $employee->getFixedTermEndDate());
+        self::assertSame('Employee', $employee->getEmploymentType());
 
         $address = $employee->getAddress();
         self::assertNotNull($address);
