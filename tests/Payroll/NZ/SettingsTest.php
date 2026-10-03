@@ -63,6 +63,13 @@ final class SettingsTest extends TestCase
                 'accountID' => 'account-3',
             ],
         ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'settings' => [
+                'accounts' => [
+                    ['accountID' => 'account-1', 'type' => 'BANK', 'code' => '091', 'name' => 'Savings'],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)
             ->tenant('tenant-123')
@@ -86,6 +93,9 @@ final class SettingsTest extends TestCase
             ->standardRatePerUnit(0.95)
             ->idempotencyKey('reimbursement-key')
             ->save();
+        $updated = $client->update([
+            ['accountID' => 'account-1', 'type' => 'BANK', 'code' => '091', 'name' => 'Savings'],
+        ]);
 
         self::assertSame('/payroll.xro/2.0/Settings', $transport->requests()[0]->path);
         self::assertSame('/payroll.xro/2.0/Settings/TrackingCategories', $transport->requests()[1]->path);
@@ -107,6 +117,14 @@ final class SettingsTest extends TestCase
         self::assertSame('Mileage', $reimbursements->first()?->getName());
         self::assertSame('reimbursement-1', $reimbursement?->getReimbursementID());
         self::assertSame('reimbursement-2', $created->getReimbursementID());
+        self::assertSame('PUT', $transport->requests()[7]->method);
+        self::assertSame('/payroll.xro/2.0/Settings', $transport->requests()[7]->path);
+        self::assertSame([
+            'accounts' => [
+                ['accountID' => 'account-1', 'type' => 'BANK', 'code' => '091', 'name' => 'Savings'],
+            ],
+        ], $transport->requests()[7]->json);
+        self::assertSame('account-1', $updated->getAccounts()[0]['accountID'] ?? null);
     }
 
     public function test_it_exposes_scopes(): void

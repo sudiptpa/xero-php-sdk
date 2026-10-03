@@ -184,6 +184,13 @@ $accounts = $settings->getAccounts();
 ```
 
 ```php
+$updated = $xero->payroll()
+    ->nz()
+    ->settings()
+    ->update($accounts); // full accounts array: one each of BANK, PAYELIABILITY, WAGESEXPENSE, WAGESPAYABLE
+```
+
+```php
 $deductions = $xero->payroll()
     ->nz()
     ->settings()
