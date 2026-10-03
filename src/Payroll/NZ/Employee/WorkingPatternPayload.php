@@ -24,7 +24,34 @@ final class WorkingPatternPayload
     public function effectiveFrom(string $effectiveFrom): self
     {
         $clone = clone $this;
-        $clone->payload['EffectiveFrom'] = $effectiveFrom;
+        $clone->payload['effectiveFrom'] = $effectiveFrom;
+
+        return $clone;
+    }
+
+    public function workingWeek(
+        float $monday,
+        float $tuesday,
+        float $wednesday,
+        float $thursday,
+        float $friday,
+        float $saturday,
+        float $sunday,
+    ): self {
+        $clone = clone $this;
+
+        /** @var list<array<string, float>> $workingWeeks */
+        $workingWeeks = is_array($clone->payload['workingWeeks'] ?? null) ? $clone->payload['workingWeeks'] : [];
+        $workingWeeks[] = [
+            'monday' => $monday,
+            'tuesday' => $tuesday,
+            'wednesday' => $wednesday,
+            'thursday' => $thursday,
+            'friday' => $friday,
+            'saturday' => $saturday,
+            'sunday' => $sunday,
+        ];
+        $clone->payload['workingWeeks'] = $workingWeeks;
 
         return $clone;
     }

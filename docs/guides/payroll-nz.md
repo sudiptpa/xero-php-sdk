@@ -27,6 +27,19 @@ $employee = $xero->payroll()
 ```
 
 ```php
+$updated = $xero->payroll()
+    ->nz()
+    ->employees()
+    ->update('employee-id')
+    ->firstName('Grace')
+    ->lastName('Hopper')
+    ->title('Dr')
+    ->gender('F')
+    ->phoneNumber('021-555-0100')
+    ->save();
+```
+
+```php
 $leaveTypes = $employee->leaveTypes();
 $leavePeriods = $employee->leavePeriods('2026-01-01', '2026-03-31');
 $leaveBalances = $employee->leaveBalances();
@@ -46,28 +59,38 @@ $employment = $employee->createEmployment()
 
 $leave = $employee->createLeave()
     ->leaveType('leave-type-id')
+    ->description('Annual leave')
     ->startDate('2026-04-10')
     ->endDate('2026-04-11')
     ->save();
 
 $paymentMethod = $employee->createPaymentMethod()
-    ->bankAccountNumber('12-1234-1234567-00')
+    ->bankAccount('Jane Doe', '12123412345670', '123456')
     ->save();
 
 $salaryAndWage = $employee->createSalaryAndWage()
-    ->paymentType('HOURLY')
+    ->paymentType('SALARY')
     ->earningsRate('earning-rate-id')
+    ->numberOfUnitsPerWeek(40)
+    ->numberOfUnitsPerDay(8)
+    ->daysPerWeek(5)
+    ->effectiveFrom('2026-04-01')
+    ->annualSalary(85000)
+    ->status('Active')
     ->save();
 
 $workingPattern = $employee->createWorkingPattern()
     ->effectiveFrom('2026-04-01')
+    ->workingWeek(monday: 8, tuesday: 8, wednesday: 8, thursday: 8, friday: 8, saturday: 0, sunday: 0)
     ->save();
 ```
 
 ```php
 $leaveSetup = $employee->leaveSetup()
-    ->leaveType('leave-type-id')
-    ->scheduleOfAccrual('ON_ANNIVERSARY_DATE')
+    ->includeHolidayPay(true)
+    ->holidayPayOpeningBalance(10)
+    ->annualLeaveOpeningBalance(100)
+    ->sickLeaveScheduleOfAccrual('OnAnniversaryDate')
     ->save();
 
 $openingBalances = $employee->openingBalances()
@@ -140,6 +163,7 @@ $payRun = $xero->payroll()
     ->payRuns()
     ->create()
     ->payrollCalendar('calendar-id')
+    ->payRunType('Scheduled')
     ->save();
 ```
 
@@ -181,6 +205,13 @@ $settings = $xero->payroll()
     ->get();
 
 $accounts = $settings->getAccounts();
+```
+
+```php
+$updated = $xero->payroll()
+    ->nz()
+    ->settings()
+    ->update($accounts); // full accounts array: one each of BANK, PAYELIABILITY, WAGESEXPENSE, WAGESPAYABLE
 ```
 
 ```php

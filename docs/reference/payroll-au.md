@@ -396,41 +396,37 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 | `Description` | string or null | `setDescription()` |
 | `PayOutType` | string or null | `setPayOutType()` |
 | `LeavePeriods` | array | `setLeavePeriods()` |
-| `Status` | string or null | `setStatus()` |
 | `UpdatedDateUTC` | string or null | `setUpdatedDateUTC()` |
 | `ValidationErrors` | list of objects ([Support\ValidationError](support.md#supportvalidationerror)) | `()` |
 
 ### Public methods
 
-- [`__construct(?\Sujip\Xero\Client $client = NULL)`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L36)
-- [`getLeaveApplicationID(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L41)
-- [`setLeaveApplicationID(?string $leaveApplicationID): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L45)
-- [`getEmployeeID(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L50)
-- [`setEmployeeID(?string $employeeID): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L54)
-- [`getLeaveTypeID(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L59)
-- [`setLeaveTypeID(?string $leaveTypeID): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L63)
-- [`getTitle(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L68)
-- [`setTitle(?string $title): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L72)
-- [`getStartDate(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L77)
-- [`setStartDate(?string $startDate): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L81)
-- [`getEndDate(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L86)
-- [`setEndDate(?string $endDate): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L90)
-- [`getDescription(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L95)
-- [`setDescription(?string $description): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L99)
-- [`getPayOutType(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L104)
-- [`setPayOutType(?string $payOutType): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L108)
-- [`getLeavePeriods(): array`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L117)
-- [`setLeavePeriods(array $leavePeriods): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L125)
-- [`getStatus(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L130)
-- [`setStatus(?string $status): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L134)
-- [`status(string $status): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L139)
-- [`getUpdatedDateUTC(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L145)
-- [`setUpdatedDateUTC(?string $updatedDateUTC): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L149)
-- [`getValidationErrors(): array`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L158)
-- [`addValidationError(\Sujip\Xero\Support\ValidationError $validationError): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L163)
-- [`save(): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L190)
-- [`approve(): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L225)
-- [`reject(): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L234)
+- [`__construct(?\Sujip\Xero\Client $client = NULL)`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L35)
+- [`getLeaveApplicationID(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L40)
+- [`setLeaveApplicationID(?string $leaveApplicationID): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L44)
+- [`getEmployeeID(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L49)
+- [`setEmployeeID(?string $employeeID): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L53)
+- [`getLeaveTypeID(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L58)
+- [`setLeaveTypeID(?string $leaveTypeID): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L62)
+- [`getTitle(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L67)
+- [`setTitle(?string $title): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L71)
+- [`getStartDate(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L76)
+- [`setStartDate(?string $startDate): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L80)
+- [`getEndDate(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L85)
+- [`setEndDate(?string $endDate): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L89)
+- [`getDescription(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L94)
+- [`setDescription(?string $description): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L98)
+- [`getPayOutType(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L103)
+- [`setPayOutType(?string $payOutType): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L107)
+- [`getLeavePeriods(): array`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L116)
+- [`setLeavePeriods(array $leavePeriods): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L124)
+- [`getUpdatedDateUTC(): ?string`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L129)
+- [`setUpdatedDateUTC(?string $updatedDateUTC): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L133)
+- [`getValidationErrors(): array`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L142)
+- [`addValidationError(\Sujip\Xero\Support\ValidationError $validationError): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L147)
+- [`save(): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L173)
+- [`approve(): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L208)
+- [`reject(): Sujip\Xero\Payroll\AU\LeaveApplication\LeaveApplication`](../../src/Payroll/AU/LeaveApplication/LeaveApplication.php#L217)
 
 ## Payroll\AU\LeaveApplication\LeaveApplications
 
@@ -765,8 +761,15 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`lastName(string $lastName): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L42)
 - [`email(string $email): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L50)
 - [`dateOfBirth(string $dateOfBirth): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L58)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L66)
-- [`save(): Sujip\Xero\Payroll\AU\Employee`](../../src/Payroll/AU/Payload.php#L74)
+- [`homeAddress(string $addressLine1, string $city, ?string $region = null, ?string $postalCode = null, ?string $country = null, ?string $addressLine2 = null): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L66)
+- [`payrollCalendar(string $payrollCalendarId): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L87)
+- [`taxDeclaration(array $taxDeclaration): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L96)
+- [`bankAccounts(array $bankAccounts): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L105)
+- [`payTemplate(array $payTemplate): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L114)
+- [`openingBalances(array $openingBalances): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L123)
+- [`superMemberships(array $superMemberships): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L132)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L140)
+- [`save(): Sujip\Xero\Payroll\AU\Employee`](../../src/Payroll/AU/Payload.php#L148)
 
 ## Payroll\AU\PayrollAU
 

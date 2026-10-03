@@ -91,6 +91,8 @@ final class TaxRatesTest extends TestCase
                         (new Component())
                             ->setName('GST')
                             ->setRate(15)
+                            ->setIsCompound(true)
+                            ->setIsNonRecoverable(false)
                     )
             )
             ->idempotencyKey('tax-key')
@@ -106,6 +108,8 @@ final class TaxRatesTest extends TestCase
         self::assertSame('OUTPUT', $tr0['TaxType']);
         $components = Json::extractList($tr0, 'TaxComponents');
         self::assertSame('GST', $components[0]['Name'] ?? null);
+        self::assertTrue($components[0]['IsCompound'] ?? null);
+        self::assertFalse($components[0]['IsNonRecoverable'] ?? null);
         self::assertSame('/api.xro/2.0/TaxRates', $transport->requests()[1]->path);
         self::assertSame('GST Plus', $updated->getName());
     }
@@ -135,8 +139,15 @@ final class TaxRatesTest extends TestCase
 
         self::assertNotSame([], $taxRates->scopes()->broad);
 
-        $component = $taxRates->mapComponent(['Name' => 'GST', 'Rate' => 15]);
+        $component = $taxRates->mapComponent([
+            'Name' => 'GST',
+            'Rate' => 15,
+            'IsCompound' => true,
+            'IsNonRecoverable' => false,
+        ]);
         self::assertSame('GST', $component->getName());
+        self::assertTrue($component->getIsCompound());
+        self::assertFalse($component->getIsNonRecoverable());
 
         $model = (new TaxRate())->setTaxComponents([new Component()]);
         self::assertCount(1, $model->getTaxComponents());

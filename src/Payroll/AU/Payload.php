@@ -63,6 +63,88 @@ final class Payload
         return $clone;
     }
 
+    public function homeAddress(
+        string $addressLine1,
+        string $city,
+        ?string $region = null,
+        ?string $postalCode = null,
+        ?string $country = null,
+        ?string $addressLine2 = null,
+    ): self {
+        $clone = clone $this;
+        $clone->payload['HomeAddress'] = array_filter([
+            'AddressLine1' => $addressLine1,
+            'AddressLine2' => $addressLine2,
+            'City' => $city,
+            'Region' => $region,
+            'PostalCode' => $postalCode,
+            'Country' => $country,
+        ], static fn (mixed $value): bool => $value !== null);
+
+        return $clone;
+    }
+
+    public function payrollCalendar(string $payrollCalendarId): self
+    {
+        $clone = clone $this;
+        $clone->payload['PayrollCalendarID'] = $payrollCalendarId;
+
+        return $clone;
+    }
+
+    public function ordinaryEarningsRate(string $earningsRateId): self
+    {
+        $clone = clone $this;
+        $clone->payload['OrdinaryEarningsRateID'] = $earningsRateId;
+
+        return $clone;
+    }
+
+    /** @param array<string, mixed> $taxDeclaration */
+    public function taxDeclaration(array $taxDeclaration): self
+    {
+        $clone = clone $this;
+        $clone->payload['TaxDeclaration'] = $taxDeclaration;
+
+        return $clone;
+    }
+
+    /** @param list<array<string, mixed>> $bankAccounts */
+    public function bankAccounts(array $bankAccounts): self
+    {
+        $clone = clone $this;
+        $clone->payload['BankAccounts'] = $bankAccounts;
+
+        return $clone;
+    }
+
+    /** @param array<string, mixed> $payTemplate */
+    public function payTemplate(array $payTemplate): self
+    {
+        $clone = clone $this;
+        $clone->payload['PayTemplate'] = $payTemplate;
+
+        return $clone;
+    }
+
+    /** @param array<string, mixed> $openingBalances */
+    public function openingBalances(array $openingBalances): self
+    {
+        $clone = clone $this;
+        $clone->payload['OpeningBalances'] = $openingBalances;
+
+        return $clone;
+    }
+
+    /** @param list<array<string, mixed>> $superMemberships */
+    public function superMemberships(array $superMemberships): self
+    {
+        $clone = clone $this;
+        $clone->payload['SuperMemberships'] = $superMemberships;
+
+        return $clone;
+    }
+
     public function idempotencyKey(string $key): self
     {
         $clone = clone $this;

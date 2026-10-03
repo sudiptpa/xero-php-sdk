@@ -24,7 +24,7 @@ final class OpeningBalancesPayload
     public function periodEndDate(string $periodEndDate): self
     {
         $clone = clone $this;
-        $clone->payload['PeriodEndDate'] = $periodEndDate;
+        $clone->payload['periodEndDate'] = $periodEndDate;
 
         return $clone;
     }
@@ -32,7 +32,15 @@ final class OpeningBalancesPayload
     public function daysPaid(int|float $daysPaid): self
     {
         $clone = clone $this;
-        $clone->payload['DaysPaid'] = $daysPaid;
+        $clone->payload['daysPaid'] = $daysPaid;
+
+        return $clone;
+    }
+
+    public function unpaidWeeks(int $unpaidWeeks): self
+    {
+        $clone = clone $this;
+        $clone->payload['unpaidWeeks'] = $unpaidWeeks;
 
         return $clone;
     }
@@ -40,7 +48,7 @@ final class OpeningBalancesPayload
     public function grossEarnings(int|float $grossEarnings): self
     {
         $clone = clone $this;
-        $clone->payload['GrossEarnings'] = $grossEarnings;
+        $clone->payload['grossEarnings'] = $grossEarnings;
 
         return $clone;
     }

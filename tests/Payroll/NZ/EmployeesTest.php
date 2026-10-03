@@ -78,8 +78,10 @@ final class EmployeesTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'PaymentMethod' => [
-                'BankAccountNumber' => '12-1234-1234567-00',
+            'paymentMethod' => [
+                'bankAccounts' => [
+                    ['accountName' => 'Grace Hopper', 'accountNumber' => '12123412345670', 'sortCode' => '123456'],
+                ],
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -122,8 +124,10 @@ final class EmployeesTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'Employment' => [
-                'StartDate' => '2026-04-01',
+            'employment' => [
+                'payrollCalendarID' => 'calendar-1',
+                'startDate' => '2026-04-01',
+                'engagementType' => 'Permanent',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -133,8 +137,10 @@ final class EmployeesTest extends TestCase
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'PaymentMethod' => [
-                'BankAccountNumber' => '98-7654-1234567-00',
+            'paymentMethod' => [
+                'bankAccounts' => [
+                    ['accountName' => 'Grace Hopper', 'accountNumber' => '98765412345670', 'sortCode' => '123456'],
+                ],
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -157,11 +163,16 @@ final class EmployeesTest extends TestCase
             ->firstName('Grace')
             ->lastName('Hopper')
             ->emailAddress('grace@example.test')
+            ->dateOfBirth('1992-07-15')
+            ->address('19 Taranaki Street', 'Wellington', '6011')
             ->save();
         $updated = $client->payroll()->nz()->employees()->update('employee-2')
             ->firstName('Grace')
             ->lastName('Hopper')
             ->emailAddress('grace@example.test')
+            ->title('Dr')
+            ->gender('F')
+            ->phoneNumber('021-555-0100')
             ->save();
         $leaveTypes = $employee?->leaveTypes();
         $leavePeriods = $employee?->leavePeriods('2026-01-01', '2026-03-31');
@@ -173,8 +184,10 @@ final class EmployeesTest extends TestCase
         $workingPatterns = $employee?->workingPatterns();
         $workingPattern = $employee?->workingPattern('pattern-1');
         $leaveSetup = $employee?->leaveSetup()
-            ->leaveType('leave-type-1')
-            ->scheduleOfAccrual('ON_ANNIVERSARY_DATE')
+            ->includeHolidayPay(true)
+            ->holidayPayOpeningBalance(10.0)
+            ->annualLeaveOpeningBalance(100.0)
+            ->sickLeaveScheduleOfAccrual('OnAnniversaryDate')
             ->idempotencyKey('leave-setup-key')
             ->save();
         $openingBalances = $employee?->openingBalances()
@@ -188,25 +201,33 @@ final class EmployeesTest extends TestCase
         $createdEmployment = $employee?->createEmployment()
             ->startDate('2026-04-01')
             ->payrollCalendar('calendar-1')
+            ->engagementType('Permanent')
             ->idempotencyKey('employment-key')
             ->save();
         $createdLeave = $employee?->createLeave()
             ->leaveType('leave-type-1')
+            ->description('Annual leave')
             ->startDate('2026-04-10')
             ->endDate('2026-04-11')
             ->idempotencyKey('leave-key')
             ->save();
         $createdPaymentMethod = $employee?->createPaymentMethod()
-            ->bankAccountNumber('98-7654-1234567-00')
+            ->bankAccount('Grace Hopper', '98765412345670', '123456')
             ->idempotencyKey('payment-method-key')
             ->save();
         $createdSalaryAndWage = $employee?->createSalaryAndWage()
             ->paymentType('HOURLY')
             ->earningsRate('earning-rate-1')
+            ->numberOfUnitsPerWeek(40.0)
+            ->numberOfUnitsPerDay(8.0)
+            ->effectiveFrom('2026-04-01')
+            ->annualSalary(85000.0)
+            ->status('Active')
             ->idempotencyKey('salary-key')
             ->save();
         $createdWorkingPattern = $employee?->createWorkingPattern()
             ->effectiveFrom('2026-04-01')
+            ->workingWeek(0.0, 8.0, 8.0, 8.0, 8.0, 0.0, 0.0)
             ->idempotencyKey('working-pattern-key')
             ->save();
 
@@ -218,7 +239,21 @@ final class EmployeesTest extends TestCase
         self::assertSame('Ada', $firstEmp->getFirstName());
         self::assertSame('/payroll.xro/2.0/Employees/employee-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/2.0/Employees', $transport->requests()[2]->path);
+        self::assertSame([
+            'addressLine1' => '19 Taranaki Street',
+            'city' => 'Wellington',
+            'postCode' => '6011',
+        ], $transport->requests()[2]->json['address'] ?? null);
         self::assertSame('/payroll.xro/2.0/Employees/employee-2', $transport->requests()[3]->path);
+        self::assertSame([
+            'firstName' => 'Grace',
+            'lastName' => 'Hopper',
+            'email' => 'grace@example.test',
+            'title' => 'Dr',
+            'gender' => 'F',
+            'phoneNumber' => '021-555-0100',
+            'employeeID' => 'employee-2',
+        ], $transport->requests()[3]->json);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeaveTypes', $transport->requests()[4]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeavePeriods', $transport->requests()[5]->path);
         self::assertSame('2026-01-01', $transport->requests()[5]->query['startDate']);
@@ -236,6 +271,11 @@ final class EmployeesTest extends TestCase
         self::assertSame(2, $transport->requests()[15]->query['page']);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages/wage-1', $transport->requests()[16]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Employment', $transport->requests()[17]->path);
+        self::assertSame([
+            'startDate' => '2026-04-01',
+            'payrollCalendarID' => 'calendar-1',
+            'engagementType' => 'Permanent',
+        ], $transport->requests()[17]->json);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[18]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/PaymentMethods', $transport->requests()[19]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/SalaryAndWages', $transport->requests()[20]->path);
@@ -245,6 +285,11 @@ final class EmployeesTest extends TestCase
         self::assertSame('employment-key', $transport->requests()[17]->headers['Idempotency-Key']);
         self::assertSame('leave-key', $transport->requests()[18]->headers['Idempotency-Key']);
         self::assertSame('payment-method-key', $transport->requests()[19]->headers['Idempotency-Key']);
+        self::assertSame([
+            'bankAccounts' => [
+                ['accountName' => 'Grace Hopper', 'accountNumber' => '98765412345670', 'sortCode' => '123456'],
+            ],
+        ], $transport->requests()[19]->json);
         self::assertSame('salary-key', $transport->requests()[20]->headers['Idempotency-Key']);
         self::assertSame('working-pattern-key', $transport->requests()[21]->headers['Idempotency-Key']);
         self::assertSame('employee-1', $employee?->getEmployeeID());
@@ -255,7 +300,7 @@ final class EmployeesTest extends TestCase
         self::assertEquals(24.5, (Json::extractList($leaveBalances ?? [], 'LeaveBalances')[0] ?? [])['Balance'] ?? null);
         self::assertSame('leave-1', (Json::extractList($leaves ?? [], 'Leave')[0] ?? [])['LeaveID'] ?? null);
         self::assertSame('leave-1', Json::extractObject($leave ?? [], 'Leave')['LeaveID'] ?? null);
-        self::assertSame('12-1234-1234567-00', Json::extractObject($paymentMethod ?? [], 'PaymentMethod')['BankAccountNumber'] ?? null);
+        self::assertSame('12123412345670', Json::extractList(Json::extractObject($paymentMethod ?? [], 'paymentMethod'), 'bankAccounts')[0]['accountNumber'] ?? null);
         self::assertSame('M', Json::extractObject($tax ?? [], 'Tax')['TaxCode'] ?? null);
         self::assertSame('pattern-1', (Json::extractList($workingPatterns ?? [], 'WorkingPatterns')[0] ?? [])['EmployeeWorkingPatternID'] ?? null);
         self::assertSame('pattern-1', Json::extractObject($workingPattern ?? [], 'WorkingPattern')['EmployeeWorkingPatternID'] ?? null);
@@ -263,9 +308,9 @@ final class EmployeesTest extends TestCase
         self::assertSame('2026-03-31', (Json::extractList($openingBalances ?? [], 'EmployeeOpeningBalances')[0] ?? [])['PeriodEndDate'] ?? null);
         self::assertSame('wage-1', (Json::extractList($salaryAndWages ?? [], 'SalaryAndWages')[0] ?? [])['SalaryAndWagesID'] ?? null);
         self::assertSame('wage-1', Json::extractObject($salaryAndWage ?? [], 'SalaryAndWages')['SalaryAndWagesID'] ?? null);
-        self::assertSame('2026-04-01', Json::extractObject($createdEmployment ?? [], 'Employment')['StartDate'] ?? null);
+        self::assertSame('2026-04-01', Json::extractObject($createdEmployment ?? [], 'employment')['startDate'] ?? null);
         self::assertSame('leave-2', Json::extractObject($createdLeave ?? [], 'EmployeeLeave')['LeaveID'] ?? null);
-        self::assertSame('98-7654-1234567-00', Json::extractObject($createdPaymentMethod ?? [], 'PaymentMethod')['BankAccountNumber'] ?? null);
+        self::assertSame('98765412345670', Json::extractList(Json::extractObject($createdPaymentMethod ?? [], 'paymentMethod'), 'bankAccounts')[0]['accountNumber'] ?? null);
         self::assertSame('wage-2', Json::extractObject($createdSalaryAndWage ?? [], 'SalaryAndWages')['SalaryAndWagesID'] ?? null);
         self::assertSame('pattern-2', Json::extractObject($createdWorkingPattern ?? [], 'WorkingPattern')['EmployeeWorkingPatternID'] ?? null);
     }
@@ -321,6 +366,7 @@ final class EmployeesTest extends TestCase
             'jobTitle' => 'General Manager',
             'engagementType' => 'Permanent',
             'fixedTermEndDate' => '2026-12-31',
+            'employmentType' => 'Employee',
             'address' => [
                 'addressLine1' => '19 Taranaki Street',
                 'addressLine2' => 'Apt 4',
@@ -347,6 +393,7 @@ final class EmployeesTest extends TestCase
         self::assertSame('General Manager', $employee->getJobTitle());
         self::assertSame('Permanent', $employee->getEngagementType());
         self::assertSame('2026-12-31', $employee->getFixedTermEndDate());
+        self::assertSame('Employee', $employee->getEmploymentType());
 
         $address = $employee->getAddress();
         self::assertNotNull($address);
@@ -419,12 +466,12 @@ final class EmployeesTest extends TestCase
         self::assertNull($employee->getEmployeeID());
     }
 
-    public function test_leave_payload_sends_title(): void
+    public function test_leave_payload_sends_description(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
-            'EmployeeLeave' => [
-                'LeaveID' => 'leave-1',
-                'Title' => 'Annual Leave',
+            'employeeLeave' => [
+                'leaveID' => 'leave-1',
+                'description' => 'Annual Leave',
             ],
         ], JSON_THROW_ON_ERROR)));
 
@@ -435,19 +482,19 @@ final class EmployeesTest extends TestCase
             ->employees()
             ->createLeave('employee-1')
             ->leaveType('leave-type-1')
-            ->title('Annual Leave')
+            ->description('Annual Leave')
             ->startDate('2026-04-10')
             ->endDate('2026-04-11')
             ->save();
 
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[0]->path);
         self::assertSame([
-            'LeaveTypeID' => 'leave-type-1',
-            'Title' => 'Annual Leave',
-            'StartDate' => '2026-04-10',
-            'EndDate' => '2026-04-11',
+            'leaveTypeID' => 'leave-type-1',
+            'description' => 'Annual Leave',
+            'startDate' => '2026-04-10',
+            'endDate' => '2026-04-11',
         ], $transport->requests()[0]->json);
-        self::assertSame('Annual Leave', Json::extractObject($leave, 'EmployeeLeave')['Title'] ?? null);
+        self::assertSame('Annual Leave', Json::extractObject($leave, 'employeeLeave')['description'] ?? null);
     }
 
     public function test_saving_without_a_client_throws(): void

@@ -55,6 +55,51 @@ $employee = $xero->payroll()
     ->firstName('Grace')
     ->lastName('Hopper')
     ->email('grace@example.test')
+    ->dateOfBirth('1990-05-12')
+    ->homeAddress('101 Green St', 'Island Bay', 'NSW', '6023', 'AUSTRALIA')
+    ->save();
+```
+
+AU doesn't split tax declarations, bank accounts, pay templates, opening
+balances, or super memberships into separate endpoints the way NZ does —
+they're all just nested objects on the one `Employee` record, set through
+`create()`/`update()`. These builder methods take the raw API field names
+directly (not individually typed) since each one has its own set of line
+types with different required fields per line:
+
+```php
+$updated = $xero->payroll()
+    ->au()
+    ->employees()
+    ->update('employee-id')
+    ->payrollCalendar('calendar-id')
+    ->taxDeclaration([
+        'EmploymentBasis' => 'FULLTIME',
+        'TaxFileNumber' => '123456782',
+        'AustralianResidentForTaxPurposes' => true,
+        'TaxFreeThresholdClaimed' => true,
+    ])
+    ->bankAccounts([[
+        'AccountName' => 'Grace Hopper',
+        'BSB' => '484799',
+        'AccountNumber' => '123456789',
+        'Remainder' => true,
+    ]])
+    ->payTemplate([
+        'EarningsLines' => [[
+            'EarningsRateID' => 'earnings-rate-id',
+            'CalculationType' => 'ANNUALSALARY',
+            'AnnualSalary' => 85000,
+        ]],
+    ])
+    ->openingBalances([
+        'OpeningBalanceDate' => '2026-07-01',
+        'EarningsLines' => [['EarningsRateID' => 'earnings-rate-id', 'Amount' => 2500]],
+    ])
+    ->superMemberships([[
+        'SuperFundID' => 'super-fund-id',
+        'EmployeeNumber' => 'EMP-001',
+    ]])
     ->save();
 ```
 
@@ -75,10 +120,9 @@ $leave = $employee->createLeaveApplication()
 $leaveApplications = $xero->payroll()
     ->au()
     ->leaveApplications()
-    ->where('Status=="REQUESTED"')
     ->get();
 
-$status = $leaveApplications->first()?->getStatus();
+$title = $leaveApplications->first()?->getTitle();
 ```
 
 ```php
@@ -114,6 +158,11 @@ list contains arrays with the API field names unchanged.
 Create pay items with `create()`. The builder accepts those four lists through
 `earningsRates()`, `deductionTypes()`, `leaveTypes()`, and `reimbursementTypes()`.
 Only lists you supply are sent.
+
+**Each list you supply replaces the full set, not just adds to it.** If you
+send `earningsRates()` with one new record and leave out your existing ones,
+Xero deletes the existing ones. Always include every record you want to
+keep (by its ID) alongside whatever you're adding or changing.
 
 ```php
 $items = $xero->payroll()->au()->payItems()->create()

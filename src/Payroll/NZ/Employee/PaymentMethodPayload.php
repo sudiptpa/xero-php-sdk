@@ -21,12 +21,31 @@ final class PaymentMethodPayload
     ) {
     }
 
-    public function bankAccountNumber(string $accountNumber): self
-    {
+    public function bankAccount(
+        string $accountName,
+        string $accountNumber,
+        string $sortCode,
+        ?string $particulars = null,
+        ?string $code = null,
+        ?float $dollarAmount = null,
+        ?string $reference = null,
+        ?string $calculationType = null,
+    ): self {
         $clone = clone $this;
-        $bankAccount = is_array($clone->payload['BankAccount'] ?? null) ? $clone->payload['BankAccount'] : [];
-        $bankAccount['AccountNumber'] = $accountNumber;
-        $clone->payload['BankAccount'] = $bankAccount;
+
+        /** @var list<array<string, mixed>> $bankAccounts */
+        $bankAccounts = is_array($clone->payload['bankAccounts'] ?? null) ? $clone->payload['bankAccounts'] : [];
+        $bankAccounts[] = array_filter([
+            'accountName' => $accountName,
+            'accountNumber' => $accountNumber,
+            'sortCode' => $sortCode,
+            'particulars' => $particulars,
+            'code' => $code,
+            'dollarAmount' => $dollarAmount,
+            'reference' => $reference,
+            'calculationType' => $calculationType,
+        ], static fn (mixed $value): bool => $value !== null);
+        $clone->payload['bankAccounts'] = $bankAccounts;
 
         return $clone;
     }

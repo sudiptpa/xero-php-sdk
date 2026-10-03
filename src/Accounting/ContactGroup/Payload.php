@@ -57,14 +57,11 @@ final class Payload
 
     public function save(): ContactGroup
     {
-        $path = '/api.xro/2.0/ContactGroups';
+        $request = $this->contactGroupId === null
+            ? $this->client->put('/api.xro/2.0/ContactGroups')
+            : $this->client->post('/api.xro/2.0/ContactGroups/' . $this->contactGroupId);
 
-        if ($this->contactGroupId !== null) {
-            $path .= '/' . $this->contactGroupId;
-        }
-
-        $response = $this->client
-            ->post($path)
+        $response = $request
             ->withJson(['ContactGroups' => [$this->payload]])
             ->send();
 

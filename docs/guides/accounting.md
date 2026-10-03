@@ -190,7 +190,6 @@ $settings = $xero->accounting()
     ->settings();
 
 $enabled = $settings->getEnabled();
-$days = $settings->getDays();
 ```
 
 ## Payments
@@ -837,7 +836,7 @@ $status = $firstClaim?->getStatus();
 $claim = $xero->accounting()
     ->expenseClaims()
     ->create()
-    ->employee('employee-id')
+    ->employee('user-id') // the Xero User ID of the claimant
     ->receipt('receipt-id')
     ->status('DRAFT')
     ->save();
