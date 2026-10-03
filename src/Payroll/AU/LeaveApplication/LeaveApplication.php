@@ -25,7 +25,6 @@ final class LeaveApplication extends Model
      * @var list<array<string, mixed>>
      */
     private array $leavePeriods = [];
-    private ?string $status = null;
     private ?string $updatedDateUTC = null;
 
     /**
@@ -127,21 +126,6 @@ final class LeaveApplication extends Model
         $this->leavePeriods = $leavePeriods;
         return $this;
     }
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-    public function setStatus(?string $status): self
-    {
-        $this->status = $status;
-        return $this;
-    }
-    public function status(string $status): self
-    {
-        $this->status = strtoupper($status);
-
-        return $this;
-    }
     public function getUpdatedDateUTC(): ?string
     {
         return $this->updatedDateUTC;
@@ -181,7 +165,6 @@ final class LeaveApplication extends Model
             'Description' => Field::string()->using('setDescription'),
             'PayOutType' => Field::string()->using('setPayOutType'),
             'LeavePeriods' => Field::array()->using('setLeavePeriods'),
-            'Status' => Field::string()->using('setStatus'),
             'UpdatedDateUTC' => Field::string()->using('setUpdatedDateUTC'),
             'ValidationErrors' => Field::many(ValidationError::class),
         ];

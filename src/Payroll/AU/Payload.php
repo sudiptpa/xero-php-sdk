@@ -84,6 +84,22 @@ final class Payload
         return $clone;
     }
 
+    public function payrollCalendar(string $payrollCalendarId): self
+    {
+        $clone = clone $this;
+        $clone->payload['PayrollCalendarID'] = $payrollCalendarId;
+
+        return $clone;
+    }
+
+    public function ordinaryEarningsRate(string $earningsRateId): self
+    {
+        $clone = clone $this;
+        $clone->payload['OrdinaryEarningsRateID'] = $earningsRateId;
+
+        return $clone;
+    }
+
     /** @param array<string, mixed> $taxDeclaration */
     public function taxDeclaration(array $taxDeclaration): self
     {

@@ -113,6 +113,8 @@ final class EmployeesTest extends TestCase
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $updated = $client->payroll()->au()->employees()->update('employee-1')
+            ->payrollCalendar('calendar-1')
+            ->ordinaryEarningsRate('rate-1')
             ->taxDeclaration([
                 'EmploymentBasis' => 'FULLTIME',
                 'TaxFileNumber' => '123456782',
@@ -141,6 +143,8 @@ final class EmployeesTest extends TestCase
             ->save();
 
         $row = Json::extractRows(Json::decodeObject((string) $transport->requests()[0]->body))[0] ?? [];
+        self::assertSame('calendar-1', $row['PayrollCalendarID'] ?? null);
+        self::assertSame('rate-1', $row['OrdinaryEarningsRateID'] ?? null);
         self::assertSame([
             'EmploymentBasis' => 'FULLTIME',
             'TaxFileNumber' => '123456782',

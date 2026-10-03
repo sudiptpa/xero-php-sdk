@@ -72,6 +72,7 @@ $updated = $xero->payroll()
     ->au()
     ->employees()
     ->update('employee-id')
+    ->payrollCalendar('calendar-id')
     ->taxDeclaration([
         'EmploymentBasis' => 'FULLTIME',
         'TaxFileNumber' => '123456782',
@@ -119,10 +120,9 @@ $leave = $employee->createLeaveApplication()
 $leaveApplications = $xero->payroll()
     ->au()
     ->leaveApplications()
-    ->where('Status=="REQUESTED"')
     ->get();
 
-$status = $leaveApplications->first()?->getStatus();
+$title = $leaveApplications->first()?->getTitle();
 ```
 
 ```php
