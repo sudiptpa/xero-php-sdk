@@ -181,8 +181,10 @@ final class EmployeesTest extends TestCase
         $workingPatterns = $employee?->workingPatterns();
         $workingPattern = $employee?->workingPattern('pattern-1');
         $leaveSetup = $employee?->leaveSetup()
-            ->leaveType('leave-type-1')
-            ->scheduleOfAccrual('ON_ANNIVERSARY_DATE')
+            ->includeHolidayPay(true)
+            ->holidayPayOpeningBalance(10.0)
+            ->annualLeaveOpeningBalance(100.0)
+            ->sickLeaveScheduleOfAccrual('OnAnniversaryDate')
             ->idempotencyKey('leave-setup-key')
             ->save();
         $openingBalances = $employee?->openingBalances()
@@ -201,6 +203,7 @@ final class EmployeesTest extends TestCase
             ->save();
         $createdLeave = $employee?->createLeave()
             ->leaveType('leave-type-1')
+            ->description('Annual leave')
             ->startDate('2026-04-10')
             ->endDate('2026-04-11')
             ->idempotencyKey('leave-key')
@@ -212,10 +215,16 @@ final class EmployeesTest extends TestCase
         $createdSalaryAndWage = $employee?->createSalaryAndWage()
             ->paymentType('HOURLY')
             ->earningsRate('earning-rate-1')
+            ->numberOfUnitsPerWeek(40.0)
+            ->numberOfUnitsPerDay(8.0)
+            ->effectiveFrom('2026-04-01')
+            ->annualSalary(85000.0)
+            ->status('Active')
             ->idempotencyKey('salary-key')
             ->save();
         $createdWorkingPattern = $employee?->createWorkingPattern()
             ->effectiveFrom('2026-04-01')
+            ->workingWeek(0.0, 8.0, 8.0, 8.0, 8.0, 0.0, 0.0)
             ->idempotencyKey('working-pattern-key')
             ->save();
 
@@ -443,12 +452,12 @@ final class EmployeesTest extends TestCase
         self::assertNull($employee->getEmployeeID());
     }
 
-    public function test_leave_payload_sends_title(): void
+    public function test_leave_payload_sends_description(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
-            'EmployeeLeave' => [
-                'LeaveID' => 'leave-1',
-                'Title' => 'Annual Leave',
+            'employeeLeave' => [
+                'leaveID' => 'leave-1',
+                'description' => 'Annual Leave',
             ],
         ], JSON_THROW_ON_ERROR)));
 
@@ -459,19 +468,19 @@ final class EmployeesTest extends TestCase
             ->employees()
             ->createLeave('employee-1')
             ->leaveType('leave-type-1')
-            ->title('Annual Leave')
+            ->description('Annual Leave')
             ->startDate('2026-04-10')
             ->endDate('2026-04-11')
             ->save();
 
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[0]->path);
         self::assertSame([
-            'LeaveTypeID' => 'leave-type-1',
-            'Title' => 'Annual Leave',
-            'StartDate' => '2026-04-10',
-            'EndDate' => '2026-04-11',
+            'leaveTypeID' => 'leave-type-1',
+            'description' => 'Annual Leave',
+            'startDate' => '2026-04-10',
+            'endDate' => '2026-04-11',
         ], $transport->requests()[0]->json);
-        self::assertSame('Annual Leave', Json::extractObject($leave, 'EmployeeLeave')['Title'] ?? null);
+        self::assertSame('Annual Leave', Json::extractObject($leave, 'employeeLeave')['description'] ?? null);
     }
 
     public function test_saving_without_a_client_throws(): void

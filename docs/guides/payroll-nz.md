@@ -46,6 +46,7 @@ $employment = $employee->createEmployment()
 
 $leave = $employee->createLeave()
     ->leaveType('leave-type-id')
+    ->description('Annual leave')
     ->startDate('2026-04-10')
     ->endDate('2026-04-11')
     ->save();
@@ -55,19 +56,28 @@ $paymentMethod = $employee->createPaymentMethod()
     ->save();
 
 $salaryAndWage = $employee->createSalaryAndWage()
-    ->paymentType('HOURLY')
+    ->paymentType('SALARY')
     ->earningsRate('earning-rate-id')
+    ->numberOfUnitsPerWeek(40)
+    ->numberOfUnitsPerDay(8)
+    ->daysPerWeek(5)
+    ->effectiveFrom('2026-04-01')
+    ->annualSalary(85000)
+    ->status('Active')
     ->save();
 
 $workingPattern = $employee->createWorkingPattern()
     ->effectiveFrom('2026-04-01')
+    ->workingWeek(monday: 8, tuesday: 8, wednesday: 8, thursday: 8, friday: 8, saturday: 0, sunday: 0)
     ->save();
 ```
 
 ```php
 $leaveSetup = $employee->leaveSetup()
-    ->leaveType('leave-type-id')
-    ->scheduleOfAccrual('ON_ANNIVERSARY_DATE')
+    ->includeHolidayPay(true)
+    ->holidayPayOpeningBalance(10)
+    ->annualLeaveOpeningBalance(100)
+    ->sickLeaveScheduleOfAccrual('OnAnniversaryDate')
     ->save();
 
 $openingBalances = $employee->openingBalances()

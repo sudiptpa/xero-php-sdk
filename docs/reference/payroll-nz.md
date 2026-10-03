@@ -327,7 +327,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`leaveType(string $leaveTypeId): Sujip\Xero\Payroll\NZ\Employee\LeavePayload`](../../src/Payroll/NZ/Employee/LeavePayload.php#L24)
 - [`startDate(string $startDate): Sujip\Xero\Payroll\NZ\Employee\LeavePayload`](../../src/Payroll/NZ/Employee/LeavePayload.php#L32)
 - [`endDate(string $endDate): Sujip\Xero\Payroll\NZ\Employee\LeavePayload`](../../src/Payroll/NZ/Employee/LeavePayload.php#L40)
-- [`title(string $title): Sujip\Xero\Payroll\NZ\Employee\LeavePayload`](../../src/Payroll/NZ/Employee/LeavePayload.php#L48)
+- [`description(string $description): Sujip\Xero\Payroll\NZ\Employee\LeavePayload`](../../src/Payroll/NZ/Employee/LeavePayload.php#L48)
 - [`idempotencyKey(string $key): Sujip\Xero\Payroll\NZ\Employee\LeavePayload`](../../src/Payroll/NZ/Employee/LeavePayload.php#L56)
 - [`save(): array`](../../src/Payroll/NZ/Employee/LeavePayload.php#L67)
 
@@ -338,10 +338,18 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 ### Public methods
 
 - [`__construct(\Sujip\Xero\Client $client, string $employeeId)`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L18)
-- [`leaveType(string $leaveTypeId): Sujip\Xero\Payroll\NZ\Employee\LeaveSetupPayload`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L24)
-- [`scheduleOfAccrual(string $scheduleOfAccrual): Sujip\Xero\Payroll\NZ\Employee\LeaveSetupPayload`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L32)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\NZ\Employee\LeaveSetupPayload`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L40)
-- [`save(): array`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L51)
+- [`includeHolidayPay(bool $includeHolidayPay): Sujip\Xero\Payroll\NZ\Employee\LeaveSetupPayload`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L24)
+- [`holidayPayOpeningBalance(float $holidayPayOpeningBalance): Sujip\Xero\Payroll\NZ\Employee\LeaveSetupPayload`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L32)
+- [`annualLeaveOpeningBalance(float $annualLeaveOpeningBalance): Sujip\Xero\Payroll\NZ\Employee\LeaveSetupPayload`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L40)
+- [`negativeAnnualLeaveBalancePaidAmount(float $negativeAnnualLeaveBalancePaidAmount): Sujip\Xero\Payroll\NZ\Employee\LeaveSetupPayload`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L48)
+- [`sickLeaveToAccrueAnnually(float $sickLeaveToAccrueAnnually): Sujip\Xero\Payroll\NZ\Employee\LeaveSetupPayload`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L56)
+- [`sickLeaveMaximumToAccrue(float $sickLeaveMaximumToAccrue): Sujip\Xero\Payroll\NZ\Employee\LeaveSetupPayload`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L64)
+- [`sickLeaveOpeningBalance(float $sickLeaveOpeningBalance): Sujip\Xero\Payroll\NZ\Employee\LeaveSetupPayload`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L72)
+- [`sickLeaveScheduleOfAccrual(string $sickLeaveScheduleOfAccrual): Sujip\Xero\Payroll\NZ\Employee\LeaveSetupPayload`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L80)
+- [`sickLeaveAnniversaryDate(string $sickLeaveAnniversaryDate): Sujip\Xero\Payroll\NZ\Employee\LeaveSetupPayload`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L88)
+- [`annualLeaveAnniversaryDate(string $annualLeaveAnniversaryDate): Sujip\Xero\Payroll\NZ\Employee\LeaveSetupPayload`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L96)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\NZ\Employee\LeaveSetupPayload`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L104)
+- [`save(): array`](../../src/Payroll/NZ/Employee/LeaveSetupPayload.php#L115)
 
 ## Payroll\NZ\Employee\OpeningBalancesPayload
 
@@ -352,9 +360,10 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`__construct(\Sujip\Xero\Client $client, string $employeeId)`](../../src/Payroll/NZ/Employee/OpeningBalancesPayload.php#L18)
 - [`periodEndDate(string $periodEndDate): Sujip\Xero\Payroll\NZ\Employee\OpeningBalancesPayload`](../../src/Payroll/NZ/Employee/OpeningBalancesPayload.php#L24)
 - [`daysPaid(int\|float $daysPaid): Sujip\Xero\Payroll\NZ\Employee\OpeningBalancesPayload`](../../src/Payroll/NZ/Employee/OpeningBalancesPayload.php#L32)
-- [`grossEarnings(int\|float $grossEarnings): Sujip\Xero\Payroll\NZ\Employee\OpeningBalancesPayload`](../../src/Payroll/NZ/Employee/OpeningBalancesPayload.php#L40)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\NZ\Employee\OpeningBalancesPayload`](../../src/Payroll/NZ/Employee/OpeningBalancesPayload.php#L48)
-- [`save(): array`](../../src/Payroll/NZ/Employee/OpeningBalancesPayload.php#L59)
+- [`unpaidWeeks(int $unpaidWeeks): Sujip\Xero\Payroll\NZ\Employee\OpeningBalancesPayload`](../../src/Payroll/NZ/Employee/OpeningBalancesPayload.php#L40)
+- [`grossEarnings(int\|float $grossEarnings): Sujip\Xero\Payroll\NZ\Employee\OpeningBalancesPayload`](../../src/Payroll/NZ/Employee/OpeningBalancesPayload.php#L48)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\NZ\Employee\OpeningBalancesPayload`](../../src/Payroll/NZ/Employee/OpeningBalancesPayload.php#L56)
+- [`save(): array`](../../src/Payroll/NZ/Employee/OpeningBalancesPayload.php#L67)
 
 ## Payroll\NZ\Employee\Payload
 
@@ -391,8 +400,15 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`__construct(\Sujip\Xero\Client $client, string $employeeId)`](../../src/Payroll/NZ/Employee/SalaryAndWagePayload.php#L18)
 - [`paymentType(string $paymentType): Sujip\Xero\Payroll\NZ\Employee\SalaryAndWagePayload`](../../src/Payroll/NZ/Employee/SalaryAndWagePayload.php#L24)
 - [`earningsRate(string $earningsRateId): Sujip\Xero\Payroll\NZ\Employee\SalaryAndWagePayload`](../../src/Payroll/NZ/Employee/SalaryAndWagePayload.php#L32)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\NZ\Employee\SalaryAndWagePayload`](../../src/Payroll/NZ/Employee/SalaryAndWagePayload.php#L40)
-- [`save(): array`](../../src/Payroll/NZ/Employee/SalaryAndWagePayload.php#L51)
+- [`numberOfUnitsPerWeek(float $numberOfUnitsPerWeek): Sujip\Xero\Payroll\NZ\Employee\SalaryAndWagePayload`](../../src/Payroll/NZ/Employee/SalaryAndWagePayload.php#L40)
+- [`numberOfUnitsPerDay(float $numberOfUnitsPerDay): Sujip\Xero\Payroll\NZ\Employee\SalaryAndWagePayload`](../../src/Payroll/NZ/Employee/SalaryAndWagePayload.php#L48)
+- [`ratePerUnit(float $ratePerUnit): Sujip\Xero\Payroll\NZ\Employee\SalaryAndWagePayload`](../../src/Payroll/NZ/Employee/SalaryAndWagePayload.php#L56)
+- [`daysPerWeek(float $daysPerWeek): Sujip\Xero\Payroll\NZ\Employee\SalaryAndWagePayload`](../../src/Payroll/NZ/Employee/SalaryAndWagePayload.php#L64)
+- [`effectiveFrom(string $effectiveFrom): Sujip\Xero\Payroll\NZ\Employee\SalaryAndWagePayload`](../../src/Payroll/NZ/Employee/SalaryAndWagePayload.php#L72)
+- [`annualSalary(float $annualSalary): Sujip\Xero\Payroll\NZ\Employee\SalaryAndWagePayload`](../../src/Payroll/NZ/Employee/SalaryAndWagePayload.php#L80)
+- [`status(string $status): Sujip\Xero\Payroll\NZ\Employee\SalaryAndWagePayload`](../../src/Payroll/NZ/Employee/SalaryAndWagePayload.php#L88)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\NZ\Employee\SalaryAndWagePayload`](../../src/Payroll/NZ/Employee/SalaryAndWagePayload.php#L96)
+- [`save(): array`](../../src/Payroll/NZ/Employee/SalaryAndWagePayload.php#L107)
 
 ## Payroll\NZ\Employee\WorkingPatternPayload
 
@@ -402,8 +418,9 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 - [`__construct(\Sujip\Xero\Client $client, string $employeeId)`](../../src/Payroll/NZ/Employee/WorkingPatternPayload.php#L18)
 - [`effectiveFrom(string $effectiveFrom): Sujip\Xero\Payroll\NZ\Employee\WorkingPatternPayload`](../../src/Payroll/NZ/Employee/WorkingPatternPayload.php#L24)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\NZ\Employee\WorkingPatternPayload`](../../src/Payroll/NZ/Employee/WorkingPatternPayload.php#L32)
-- [`save(): array`](../../src/Payroll/NZ/Employee/WorkingPatternPayload.php#L43)
+- [`workingWeek(float $monday, float $tuesday, float $wednesday, float $thursday, float $friday, float $saturday, float $sunday): Sujip\Xero\Payroll\NZ\Employee\WorkingPatternPayload`](../../src/Payroll/NZ/Employee/WorkingPatternPayload.php#L32)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\NZ\Employee\WorkingPatternPayload`](../../src/Payroll/NZ/Employee/WorkingPatternPayload.php#L59)
+- [`save(): array`](../../src/Payroll/NZ/Employee/WorkingPatternPayload.php#L70)
 
 ## Payroll\NZ\LeaveType\LeaveType
 
