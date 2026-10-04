@@ -71,6 +71,16 @@ final class Receipts implements DefinesScopes
         return $receipt !== null ? $this->mapReceipt($receipt) : null;
     }
 
+    public function create(): Payload
+    {
+        return new Payload($this->client);
+    }
+
+    public function update(string $receiptId): Payload
+    {
+        return (new Payload($this->client))->id($receiptId);
+    }
+
     public function attachments(string $receiptId): Attachments
     {
         return new Attachments($this->client, $receiptId);

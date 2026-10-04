@@ -108,6 +108,16 @@ final class User extends Model
     }
 
     /**
+     * @return array<string, string>
+     */
+    public function toRequest(): array
+    {
+        return array_filter([
+            'UserID' => $this->userID,
+        ], static fn (?string $value): bool => $value !== null);
+    }
+
+    /**
      * @return array<string, Field>
      */
     protected static function getDefinitions(): array

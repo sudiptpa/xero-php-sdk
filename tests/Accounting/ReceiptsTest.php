@@ -11,6 +11,7 @@ use Sujip\Xero\Accounting\Currency\Currency;
 use Sujip\Xero\Accounting\Receipt\Receipt;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class ReceiptsTest extends TestCase
@@ -94,6 +95,90 @@ final class ReceiptsTest extends TestCase
 
         $model = (new Receipt())->setContactID('contact-9');
         self::assertSame('contact-9', $model->getContactID());
+    }
+
+    public function test_it_can_create_and_update_receipts(): void
+    {
+        $transport = new FakeTransport();
+        $transport->push(new Response(200, body: json_encode([
+            'Receipts' => [[
+                'ReceiptID' => 'receipt-2',
+                'Status' => 'DRAFT',
+                'Total' => 25,
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+        $transport->push(new Response(200, body: json_encode([
+            'Receipts' => [[
+                'ReceiptID' => 'receipt-2',
+                'Status' => 'DRAFT',
+                'Reference' => 'Audit ref',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $created = $client->accounting()->receipts()->create()
+            ->contact('contact-1')
+            ->user('user-1')
+            ->lineItem('Taxi fare', 1, 25, '453')
+            ->date('2026-04-01')
+            ->lineAmountTypes('NoTax')
+            ->save();
+
+        $updated = $client->accounting()->receipts()->update('receipt-2')
+            ->contact('contact-1')
+            ->user('user-1')
+            ->lineItem('Taxi fare updated', 1, 30)
+            ->reference('Audit ref')
+            ->status('DRAFT')
+            ->save();
+
+        self::assertSame('PUT', $transport->requests()[0]->method);
+        self::assertSame('/api.xro/2.0/Receipts', $transport->requests()[0]->path);
+        $sent = Json::extractFirst($transport->requests()[0]->json ?? [], 'Receipts') ?? [];
+        self::assertSame('contact-1', Json::extractObject($sent, 'Contact')['ContactID'] ?? null);
+        self::assertSame('user-1', Json::extractObject($sent, 'User')['UserID'] ?? null);
+        $sentLineItem = Json::extractList($sent, 'LineItems')[0] ?? [];
+        self::assertSame('Taxi fare', $sentLineItem['Description'] ?? null);
+        self::assertSame('453', $sentLineItem['AccountCode'] ?? null);
+        self::assertSame('NoTax', $sent['LineAmountTypes'] ?? null);
+        self::assertSame('2026-04-01', $sent['Date'] ?? null);
+        self::assertSame('receipt-2', $created->getReceiptID());
+
+        self::assertSame('POST', $transport->requests()[1]->method);
+        self::assertSame('/api.xro/2.0/Receipts/receipt-2', $transport->requests()[1]->path);
+        $sentUpdate = Json::extractFirst($transport->requests()[1]->json ?? [], 'Receipts');
+        self::assertNotNull($sentUpdate);
+        self::assertSame('receipt-2', $sentUpdate['ReceiptID'] ?? null);
+        self::assertSame('Audit ref', $sentUpdate['Reference'] ?? null);
+        self::assertSame('Audit ref', $updated->getReference());
+    }
+
+    public function test_receipt_model_save_requires_a_bound_client(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        (new Receipt())->save();
+    }
+
+    public function test_receipt_model_save_delegates_to_payload(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'Receipts' => [[
+                'ReceiptID' => 'receipt-3',
+                'Status' => 'DRAFT',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $receipt = Xero::withAccessToken('token', $transport)->tenant('tenant-123')
+            ->accounting()->receipts()->mapReceipt(['ReceiptID' => 'receipt-3'])
+            ->setReference('Saved directly');
+
+        $saved = $receipt->save();
+
+        self::assertSame('POST', $transport->requests()[0]->method);
+        self::assertSame('/api.xro/2.0/Receipts/receipt-3', $transport->requests()[0]->path);
+        self::assertSame('receipt-3', $saved->getReceiptID());
     }
 
     public function test_receipt_setters_compose_a_model(): void

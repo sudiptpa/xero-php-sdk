@@ -348,6 +348,37 @@ final class Receipt extends Model
         return parent::newDefinitionInstance($class);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function toRequest(): array
+    {
+        return array_filter([
+            'ReceiptID' => $this->receiptID,
+            'Status' => $this->status,
+            'Contact' => $this->contact?->toRequest(),
+            'Date' => $this->date,
+            'LineItems' => array_map(
+                static fn (LineItem $lineItem): array => $lineItem->toRequest(),
+                $this->lineItems
+            ),
+            'User' => $this->user?->toRequest(),
+            'Reference' => $this->reference,
+            'LineAmountTypes' => $this->lineAmountTypes,
+        ], static fn (mixed $value): bool => $value !== null && $value !== []);
+    }
+
+    public function save(): self
+    {
+        if ($this->client === null) {
+            throw new RuntimeException('Cannot save a receipt without a bound client context.');
+        }
+
+        $payload = new Payload($this->client);
+
+        return $payload->using($this)->save();
+    }
+
     public function attachments(): Attachments
     {
         if ($this->client === null || $this->receiptID === null) {
