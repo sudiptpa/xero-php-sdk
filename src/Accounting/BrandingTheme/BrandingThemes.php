@@ -21,7 +21,7 @@ final class BrandingThemes implements DefinesScopes
     public function scopes(): ScopeRequirements
     {
         return new ScopeRequirements(
-            broad: ['accounting.settings'],
+            broad: ['accounting.settings', 'paymentservices'],
             granular: ['accounting.settings.read', 'accounting.settings']
         );
     }
