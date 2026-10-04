@@ -24,6 +24,21 @@ final class Report extends Model
     private ?string $updatedDateUTC = null;
 
     /**
+     * @var list<string>
+     */
+    private array $reportTitles = [];
+
+    /**
+     * @var list<ReportRow>
+     */
+    private array $rows = [];
+
+    /**
+     * @var list<ReportField>
+     */
+    private array $fields = [];
+
+    /**
      * @var list<TenNinetyNineContact>
      */
     private array $contacts = [];
@@ -113,6 +128,54 @@ final class Report extends Model
     }
 
     /**
+     * @return list<string>
+     */
+    public function getReportTitles(): array
+    {
+        return $this->reportTitles;
+    }
+
+    /**
+     * @param list<string> $reportTitles
+     */
+    public function setReportTitles(array $reportTitles): self
+    {
+        $this->reportTitles = $reportTitles;
+
+        return $this;
+    }
+
+    /**
+     * @return list<ReportRow>
+     */
+    public function getRows(): array
+    {
+        return $this->rows;
+    }
+
+    public function addRow(ReportRow $row): self
+    {
+        $this->rows[] = $row;
+
+        return $this;
+    }
+
+    /**
+     * @return list<ReportField>
+     */
+    public function getFields(): array
+    {
+        return $this->fields;
+    }
+
+    public function addField(ReportField $field): self
+    {
+        $this->fields[] = $field;
+
+        return $this;
+    }
+
+    /**
      * @return list<TenNinetyNineContact>
      */
     public function getContacts(): array
@@ -137,8 +200,11 @@ final class Report extends Model
             'ReportName' => Field::string(),
             'ReportType' => Field::string(),
             'ReportTitle' => Field::string(),
+            'ReportTitles' => Field::array(),
             'ReportDate' => Field::string(),
             'UpdatedDateUTC' => Field::string(),
+            'Rows' => Field::many(ReportRow::class),
+            'Fields' => Field::many(ReportField::class),
             'Contacts' => Field::many(TenNinetyNineContact::class),
         ];
     }
@@ -147,10 +213,8 @@ final class Report extends Model
     {
         parent::fill($payload);
 
-        $reportTitles = is_array($payload['ReportTitles'] ?? null) ? $payload['ReportTitles'] : [];
-        $firstTitle = $reportTitles[0] ?? null;
+        $firstTitle = $this->reportTitles[0] ?? null;
 
         return $this->setTitle(is_string($firstTitle) ? $firstTitle : null);
     }
-
 }

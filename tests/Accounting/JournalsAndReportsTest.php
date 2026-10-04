@@ -116,7 +116,26 @@ final class JournalsAndReportsTest extends TestCase
             'Reports' => [[
                 'ReportID' => 'report-2',
                 'ReportName' => 'Custom Report',
-                'ReportTitles' => ['Custom Report'],
+                'ReportTitles' => ['Custom Report', 'Mac AU Team', 'As at 25 March 2026'],
+                'Fields' => [[
+                    'FieldID' => 'field-1',
+                    'Description' => 'Basis',
+                    'Value' => 'Cash',
+                ]],
+                'Rows' => [[
+                    'RowType' => 'Header',
+                    'Cells' => [['Value' => ''], ['Value' => '31 Mar 2026']],
+                ], [
+                    'RowType' => 'Section',
+                    'Title' => 'Assets',
+                    'Rows' => [[
+                        'RowType' => 'Row',
+                        'Cells' => [
+                            ['Value' => 'Bank Account'],
+                            ['Value' => '100.00', 'Attributes' => [['Id' => 'account', 'Value' => 'account-1']]],
+                        ],
+                    ]],
+                ]],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -188,6 +207,25 @@ final class JournalsAndReportsTest extends TestCase
         self::assertSame('contact-1', $transport->requests()[3]->query['contactId']);
         self::assertSame('2026-03-25', $transport->requests()[3]->query['date']);
         self::assertSame('Custom Report', $custom?->getTitle());
+        self::assertSame(['Custom Report', 'Mac AU Team', 'As at 25 March 2026'], $custom->getReportTitles());
+        self::assertCount(1, $custom->getFields());
+        self::assertSame('field-1', $custom->getFields()[0]->getFieldID());
+        self::assertSame('Basis', $custom->getFields()[0]->getDescription());
+        self::assertSame('Cash', $custom->getFields()[0]->getValue());
+        self::assertCount(2, $custom->getRows());
+        self::assertSame('Header', $custom->getRows()[0]->getRowType());
+        self::assertCount(2, $custom->getRows()[0]->getCells());
+        self::assertSame('31 Mar 2026', $custom->getRows()[0]->getCells()[1]->getValue());
+        self::assertSame('Section', $custom->getRows()[1]->getRowType());
+        self::assertSame('Assets', $custom->getRows()[1]->getTitle());
+        self::assertCount(1, $custom->getRows()[1]->getRows());
+        $nestedRow = $custom->getRows()[1]->getRows()[0];
+        self::assertSame('Row', $nestedRow->getRowType());
+        self::assertSame('Bank Account', $nestedRow->getCells()[0]->getValue());
+        self::assertSame('100.00', $nestedRow->getCells()[1]->getValue());
+        self::assertCount(1, $nestedRow->getCells()[1]->getAttributes());
+        self::assertSame('account', $nestedRow->getCells()[1]->getAttributes()[0]->getId());
+        self::assertSame('account-1', $nestedRow->getCells()[1]->getAttributes()[0]->getValue());
         self::assertSame('Profit and Loss', $profitAndLoss?->getTitle());
         self::assertSame('Aged Receivables By Contact', $agedReceivables?->getTitle());
         self::assertSame('Aged Receivables By Contact', $agedReceivables->getReportTitle());
