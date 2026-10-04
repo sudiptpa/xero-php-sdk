@@ -184,7 +184,10 @@ final class RepeatingInvoicesTest extends TestCase
             ->type('ACCREC')
             ->contact('contact-1')
             ->reference('RI-1001')
-            ->lineItem('Monthly support', 1, 99)
+            ->schedule(1, 'monthly', 10, 'OFFOLLOWINGMONTH', '2026-10-04', '2027-10-04')
+            ->lineItem('Monthly support', 1, 99, '200')
+            ->lineAmountTypes('Exclusive')
+            ->status('draft')
             ->save();
 
         $updated = $created->reference('RI-1002')->save();
@@ -198,6 +201,17 @@ final class RepeatingInvoicesTest extends TestCase
         $ri0 = Json::extractFirst($json0, 'RepeatingInvoices');
         self::assertNotNull($ri0);
         self::assertSame('contact-1', Json::extractObject($ri0, 'Contact')['ContactID']);
+        $schedule0 = Json::extractObject($ri0, 'Schedule');
+        self::assertSame(1, $schedule0['Period'] ?? null);
+        self::assertSame('MONTHLY', $schedule0['Unit'] ?? null);
+        self::assertSame(10, $schedule0['DueDate'] ?? null);
+        self::assertSame('OFFOLLOWINGMONTH', $schedule0['DueDateType'] ?? null);
+        self::assertSame('2026-10-04', $schedule0['StartDate'] ?? null);
+        self::assertSame('2027-10-04', $schedule0['EndDate'] ?? null);
+        self::assertSame('Exclusive', $ri0['LineAmountTypes'] ?? null);
+        self::assertSame('DRAFT', $ri0['Status'] ?? null);
+        $lineItem0 = Json::extractList($ri0, 'LineItems')[0] ?? [];
+        self::assertSame('200', $lineItem0['AccountCode'] ?? null);
         $json1 = $transport->requests()[1]->json ?? [];
         $ri1 = Json::extractFirst($json1, 'RepeatingInvoices');
         self::assertNotNull($ri1);
