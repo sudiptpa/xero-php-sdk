@@ -9,7 +9,6 @@ use RuntimeException;
 use Sujip\Xero\Accounting\Account\Account;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
-use Sujip\Xero\Support\Json;
 use Sujip\Xero\Xero;
 
 final class AccountsTest extends TestCase
@@ -113,11 +112,9 @@ final class AccountsTest extends TestCase
 
         $request = $transport->requests()[0];
 
-        self::assertSame('POST', $request->method);
+        self::assertSame('PUT', $request->method);
         self::assertSame('/api.xro/2.0/Accounts', $request->path);
-        $json = $request->json ?? [];
-        $firstAccount = Json::extractFirst($json, 'Accounts');
-        self::assertNotNull($firstAccount);
+        $firstAccount = $request->json ?? [];
         self::assertSame('200', $firstAccount['Code']);
         self::assertSame('123-456-7890', $firstAccount['BankAccountNumber']);
         self::assertSame('BANK', $firstAccount['BankAccountType']);
@@ -196,9 +193,8 @@ final class AccountsTest extends TestCase
         self::assertSame(50, $page->perPage);
         self::assertSame('/api.xro/2.0/Accounts/account-1', $transport->requests()[1]->path);
         self::assertSame('account-1', $found?->getAccountID());
-        $json = $transport->requests()[2]->json ?? [];
-        $sent = Json::extractFirst($json, 'Accounts');
-        self::assertNotNull($sent);
+        self::assertSame('PUT', $transport->requests()[2]->method);
+        $sent = $transport->requests()[2]->json ?? [];
         self::assertSame('300', $sent['Code']);
         self::assertSame('Sales', $created->getName());
         self::assertNotSame([], $accounts->scopes()->broad);
@@ -228,6 +224,33 @@ final class AccountsTest extends TestCase
 
         self::assertSame('/api.xro/2.0/Accounts/account-1', $transport->requests()[1]->path);
         self::assertSame('Sales Two', $saved->getName());
+    }
+
+    public function test_it_can_delete_an_account(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode([
+                'Accounts' => [[
+                    'AccountID' => 'account-1',
+                    'Code' => '200',
+                    'Name' => 'Sales',
+                    'Type' => 'REVENUE',
+                    'Status' => 'DELETED',
+                ]],
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        $account = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->accounts()
+            ->delete('account-1');
+
+        $request = $transport->requests()[0];
+
+        self::assertSame('DELETE', $request->method);
+        self::assertSame('/api.xro/2.0/Accounts/account-1', $request->path);
+        self::assertSame('DELETED', $account->getStatus());
     }
 
     public function test_saving_an_account_without_a_client_throws(): void

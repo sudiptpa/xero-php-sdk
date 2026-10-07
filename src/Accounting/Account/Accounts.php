@@ -108,6 +108,18 @@ final class Accounts implements PaginatesResults, DefinesScopes
         return (new Payload($this->client))->id($accountId);
     }
 
+    public function delete(string $accountId): Account
+    {
+        $response = $this->client
+            ->delete('/api.xro/2.0/Accounts/' . $accountId)
+            ->send();
+
+        $payload = $response->json();
+        $account = Json::extractFirst($payload, 'Accounts') ?? [];
+
+        return $this->mapAccount($account);
+    }
+
     public function attachments(string $accountId): Attachments
     {
         return new Attachments($this->client, '/api.xro/2.0/Accounts/' . $accountId . '/Attachments');
