@@ -21,8 +21,6 @@ final class Currency extends Model implements SerializesRequest
 
     private ?string $description = null;
 
-    private ?string $status = null;
-
     public function getCode(): ?string
     {
         return $this->code;
@@ -47,18 +45,6 @@ final class Currency extends Model implements SerializesRequest
         return $this;
     }
 
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-
-    public function setStatus(?string $status): self
-    {
-        $this->status = $status;
-
-        return $this;
-    }
-
     /**
      * @return array<string, Field>
      */
@@ -67,7 +53,6 @@ final class Currency extends Model implements SerializesRequest
         return [
             'Code' => Field::string(),
             'Description' => Field::string(),
-            'Status' => Field::string(),
         ];
     }
 
@@ -79,7 +64,6 @@ final class Currency extends Model implements SerializesRequest
         return array_filter([
             'Code' => $this->getCode(),
             'Description' => $this->getDescription(),
-            'Status' => $this->getStatus(),
         ], static fn (mixed $value): bool => $value !== null);
     }
 

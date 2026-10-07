@@ -20,14 +20,12 @@ final class CurrenciesTest extends TestCase
             'Currencies' => [[
                 'Code' => 'USD',
                 'Description' => 'United States Dollar',
-                'Status' => 'ACTIVE',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'Currencies' => [[
                 'Code' => 'EUR',
                 'Description' => 'Euro',
-                'Status' => 'ACTIVE',
             ]],
         ], JSON_THROW_ON_ERROR)));
 
@@ -57,14 +55,12 @@ final class CurrenciesTest extends TestCase
             'Currencies' => [[
                 'Code' => 'AUD',
                 'Description' => 'Australian Dollar',
-                'Status' => 'ACTIVE',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'Currencies' => [[
                 'Code' => 'AUD',
                 'Description' => 'Aussie Dollar',
-                'Status' => 'ACTIVE',
             ]],
         ], JSON_THROW_ON_ERROR)));
 
