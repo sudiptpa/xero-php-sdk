@@ -68,14 +68,16 @@ final class TaxRatesTest extends TestCase
         $transport->push(new Response(200, body: json_encode([
             'TaxRates' => [[
                 'Name' => 'GST',
-                'TaxType' => 'OUTPUT',
+                'TaxType' => 'TAX001',
+                'ReportTaxType' => 'OUTPUT',
                 'TaxComponents' => [['Name' => 'GST', 'Rate' => 15]],
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'TaxRates' => [[
                 'Name' => 'GST Plus',
-                'TaxType' => 'OUTPUT',
+                'TaxType' => 'TAX001',
+                'ReportTaxType' => 'OUTPUT',
                 'TaxComponents' => [['Name' => 'GST', 'Rate' => 16]],
             ]],
         ], JSON_THROW_ON_ERROR)));
@@ -85,8 +87,8 @@ final class TaxRatesTest extends TestCase
         $created = $client->accounting()->taxRates()->create()
             ->using(
                 (new TaxRate())
-                    ->setTaxType('OUTPUT')
                     ->setName('GST')
+                    ->setReportTaxType('OUTPUT')
                     ->addTaxComponent(
                         (new Component())
                             ->setName('GST')
@@ -100,16 +102,18 @@ final class TaxRatesTest extends TestCase
 
         $updated = $created->name('GST Plus')->component('GST', 16)->save();
 
+        self::assertSame('PUT', $transport->requests()[0]->method);
         self::assertSame('/api.xro/2.0/TaxRates', $transport->requests()[0]->path);
         self::assertSame('tax-key', $transport->requests()[0]->headers['Idempotency-Key']);
         $json0 = $transport->requests()[0]->json ?? [];
         $tr0 = Json::extractFirst($json0, 'TaxRates');
         self::assertNotNull($tr0);
-        self::assertSame('OUTPUT', $tr0['TaxType']);
+        self::assertSame('OUTPUT', $tr0['ReportTaxType']);
         $components = Json::extractList($tr0, 'TaxComponents');
         self::assertSame('GST', $components[0]['Name'] ?? null);
         self::assertTrue($components[0]['IsCompound'] ?? null);
         self::assertFalse($components[0]['IsNonRecoverable'] ?? null);
+        self::assertSame('POST', $transport->requests()[1]->method);
         self::assertSame('/api.xro/2.0/TaxRates', $transport->requests()[1]->path);
         self::assertSame('GST Plus', $updated->getName());
     }
@@ -131,6 +135,7 @@ final class TaxRatesTest extends TestCase
             ->component('GST', 15)
             ->save();
 
+        self::assertSame('POST', $transport->requests()[0]->method);
         self::assertSame('/api.xro/2.0/TaxRates', $transport->requests()[0]->path);
         $tr = Json::extractFirst($transport->requests()[0]->json ?? [], 'TaxRates');
         self::assertNotNull($tr);
