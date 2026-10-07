@@ -78,12 +78,14 @@ final class CreditNoteHelpersTest extends TestCase
             'HistoryRecords' => [[
                 'Details' => 'Created in ERP',
                 'User' => 'System',
+                'DateUTC' => '2026-03-25T00:00:00',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'HistoryRecords' => [[
                 'Details' => 'Updated from ERP',
                 'User' => 'System',
+                'DateUTC' => '2026-03-26T00:00:00',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: '%PDF-credit-note'));
@@ -96,12 +98,14 @@ final class CreditNoteHelpersTest extends TestCase
 
         self::assertSame('/api.xro/2.0/CreditNotes/credit-1/History', $transport->requests()[0]->path);
         self::assertNotNull($history->first());
+        self::assertSame('2026-03-25T00:00:00', $history->first()->dateUtc);
         self::assertSame('PUT', $transport->requests()[1]->method);
         $json1 = $transport->requests()[1]->json ?? [];
         $hr = Json::extractFirst($json1, 'HistoryRecords');
         self::assertNotNull($hr);
         self::assertSame('Updated from ERP', $hr['Details']);
         self::assertSame('Updated from ERP', $record->details);
+        self::assertSame('2026-03-26T00:00:00', $record->dateUtc);
         self::assertSame('/api.xro/2.0/CreditNotes/credit-1/pdf', $transport->requests()[2]->path);
         self::assertSame('application/pdf', $transport->requests()[2]->headers['Accept']);
         self::assertSame('%PDF-credit-note', $pdf);

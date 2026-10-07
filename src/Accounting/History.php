@@ -31,7 +31,8 @@ final readonly class History
                 is_string($history['Details'] ?? null) ? $history['Details'] : null,
                 is_string($history['DateUTC'] ?? null) ? $history['DateUTC'] : null,
                 is_string($history['User'] ?? null) ? $history['User'] : null,
-                $history
+                is_string($history['Changes'] ?? null) ? $history['Changes'] : null,
+                raw: $history
             ),
             Json::extractList($payload, 'HistoryRecords')
         );
@@ -57,7 +58,8 @@ final readonly class History
             is_string($history['Details'] ?? null) ? $history['Details'] : null,
             is_string($history['DateUTC'] ?? null) ? $history['DateUTC'] : null,
             is_string($history['User'] ?? null) ? $history['User'] : null,
-            $history
+            is_string($history['Changes'] ?? null) ? $history['Changes'] : null,
+            raw: $history
         );
     }
 }

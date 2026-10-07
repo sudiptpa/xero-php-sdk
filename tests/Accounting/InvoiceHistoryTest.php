@@ -20,6 +20,7 @@ final class InvoiceHistoryTest extends TestCase
                     'Details' => 'Invoice viewed',
                     'User' => 'API',
                     'DateUTC' => '2026-03-25T00:00:00',
+                    'Changes' => 'Viewed',
                 ]],
             ], JSON_THROW_ON_ERROR))
         );
@@ -35,6 +36,7 @@ final class InvoiceHistoryTest extends TestCase
 
         self::assertSame('/api.xro/2.0/Invoices/invoice-1/History', $request->path);
         self::assertNotNull($history->first());
+        self::assertSame('Viewed', $history->first()->changes);
     }
 
     public function test_it_can_record_invoice_history(): void
@@ -45,6 +47,7 @@ final class InvoiceHistoryTest extends TestCase
                     'Details' => 'Invoice synced from back office',
                     'User' => 'API',
                     'DateUTC' => '2026-03-25T00:00:00',
+                    'Changes' => 'Synced',
                 ]],
             ], JSON_THROW_ON_ERROR))
         );
@@ -65,5 +68,6 @@ final class InvoiceHistoryTest extends TestCase
         self::assertNotNull($hr);
         self::assertSame('Invoice synced from back office', $hr['Details']);
         self::assertSame('Invoice synced from back office', $history->details);
+        self::assertSame('Synced', $history->changes);
     }
 }
