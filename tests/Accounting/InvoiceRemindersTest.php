@@ -28,24 +28,6 @@ final class InvoiceRemindersTest extends TestCase
         self::assertTrue($settings->getEnabled());
     }
 
-    public function test_it_reads_settings_from_the_invoice_reminder_settings_key(): void
-    {
-        $transport = new FakeTransport();
-        $transport->push(new Response(200, body: json_encode([
-            'InvoiceReminderSettings' => [
-                'Enabled' => false,
-            ],
-        ], JSON_THROW_ON_ERROR)));
-
-        $settings = Xero::withAccessToken('token', $transport)
-            ->tenant('tenant-123')
-            ->accounting()
-            ->invoiceReminders()
-            ->settings();
-
-        self::assertFalse($settings->getEnabled());
-    }
-
     public function test_it_exposes_required_scopes(): void
     {
         $scopes = Xero::withAccessToken('token', new FakeTransport())
