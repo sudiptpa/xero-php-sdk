@@ -132,6 +132,7 @@ final class TaxRatesTest extends TestCase
 
         $updated = $taxRates->update('OUTPUT')
             ->name('GST Revised')
+            ->reportTaxType('OUTPUT')
             ->component('GST', 15)
             ->save();
 
@@ -140,6 +141,7 @@ final class TaxRatesTest extends TestCase
         $tr = Json::extractFirst($transport->requests()[0]->json ?? [], 'TaxRates');
         self::assertNotNull($tr);
         self::assertSame('OUTPUT', $tr['TaxType']);
+        self::assertSame('OUTPUT', $tr['ReportTaxType']);
         self::assertSame('GST Revised', $updated->getName());
 
         self::assertNotSame([], $taxRates->scopes()->broad);
