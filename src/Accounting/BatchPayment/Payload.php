@@ -39,6 +39,15 @@ final class Payload
         return $clone;
     }
 
+    public function date(string $date): self
+    {
+        $clone = clone $this;
+        $clone->batchPayment = clone $this->batchPayment;
+        $clone->batchPayment->setDate($date);
+
+        return $clone;
+    }
+
     public function payment(string $invoiceId, int|float $amount): self
     {
         $clone = clone $this;
@@ -63,7 +72,7 @@ final class Payload
     public function save(): BatchPayment
     {
         $response = $this->client
-            ->post('/api.xro/2.0/BatchPayments')
+            ->put('/api.xro/2.0/BatchPayments')
             ->withJson(['BatchPayments' => [$this->batchPayment->toRequest()]])
             ->send();
 

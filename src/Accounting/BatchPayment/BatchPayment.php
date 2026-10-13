@@ -335,6 +335,7 @@ final class BatchPayment extends Model implements SerializesRequest
             'Details' => $this->getDetails(),
             'Narrative' => $this->getNarrative(),
             'DateString' => $this->getDateString(),
+            'Date' => $this->getDate(),
         ], static fn (mixed $value): bool => $value !== null);
     }
 
