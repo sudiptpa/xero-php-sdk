@@ -94,8 +94,13 @@ final class Payload
 
     public function save(): BankTransaction
     {
-        $response = $this->client
-            ->post('/api.xro/2.0/BankTransactions')
+        $bankTransactionId = $this->transaction->getBankTransactionID();
+
+        $request = $bankTransactionId === null
+            ? $this->client->put('/api.xro/2.0/BankTransactions')
+            : $this->client->post('/api.xro/2.0/BankTransactions/' . $bankTransactionId);
+
+        $response = $request
             ->withJson(['BankTransactions' => [$this->transaction->toRequest()]])
             ->send();
 
