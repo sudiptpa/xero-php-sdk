@@ -108,9 +108,10 @@ final class EmployeesTest extends TestCase
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'EmployeeLeave' => [
-                'LeaveID' => 'leave-2',
-                'Status' => 'DRAFT',
+            'leave' => [
+                'leaveID' => 'leave-2',
+                'leaveTypeID' => 'leave-type-1',
+                'description' => 'Holiday',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -144,7 +145,7 @@ final class EmployeesTest extends TestCase
             ->leaveType('leave-type-1')
             ->startDate('2026-04-01')
             ->endDate('2026-04-03')
-            ->title('Holiday')
+            ->description('Holiday')
             ->save();
         $createdLeaveType = $employee?->createLeaveType()
             ->leaveType('leave-type-2')
@@ -182,7 +183,13 @@ final class EmployeesTest extends TestCase
         $firstLt = $leaveTypes->first();
         self::assertNotNull($firstLt);
         self::assertSame('leave-type-1', $firstLt->getLeaveTypeID());
-        self::assertSame('leave-2', Json::extractObject($createdLeave ?? [], 'EmployeeLeave')['LeaveID'] ?? null);
+        self::assertSame('leave-2', Json::extractObject($createdLeave ?? [], 'leave')['leaveID'] ?? null);
+        self::assertSame([
+            'leaveTypeID' => 'leave-type-1',
+            'startDate' => '2026-04-01',
+            'endDate' => '2026-04-03',
+            'description' => 'Holiday',
+        ], $transport->requests()[10]->json);
         self::assertSame('leave-type-2', Json::extractObject($createdLeaveType ?? [], 'leaveType')['leaveTypeID'] ?? null);
     }
 
@@ -530,6 +537,11 @@ final class EmployeesTest extends TestCase
             ->leaveType('leave-type-1')
             ->startDate('2026-04-01')
             ->endDate('2026-04-03')
+            ->periods([[
+                'periodStartDate' => '2026-04-01',
+                'periodEndDate' => '2026-04-03',
+                'numberOfUnits' => 3.0,
+            ]])
             ->idempotencyKey('leave-key')
             ->save();
         $employees->createLeaveType('employee-1')

@@ -24,7 +24,15 @@ final class LeavePayload
     public function leaveType(string $leaveTypeId): self
     {
         $clone = clone $this;
-        $clone->payload['LeaveTypeID'] = $leaveTypeId;
+        $clone->payload['leaveTypeID'] = $leaveTypeId;
+
+        return $clone;
+    }
+
+    public function description(string $description): self
+    {
+        $clone = clone $this;
+        $clone->payload['description'] = $description;
 
         return $clone;
     }
@@ -32,7 +40,7 @@ final class LeavePayload
     public function startDate(string $startDate): self
     {
         $clone = clone $this;
-        $clone->payload['StartDate'] = $startDate;
+        $clone->payload['startDate'] = $startDate;
 
         return $clone;
     }
@@ -40,15 +48,18 @@ final class LeavePayload
     public function endDate(string $endDate): self
     {
         $clone = clone $this;
-        $clone->payload['EndDate'] = $endDate;
+        $clone->payload['endDate'] = $endDate;
 
         return $clone;
     }
 
-    public function title(string $title): self
+    /**
+     * @param array<int, array{periodStartDate: string, periodEndDate: string, numberOfUnits: float}> $periods
+     */
+    public function periods(array $periods): self
     {
         $clone = clone $this;
-        $clone->payload['Title'] = $title;
+        $clone->payload['periods'] = $periods;
 
         return $clone;
     }
@@ -69,7 +80,7 @@ final class LeavePayload
         return $this->client
             ->post('/payroll.xro/2.0/Employees/' . $this->employeeId . '/Leave')
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
-            ->withJson(['EmployeeLeave' => $this->payload])
+            ->withJson($this->payload)
             ->send()
             ->json();
     }
