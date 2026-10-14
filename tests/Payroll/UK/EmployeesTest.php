@@ -186,6 +186,50 @@ final class EmployeesTest extends TestCase
         self::assertSame('leave-type-2', Json::extractObject($createdLeaveType ?? [], 'leaveType')['leaveTypeID'] ?? null);
     }
 
+    public function test_it_can_create_an_employee_with_all_required_fields(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'employee' => ['employeeID' => 'employee-1'],
+        ], JSON_THROW_ON_ERROR)));
+
+        Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->employees()
+            ->create()
+            ->title('Mrs')
+            ->firstName('Grace')
+            ->lastName('Hopper')
+            ->dateOfBirth('1990-01-01')
+            ->gender('F')
+            ->address('123 Main St', 'Fulham', 'SW6 6EY', 'Apt 4', 'United Kingdom')
+            ->phoneNumber('415-555-1212')
+            ->startDate('2026-04-01')
+            ->endDate('2026-12-31')
+            ->payrollCalendar('calendar-1')
+            ->nationalInsuranceNumber('AB123456C')
+            ->isOffPayrollWorker()
+            ->save();
+
+        $json = $transport->requests()[0]->json ?? [];
+        self::assertSame('Mrs', $json['title']);
+        self::assertSame('F', $json['gender']);
+        self::assertSame([
+            'addressLine1' => '123 Main St',
+            'addressLine2' => 'Apt 4',
+            'city' => 'Fulham',
+            'postCode' => 'SW6 6EY',
+            'countryName' => 'United Kingdom',
+        ], $json['address']);
+        self::assertSame('415-555-1212', $json['phoneNumber']);
+        self::assertSame('2026-04-01', $json['startDate']);
+        self::assertSame('2026-12-31', $json['endDate']);
+        self::assertSame('calendar-1', $json['payrollCalendarID']);
+        self::assertSame('AB123456C', $json['nationalInsuranceNumber']);
+        self::assertTrue($json['isOffPayrollWorker']);
+    }
+
     public function test_it_exposes_scopes(): void
     {
         $scopes = Xero::withAccessToken('token', new FakeTransport())
