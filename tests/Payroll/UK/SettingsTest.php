@@ -112,6 +112,21 @@ final class SettingsTest extends TestCase
         self::assertSame(['payroll.settings.read', 'payroll.settings'], $scopes->granular);
     }
 
+    public function test_it_can_filter_statutory_leave_summary_by_active_only(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode(['statutoryLeaves' => []], JSON_THROW_ON_ERROR)));
+
+        Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->settings()
+            ->statutoryLeaveSummary('employee-1', true);
+
+        self::assertSame('/payroll.xro/2.0/StatutoryLeaves/Summary/employee-1', $transport->requests()[0]->path);
+        self::assertSame('true', $transport->requests()[0]->query['activeOnly']);
+    }
+
     public function test_it_returns_empty_collection_when_response_has_no_statutory_leaves(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
