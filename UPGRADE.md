@@ -1,5 +1,47 @@
 # Upgrade Guide
 
+## Unreleased
+
+The latest Accounting and Payroll audit removed operations and fields that are
+not present in the current Xero OpenAPI schemas. It also corrected several write
+requests. Review these changes before updating.
+
+### Accounting
+
+- `Accounting::employees()` and all `Accounting\Employee` classes have been removed. Use the regional Payroll API.
+- `Payments::update()` has been removed. Xero supports creating and deleting payments, but not updating them.
+- New Accounting records use the collection endpoint. Existing accounts, contacts, invoices, and bank transactions use their ID endpoint.
+- `ExpenseClaim\Payload::employee()` now accepts a Xero user ID and sends it as `User.UserID`.
+- `Currency::getStatus()` and `setStatus()` have been removed because the currency schema has no status field.
+- Invoice reminder settings no longer expose the unsupported `days` field.
+- Reports now return typed rows, cells, fields, and attributes instead of untyped arrays.
+- Attachment models now include the metadata returned by each endpoint. Upload helpers use `save()` for create and `update()` for replacement.
+
+### Assets
+
+- `assets()->get()` and `paginate()` now require `status()` first. Valid values are `Draft`, `Registered`, and `Disposed`; casing is normalized by the SDK.
+
+### Payroll AU
+
+- `LeaveApplication::getStatus()`, `setStatus()`, and `status()` have been removed because the AU leave application schema has no status field.
+- Employee create and update requests can now include the full nested address, payroll calendar, earnings rate, tax declaration, bank account, pay template, opening balance, and super membership fields.
+
+### Payroll NZ
+
+- Employee leave requests use `description()` instead of the unsupported `title()` field.
+- Payment methods now use `bankAccount()` with account name, number, and sort code.
+- Leave setup, employment, opening balances, salary and wages, working patterns, pay runs, and settings expose the fields required by their current schemas.
+
+### Payroll UK
+
+- `PayRuns::create()` and `PayRun\Payload` have been removed. The UK API exposes pay runs as read-only.
+- Employee leave requests use `description()` and `periods()` instead of `title()`.
+- Payslip line arrays now contain typed models. Use their getters instead of reading raw arrays.
+- `Payslips::get()` accepts an optional page number.
+- `Timesheets` supports `filter()`, `startDate()`, `endDate()`, and `sort()`.
+- `Settings::statutoryLeaveSummary()` accepts an optional `activeOnly` flag.
+- Payroll settings accounts are `Settings\Account` models rather than generic models.
+
 ## 4.0.0
 
 ### Generic concerns and contracts

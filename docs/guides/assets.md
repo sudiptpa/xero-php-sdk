@@ -2,6 +2,9 @@
 
 Fixed assets, asset types, and depreciation settings.
 
+Xero requires a status when listing assets. Call `status()` with `draft`,
+`registered`, or `disposed` before `get()` or `paginate()`.
+
 ## List assets
 
 ```php

@@ -17,6 +17,10 @@ $contacts = $xero->accounting()
     ->orderBy('Name')
     ->page(1)
     ->get();
+
+$contact = $xero->accounting()
+    ->contacts()
+    ->findByContactNumber('ACME-001');
 ```
 
 ```php
@@ -215,18 +219,13 @@ $payment = $xero->accounting()
     ->save();
 ```
 
-```php
-use Sujip\Xero\Accounting\Payment\Payment;
+Payments cannot be updated after creation. Use `delete()` to set a payment's
+status to `DELETED`.
 
-$updated = $xero->accounting()
+```php
+$deleted = $xero->accounting()
     ->payments()
-    ->update('payment-id')
-    ->using(
-        (new Payment())
-            ->setPaymentID('payment-id')
-            ->setReference('PAY-1002')
-    )
-    ->save();
+    ->delete('payment-id');
 ```
 
 ```php
@@ -237,6 +236,20 @@ $history = $xero->accounting()
 ```
 
 ## Receipts
+
+```php
+$receipt = $xero->accounting()
+    ->receipts()
+    ->create()
+    ->contact('contact-id')
+    ->user('user-id')
+    ->lineItem('Taxi fare', 1, 45, '429')
+    ->date('2026-10-14')
+    ->status('DRAFT')
+    ->save();
+```
+
+Use `update('receipt-id')` with the same methods to update a receipt.
 
 ```php
 $attachment = $xero->accounting()
@@ -298,6 +311,12 @@ $updated = $xero->accounting()
     ->save();
 ```
 
+```php
+$deleted = $xero->accounting()
+    ->accounts()
+    ->delete('account-id');
+```
+
 ## Items
 
 ```php
@@ -319,6 +338,12 @@ $item = $xero->accounting()
             ->setDescription('Standard widget')
     )
     ->save();
+```
+
+```php
+$xero->accounting()
+    ->items()
+    ->delete('item-id');
 ```
 
 ```php
@@ -449,32 +474,6 @@ $users = $xero->accounting()
     ->where('IsSubscriber == :sub', sub: true)
     ->orderBy('LastName')
     ->get();
-```
-
-## Employees
-
-This endpoint is deprecated by Xero. Use the Payroll API for employee management.
-
-```php
-$employees = $xero->accounting()
-    ->employees()
-    ->where('Status == :status', status: 'ACTIVE')
-    ->orderBy('LastName')
-    ->get();
-
-$firstEmployee = $employees->first();
-$employeeId = $firstEmployee?->getEmployeeID();
-$firstName = $firstEmployee?->getFirstName();
-```
-
-```php
-$employee = $xero->accounting()
-    ->employees()
-    ->create()
-    ->firstName('Maria')
-    ->lastName('Hill')
-    ->email('maria@example.test')
-    ->save();
 ```
 
 ## Credit notes
@@ -658,6 +657,16 @@ $batchPayment = $xero->accounting()
     ->save();
 ```
 
+```php
+$deleted = $xero->accounting()
+    ->batchPayments()
+    ->delete('batch-payment-id');
+
+$deletedMany = $xero->accounting()
+    ->batchPayments()
+    ->deleteMany(['batch-payment-1', 'batch-payment-2']);
+```
+
 ## Manual journals
 
 ```php
@@ -766,8 +775,6 @@ $pdf = $xero->accounting()
     ->quotes()
     ->pdf('quote-id');
 ```
-
-## Receipts
 
 ```php
 $receipts = $xero->accounting()
@@ -881,5 +888,7 @@ $profitAndLoss = $xero->accounting()
         'toDate' => new DateTimeImmutable('2026-03-25'),
     ]);
 
-$title = $profitAndLoss?->getReportTitle();
+$titles = $profitAndLoss?->getReportTitles();
+$rows = $profitAndLoss?->getRows();
+$fields = $profitAndLoss?->getFields();
 ```

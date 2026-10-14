@@ -60,12 +60,11 @@ $employee = $xero->payroll()
     ->save();
 ```
 
-AU doesn't split tax declarations, bank accounts, pay templates, opening
-balances, or super memberships into separate endpoints the way NZ does —
-they're all just nested objects on the one `Employee` record, set through
-`create()`/`update()`. These builder methods take the raw API field names
-directly (not individually typed) since each one has its own set of line
-types with different required fields per line:
+AU does not split tax declarations, bank accounts, pay templates, opening
+balances, or super memberships into separate endpoints. They are nested objects
+on the `Employee` record and are set through `create()` or `update()`. These
+methods take the API field names directly because each object has different
+required fields.
 
 ```php
 $updated = $xero->payroll()
@@ -113,6 +112,9 @@ $leave = $employee->createLeaveApplication()
     ->endDate('2026-04-02')
     ->save();
 ```
+
+Leave application responses do not contain a status field. Read approval state
+from the related pay run or employee data instead.
 
 ## Leave applications
 

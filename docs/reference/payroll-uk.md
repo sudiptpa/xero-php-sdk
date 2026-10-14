@@ -34,12 +34,22 @@ without a dedicated SDK model.
 - [Payroll\UK\PayItem\EarningsRates](#payrollukpayitemearningsrates)
 - [Payroll\UK\PayRunCalendar\PayRunCalendar](#payrollukpayruncalendarpayruncalendar)
 - [Payroll\UK\PayRunCalendar\PayRunCalendars](#payrollukpayruncalendarpayruncalendars)
+- [Payroll\UK\PayRun\BenefitLine](#payrollukpayrunbenefitline)
+- [Payroll\UK\PayRun\CourtOrderLine](#payrollukpayruncourtorderline)
+- [Payroll\UK\PayRun\DeductionLine](#payrollukpayrundeductionline)
+- [Payroll\UK\PayRun\EarningsLine](#payrollukpayrunearningsline)
+- [Payroll\UK\PayRun\LeaveAccrualLine](#payrollukpayrunleaveaccrualline)
+- [Payroll\UK\PayRun\LeaveEarningsLine](#payrollukpayrunleaveearningsline)
 - [Payroll\UK\PayRun\PayRun](#payrollukpayrunpayrun)
 - [Payroll\UK\PayRun\PayRuns](#payrollukpayrunpayruns)
-- [Payroll\UK\PayRun\Payload](#payrollukpayrunpayload)
+- [Payroll\UK\PayRun\PaymentLine](#payrollukpayrunpaymentline)
 - [Payroll\UK\PayRun\Payslip](#payrollukpayrunpayslip)
 - [Payroll\UK\PayRun\Payslips](#payrollukpayrunpayslips)
+- [Payroll\UK\PayRun\ReimbursementLine](#payrollukpayrunreimbursementline)
+- [Payroll\UK\PayRun\TaxLine](#payrollukpayruntaxline)
+- [Payroll\UK\PayRun\TimesheetEarningsLine](#payrollukpayruntimesheetearningsline)
 - [Payroll\UK\PayrollUK](#payrollukpayrolluk)
+- [Payroll\UK\Settings\Account](#payrolluksettingsaccount)
 - [Payroll\UK\Settings\PayrollSettings](#payrolluksettingspayrollsettings)
 - [Payroll\UK\Settings\Reimbursement](#payrolluksettingsreimbursement)
 - [Payroll\UK\Settings\ReimbursementPayload](#payrolluksettingsreimbursementpayload)
@@ -368,13 +378,13 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`createPaymentMethod(string $employeeId, array $paymentMethod, ?string $idempotencyKey = NULL): array`](../../src/Payroll/UK/Employee/Employees.php#L371)
 - [`createSalaryAndWage(string $employeeId, array $salary, ?string $idempotencyKey = NULL): array`](../../src/Payroll/UK/Employee/Employees.php#L385)
 - [`tax(string $employeeId): array`](../../src/Payroll/UK/Employee/Employees.php#L398)
-- [`leavePeriods(string $employeeId, string $startDate, string $endDate): array`](../../src/Payroll/UK/Employee/Employees.php#L409)
-- [`salaryAndWages(string $employeeId, int $page = 1): array`](../../src/Payroll/UK/Employee/Employees.php#L421)
-- [`salaryAndWage(string $employeeId, string $salaryAndWagesId): array`](../../src/Payroll/UK/Employee/Employees.php#L433)
-- [`mapEmployee(array $employee): Sujip\Xero\Payroll\UK\Employee\Employee`](../../src/Payroll/UK/Employee/Employees.php#L444)
-- [`mapLeaveType(array $leaveType): Sujip\Xero\Payroll\UK\Employee\EmployeeLeaveType`](../../src/Payroll/UK/Employee/Employees.php#L452)
-- [`mapEarningsTemplate(array $template): Sujip\Xero\Payroll\UK\Employee\EarningsTemplate`](../../src/Payroll/UK/Employee/Employees.php#L460)
-- [`mapOpeningBalances(array $balances): Sujip\Xero\Payroll\UK\Employee\EmployeeOpeningBalances`](../../src/Payroll/UK/Employee/Employees.php#L468)
+- [`leavePeriods(string $employeeId, ?string $startDate = NULL, ?string $endDate = NULL): array`](../../src/Payroll/UK/Employee/Employees.php#L409)
+- [`salaryAndWages(string $employeeId, int $page = 1): array`](../../src/Payroll/UK/Employee/Employees.php#L424)
+- [`salaryAndWage(string $employeeId, string $salaryAndWagesId): array`](../../src/Payroll/UK/Employee/Employees.php#L436)
+- [`mapEmployee(array $employee): Sujip\Xero\Payroll\UK\Employee\Employee`](../../src/Payroll/UK/Employee/Employees.php#L447)
+- [`mapLeaveType(array $leaveType): Sujip\Xero\Payroll\UK\Employee\EmployeeLeaveType`](../../src/Payroll/UK/Employee/Employees.php#L455)
+- [`mapEarningsTemplate(array $template): Sujip\Xero\Payroll\UK\Employee\EarningsTemplate`](../../src/Payroll/UK/Employee/Employees.php#L463)
+- [`mapOpeningBalances(array $balances): Sujip\Xero\Payroll\UK\Employee\EmployeeOpeningBalances`](../../src/Payroll/UK/Employee/Employees.php#L471)
 
 ## Payroll\UK\Employee\LeavePayload
 
@@ -384,11 +394,12 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 - [`__construct(\Sujip\Xero\Client $client, string $employeeId)`](../../src/Payroll/UK/Employee/LeavePayload.php#L18)
 - [`leaveType(string $leaveTypeId): Sujip\Xero\Payroll\UK\Employee\LeavePayload`](../../src/Payroll/UK/Employee/LeavePayload.php#L24)
-- [`startDate(string $startDate): Sujip\Xero\Payroll\UK\Employee\LeavePayload`](../../src/Payroll/UK/Employee/LeavePayload.php#L32)
-- [`endDate(string $endDate): Sujip\Xero\Payroll\UK\Employee\LeavePayload`](../../src/Payroll/UK/Employee/LeavePayload.php#L40)
-- [`title(string $title): Sujip\Xero\Payroll\UK\Employee\LeavePayload`](../../src/Payroll/UK/Employee/LeavePayload.php#L48)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\UK\Employee\LeavePayload`](../../src/Payroll/UK/Employee/LeavePayload.php#L56)
-- [`save(): array`](../../src/Payroll/UK/Employee/LeavePayload.php#L67)
+- [`description(string $description): Sujip\Xero\Payroll\UK\Employee\LeavePayload`](../../src/Payroll/UK/Employee/LeavePayload.php#L32)
+- [`startDate(string $startDate): Sujip\Xero\Payroll\UK\Employee\LeavePayload`](../../src/Payroll/UK/Employee/LeavePayload.php#L40)
+- [`endDate(string $endDate): Sujip\Xero\Payroll\UK\Employee\LeavePayload`](../../src/Payroll/UK/Employee/LeavePayload.php#L48)
+- [`periods(array $periods): Sujip\Xero\Payroll\UK\Employee\LeavePayload`](../../src/Payroll/UK/Employee/LeavePayload.php#L59)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\UK\Employee\LeavePayload`](../../src/Payroll/UK/Employee/LeavePayload.php#L67)
+- [`save(): array`](../../src/Payroll/UK/Employee/LeavePayload.php#L78)
 
 ## Payroll\UK\Employee\LeaveTypePayload
 
@@ -400,8 +411,12 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`leaveType(string $leaveTypeId): Sujip\Xero\Payroll\UK\Employee\LeaveTypePayload`](../../src/Payroll/UK/Employee/LeaveTypePayload.php#L24)
 - [`scheduleOfAccrual(string $schedule): Sujip\Xero\Payroll\UK\Employee\LeaveTypePayload`](../../src/Payroll/UK/Employee/LeaveTypePayload.php#L32)
 - [`openingBalance(float $openingBalance): Sujip\Xero\Payroll\UK\Employee\LeaveTypePayload`](../../src/Payroll/UK/Employee/LeaveTypePayload.php#L40)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\UK\Employee\LeaveTypePayload`](../../src/Payroll/UK/Employee/LeaveTypePayload.php#L48)
-- [`save(): array`](../../src/Payroll/UK/Employee/LeaveTypePayload.php#L59)
+- [`hoursAccruedAnnually(float $hoursAccruedAnnually): Sujip\Xero\Payroll\UK\Employee\LeaveTypePayload`](../../src/Payroll/UK/Employee/LeaveTypePayload.php#L48)
+- [`maximumToAccrue(float $maximumToAccrue): Sujip\Xero\Payroll\UK\Employee\LeaveTypePayload`](../../src/Payroll/UK/Employee/LeaveTypePayload.php#L56)
+- [`rateAccruedHourly(float $rateAccruedHourly): Sujip\Xero\Payroll\UK\Employee\LeaveTypePayload`](../../src/Payroll/UK/Employee/LeaveTypePayload.php#L64)
+- [`scheduleOfAccrualDate(string $scheduleOfAccrualDate): Sujip\Xero\Payroll\UK\Employee\LeaveTypePayload`](../../src/Payroll/UK/Employee/LeaveTypePayload.php#L72)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\UK\Employee\LeaveTypePayload`](../../src/Payroll/UK/Employee/LeaveTypePayload.php#L80)
+- [`save(): array`](../../src/Payroll/UK/Employee/LeaveTypePayload.php#L91)
 
 ## Payroll\UK\Employee\NICategory
 
@@ -441,12 +456,21 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 - [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/UK/Employee/Payload.php#L21)
 - [`id(string $employeeId): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L26)
-- [`firstName(string $firstName): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L34)
-- [`lastName(string $lastName): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L42)
-- [`emailAddress(string $emailAddress): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L50)
-- [`dateOfBirth(string $dateOfBirth): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L58)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L66)
-- [`save(): Sujip\Xero\Payroll\UK\Employee\Employee`](../../src/Payroll/UK/Employee/Payload.php#L74)
+- [`title(string $title): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L34)
+- [`firstName(string $firstName): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L42)
+- [`lastName(string $lastName): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L50)
+- [`emailAddress(string $emailAddress): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L58)
+- [`dateOfBirth(string $dateOfBirth): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L66)
+- [`gender(string $gender): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L74)
+- [`address(string $addressLine1, string $city, string $postCode, ?string $addressLine2 = NULL, ?string $countryName = NULL): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L82)
+- [`phoneNumber(string $phoneNumber): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L101)
+- [`startDate(string $startDate): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L109)
+- [`endDate(string $endDate): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L117)
+- [`payrollCalendar(string $payrollCalendarId): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L125)
+- [`nationalInsuranceNumber(string $nationalInsuranceNumber): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L133)
+- [`isOffPayrollWorker(bool $isOffPayrollWorker = true): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L141)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\UK\Employee\Payload`](../../src/Payroll/UK/Employee/Payload.php#L149)
+- [`save(): Sujip\Xero\Payroll\UK\Employee\Employee`](../../src/Payroll/UK/Employee/Payload.php#L157)
 
 ## Payroll\UK\LeaveType\LeaveType
 
@@ -499,8 +523,9 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L26)
 - [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L37)
 - [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L56)
-- [`create(array $leaveType, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\UK\LeaveType\LeaveType`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L74)
-- [`mapLeaveType(array $leaveType): Sujip\Xero\Payroll\UK\LeaveType\LeaveType`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L91)
+- [`find(string $leaveTypeId): ?\Sujip\Xero\Payroll\UK\LeaveType\LeaveType`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L71)
+- [`create(array $leaveType, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\UK\LeaveType\LeaveType`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L86)
+- [`mapLeaveType(array $leaveType): Sujip\Xero\Payroll\UK\LeaveType\LeaveType`](../../src/Payroll/UK/LeaveType/LeaveTypes.php#L103)
 
 ## Payroll\UK\PayItem\Benefit
 
@@ -811,6 +836,174 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`create(array $calendar, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\UK\PayRunCalendar\PayRunCalendar`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L86)
 - [`mapPayRunCalendar(array $calendar): Sujip\Xero\Payroll\UK\PayRunCalendar\PayRunCalendar`](../../src/Payroll/UK/PayRunCalendar/PayRunCalendars.php#L103)
 
+## Payroll\UK\PayRun\BenefitLine
+
+[Source](../../src/Payroll/UK/PayRun/BenefitLine.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `benefitTypeID` | string or null | `()` |
+| `displayName` | string or null | `()` |
+| `amount` | int, float, or null | `()` |
+| `fixedAmount` | int, float, or null | `()` |
+| `percentage` | int, float, or null | `()` |
+
+### Public methods
+
+- [`getBenefitTypeID(): ?string`](../../src/Payroll/UK/PayRun/BenefitLine.php#L22)
+- [`setBenefitTypeID(?string $benefitTypeID): Sujip\Xero\Payroll\UK\PayRun\BenefitLine`](../../src/Payroll/UK/PayRun/BenefitLine.php#L27)
+- [`getDisplayName(): ?string`](../../src/Payroll/UK/PayRun/BenefitLine.php#L34)
+- [`setDisplayName(?string $displayName): Sujip\Xero\Payroll\UK\PayRun\BenefitLine`](../../src/Payroll/UK/PayRun/BenefitLine.php#L39)
+- [`getAmount(): ?float`](../../src/Payroll/UK/PayRun/BenefitLine.php#L46)
+- [`setAmount(?float $amount): Sujip\Xero\Payroll\UK\PayRun\BenefitLine`](../../src/Payroll/UK/PayRun/BenefitLine.php#L51)
+- [`getFixedAmount(): ?float`](../../src/Payroll/UK/PayRun/BenefitLine.php#L58)
+- [`setFixedAmount(?float $fixedAmount): Sujip\Xero\Payroll\UK\PayRun\BenefitLine`](../../src/Payroll/UK/PayRun/BenefitLine.php#L63)
+- [`getPercentage(): ?float`](../../src/Payroll/UK/PayRun/BenefitLine.php#L70)
+- [`setPercentage(?float $percentage): Sujip\Xero\Payroll\UK\PayRun\BenefitLine`](../../src/Payroll/UK/PayRun/BenefitLine.php#L75)
+
+## Payroll\UK\PayRun\CourtOrderLine
+
+[Source](../../src/Payroll/UK/PayRun/CourtOrderLine.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `courtOrderTypeID` | string or null | `()` |
+| `amount` | int, float, or null | `()` |
+
+### Public methods
+
+- [`getCourtOrderTypeID(): ?string`](../../src/Payroll/UK/PayRun/CourtOrderLine.php#L16)
+- [`setCourtOrderTypeID(?string $courtOrderTypeID): Sujip\Xero\Payroll\UK\PayRun\CourtOrderLine`](../../src/Payroll/UK/PayRun/CourtOrderLine.php#L21)
+- [`getAmount(): ?float`](../../src/Payroll/UK/PayRun/CourtOrderLine.php#L28)
+- [`setAmount(?float $amount): Sujip\Xero\Payroll\UK\PayRun\CourtOrderLine`](../../src/Payroll/UK/PayRun/CourtOrderLine.php#L33)
+
+## Payroll\UK\PayRun\DeductionLine
+
+[Source](../../src/Payroll/UK/PayRun/DeductionLine.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `deductionTypeID` | string or null | `()` |
+| `amount` | int, float, or null | `()` |
+| `subjectToTax` | bool or null | `()` |
+| `percentage` | int, float, or null | `()` |
+
+### Public methods
+
+- [`getDeductionTypeID(): ?string`](../../src/Payroll/UK/PayRun/DeductionLine.php#L20)
+- [`setDeductionTypeID(?string $deductionTypeID): Sujip\Xero\Payroll\UK\PayRun\DeductionLine`](../../src/Payroll/UK/PayRun/DeductionLine.php#L25)
+- [`getAmount(): ?float`](../../src/Payroll/UK/PayRun/DeductionLine.php#L32)
+- [`setAmount(?float $amount): Sujip\Xero\Payroll\UK\PayRun\DeductionLine`](../../src/Payroll/UK/PayRun/DeductionLine.php#L37)
+- [`getSubjectToTax(): ?bool`](../../src/Payroll/UK/PayRun/DeductionLine.php#L44)
+- [`setSubjectToTax(?bool $subjectToTax): Sujip\Xero\Payroll\UK\PayRun\DeductionLine`](../../src/Payroll/UK/PayRun/DeductionLine.php#L49)
+- [`getPercentage(): ?float`](../../src/Payroll/UK/PayRun/DeductionLine.php#L56)
+- [`setPercentage(?float $percentage): Sujip\Xero\Payroll\UK\PayRun\DeductionLine`](../../src/Payroll/UK/PayRun/DeductionLine.php#L61)
+
+## Payroll\UK\PayRun\EarningsLine
+
+[Source](../../src/Payroll/UK/PayRun/EarningsLine.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `earningsLineID` | string or null | `()` |
+| `earningsRateID` | string or null | `()` |
+| `displayName` | string or null | `()` |
+| `ratePerUnit` | int, float, or null | `()` |
+| `numberOfUnits` | int, float, or null | `()` |
+| `fixedAmount` | int, float, or null | `()` |
+| `amount` | int, float, or null | `()` |
+| `isLinkedToTimesheet` | bool or null | `()` |
+| `isAverageDailyPayRate` | bool or null | `()` |
+
+### Public methods
+
+- [`getEarningsLineID(): ?string`](../../src/Payroll/UK/PayRun/EarningsLine.php#L30)
+- [`setEarningsLineID(?string $earningsLineID): Sujip\Xero\Payroll\UK\PayRun\EarningsLine`](../../src/Payroll/UK/PayRun/EarningsLine.php#L35)
+- [`getEarningsRateID(): ?string`](../../src/Payroll/UK/PayRun/EarningsLine.php#L42)
+- [`setEarningsRateID(?string $earningsRateID): Sujip\Xero\Payroll\UK\PayRun\EarningsLine`](../../src/Payroll/UK/PayRun/EarningsLine.php#L47)
+- [`getDisplayName(): ?string`](../../src/Payroll/UK/PayRun/EarningsLine.php#L54)
+- [`setDisplayName(?string $displayName): Sujip\Xero\Payroll\UK\PayRun\EarningsLine`](../../src/Payroll/UK/PayRun/EarningsLine.php#L59)
+- [`getRatePerUnit(): ?float`](../../src/Payroll/UK/PayRun/EarningsLine.php#L66)
+- [`setRatePerUnit(?float $ratePerUnit): Sujip\Xero\Payroll\UK\PayRun\EarningsLine`](../../src/Payroll/UK/PayRun/EarningsLine.php#L71)
+- [`getNumberOfUnits(): ?float`](../../src/Payroll/UK/PayRun/EarningsLine.php#L78)
+- [`setNumberOfUnits(?float $numberOfUnits): Sujip\Xero\Payroll\UK\PayRun\EarningsLine`](../../src/Payroll/UK/PayRun/EarningsLine.php#L83)
+- [`getFixedAmount(): ?float`](../../src/Payroll/UK/PayRun/EarningsLine.php#L90)
+- [`setFixedAmount(?float $fixedAmount): Sujip\Xero\Payroll\UK\PayRun\EarningsLine`](../../src/Payroll/UK/PayRun/EarningsLine.php#L95)
+- [`getAmount(): ?float`](../../src/Payroll/UK/PayRun/EarningsLine.php#L102)
+- [`setAmount(?float $amount): Sujip\Xero\Payroll\UK\PayRun\EarningsLine`](../../src/Payroll/UK/PayRun/EarningsLine.php#L107)
+- [`getIsLinkedToTimesheet(): ?bool`](../../src/Payroll/UK/PayRun/EarningsLine.php#L114)
+- [`setIsLinkedToTimesheet(?bool $isLinkedToTimesheet): Sujip\Xero\Payroll\UK\PayRun\EarningsLine`](../../src/Payroll/UK/PayRun/EarningsLine.php#L119)
+- [`getIsAverageDailyPayRate(): ?bool`](../../src/Payroll/UK/PayRun/EarningsLine.php#L126)
+- [`setIsAverageDailyPayRate(?bool $isAverageDailyPayRate): Sujip\Xero\Payroll\UK\PayRun\EarningsLine`](../../src/Payroll/UK/PayRun/EarningsLine.php#L131)
+
+## Payroll\UK\PayRun\LeaveAccrualLine
+
+[Source](../../src/Payroll/UK/PayRun/LeaveAccrualLine.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `leaveTypeID` | string or null | `()` |
+| `numberOfUnits` | int, float, or null | `()` |
+
+### Public methods
+
+- [`getLeaveTypeID(): ?string`](../../src/Payroll/UK/PayRun/LeaveAccrualLine.php#L16)
+- [`setLeaveTypeID(?string $leaveTypeID): Sujip\Xero\Payroll\UK\PayRun\LeaveAccrualLine`](../../src/Payroll/UK/PayRun/LeaveAccrualLine.php#L21)
+- [`getNumberOfUnits(): ?float`](../../src/Payroll/UK/PayRun/LeaveAccrualLine.php#L28)
+- [`setNumberOfUnits(?float $numberOfUnits): Sujip\Xero\Payroll\UK\PayRun\LeaveAccrualLine`](../../src/Payroll/UK/PayRun/LeaveAccrualLine.php#L33)
+
+## Payroll\UK\PayRun\LeaveEarningsLine
+
+[Source](../../src/Payroll/UK/PayRun/LeaveEarningsLine.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `earningsRateID` | string or null | `()` |
+| `ratePerUnit` | int, float, or null | `()` |
+| `numberOfUnits` | int, float, or null | `()` |
+| `fixedAmount` | int, float, or null | `()` |
+| `amount` | int, float, or null | `()` |
+| `isLinkedToTimesheet` | bool or null | `()` |
+
+### Public methods
+
+- [`getEarningsRateID(): ?string`](../../src/Payroll/UK/PayRun/LeaveEarningsLine.php#L24)
+- [`setEarningsRateID(?string $earningsRateID): Sujip\Xero\Payroll\UK\PayRun\LeaveEarningsLine`](../../src/Payroll/UK/PayRun/LeaveEarningsLine.php#L29)
+- [`getRatePerUnit(): ?float`](../../src/Payroll/UK/PayRun/LeaveEarningsLine.php#L36)
+- [`setRatePerUnit(?float $ratePerUnit): Sujip\Xero\Payroll\UK\PayRun\LeaveEarningsLine`](../../src/Payroll/UK/PayRun/LeaveEarningsLine.php#L41)
+- [`getNumberOfUnits(): ?float`](../../src/Payroll/UK/PayRun/LeaveEarningsLine.php#L48)
+- [`setNumberOfUnits(?float $numberOfUnits): Sujip\Xero\Payroll\UK\PayRun\LeaveEarningsLine`](../../src/Payroll/UK/PayRun/LeaveEarningsLine.php#L53)
+- [`getFixedAmount(): ?float`](../../src/Payroll/UK/PayRun/LeaveEarningsLine.php#L60)
+- [`setFixedAmount(?float $fixedAmount): Sujip\Xero\Payroll\UK\PayRun\LeaveEarningsLine`](../../src/Payroll/UK/PayRun/LeaveEarningsLine.php#L65)
+- [`getAmount(): ?float`](../../src/Payroll/UK/PayRun/LeaveEarningsLine.php#L72)
+- [`setAmount(?float $amount): Sujip\Xero\Payroll\UK\PayRun\LeaveEarningsLine`](../../src/Payroll/UK/PayRun/LeaveEarningsLine.php#L77)
+- [`getIsLinkedToTimesheet(): ?bool`](../../src/Payroll/UK/PayRun/LeaveEarningsLine.php#L84)
+- [`setIsLinkedToTimesheet(?bool $isLinkedToTimesheet): Sujip\Xero\Payroll\UK\PayRun\LeaveEarningsLine`](../../src/Payroll/UK/PayRun/LeaveEarningsLine.php#L89)
+
 ## Payroll\UK\PayRun\PayRun
 
 [Source](../../src/Payroll/UK/PayRun/PayRun.php)
@@ -877,21 +1070,37 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/UK/PayRun/PayRuns.php#L49)
 - [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Payroll/UK/PayRun/PayRuns.php#L68)
 - [`find(string $payRunId): ?\Sujip\Xero\Payroll\UK\PayRun\PayRun`](../../src/Payroll/UK/PayRun/PayRuns.php#L83)
-- [`create(): Sujip\Xero\Payroll\UK\PayRun\Payload`](../../src/Payroll/UK/PayRun/PayRuns.php#L95)
-- [`payslips(string $payRunId): Sujip\Xero\Payroll\UK\PayRun\Payslips`](../../src/Payroll/UK/PayRun/PayRuns.php#L100)
-- [`mapPayRun(array $payRun): Sujip\Xero\Payroll\UK\PayRun\PayRun`](../../src/Payroll/UK/PayRun/PayRuns.php#L108)
+- [`payslips(string $payRunId): Sujip\Xero\Payroll\UK\PayRun\Payslips`](../../src/Payroll/UK/PayRun/PayRuns.php#L95)
+- [`mapPayRun(array $payRun): Sujip\Xero\Payroll\UK\PayRun\PayRun`](../../src/Payroll/UK/PayRun/PayRuns.php#L103)
 
-## Payroll\UK\PayRun\Payload
+## Payroll\UK\PayRun\PaymentLine
 
-[Source](../../src/Payroll/UK/PayRun/Payload.php)
+[Source](../../src/Payroll/UK/PayRun/PaymentLine.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `paymentLineID` | string or null | `()` |
+| `amount` | int, float, or null | `()` |
+| `accountNumber` | string or null | `()` |
+| `sortCode` | string or null | `()` |
+| `accountName` | string or null | `()` |
 
 ### Public methods
 
-- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/UK/PayRun/Payload.php#L19)
-- [`payrollCalendar(string $payrollCalendarId): Sujip\Xero\Payroll\UK\PayRun\Payload`](../../src/Payroll/UK/PayRun/Payload.php#L24)
-- [`paymentDate(string $paymentDate): Sujip\Xero\Payroll\UK\PayRun\Payload`](../../src/Payroll/UK/PayRun/Payload.php#L32)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\UK\PayRun\Payload`](../../src/Payroll/UK/PayRun/Payload.php#L40)
-- [`save(): Sujip\Xero\Payroll\UK\PayRun\PayRun`](../../src/Payroll/UK/PayRun/Payload.php#L48)
+- [`getPaymentLineID(): ?string`](../../src/Payroll/UK/PayRun/PaymentLine.php#L22)
+- [`setPaymentLineID(?string $paymentLineID): Sujip\Xero\Payroll\UK\PayRun\PaymentLine`](../../src/Payroll/UK/PayRun/PaymentLine.php#L27)
+- [`getAmount(): ?float`](../../src/Payroll/UK/PayRun/PaymentLine.php#L34)
+- [`setAmount(?float $amount): Sujip\Xero\Payroll\UK\PayRun\PaymentLine`](../../src/Payroll/UK/PayRun/PaymentLine.php#L39)
+- [`getAccountNumber(): ?string`](../../src/Payroll/UK/PayRun/PaymentLine.php#L46)
+- [`setAccountNumber(?string $accountNumber): Sujip\Xero\Payroll\UK\PayRun\PaymentLine`](../../src/Payroll/UK/PayRun/PaymentLine.php#L51)
+- [`getSortCode(): ?string`](../../src/Payroll/UK/PayRun/PaymentLine.php#L58)
+- [`setSortCode(?string $sortCode): Sujip\Xero\Payroll\UK\PayRun\PaymentLine`](../../src/Payroll/UK/PayRun/PaymentLine.php#L63)
+- [`getAccountName(): ?string`](../../src/Payroll/UK/PayRun/PaymentLine.php#L70)
+- [`setAccountName(?string $accountName): Sujip\Xero\Payroll\UK\PayRun\PaymentLine`](../../src/Payroll/UK/PayRun/PaymentLine.php#L75)
 
 ## Payroll\UK\PayRun\Payslip
 
@@ -920,17 +1129,17 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 | `totalBenefits` | int, float, or null | `setTotalBenefits()` |
 | `bacsHash` | string or null | `setBacsHash()` |
 | `paymentMethod` | string or null | `setPaymentMethod()` |
-| `earningsLines` | array | `setEarningsLines()` |
-| `leaveEarningsLines` | array | `setLeaveEarningsLines()` |
-| `timesheetEarningsLines` | array | `setTimesheetEarningsLines()` |
-| `deductionLines` | array | `setDeductionLines()` |
-| `reimbursementLines` | array | `setReimbursementLines()` |
-| `leaveAccrualLines` | array | `setLeaveAccrualLines()` |
-| `benefitLines` | array | `setBenefitLines()` |
-| `paymentLines` | array | `setPaymentLines()` |
-| `employeeTaxLines` | array | `setEmployeeTaxLines()` |
-| `employerTaxLines` | array | `setEmployerTaxLines()` |
-| `courtOrderLines` | array | `setCourtOrderLines()` |
+| `earningsLines` | list of objects ([Payroll\UK\PayRun\EarningsLine](payroll-uk.md#payrollukpayrunearningsline)) | `()` |
+| `leaveEarningsLines` | list of objects ([Payroll\UK\PayRun\LeaveEarningsLine](payroll-uk.md#payrollukpayrunleaveearningsline)) | `()` |
+| `timesheetEarningsLines` | list of objects ([Payroll\UK\PayRun\TimesheetEarningsLine](payroll-uk.md#payrollukpayruntimesheetearningsline)) | `()` |
+| `deductionLines` | list of objects ([Payroll\UK\PayRun\DeductionLine](payroll-uk.md#payrollukpayrundeductionline)) | `()` |
+| `reimbursementLines` | list of objects ([Payroll\UK\PayRun\ReimbursementLine](payroll-uk.md#payrollukpayrunreimbursementline)) | `()` |
+| `leaveAccrualLines` | list of objects ([Payroll\UK\PayRun\LeaveAccrualLine](payroll-uk.md#payrollukpayrunleaveaccrualline)) | `()` |
+| `benefitLines` | list of objects ([Payroll\UK\PayRun\BenefitLine](payroll-uk.md#payrollukpayrunbenefitline)) | `()` |
+| `paymentLines` | list of objects ([Payroll\UK\PayRun\PaymentLine](payroll-uk.md#payrollukpayrunpaymentline)) | `()` |
+| `employeeTaxLines` | list of objects ([Payroll\UK\PayRun\TaxLine](payroll-uk.md#payrollukpayruntaxline)) | `()` |
+| `employerTaxLines` | list of objects ([Payroll\UK\PayRun\TaxLine](payroll-uk.md#payrollukpayruntaxline)) | `()` |
+| `courtOrderLines` | list of objects ([Payroll\UK\PayRun\CourtOrderLine](payroll-uk.md#payrollukpayruncourtorderline)) | `()` |
 
 ### Public methods
 
@@ -970,27 +1179,27 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`getPaymentMethod(): ?string`](../../src/Payroll/UK/PayRun/Payslip.php#L258)
 - [`setPaymentMethod(?string $paymentMethod): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L263)
 - [`getEarningsLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L271)
-- [`setEarningsLines(array $earningsLines): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L277)
-- [`getLeaveEarningsLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L285)
-- [`setLeaveEarningsLines(array $leaveEarningsLines): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L291)
-- [`getTimesheetEarningsLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L299)
-- [`setTimesheetEarningsLines(array $timesheetEarningsLines): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L305)
-- [`getDeductionLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L313)
-- [`setDeductionLines(array $deductionLines): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L319)
-- [`getReimbursementLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L327)
-- [`setReimbursementLines(array $reimbursementLines): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L333)
-- [`getLeaveAccrualLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L341)
-- [`setLeaveAccrualLines(array $leaveAccrualLines): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L347)
-- [`getBenefitLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L355)
-- [`setBenefitLines(array $benefitLines): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L361)
-- [`getPaymentLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L369)
-- [`setPaymentLines(array $paymentLines): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L375)
-- [`getEmployeeTaxLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L383)
-- [`setEmployeeTaxLines(array $employeeTaxLines): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L389)
-- [`getEmployerTaxLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L397)
-- [`setEmployerTaxLines(array $employerTaxLines): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L403)
-- [`getCourtOrderLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L411)
-- [`setCourtOrderLines(array $courtOrderLines): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L417)
+- [`addEarningsLine(\Sujip\Xero\Payroll\UK\PayRun\EarningsLine $earningsLine): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L276)
+- [`getLeaveEarningsLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L284)
+- [`addLeaveEarningsLine(\Sujip\Xero\Payroll\UK\PayRun\LeaveEarningsLine $leaveEarningsLine): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L289)
+- [`getTimesheetEarningsLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L297)
+- [`addTimesheetEarningsLine(\Sujip\Xero\Payroll\UK\PayRun\TimesheetEarningsLine $timesheetEarningsLine): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L302)
+- [`getDeductionLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L310)
+- [`addDeductionLine(\Sujip\Xero\Payroll\UK\PayRun\DeductionLine $deductionLine): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L315)
+- [`getReimbursementLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L323)
+- [`addReimbursementLine(\Sujip\Xero\Payroll\UK\PayRun\ReimbursementLine $reimbursementLine): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L328)
+- [`getLeaveAccrualLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L336)
+- [`addLeaveAccrualLine(\Sujip\Xero\Payroll\UK\PayRun\LeaveAccrualLine $leaveAccrualLine): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L341)
+- [`getBenefitLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L349)
+- [`addBenefitLine(\Sujip\Xero\Payroll\UK\PayRun\BenefitLine $benefitLine): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L354)
+- [`getPaymentLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L362)
+- [`addPaymentLine(\Sujip\Xero\Payroll\UK\PayRun\PaymentLine $paymentLine): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L367)
+- [`getEmployeeTaxLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L375)
+- [`addEmployeeTaxLine(\Sujip\Xero\Payroll\UK\PayRun\TaxLine $employeeTaxLine): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L380)
+- [`getEmployerTaxLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L388)
+- [`addEmployerTaxLine(\Sujip\Xero\Payroll\UK\PayRun\TaxLine $employerTaxLine): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L393)
+- [`getCourtOrderLines(): array`](../../src/Payroll/UK/PayRun/Payslip.php#L401)
+- [`addCourtOrderLine(\Sujip\Xero\Payroll\UK\PayRun\CourtOrderLine $courtOrderLine): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslip.php#L406)
 
 ## Payroll\UK\PayRun\Payslips
 
@@ -1000,9 +1209,96 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 - [`__construct(\Sujip\Xero\Client $client, string $payRunId)`](../../src/Payroll/UK/PayRun/Payslips.php#L15)
 - [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Payroll/UK/PayRun/Payslips.php#L21)
-- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/UK/PayRun/Payslips.php#L32)
-- [`find(string $payslipId): ?\Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslips.php#L48)
-- [`mapPayslip(array $payslip): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslips.php#L63)
+- [`get(?int $page = NULL): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/UK/PayRun/Payslips.php#L32)
+- [`find(string $payslipId): ?\Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslips.php#L51)
+- [`mapPayslip(array $payslip): Sujip\Xero\Payroll\UK\PayRun\Payslip`](../../src/Payroll/UK/PayRun/Payslips.php#L66)
+
+## Payroll\UK\PayRun\ReimbursementLine
+
+[Source](../../src/Payroll/UK/PayRun/ReimbursementLine.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `reimbursementTypeID` | string or null | `()` |
+| `description` | string or null | `()` |
+| `amount` | int, float, or null | `()` |
+
+### Public methods
+
+- [`getReimbursementTypeID(): ?string`](../../src/Payroll/UK/PayRun/ReimbursementLine.php#L18)
+- [`setReimbursementTypeID(?string $reimbursementTypeID): Sujip\Xero\Payroll\UK\PayRun\ReimbursementLine`](../../src/Payroll/UK/PayRun/ReimbursementLine.php#L23)
+- [`getDescription(): ?string`](../../src/Payroll/UK/PayRun/ReimbursementLine.php#L30)
+- [`setDescription(?string $description): Sujip\Xero\Payroll\UK\PayRun\ReimbursementLine`](../../src/Payroll/UK/PayRun/ReimbursementLine.php#L35)
+- [`getAmount(): ?float`](../../src/Payroll/UK/PayRun/ReimbursementLine.php#L42)
+- [`setAmount(?float $amount): Sujip\Xero\Payroll\UK\PayRun\ReimbursementLine`](../../src/Payroll/UK/PayRun/ReimbursementLine.php#L47)
+
+## Payroll\UK\PayRun\TaxLine
+
+[Source](../../src/Payroll/UK/PayRun/TaxLine.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `taxLineID` | string or null | `()` |
+| `description` | string or null | `()` |
+| `isEmployerTax` | bool or null | `()` |
+| `amount` | int, float, or null | `()` |
+| `globalTaxTypeID` | string or null | `()` |
+| `manualAdjustment` | bool or null | `()` |
+
+### Public methods
+
+- [`getTaxLineID(): ?string`](../../src/Payroll/UK/PayRun/TaxLine.php#L24)
+- [`setTaxLineID(?string $taxLineID): Sujip\Xero\Payroll\UK\PayRun\TaxLine`](../../src/Payroll/UK/PayRun/TaxLine.php#L29)
+- [`getDescription(): ?string`](../../src/Payroll/UK/PayRun/TaxLine.php#L36)
+- [`setDescription(?string $description): Sujip\Xero\Payroll\UK\PayRun\TaxLine`](../../src/Payroll/UK/PayRun/TaxLine.php#L41)
+- [`getIsEmployerTax(): ?bool`](../../src/Payroll/UK/PayRun/TaxLine.php#L48)
+- [`setIsEmployerTax(?bool $isEmployerTax): Sujip\Xero\Payroll\UK\PayRun\TaxLine`](../../src/Payroll/UK/PayRun/TaxLine.php#L53)
+- [`getAmount(): ?float`](../../src/Payroll/UK/PayRun/TaxLine.php#L60)
+- [`setAmount(?float $amount): Sujip\Xero\Payroll\UK\PayRun\TaxLine`](../../src/Payroll/UK/PayRun/TaxLine.php#L65)
+- [`getGlobalTaxTypeID(): ?string`](../../src/Payroll/UK/PayRun/TaxLine.php#L72)
+- [`setGlobalTaxTypeID(?string $globalTaxTypeID): Sujip\Xero\Payroll\UK\PayRun\TaxLine`](../../src/Payroll/UK/PayRun/TaxLine.php#L77)
+- [`getManualAdjustment(): ?bool`](../../src/Payroll/UK/PayRun/TaxLine.php#L84)
+- [`setManualAdjustment(?bool $manualAdjustment): Sujip\Xero\Payroll\UK\PayRun\TaxLine`](../../src/Payroll/UK/PayRun/TaxLine.php#L89)
+
+## Payroll\UK\PayRun\TimesheetEarningsLine
+
+[Source](../../src/Payroll/UK/PayRun/TimesheetEarningsLine.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `earningsRateID` | string or null | `()` |
+| `ratePerUnit` | int, float, or null | `()` |
+| `numberOfUnits` | int, float, or null | `()` |
+| `fixedAmount` | int, float, or null | `()` |
+| `amount` | int, float, or null | `()` |
+| `isLinkedToTimesheet` | bool or null | `()` |
+
+### Public methods
+
+- [`getEarningsRateID(): ?string`](../../src/Payroll/UK/PayRun/TimesheetEarningsLine.php#L24)
+- [`setEarningsRateID(?string $earningsRateID): Sujip\Xero\Payroll\UK\PayRun\TimesheetEarningsLine`](../../src/Payroll/UK/PayRun/TimesheetEarningsLine.php#L29)
+- [`getRatePerUnit(): ?float`](../../src/Payroll/UK/PayRun/TimesheetEarningsLine.php#L36)
+- [`setRatePerUnit(?float $ratePerUnit): Sujip\Xero\Payroll\UK\PayRun\TimesheetEarningsLine`](../../src/Payroll/UK/PayRun/TimesheetEarningsLine.php#L41)
+- [`getNumberOfUnits(): ?float`](../../src/Payroll/UK/PayRun/TimesheetEarningsLine.php#L48)
+- [`setNumberOfUnits(?float $numberOfUnits): Sujip\Xero\Payroll\UK\PayRun\TimesheetEarningsLine`](../../src/Payroll/UK/PayRun/TimesheetEarningsLine.php#L53)
+- [`getFixedAmount(): ?float`](../../src/Payroll/UK/PayRun/TimesheetEarningsLine.php#L60)
+- [`setFixedAmount(?float $fixedAmount): Sujip\Xero\Payroll\UK\PayRun\TimesheetEarningsLine`](../../src/Payroll/UK/PayRun/TimesheetEarningsLine.php#L65)
+- [`getAmount(): ?float`](../../src/Payroll/UK/PayRun/TimesheetEarningsLine.php#L72)
+- [`setAmount(?float $amount): Sujip\Xero\Payroll\UK\PayRun\TimesheetEarningsLine`](../../src/Payroll/UK/PayRun/TimesheetEarningsLine.php#L77)
+- [`getIsLinkedToTimesheet(): ?bool`](../../src/Payroll/UK/PayRun/TimesheetEarningsLine.php#L84)
+- [`setIsLinkedToTimesheet(?bool $isLinkedToTimesheet): Sujip\Xero\Payroll\UK\PayRun\TimesheetEarningsLine`](../../src/Payroll/UK/PayRun/TimesheetEarningsLine.php#L89)
 
 ## Payroll\UK\PayrollUK
 
@@ -1024,6 +1320,32 @@ Extends [Payroll\Shared\PayrollRegion](payroll.md#payrollsharedpayrollregion). I
 - [`settings(): Sujip\Xero\Payroll\UK\Settings\Settings`](../../src/Payroll/UK/PayrollUK.php#L67)
 - [`statutoryLeaves(): Sujip\Xero\Payroll\UK\StatutoryLeave\StatutoryLeaves`](../../src/Payroll/UK/PayrollUK.php#L72)
 
+## Payroll\UK\Settings\Account
+
+[Source](../../src/Payroll/UK/Settings/Account.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `accountID` | string or null | `()` |
+| `type` | string or null | `()` |
+| `code` | string or null | `()` |
+| `name` | string or null | `()` |
+
+### Public methods
+
+- [`getAccountID(): ?string`](../../src/Payroll/UK/Settings/Account.php#L20)
+- [`setAccountID(?string $accountID): Sujip\Xero\Payroll\UK\Settings\Account`](../../src/Payroll/UK/Settings/Account.php#L25)
+- [`getType(): ?string`](../../src/Payroll/UK/Settings/Account.php#L32)
+- [`setType(?string $type): Sujip\Xero\Payroll\UK\Settings\Account`](../../src/Payroll/UK/Settings/Account.php#L37)
+- [`getCode(): ?string`](../../src/Payroll/UK/Settings/Account.php#L44)
+- [`setCode(?string $code): Sujip\Xero\Payroll\UK\Settings\Account`](../../src/Payroll/UK/Settings/Account.php#L49)
+- [`getName(): ?string`](../../src/Payroll/UK/Settings/Account.php#L56)
+- [`setName(?string $name): Sujip\Xero\Payroll\UK\Settings\Account`](../../src/Payroll/UK/Settings/Account.php#L61)
+
 ## Payroll\UK\Settings\PayrollSettings
 
 [Source](../../src/Payroll/UK/Settings/PayrollSettings.php)
@@ -1034,7 +1356,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 | API field | Hydrated value | Hydration method |
 | --- | --- | --- |
-| `accounts` | array | `setAccounts()` |
+| `accounts` | list of objects ([Payroll\UK\Settings\Account](payroll-uk.md#payrolluksettingsaccount)) | `()` |
 
 ### Public methods
 
@@ -1042,6 +1364,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 ))`](../../src/Payroll/UK/Settings/PayrollSettings.php#L15)
 - [`getAccounts(): array`](../../src/Payroll/UK/Settings/PayrollSettings.php#L23)
 - [`setAccounts(array $accounts): Sujip\Xero\Payroll\UK\Settings\PayrollSettings`](../../src/Payroll/UK/Settings/PayrollSettings.php#L31)
+- [`addAccount(\Sujip\Xero\Payroll\UK\Settings\Account $account): Sujip\Xero\Payroll\UK\Settings\PayrollSettings`](../../src/Payroll/UK/Settings/PayrollSettings.php#L38)
 
 ## Payroll\UK\Settings\Reimbursement
 
@@ -1095,10 +1418,10 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`reimbursements(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/UK/Settings/Settings.php#L61)
 - [`reimbursement(string $reimbursementId): ?\Sujip\Xero\Payroll\UK\Settings\Reimbursement`](../../src/Payroll/UK/Settings/Settings.php#L76)
 - [`createReimbursement(): Sujip\Xero\Payroll\UK\Settings\ReimbursementPayload`](../../src/Payroll/UK/Settings/Settings.php#L88)
-- [`statutoryLeaveSummary(string $employeeId): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/UK/Settings/Settings.php#L96)
-- [`mapSettings(array $settings): Sujip\Xero\Payroll\UK\Settings\PayrollSettings`](../../src/Payroll/UK/Settings/Settings.php#L114)
-- [`mapReimbursement(array $reimbursement): Sujip\Xero\Payroll\UK\Settings\Reimbursement`](../../src/Payroll/UK/Settings/Settings.php#L122)
-- [`mapStatutoryLeaveSummary(array $summary): Sujip\Xero\Payroll\UK\Settings\StatutoryLeaveSummary`](../../src/Payroll/UK/Settings/Settings.php#L130)
+- [`statutoryLeaveSummary(string $employeeId, ?bool $activeOnly = NULL): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/UK/Settings/Settings.php#L96)
+- [`mapSettings(array $settings): Sujip\Xero\Payroll\UK\Settings\PayrollSettings`](../../src/Payroll/UK/Settings/Settings.php#L115)
+- [`mapReimbursement(array $reimbursement): Sujip\Xero\Payroll\UK\Settings\Reimbursement`](../../src/Payroll/UK/Settings/Settings.php#L123)
+- [`mapStatutoryLeaveSummary(array $summary): Sujip\Xero\Payroll\UK\Settings\StatutoryLeaveSummary`](../../src/Payroll/UK/Settings/Settings.php#L131)
 
 ## Payroll\UK\Settings\StatutoryLeaveSummary
 
@@ -1313,14 +1636,18 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/UK/Timesheet/Timesheets.php#L25)
 - [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Payroll/UK/Timesheet/Timesheets.php#L30)
 - [`status(string $status): Sujip\Xero\Payroll\UK\Timesheet\Timesheets`](../../src/Payroll/UK/Timesheet/Timesheets.php#L38)
-- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/UK/Timesheet/Timesheets.php#L49)
-- [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Payroll/UK/Timesheet/Timesheets.php#L68)
-- [`find(string $timesheetId): ?\Sujip\Xero\Payroll\UK\Timesheet\Timesheet`](../../src/Payroll/UK/Timesheet/Timesheets.php#L83)
-- [`create(): Sujip\Xero\Payroll\UK\Timesheet\Payload`](../../src/Payroll/UK/Timesheet/Timesheets.php#L95)
-- [`approve(string $timesheetId): Sujip\Xero\Payroll\UK\Timesheet\Timesheet`](../../src/Payroll/UK/Timesheet/Timesheets.php#L100)
-- [`revert(string $timesheetId): Sujip\Xero\Payroll\UK\Timesheet\Timesheet`](../../src/Payroll/UK/Timesheet/Timesheets.php#L112)
-- [`delete(string $timesheetId): bool`](../../src/Payroll/UK/Timesheet/Timesheets.php#L124)
-- [`createLine(string $timesheetId, \Sujip\Xero\Payroll\UK\Timesheet\TimesheetLine $line, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\UK\Timesheet\TimesheetLine`](../../src/Payroll/UK/Timesheet/Timesheets.php#L133)
-- [`updateLine(string $timesheetId, string $timesheetLineId, \Sujip\Xero\Payroll\UK\Timesheet\TimesheetLine $line, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\UK\Timesheet\TimesheetLine`](../../src/Payroll/UK/Timesheet/Timesheets.php#L145)
-- [`deleteLine(string $timesheetId, string $timesheetLineId): bool`](../../src/Payroll/UK/Timesheet/Timesheets.php#L157)
-- [`mapTimesheet(array $timesheet): Sujip\Xero\Payroll\UK\Timesheet\Timesheet`](../../src/Payroll/UK/Timesheet/Timesheets.php#L169)
+- [`filter(string $filter): Sujip\Xero\Payroll\UK\Timesheet\Timesheets`](../../src/Payroll/UK/Timesheet/Timesheets.php#L46)
+- [`startDate(string $startDate): Sujip\Xero\Payroll\UK\Timesheet\Timesheets`](../../src/Payroll/UK/Timesheet/Timesheets.php#L54)
+- [`endDate(string $endDate): Sujip\Xero\Payroll\UK\Timesheet\Timesheets`](../../src/Payroll/UK/Timesheet/Timesheets.php#L62)
+- [`sort(string $sort): Sujip\Xero\Payroll\UK\Timesheet\Timesheets`](../../src/Payroll/UK/Timesheet/Timesheets.php#L70)
+- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/UK/Timesheet/Timesheets.php#L81)
+- [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Payroll/UK/Timesheet/Timesheets.php#L100)
+- [`find(string $timesheetId): ?\Sujip\Xero\Payroll\UK\Timesheet\Timesheet`](../../src/Payroll/UK/Timesheet/Timesheets.php#L115)
+- [`create(): Sujip\Xero\Payroll\UK\Timesheet\Payload`](../../src/Payroll/UK/Timesheet/Timesheets.php#L127)
+- [`approve(string $timesheetId): Sujip\Xero\Payroll\UK\Timesheet\Timesheet`](../../src/Payroll/UK/Timesheet/Timesheets.php#L132)
+- [`revert(string $timesheetId): Sujip\Xero\Payroll\UK\Timesheet\Timesheet`](../../src/Payroll/UK/Timesheet/Timesheets.php#L144)
+- [`delete(string $timesheetId): bool`](../../src/Payroll/UK/Timesheet/Timesheets.php#L156)
+- [`createLine(string $timesheetId, \Sujip\Xero\Payroll\UK\Timesheet\TimesheetLine $line, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\UK\Timesheet\TimesheetLine`](../../src/Payroll/UK/Timesheet/Timesheets.php#L165)
+- [`updateLine(string $timesheetId, string $timesheetLineId, \Sujip\Xero\Payroll\UK\Timesheet\TimesheetLine $line, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\UK\Timesheet\TimesheetLine`](../../src/Payroll/UK/Timesheet/Timesheets.php#L177)
+- [`deleteLine(string $timesheetId, string $timesheetLineId): bool`](../../src/Payroll/UK/Timesheet/Timesheets.php#L189)
+- [`mapTimesheet(array $timesheet): Sujip\Xero\Payroll\UK\Timesheet\Timesheet`](../../src/Payroll/UK/Timesheet/Timesheets.php#L201)

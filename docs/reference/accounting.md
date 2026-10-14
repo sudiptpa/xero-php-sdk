@@ -63,10 +63,6 @@ without a dedicated SDK model.
 - [Accounting\Currency\Currencies](#accountingcurrencycurrencies)
 - [Accounting\Currency\Currency](#accountingcurrencycurrency)
 - [Accounting\Currency\Payload](#accountingcurrencypayload)
-- [Accounting\Employee\Employee](#accountingemployeeemployee)
-- [Accounting\Employee\Employees](#accountingemployeeemployees)
-- [Accounting\Employee\ExternalLink](#accountingemployeeexternallink)
-- [Accounting\Employee\Payload](#accountingemployeepayload)
 - [Accounting\ExpenseClaim\ExpenseClaim](#accountingexpenseclaimexpenseclaim)
 - [Accounting\ExpenseClaim\ExpenseClaims](#accountingexpenseclaimexpenseclaims)
 - [Accounting\ExpenseClaim\Payload](#accountingexpenseclaimpayload)
@@ -132,6 +128,7 @@ without a dedicated SDK model.
 - [Accounting\Quote\Quotes](#accountingquotequotes)
 - [Accounting\Receipt\Attachment](#accountingreceiptattachment)
 - [Accounting\Receipt\Attachments](#accountingreceiptattachments)
+- [Accounting\Receipt\Payload](#accountingreceiptpayload)
 - [Accounting\Receipt\Receipt](#accountingreceiptreceipt)
 - [Accounting\Receipt\Receipts](#accountingreceiptreceipts)
 - [Accounting\Receipt\Upload](#accountingreceiptupload)
@@ -140,6 +137,10 @@ without a dedicated SDK model.
 - [Accounting\RepeatingInvoice\RepeatingInvoices](#accountingrepeatinginvoicerepeatinginvoices)
 - [Accounting\RepeatingInvoice\Schedule](#accountingrepeatinginvoiceschedule)
 - [Accounting\Report\Report](#accountingreportreport)
+- [Accounting\Report\ReportAttribute](#accountingreportreportattribute)
+- [Accounting\Report\ReportCell](#accountingreportreportcell)
+- [Accounting\Report\ReportField](#accountingreportreportfield)
+- [Accounting\Report\ReportRow](#accountingreportreportrow)
 - [Accounting\Report\Reports](#accountingreportreports)
 - [Accounting\Report\TenNinetyNineContact](#accountingreporttenninetyninecontact)
 - [Accounting\Setup\ImportSummary](#accountingsetupimportsummary)
@@ -256,8 +257,9 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`find(string $accountId): ?\Sujip\Xero\Accounting\Account\Account`](../../src/Accounting/Account/Accounts.php#L89)
 - [`create(): Sujip\Xero\Accounting\Account\Payload`](../../src/Accounting/Account/Accounts.php#L101)
 - [`update(string $accountId): Sujip\Xero\Accounting\Account\Payload`](../../src/Accounting/Account/Accounts.php#L106)
-- [`attachments(string $accountId): Sujip\Xero\Accounting\Attachments`](../../src/Accounting/Account/Accounts.php#L111)
-- [`mapAccount(array $payload): Sujip\Xero\Accounting\Account\Account`](../../src/Accounting/Account/Accounts.php#L119)
+- [`delete(string $accountId): Sujip\Xero\Accounting\Account\Account`](../../src/Accounting/Account/Accounts.php#L111)
+- [`attachments(string $accountId): Sujip\Xero\Accounting\Attachments`](../../src/Accounting/Account/Accounts.php#L123)
+- [`mapAccount(array $payload): Sujip\Xero\Accounting\Account\Account`](../../src/Accounting/Account/Accounts.php#L131)
 
 ## Accounting\Account\Payload
 
@@ -280,39 +282,38 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(\Sujip\Xero\Client $client)`](../../src/Accounting/Accounting.php#L43)
-- [`contacts(): Sujip\Xero\Accounting\Contact\Contacts`](../../src/Accounting/Accounting.php#L48)
-- [`creditNotes(): Sujip\Xero\Accounting\CreditNote\CreditNotes`](../../src/Accounting/Accounting.php#L53)
-- [`bankTransactions(): Sujip\Xero\Accounting\BankTransaction\BankTransactions`](../../src/Accounting/Accounting.php#L58)
-- [`bankTransfers(): Sujip\Xero\Accounting\BankTransfer\BankTransfers`](../../src/Accounting/Accounting.php#L63)
-- [`linkedTransactions(): Sujip\Xero\Accounting\LinkedTransaction\LinkedTransactions`](../../src/Accounting/Accounting.php#L68)
-- [`overpayments(): Sujip\Xero\Accounting\Overpayment\Overpayments`](../../src/Accounting/Accounting.php#L73)
-- [`prepayments(): Sujip\Xero\Accounting\Prepayment\Prepayments`](../../src/Accounting/Accounting.php#L78)
-- [`batchPayments(): Sujip\Xero\Accounting\BatchPayment\BatchPayments`](../../src/Accounting/Accounting.php#L83)
-- [`manualJournals(): Sujip\Xero\Accounting\ManualJournal\ManualJournals`](../../src/Accounting/Accounting.php#L88)
-- [`accounts(): Sujip\Xero\Accounting\Account\Accounts`](../../src/Accounting/Accounting.php#L93)
-- [`items(): Sujip\Xero\Accounting\Item\Items`](../../src/Accounting/Accounting.php#L98)
-- [`taxRates(): Sujip\Xero\Accounting\TaxRate\TaxRates`](../../src/Accounting/Accounting.php#L103)
-- [`trackingCategories(): Sujip\Xero\Accounting\TrackingCategory\TrackingCategories`](../../src/Accounting/Accounting.php#L108)
-- [`currencies(): Sujip\Xero\Accounting\Currency\Currencies`](../../src/Accounting/Accounting.php#L113)
-- [`brandingThemes(): Sujip\Xero\Accounting\BrandingTheme\BrandingThemes`](../../src/Accounting/Accounting.php#L118)
-- [`organisations(): Sujip\Xero\Accounting\Organisation\Organisations`](../../src/Accounting/Accounting.php#L123)
-- [`users(): Sujip\Xero\Accounting\User\Users`](../../src/Accounting/Accounting.php#L128)
-- [`contactGroups(): Sujip\Xero\Accounting\ContactGroup\ContactGroups`](../../src/Accounting/Accounting.php#L133)
-- [`employees(): Sujip\Xero\Accounting\Employee\Employees`](../../src/Accounting/Accounting.php#L138)
-- [`expenseClaims(): Sujip\Xero\Accounting\ExpenseClaim\ExpenseClaims`](../../src/Accounting/Accounting.php#L143)
-- [`journals(): Sujip\Xero\Accounting\Journal\Journals`](../../src/Accounting/Accounting.php#L148)
-- [`reports(): Sujip\Xero\Accounting\Report\Reports`](../../src/Accounting/Accounting.php#L153)
-- [`purchaseOrders(): Sujip\Xero\Accounting\PurchaseOrder\PurchaseOrders`](../../src/Accounting/Accounting.php#L158)
-- [`quotes(): Sujip\Xero\Accounting\Quote\Quotes`](../../src/Accounting/Accounting.php#L163)
-- [`receipts(): Sujip\Xero\Accounting\Receipt\Receipts`](../../src/Accounting/Accounting.php#L168)
-- [`repeatingInvoices(): Sujip\Xero\Accounting\RepeatingInvoice\RepeatingInvoices`](../../src/Accounting/Accounting.php#L173)
-- [`paymentServices(): Sujip\Xero\Accounting\PaymentService\PaymentServices`](../../src/Accounting/Accounting.php#L178)
-- [`invoices(): Sujip\Xero\Accounting\Invoice\Invoices`](../../src/Accounting/Accounting.php#L183)
-- [`invoiceReminders(): Sujip\Xero\Accounting\InvoiceReminder\InvoiceReminders`](../../src/Accounting/Accounting.php#L188)
-- [`payments(): Sujip\Xero\Accounting\Payment\Payments`](../../src/Accounting/Accounting.php#L193)
-- [`budgets(): Sujip\Xero\Accounting\Budget\Budgets`](../../src/Accounting/Accounting.php#L198)
-- [`setup(): Sujip\Xero\Accounting\Setup\Payload`](../../src/Accounting/Accounting.php#L203)
+- [`__construct(\Sujip\Xero\Client $client)`](../../src/Accounting/Accounting.php#L42)
+- [`contacts(): Sujip\Xero\Accounting\Contact\Contacts`](../../src/Accounting/Accounting.php#L47)
+- [`creditNotes(): Sujip\Xero\Accounting\CreditNote\CreditNotes`](../../src/Accounting/Accounting.php#L52)
+- [`bankTransactions(): Sujip\Xero\Accounting\BankTransaction\BankTransactions`](../../src/Accounting/Accounting.php#L57)
+- [`bankTransfers(): Sujip\Xero\Accounting\BankTransfer\BankTransfers`](../../src/Accounting/Accounting.php#L62)
+- [`linkedTransactions(): Sujip\Xero\Accounting\LinkedTransaction\LinkedTransactions`](../../src/Accounting/Accounting.php#L67)
+- [`overpayments(): Sujip\Xero\Accounting\Overpayment\Overpayments`](../../src/Accounting/Accounting.php#L72)
+- [`prepayments(): Sujip\Xero\Accounting\Prepayment\Prepayments`](../../src/Accounting/Accounting.php#L77)
+- [`batchPayments(): Sujip\Xero\Accounting\BatchPayment\BatchPayments`](../../src/Accounting/Accounting.php#L82)
+- [`manualJournals(): Sujip\Xero\Accounting\ManualJournal\ManualJournals`](../../src/Accounting/Accounting.php#L87)
+- [`accounts(): Sujip\Xero\Accounting\Account\Accounts`](../../src/Accounting/Accounting.php#L92)
+- [`items(): Sujip\Xero\Accounting\Item\Items`](../../src/Accounting/Accounting.php#L97)
+- [`taxRates(): Sujip\Xero\Accounting\TaxRate\TaxRates`](../../src/Accounting/Accounting.php#L102)
+- [`trackingCategories(): Sujip\Xero\Accounting\TrackingCategory\TrackingCategories`](../../src/Accounting/Accounting.php#L107)
+- [`currencies(): Sujip\Xero\Accounting\Currency\Currencies`](../../src/Accounting/Accounting.php#L112)
+- [`brandingThemes(): Sujip\Xero\Accounting\BrandingTheme\BrandingThemes`](../../src/Accounting/Accounting.php#L117)
+- [`organisations(): Sujip\Xero\Accounting\Organisation\Organisations`](../../src/Accounting/Accounting.php#L122)
+- [`users(): Sujip\Xero\Accounting\User\Users`](../../src/Accounting/Accounting.php#L127)
+- [`contactGroups(): Sujip\Xero\Accounting\ContactGroup\ContactGroups`](../../src/Accounting/Accounting.php#L132)
+- [`expenseClaims(): Sujip\Xero\Accounting\ExpenseClaim\ExpenseClaims`](../../src/Accounting/Accounting.php#L137)
+- [`journals(): Sujip\Xero\Accounting\Journal\Journals`](../../src/Accounting/Accounting.php#L142)
+- [`reports(): Sujip\Xero\Accounting\Report\Reports`](../../src/Accounting/Accounting.php#L147)
+- [`purchaseOrders(): Sujip\Xero\Accounting\PurchaseOrder\PurchaseOrders`](../../src/Accounting/Accounting.php#L152)
+- [`quotes(): Sujip\Xero\Accounting\Quote\Quotes`](../../src/Accounting/Accounting.php#L157)
+- [`receipts(): Sujip\Xero\Accounting\Receipt\Receipts`](../../src/Accounting/Accounting.php#L162)
+- [`repeatingInvoices(): Sujip\Xero\Accounting\RepeatingInvoice\RepeatingInvoices`](../../src/Accounting/Accounting.php#L167)
+- [`paymentServices(): Sujip\Xero\Accounting\PaymentService\PaymentServices`](../../src/Accounting/Accounting.php#L172)
+- [`invoices(): Sujip\Xero\Accounting\Invoice\Invoices`](../../src/Accounting/Accounting.php#L177)
+- [`invoiceReminders(): Sujip\Xero\Accounting\InvoiceReminder\InvoiceReminders`](../../src/Accounting/Accounting.php#L182)
+- [`payments(): Sujip\Xero\Accounting\Payment\Payments`](../../src/Accounting/Accounting.php#L187)
+- [`budgets(): Sujip\Xero\Accounting\Budget\Budgets`](../../src/Accounting/Accounting.php#L192)
+- [`setup(): Sujip\Xero\Accounting\Setup\Payload`](../../src/Accounting/Accounting.php#L197)
 
 ## Accounting\Allocation
 
@@ -374,7 +375,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(?string $id, ?string $fileName, ?string $mimeType, ?bool $includeOnline, array $raw = array (
+- [`__construct(?string $id, ?string $fileName, ?string $url, ?string $mimeType, ?int $contentLength, ?bool $includeOnline, array $raw = array (
 ))`](../../src/Accounting/Attachment.php#L12)
 
 ## Accounting\AttachmentUpload
@@ -750,7 +751,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`getValidationErrors(): array`](../../src/Accounting/BatchPayment/BatchPayment.php#L271)
 - [`addValidationError(\Sujip\Xero\Support\ValidationError $validationError): Sujip\Xero\Accounting\BatchPayment\BatchPayment`](../../src/Accounting/BatchPayment/BatchPayment.php#L276)
 - [`toRequest(): array`](../../src/Accounting/BatchPayment/BatchPayment.php#L321)
-- [`history(): Sujip\Xero\Accounting\History`](../../src/Accounting/BatchPayment/BatchPayment.php#L341)
+- [`history(): Sujip\Xero\Accounting\History`](../../src/Accounting/BatchPayment/BatchPayment.php#L342)
 
 ## Accounting\BatchPayment\BatchPayments
 
@@ -772,9 +773,11 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Accounting/BatchPayment/BatchPayments.php#L69)
 - [`find(string $batchPaymentId): ?\Sujip\Xero\Accounting\BatchPayment\BatchPayment`](../../src/Accounting/BatchPayment/BatchPayments.php#L81)
 - [`create(): Sujip\Xero\Accounting\BatchPayment\Payload`](../../src/Accounting/BatchPayment/BatchPayments.php#L93)
-- [`history(string $batchPaymentId): Sujip\Xero\Accounting\History`](../../src/Accounting/BatchPayment/BatchPayments.php#L98)
-- [`mapBatchPayment(array $payload): Sujip\Xero\Accounting\BatchPayment\BatchPayment`](../../src/Accounting/BatchPayment/BatchPayments.php#L106)
-- [`mapPaymentEntry(array $payload): Sujip\Xero\Accounting\BatchPayment\PaymentEntry`](../../src/Accounting/BatchPayment/BatchPayments.php#L114)
+- [`delete(string $batchPaymentId): Sujip\Xero\Accounting\BatchPayment\BatchPayment`](../../src/Accounting/BatchPayment/BatchPayments.php#L98)
+- [`deleteMany(array $batchPaymentIds): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/BatchPayment/BatchPayments.php#L115)
+- [`history(string $batchPaymentId): Sujip\Xero\Accounting\History`](../../src/Accounting/BatchPayment/BatchPayments.php#L139)
+- [`mapBatchPayment(array $payload): Sujip\Xero\Accounting\BatchPayment\BatchPayment`](../../src/Accounting/BatchPayment/BatchPayments.php#L147)
+- [`mapPaymentEntry(array $payload): Sujip\Xero\Accounting\BatchPayment\PaymentEntry`](../../src/Accounting/BatchPayment/BatchPayments.php#L155)
 
 ## Accounting\BatchPayment\Payload
 
@@ -785,9 +788,10 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`__construct(\Sujip\Xero\Client $client)`](../../src/Accounting/BatchPayment/Payload.php#L15)
 - [`account(string $accountId): Sujip\Xero\Accounting\BatchPayment\Payload`](../../src/Accounting/BatchPayment/Payload.php#L21)
 - [`reference(string $reference): Sujip\Xero\Accounting\BatchPayment\Payload`](../../src/Accounting/BatchPayment/Payload.php#L33)
-- [`payment(string $invoiceId, int\|float $amount): Sujip\Xero\Accounting\BatchPayment\Payload`](../../src/Accounting/BatchPayment/Payload.php#L42)
-- [`using(\Sujip\Xero\Accounting\BatchPayment\BatchPayment $batchPayment): Sujip\Xero\Accounting\BatchPayment\Payload`](../../src/Accounting/BatchPayment/Payload.php#L55)
-- [`save(): Sujip\Xero\Accounting\BatchPayment\BatchPayment`](../../src/Accounting/BatchPayment/Payload.php#L63)
+- [`date(string $date): Sujip\Xero\Accounting\BatchPayment\Payload`](../../src/Accounting/BatchPayment/Payload.php#L42)
+- [`payment(string $invoiceId, int\|float $amount): Sujip\Xero\Accounting\BatchPayment\Payload`](../../src/Accounting/BatchPayment/Payload.php#L51)
+- [`using(\Sujip\Xero\Accounting\BatchPayment\BatchPayment $batchPayment): Sujip\Xero\Accounting\BatchPayment\Payload`](../../src/Accounting/BatchPayment/Payload.php#L64)
+- [`save(): Sujip\Xero\Accounting\BatchPayment\BatchPayment`](../../src/Accounting/BatchPayment/Payload.php#L72)
 
 ## Accounting\BatchPayment\PaymentEntry
 
@@ -1361,14 +1365,15 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/Contact/Contacts.php#L66)
 - [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Accounting/Contact/Contacts.php#L86)
 - [`find(string $contactId): ?\Sujip\Xero\Accounting\Contact\Contact`](../../src/Accounting/Contact/Contacts.php#L110)
-- [`create(): Sujip\Xero\Accounting\Contact\Payload`](../../src/Accounting/Contact/Contacts.php#L122)
-- [`update(string $contactId): Sujip\Xero\Accounting\Contact\Payload`](../../src/Accounting/Contact/Contacts.php#L127)
-- [`history(string $contactId): Sujip\Xero\Accounting\History`](../../src/Accounting/Contact/Contacts.php#L132)
-- [`attachments(string $contactId): Sujip\Xero\Accounting\Attachments`](../../src/Accounting/Contact/Contacts.php#L137)
-- [`cisSettings(string $contactId): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/Contact/Contacts.php#L145)
-- [`mapContact(array $payload): Sujip\Xero\Accounting\Contact\Contact`](../../src/Accounting/Contact/Contacts.php#L174)
-- [`mapAddress(array $payload): Sujip\Xero\Accounting\Contact\Address`](../../src/Accounting/Contact/Contacts.php#L182)
-- [`mapPhone(array $payload): Sujip\Xero\Accounting\Contact\Phone`](../../src/Accounting/Contact/Contacts.php#L190)
+- [`findByContactNumber(string $contactNumber): ?\Sujip\Xero\Accounting\Contact\Contact`](../../src/Accounting/Contact/Contacts.php#L122)
+- [`create(): Sujip\Xero\Accounting\Contact\Payload`](../../src/Accounting/Contact/Contacts.php#L134)
+- [`update(string $contactId): Sujip\Xero\Accounting\Contact\Payload`](../../src/Accounting/Contact/Contacts.php#L139)
+- [`history(string $contactId): Sujip\Xero\Accounting\History`](../../src/Accounting/Contact/Contacts.php#L144)
+- [`attachments(string $contactId): Sujip\Xero\Accounting\Attachments`](../../src/Accounting/Contact/Contacts.php#L149)
+- [`cisSettings(string $contactId): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/Contact/Contacts.php#L157)
+- [`mapContact(array $payload): Sujip\Xero\Accounting\Contact\Contact`](../../src/Accounting/Contact/Contacts.php#L186)
+- [`mapAddress(array $payload): Sujip\Xero\Accounting\Contact\Address`](../../src/Accounting/Contact/Contacts.php#L194)
+- [`mapPhone(array $payload): Sujip\Xero\Accounting\Contact\Phone`](../../src/Accounting/Contact/Contacts.php#L202)
 
 ## Accounting\Contact\Payload
 
@@ -1444,7 +1449,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(?string $id, ?string $fileName, ?string $mimeType, ?bool $includeOnline, array $raw = array (
+- [`__construct(?string $id, ?string $fileName, ?string $url, ?string $mimeType, ?int $contentLength, ?bool $includeOnline, array $raw = array (
 ))`](../../src/Accounting/CreditNote/Attachment.php#L12)
 
 ## Accounting\CreditNote\Attachments
@@ -1455,9 +1460,9 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 - [`__construct(\Sujip\Xero\Client $client, string $creditNoteId)`](../../src/Accounting/CreditNote/Attachments.php#L13)
 - [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/CreditNote/Attachments.php#L22)
-- [`upload(string $fileName, string $content): Sujip\Xero\Accounting\CreditNote\Upload`](../../src/Accounting/CreditNote/Attachments.php#L43)
-- [`download(string $fileName, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/CreditNote/Attachments.php#L48)
-- [`downloadById(string $attachmentId, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/CreditNote/Attachments.php#L60)
+- [`upload(string $fileName, string $content): Sujip\Xero\Accounting\CreditNote\Upload`](../../src/Accounting/CreditNote/Attachments.php#L45)
+- [`download(string $fileName, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/CreditNote/Attachments.php#L50)
+- [`downloadById(string $attachmentId, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/CreditNote/Attachments.php#L62)
 
 ## Accounting\CreditNote\CreditNote
 
@@ -1615,7 +1620,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 - [`__construct(\Sujip\Xero\Client $client, string $creditNoteId)`](../../src/Accounting/CreditNote/History.php#L13)
 - [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/CreditNote/History.php#L22)
-- [`record(string $details): Sujip\Xero\Accounting\CreditNote\HistoryRecord`](../../src/Accounting/CreditNote/History.php#L42)
+- [`record(string $details): Sujip\Xero\Accounting\CreditNote\HistoryRecord`](../../src/Accounting/CreditNote/History.php#L43)
 
 ## Accounting\CreditNote\HistoryRecord
 
@@ -1623,7 +1628,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(?string $details, ?string $user, ?string $changes, array $raw = array (
+- [`__construct(?string $details, ?string $user, ?string $changes, ?string $dateUtc = NULL, array $raw = array (
 ))`](../../src/Accounting/CreditNote/HistoryRecord.php#L12)
 
 ## Accounting\CreditNote\Payload
@@ -1647,10 +1652,11 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(\Sujip\Xero\Client $client, string $creditNoteId, string $fileName, string $content)`](../../src/Accounting/CreditNote/Upload.php#L16)
-- [`mimeType(string $mimeType): Sujip\Xero\Accounting\CreditNote\Upload`](../../src/Accounting/CreditNote/Upload.php#L24)
-- [`includeOnline(bool $includeOnline = true): Sujip\Xero\Accounting\CreditNote\Upload`](../../src/Accounting/CreditNote/Upload.php#L32)
-- [`save(): Sujip\Xero\Accounting\CreditNote\Attachment`](../../src/Accounting/CreditNote/Upload.php#L40)
+- [`__construct(\Sujip\Xero\Client $client, string $creditNoteId, string $fileName, string $content)`](../../src/Accounting/CreditNote/Upload.php#L17)
+- [`mimeType(string $mimeType): Sujip\Xero\Accounting\CreditNote\Upload`](../../src/Accounting/CreditNote/Upload.php#L25)
+- [`includeOnline(bool $includeOnline = true): Sujip\Xero\Accounting\CreditNote\Upload`](../../src/Accounting/CreditNote/Upload.php#L33)
+- [`save(): Sujip\Xero\Accounting\CreditNote\Attachment`](../../src/Accounting/CreditNote/Upload.php#L41)
+- [`update(): Sujip\Xero\Accounting\CreditNote\Attachment`](../../src/Accounting/CreditNote/Upload.php#L46)
 
 ## Accounting\Currency\Currencies
 
@@ -1676,20 +1682,17 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 | --- | --- | --- |
 | `Code` | string or null | `()` |
 | `Description` | string or null | `()` |
-| `Status` | string or null | `()` |
 
 ### Public methods
 
 - [`__construct(?\Sujip\Xero\Client $client = NULL)`](../../src/Accounting/Currency/Currency.php#L15)
-- [`getCode(): ?string`](../../src/Accounting/Currency/Currency.php#L26)
-- [`setCode(?string $code): Sujip\Xero\Accounting\Currency\Currency`](../../src/Accounting/Currency/Currency.php#L31)
-- [`getDescription(): ?string`](../../src/Accounting/Currency/Currency.php#L38)
-- [`setDescription(?string $description): Sujip\Xero\Accounting\Currency\Currency`](../../src/Accounting/Currency/Currency.php#L43)
-- [`getStatus(): ?string`](../../src/Accounting/Currency/Currency.php#L50)
-- [`setStatus(?string $status): Sujip\Xero\Accounting\Currency\Currency`](../../src/Accounting/Currency/Currency.php#L55)
-- [`toRequest(): array`](../../src/Accounting/Currency/Currency.php#L77)
-- [`description(string $description): Sujip\Xero\Accounting\Currency\Currency`](../../src/Accounting/Currency/Currency.php#L86)
-- [`save(): Sujip\Xero\Accounting\Currency\Currency`](../../src/Accounting/Currency/Currency.php#L91)
+- [`getCode(): ?string`](../../src/Accounting/Currency/Currency.php#L24)
+- [`setCode(?string $code): Sujip\Xero\Accounting\Currency\Currency`](../../src/Accounting/Currency/Currency.php#L29)
+- [`getDescription(): ?string`](../../src/Accounting/Currency/Currency.php#L36)
+- [`setDescription(?string $description): Sujip\Xero\Accounting\Currency\Currency`](../../src/Accounting/Currency/Currency.php#L41)
+- [`toRequest(): array`](../../src/Accounting/Currency/Currency.php#L62)
+- [`description(string $description): Sujip\Xero\Accounting\Currency\Currency`](../../src/Accounting/Currency/Currency.php#L70)
+- [`save(): Sujip\Xero\Accounting\Currency\Currency`](../../src/Accounting/Currency/Currency.php#L75)
 
 ## Accounting\Currency\Payload
 
@@ -1703,111 +1706,6 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`idempotencyKey(string $key): Sujip\Xero\Accounting\Currency\Payload`](../../src/Accounting/Currency/Payload.php#L40)
 - [`using(\Sujip\Xero\Accounting\Currency\Currency $currency): Sujip\Xero\Accounting\Currency\Payload`](../../src/Accounting/Currency/Payload.php#L48)
 - [`save(): Sujip\Xero\Accounting\Currency\Currency`](../../src/Accounting/Currency/Payload.php#L56)
-
-## Accounting\Employee\Employee
-
-[Source](../../src/Accounting/Employee/Employee.php)
-
-Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
-
-### Model fields
-
-| API field | Hydrated value | Hydration method |
-| --- | --- | --- |
-| `EmployeeID` | string or null | `()` |
-| `FirstName` | string or null | `()` |
-| `LastName` | string or null | `()` |
-| `Status` | string or null | `()` |
-| `EmailAddress` | string or null | `()` |
-| `ExternalLink` | object or null ([Accounting\Employee\ExternalLink](accounting.md#accountingemployeeexternallink)) | `()` |
-| `UpdatedDateUTC` | string or null | `()` |
-| `StatusAttributeString` | string or null | `()` |
-| `ValidationErrors` | list of objects ([Support\ValidationError](support.md#supportvalidationerror)) | `()` |
-
-### Public methods
-
-- [`__construct(?\Sujip\Xero\Client $client = NULL)`](../../src/Accounting/Employee/Employee.php#L36)
-- [`getEmployeeID(): ?string`](../../src/Accounting/Employee/Employee.php#L41)
-- [`setEmployeeID(?string $employeeID): Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Employee.php#L46)
-- [`getFirstName(): ?string`](../../src/Accounting/Employee/Employee.php#L53)
-- [`setFirstName(?string $firstName): Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Employee.php#L58)
-- [`getLastName(): ?string`](../../src/Accounting/Employee/Employee.php#L65)
-- [`setLastName(?string $lastName): Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Employee.php#L70)
-- [`getStatus(): ?string`](../../src/Accounting/Employee/Employee.php#L77)
-- [`setStatus(?string $status): Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Employee.php#L82)
-- [`getEmailAddress(): ?string`](../../src/Accounting/Employee/Employee.php#L89)
-- [`setEmailAddress(?string $emailAddress): Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Employee.php#L94)
-- [`getExternalLink(): ?\Sujip\Xero\Accounting\Employee\ExternalLink`](../../src/Accounting/Employee/Employee.php#L101)
-- [`setExternalLink(?\Sujip\Xero\Accounting\Employee\ExternalLink $externalLink): Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Employee.php#L106)
-- [`getUpdatedDateUTC(): ?string`](../../src/Accounting/Employee/Employee.php#L113)
-- [`setUpdatedDateUTC(?string $updatedDateUTC): Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Employee.php#L118)
-- [`getStatusAttributeString(): ?string`](../../src/Accounting/Employee/Employee.php#L125)
-- [`setStatusAttributeString(?string $statusAttributeString): Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Employee.php#L130)
-- [`getValidationErrors(): array`](../../src/Accounting/Employee/Employee.php#L140)
-- [`addValidationError(\Sujip\Xero\Support\ValidationError $validationError): Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Employee.php#L145)
-- [`firstName(string $firstName): Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Employee.php#L170)
-- [`lastName(string $lastName): Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Employee.php#L175)
-- [`email(string $emailAddress): Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Employee.php#L180)
-- [`save(): Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Employee.php#L185)
-
-## Accounting\Employee\Employees
-
-[Source](../../src/Accounting/Employee/Employees.php)
-
-### Public methods
-
-- [`modifiedSince(\DateTimeInterface $date): static`](../../src/Accounting/Employee/Employees.php#L19)
-- [`__construct(\Sujip\Xero\Client $client)`](../../src/Accounting/Employee/Employees.php#L20)
-- [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Accounting/Employee/Employees.php#L25)
-- [`orderBy(string $field, string $direction = 'ASC'): static`](../../src/Accounting/Employee/Employees.php#L27)
-- [`where(string $expression, mixed ...$bindings): Sujip\Xero\Accounting\Employee\Employees`](../../src/Accounting/Employee/Employees.php#L33)
-- [`ids(string ...$ids): static`](../../src/Accounting/Employee/Employees.php#L35)
-- [`unitDp(int $unitDp): static`](../../src/Accounting/Employee/Employees.php#L43)
-- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/Employee/Employees.php#L44)
-- [`createdByApp(bool $createdByApp = true): static`](../../src/Accounting/Employee/Employees.php#L51)
-- [`find(string $employeeId): ?\Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Employees.php#L61)
-- [`create(): Sujip\Xero\Accounting\Employee\Payload`](../../src/Accounting/Employee/Employees.php#L73)
-- [`update(string $employeeId): Sujip\Xero\Accounting\Employee\Payload`](../../src/Accounting/Employee/Employees.php#L78)
-- [`mapEmployee(array $payload): Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Employees.php#L86)
-
-## Accounting\Employee\ExternalLink
-
-[Source](../../src/Accounting/Employee/ExternalLink.php)
-
-Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
-
-### Model fields
-
-| API field | Hydrated value | Hydration method |
-| --- | --- | --- |
-| `LinkType` | string or null | `()` |
-| `Url` | string or null | `()` |
-| `Description` | string or null | `()` |
-
-### Public methods
-
-- [`__construct(?string $linkType = NULL, ?string $url = NULL, ?string $description = NULL)`](../../src/Accounting/Employee/ExternalLink.php#L12)
-- [`getLinkType(): ?string`](../../src/Accounting/Employee/ExternalLink.php#L19)
-- [`setLinkType(?string $linkType): Sujip\Xero\Accounting\Employee\ExternalLink`](../../src/Accounting/Employee/ExternalLink.php#L24)
-- [`getUrl(): ?string`](../../src/Accounting/Employee/ExternalLink.php#L31)
-- [`setUrl(?string $url): Sujip\Xero\Accounting\Employee\ExternalLink`](../../src/Accounting/Employee/ExternalLink.php#L36)
-- [`getDescription(): ?string`](../../src/Accounting/Employee/ExternalLink.php#L43)
-- [`setDescription(?string $description): Sujip\Xero\Accounting\Employee\ExternalLink`](../../src/Accounting/Employee/ExternalLink.php#L48)
-
-## Accounting\Employee\Payload
-
-[Source](../../src/Accounting/Employee/Payload.php)
-
-### Public methods
-
-- [`__construct(\Sujip\Xero\Client $client)`](../../src/Accounting/Employee/Payload.php#L21)
-- [`id(string $employeeId): Sujip\Xero\Accounting\Employee\Payload`](../../src/Accounting/Employee/Payload.php#L26)
-- [`firstName(string $firstName): Sujip\Xero\Accounting\Employee\Payload`](../../src/Accounting/Employee/Payload.php#L34)
-- [`lastName(string $lastName): Sujip\Xero\Accounting\Employee\Payload`](../../src/Accounting/Employee/Payload.php#L42)
-- [`email(string $emailAddress): Sujip\Xero\Accounting\Employee\Payload`](../../src/Accounting/Employee/Payload.php#L50)
-- [`status(string $status): Sujip\Xero\Accounting\Employee\Payload`](../../src/Accounting/Employee/Payload.php#L58)
-- [`idempotencyKey(string $key): Sujip\Xero\Accounting\Employee\Payload`](../../src/Accounting/Employee/Payload.php#L66)
-- [`save(): Sujip\Xero\Accounting\Employee\Employee`](../../src/Accounting/Employee/Payload.php#L74)
 
 ## Accounting\ExpenseClaim\ExpenseClaim
 
@@ -1865,8 +1763,8 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`getReceipts(): array`](../../src/Accounting/ExpenseClaim/ExpenseClaim.php#L234)
 - [`addReceipt(\Sujip\Xero\Accounting\Receipt\Receipt $receipt): Sujip\Xero\Accounting\ExpenseClaim\ExpenseClaim`](../../src/Accounting/ExpenseClaim/ExpenseClaim.php#L239)
 - [`fill(array $payload): static`](../../src/Accounting/ExpenseClaim/ExpenseClaim.php#L267)
-- [`status(string $status): Sujip\Xero\Accounting\ExpenseClaim\ExpenseClaim`](../../src/Accounting/ExpenseClaim/ExpenseClaim.php#L292)
-- [`save(): Sujip\Xero\Accounting\ExpenseClaim\ExpenseClaim`](../../src/Accounting/ExpenseClaim/ExpenseClaim.php#L297)
+- [`status(string $status): Sujip\Xero\Accounting\ExpenseClaim\ExpenseClaim`](../../src/Accounting/ExpenseClaim/ExpenseClaim.php#L287)
+- [`save(): Sujip\Xero\Accounting\ExpenseClaim\ExpenseClaim`](../../src/Accounting/ExpenseClaim/ExpenseClaim.php#L292)
 
 ## Accounting\ExpenseClaim\ExpenseClaims
 
@@ -1898,7 +1796,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`__construct(\Sujip\Xero\Client $client)`](../../src/Accounting/ExpenseClaim/Payload.php#L21)
 - [`id(string $expenseClaimId): Sujip\Xero\Accounting\ExpenseClaim\Payload`](../../src/Accounting/ExpenseClaim/Payload.php#L26)
 - [`status(string $status): Sujip\Xero\Accounting\ExpenseClaim\Payload`](../../src/Accounting/ExpenseClaim/Payload.php#L34)
-- [`employee(string $employeeId): Sujip\Xero\Accounting\ExpenseClaim\Payload`](../../src/Accounting/ExpenseClaim/Payload.php#L42)
+- [`employee(string $userId): Sujip\Xero\Accounting\ExpenseClaim\Payload`](../../src/Accounting/ExpenseClaim/Payload.php#L42)
 - [`receipt(string $receiptId): Sujip\Xero\Accounting\ExpenseClaim\Payload`](../../src/Accounting/ExpenseClaim/Payload.php#L50)
 - [`idempotencyKey(string $key): Sujip\Xero\Accounting\ExpenseClaim\Payload`](../../src/Accounting/ExpenseClaim/Payload.php#L60)
 - [`save(): Sujip\Xero\Accounting\ExpenseClaim\ExpenseClaim`](../../src/Accounting/ExpenseClaim/Payload.php#L68)
@@ -1911,7 +1809,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 - [`__construct(\Sujip\Xero\Client $client, string $path)`](../../src/Accounting/History.php#L13)
 - [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/History.php#L22)
-- [`record(string $details): Sujip\Xero\Accounting\HistoryRecord`](../../src/Accounting/History.php#L42)
+- [`record(string $details): Sujip\Xero\Accounting\HistoryRecord`](../../src/Accounting/History.php#L43)
 
 ## Accounting\HistoryRecord
 
@@ -1919,7 +1817,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(?string $details, ?string $dateUtc, ?string $user, array $raw = array (
+- [`__construct(?string $details, ?string $dateUtc, ?string $user, ?string $changes = NULL, array $raw = array (
 ))`](../../src/Accounting/HistoryRecord.php#L12)
 
 ## Accounting\InvoiceReminder\InvoiceReminderSettings
@@ -1936,8 +1834,8 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`getEnabled(): bool`](../../src/Accounting/InvoiceReminder/InvoiceReminderSettings.php#L15)
-- [`setEnabled(bool $enabled): Sujip\Xero\Accounting\InvoiceReminder\InvoiceReminderSettings`](../../src/Accounting/InvoiceReminder/InvoiceReminderSettings.php#L20)
+- [`getEnabled(): bool`](../../src/Accounting/InvoiceReminder/InvoiceReminderSettings.php#L14)
+- [`setEnabled(bool $enabled): Sujip\Xero\Accounting\InvoiceReminder\InvoiceReminderSettings`](../../src/Accounting/InvoiceReminder/InvoiceReminderSettings.php#L19)
 
 ## Accounting\InvoiceReminder\InvoiceReminders
 
@@ -1948,7 +1846,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`__construct(\Sujip\Xero\Client $client)`](../../src/Accounting/InvoiceReminder/InvoiceReminders.php#L14)
 - [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Accounting/InvoiceReminder/InvoiceReminders.php#L19)
 - [`settings(): Sujip\Xero\Accounting\InvoiceReminder\InvoiceReminderSettings`](../../src/Accounting/InvoiceReminder/InvoiceReminders.php#L27)
-- [`mapInvoiceReminderSettings(array $payload): Sujip\Xero\Accounting\InvoiceReminder\InvoiceReminderSettings`](../../src/Accounting/InvoiceReminder/InvoiceReminders.php#L43)
+- [`mapInvoiceReminderSettings(array $payload): Sujip\Xero\Accounting\InvoiceReminder\InvoiceReminderSettings`](../../src/Accounting/InvoiceReminder/InvoiceReminders.php#L42)
 
 ## Accounting\Invoice\Attachment
 
@@ -1956,7 +1854,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(?string $id, ?string $fileName, ?string $mimeType, ?bool $includeOnline, array $raw = array (
+- [`__construct(?string $id, ?string $fileName, ?string $url, ?string $mimeType, ?int $contentLength, ?bool $includeOnline, array $raw = array (
 ))`](../../src/Accounting/Invoice/Attachment.php#L12)
 
 ## Accounting\Invoice\Attachments
@@ -1967,9 +1865,9 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 - [`__construct(\Sujip\Xero\Client $client, string $invoiceId)`](../../src/Accounting/Invoice/Attachments.php#L13)
 - [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/Invoice/Attachments.php#L22)
-- [`upload(string $fileName, string $content): Sujip\Xero\Accounting\Invoice\Upload`](../../src/Accounting/Invoice/Attachments.php#L43)
-- [`download(string $fileName, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/Invoice/Attachments.php#L48)
-- [`downloadById(string $attachmentId, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/Invoice/Attachments.php#L60)
+- [`upload(string $fileName, string $content): Sujip\Xero\Accounting\Invoice\Upload`](../../src/Accounting/Invoice/Attachments.php#L45)
+- [`download(string $fileName, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/Invoice/Attachments.php#L50)
+- [`downloadById(string $attachmentId, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/Invoice/Attachments.php#L62)
 
 ## Accounting\Invoice\Draft
 
@@ -1986,9 +1884,9 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`lineItem(string $description, int\|float $quantity, int\|float $unitAmount): Sujip\Xero\Accounting\Invoice\Draft`](../../src/Accounting/Invoice/Draft.php#L73)
 - [`using(\Sujip\Xero\Accounting\Invoice\Invoice $invoice): Sujip\Xero\Accounting\Invoice\Draft`](../../src/Accounting/Invoice/Draft.php#L90)
 - [`save(): Sujip\Xero\Accounting\Invoice\Invoice`](../../src/Accounting/Invoice/Draft.php#L98)
-- [`allowBackorders(bool $allow = true): Sujip\Xero\Accounting\Invoice\Draft`](../../src/Accounting/Invoice/Draft.php#L125)
-- [`unitDp(int $unitDp): Sujip\Xero\Accounting\Invoice\Draft`](../../src/Accounting/Invoice/Draft.php#L133)
-- [`idempotencyKey(string $key): Sujip\Xero\Accounting\Invoice\Draft`](../../src/Accounting/Invoice/Draft.php#L141)
+- [`allowBackorders(bool $allow = true): Sujip\Xero\Accounting\Invoice\Draft`](../../src/Accounting/Invoice/Draft.php#L124)
+- [`unitDp(int $unitDp): Sujip\Xero\Accounting\Invoice\Draft`](../../src/Accounting/Invoice/Draft.php#L132)
+- [`idempotencyKey(string $key): Sujip\Xero\Accounting\Invoice\Draft`](../../src/Accounting/Invoice/Draft.php#L140)
 
 ## Accounting\Invoice\History
 
@@ -1998,7 +1896,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 - [`__construct(\Sujip\Xero\Client $client, string $invoiceId)`](../../src/Accounting/Invoice/History.php#L13)
 - [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/Invoice/History.php#L22)
-- [`record(string $details): Sujip\Xero\Accounting\Invoice\HistoryRecord`](../../src/Accounting/Invoice/History.php#L42)
+- [`record(string $details): Sujip\Xero\Accounting\Invoice\HistoryRecord`](../../src/Accounting/Invoice/History.php#L43)
 
 ## Accounting\Invoice\HistoryRecord
 
@@ -2006,7 +1904,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(?string $details, ?string $user, ?string $dateUtc, array $raw = array (
+- [`__construct(?string $details, ?string $user, ?string $dateUtc, ?string $changes = NULL, array $raw = array (
 ))`](../../src/Accounting/Invoice/HistoryRecord.php#L12)
 
 ## Accounting\Invoice\Invoice
@@ -2369,10 +2267,11 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(\Sujip\Xero\Client $client, string $invoiceId, string $fileName, string $content)`](../../src/Accounting/Invoice/Upload.php#L16)
-- [`mimeType(string $mimeType): Sujip\Xero\Accounting\Invoice\Upload`](../../src/Accounting/Invoice/Upload.php#L24)
-- [`includeOnline(bool $includeOnline = true): Sujip\Xero\Accounting\Invoice\Upload`](../../src/Accounting/Invoice/Upload.php#L32)
-- [`save(): Sujip\Xero\Accounting\Invoice\Attachment`](../../src/Accounting/Invoice/Upload.php#L40)
+- [`__construct(\Sujip\Xero\Client $client, string $invoiceId, string $fileName, string $content)`](../../src/Accounting/Invoice/Upload.php#L17)
+- [`mimeType(string $mimeType): Sujip\Xero\Accounting\Invoice\Upload`](../../src/Accounting/Invoice/Upload.php#L25)
+- [`includeOnline(bool $includeOnline = true): Sujip\Xero\Accounting\Invoice\Upload`](../../src/Accounting/Invoice/Upload.php#L33)
+- [`save(): Sujip\Xero\Accounting\Invoice\Attachment`](../../src/Accounting/Invoice/Upload.php#L41)
+- [`update(): Sujip\Xero\Accounting\Invoice\Attachment`](../../src/Accounting/Invoice/Upload.php#L46)
 
 ## Accounting\Item\Item
 
@@ -2469,9 +2368,10 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Accounting/Item/Items.php#L69)
 - [`find(string $itemId): ?\Sujip\Xero\Accounting\Item\Item`](../../src/Accounting/Item/Items.php#L89)
 - [`create(): Sujip\Xero\Accounting\Item\Payload`](../../src/Accounting/Item/Items.php#L103)
-- [`update(string $itemId): Sujip\Xero\Accounting\Item\Payload`](../../src/Accounting/Item/Items.php#L108)
-- [`history(string $itemId): Sujip\Xero\Accounting\History`](../../src/Accounting/Item/Items.php#L113)
-- [`mapItem(array $payload): Sujip\Xero\Accounting\Item\Item`](../../src/Accounting/Item/Items.php#L121)
+- [`delete(string $itemId): void`](../../src/Accounting/Item/Items.php#L108)
+- [`update(string $itemId): Sujip\Xero\Accounting\Item\Payload`](../../src/Accounting/Item/Items.php#L121)
+- [`history(string $itemId): Sujip\Xero\Accounting\History`](../../src/Accounting/Item/Items.php#L126)
+- [`mapItem(array $payload): Sujip\Xero\Accounting\Item\Item`](../../src/Accounting/Item/Items.php#L134)
 
 ## Accounting\Item\Payload
 
@@ -2713,7 +2613,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(?string $fileName, ?string $url, array $raw = array (
+- [`__construct(?string $id, ?string $fileName, ?string $url, ?string $mimeType, ?int $contentLength, ?bool $includeOnline, array $raw = array (
 ))`](../../src/Accounting/ManualJournal/Attachment.php#L12)
 
 ## Accounting\ManualJournal\Attachments
@@ -2724,9 +2624,9 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 - [`__construct(\Sujip\Xero\Client $client, string $manualJournalId)`](../../src/Accounting/ManualJournal/Attachments.php#L13)
 - [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/ManualJournal/Attachments.php#L22)
-- [`upload(string $fileName, string $content): Sujip\Xero\Accounting\ManualJournal\Upload`](../../src/Accounting/ManualJournal/Attachments.php#L41)
-- [`download(string $fileName, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/ManualJournal/Attachments.php#L46)
-- [`downloadById(string $attachmentId, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/ManualJournal/Attachments.php#L58)
+- [`upload(string $fileName, string $content): Sujip\Xero\Accounting\ManualJournal\Upload`](../../src/Accounting/ManualJournal/Attachments.php#L45)
+- [`download(string $fileName, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/ManualJournal/Attachments.php#L50)
+- [`downloadById(string $attachmentId, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/ManualJournal/Attachments.php#L62)
 
 ## Accounting\ManualJournal\JournalLine
 
@@ -2876,9 +2776,10 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(\Sujip\Xero\Client $client, string $manualJournalId, string $fileName, string $content, ?string $mimeType = NULL)`](../../src/Accounting/ManualJournal/Upload.php#L12)
-- [`mimeType(string $mimeType): Sujip\Xero\Accounting\ManualJournal\Upload`](../../src/Accounting/ManualJournal/Upload.php#L21)
-- [`save(): Sujip\Xero\Accounting\ManualJournal\Attachment`](../../src/Accounting/ManualJournal/Upload.php#L26)
+- [`__construct(\Sujip\Xero\Client $client, string $manualJournalId, string $fileName, string $content, ?string $mimeType = NULL)`](../../src/Accounting/ManualJournal/Upload.php#L13)
+- [`mimeType(string $mimeType): Sujip\Xero\Accounting\ManualJournal\Upload`](../../src/Accounting/ManualJournal/Upload.php#L22)
+- [`save(): Sujip\Xero\Accounting\ManualJournal\Attachment`](../../src/Accounting/ManualJournal/Upload.php#L27)
+- [`update(): Sujip\Xero\Accounting\ManualJournal\Attachment`](../../src/Accounting/ManualJournal/Upload.php#L32)
 
 ## Accounting\Organisation\Bill
 
@@ -3277,10 +3178,8 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`date(string $date): Sujip\Xero\Accounting\Payment\Payload`](../../src/Accounting/Payment/Payload.php#L38)
 - [`amount(int\|float $amount): Sujip\Xero\Accounting\Payment\Payload`](../../src/Accounting/Payment/Payload.php#L47)
 - [`reference(string $reference): Sujip\Xero\Accounting\Payment\Payload`](../../src/Accounting/Payment/Payload.php#L56)
-- [`id(string $paymentId): Sujip\Xero\Accounting\Payment\Payload`](../../src/Accounting/Payment/Payload.php#L65)
-- [`setPaymentID(?string $paymentId): Sujip\Xero\Accounting\Payment\Payload`](../../src/Accounting/Payment/Payload.php#L74)
-- [`using(\Sujip\Xero\Accounting\Payment\Payment $payment): Sujip\Xero\Accounting\Payment\Payload`](../../src/Accounting/Payment/Payload.php#L79)
-- [`save(): Sujip\Xero\Accounting\Payment\Payment`](../../src/Accounting/Payment/Payload.php#L87)
+- [`using(\Sujip\Xero\Accounting\Payment\Payment $payment): Sujip\Xero\Accounting\Payment\Payload`](../../src/Accounting/Payment/Payload.php#L65)
+- [`save(): Sujip\Xero\Accounting\Payment\Payment`](../../src/Accounting/Payment/Payload.php#L73)
 
 ## Accounting\Payment\Payment
 
@@ -3387,10 +3286,10 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`addWarning(\Sujip\Xero\Support\ValidationError $warning): Sujip\Xero\Accounting\Payment\Payment`](../../src/Accounting/Payment/Payment.php#L452)
 - [`applyInvoiceReference(?\Sujip\Xero\Accounting\Payment\InvoiceReference $reference): Sujip\Xero\Accounting\Payment\Payment`](../../src/Accounting/Payment/Payment.php#L497)
 - [`toRequest(): array`](../../src/Accounting/Payment/Payment.php#L522)
-- [`amount(int\|float $amount): Sujip\Xero\Accounting\Payment\Payment`](../../src/Accounting/Payment/Payment.php#L548)
-- [`date(string $date): Sujip\Xero\Accounting\Payment\Payment`](../../src/Accounting/Payment/Payment.php#L553)
-- [`save(): Sujip\Xero\Accounting\Payment\Payment`](../../src/Accounting/Payment/Payment.php#L558)
-- [`history(): Sujip\Xero\Accounting\History`](../../src/Accounting/Payment/Payment.php#L569)
+- [`amount(int\|float $amount): Sujip\Xero\Accounting\Payment\Payment`](../../src/Accounting/Payment/Payment.php#L547)
+- [`date(string $date): Sujip\Xero\Accounting\Payment\Payment`](../../src/Accounting/Payment/Payment.php#L552)
+- [`save(): Sujip\Xero\Accounting\Payment\Payment`](../../src/Accounting/Payment/Payment.php#L557)
+- [`history(): Sujip\Xero\Accounting\History`](../../src/Accounting/Payment/Payment.php#L572)
 
 ## Accounting\Payment\Payments
 
@@ -3412,9 +3311,9 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Accounting/Payment/Payments.php#L69)
 - [`find(string $paymentId): ?\Sujip\Xero\Accounting\Payment\Payment`](../../src/Accounting/Payment/Payments.php#L89)
 - [`create(): Sujip\Xero\Accounting\Payment\Payload`](../../src/Accounting/Payment/Payments.php#L101)
-- [`update(string $paymentId): Sujip\Xero\Accounting\Payment\Payload`](../../src/Accounting/Payment/Payments.php#L106)
-- [`history(string $paymentId): Sujip\Xero\Accounting\History`](../../src/Accounting/Payment/Payments.php#L111)
-- [`mapPayment(array $payload): Sujip\Xero\Accounting\Payment\Payment`](../../src/Accounting/Payment/Payments.php#L119)
+- [`delete(string $paymentId): Sujip\Xero\Accounting\Payment\Payment`](../../src/Accounting/Payment/Payments.php#L106)
+- [`history(string $paymentId): Sujip\Xero\Accounting\History`](../../src/Accounting/Payment/Payments.php#L119)
+- [`mapPayment(array $payload): Sujip\Xero\Accounting\Payment\Payment`](../../src/Accounting/Payment/Payments.php#L127)
 
 ## Accounting\Prepayment\Prepayment
 
@@ -3531,7 +3430,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(?string $id, ?string $fileName, ?string $mimeType, ?bool $includeOnline, array $raw = array (
+- [`__construct(?string $id, ?string $fileName, ?string $url, ?string $mimeType, ?int $contentLength, ?bool $includeOnline, array $raw = array (
 ))`](../../src/Accounting/PurchaseOrder/Attachment.php#L12)
 
 ## Accounting\PurchaseOrder\Attachments
@@ -3542,9 +3441,9 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 - [`__construct(\Sujip\Xero\Client $client, string $purchaseOrderId)`](../../src/Accounting/PurchaseOrder/Attachments.php#L13)
 - [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/PurchaseOrder/Attachments.php#L22)
-- [`upload(string $fileName, string $content): Sujip\Xero\Accounting\PurchaseOrder\Upload`](../../src/Accounting/PurchaseOrder/Attachments.php#L43)
-- [`download(string $fileName, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/PurchaseOrder/Attachments.php#L48)
-- [`downloadById(string $attachmentId, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/PurchaseOrder/Attachments.php#L60)
+- [`upload(string $fileName, string $content): Sujip\Xero\Accounting\PurchaseOrder\Upload`](../../src/Accounting/PurchaseOrder/Attachments.php#L45)
+- [`download(string $fileName, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/PurchaseOrder/Attachments.php#L50)
+- [`downloadById(string $attachmentId, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/PurchaseOrder/Attachments.php#L62)
 
 ## Accounting\PurchaseOrder\Payload
 
@@ -3700,10 +3599,11 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(\Sujip\Xero\Client $client, string $purchaseOrderId, string $fileName, string $content)`](../../src/Accounting/PurchaseOrder/Upload.php#L16)
-- [`mimeType(string $mimeType): Sujip\Xero\Accounting\PurchaseOrder\Upload`](../../src/Accounting/PurchaseOrder/Upload.php#L24)
-- [`includeOnline(bool $includeOnline = true): Sujip\Xero\Accounting\PurchaseOrder\Upload`](../../src/Accounting/PurchaseOrder/Upload.php#L32)
-- [`save(): Sujip\Xero\Accounting\PurchaseOrder\Attachment`](../../src/Accounting/PurchaseOrder/Upload.php#L40)
+- [`__construct(\Sujip\Xero\Client $client, string $purchaseOrderId, string $fileName, string $content)`](../../src/Accounting/PurchaseOrder/Upload.php#L17)
+- [`mimeType(string $mimeType): Sujip\Xero\Accounting\PurchaseOrder\Upload`](../../src/Accounting/PurchaseOrder/Upload.php#L25)
+- [`includeOnline(bool $includeOnline = true): Sujip\Xero\Accounting\PurchaseOrder\Upload`](../../src/Accounting/PurchaseOrder/Upload.php#L33)
+- [`save(): Sujip\Xero\Accounting\PurchaseOrder\Attachment`](../../src/Accounting/PurchaseOrder/Upload.php#L41)
+- [`update(): Sujip\Xero\Accounting\PurchaseOrder\Attachment`](../../src/Accounting/PurchaseOrder/Upload.php#L46)
 
 ## Accounting\Quote\Payload
 
@@ -3845,7 +3745,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(?string $id, ?string $fileName, ?string $mimeType, ?bool $includeOnline, array $raw = array (
+- [`__construct(?string $id, ?string $fileName, ?string $url, ?string $mimeType, ?int $contentLength, ?bool $includeOnline, array $raw = array (
 ))`](../../src/Accounting/Receipt/Attachment.php#L12)
 
 ## Accounting\Receipt\Attachments
@@ -3856,9 +3756,27 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 - [`__construct(\Sujip\Xero\Client $client, string $receiptId)`](../../src/Accounting/Receipt/Attachments.php#L13)
 - [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/Receipt/Attachments.php#L22)
-- [`upload(string $fileName, string $content): Sujip\Xero\Accounting\Receipt\Upload`](../../src/Accounting/Receipt/Attachments.php#L43)
-- [`download(string $fileName, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/Receipt/Attachments.php#L48)
-- [`downloadById(string $attachmentId, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/Receipt/Attachments.php#L60)
+- [`upload(string $fileName, string $content): Sujip\Xero\Accounting\Receipt\Upload`](../../src/Accounting/Receipt/Attachments.php#L45)
+- [`download(string $fileName, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/Receipt/Attachments.php#L50)
+- [`downloadById(string $attachmentId, string $contentType = 'application/octet-stream'): string`](../../src/Accounting/Receipt/Attachments.php#L62)
+
+## Accounting\Receipt\Payload
+
+[Source](../../src/Accounting/Receipt/Payload.php)
+
+### Public methods
+
+- [`__construct(\Sujip\Xero\Client $client)`](../../src/Accounting/Receipt/Payload.php#L17)
+- [`id(string $receiptId): Sujip\Xero\Accounting\Receipt\Payload`](../../src/Accounting/Receipt/Payload.php#L23)
+- [`contact(string $contactId): Sujip\Xero\Accounting\Receipt\Payload`](../../src/Accounting/Receipt/Payload.php#L32)
+- [`user(string $userId): Sujip\Xero\Accounting\Receipt\Payload`](../../src/Accounting/Receipt/Payload.php#L43)
+- [`lineItem(string $description, int\|float $quantity, int\|float $unitAmount, ?string $accountCode = NULL): Sujip\Xero\Accounting\Receipt\Payload`](../../src/Accounting/Receipt/Payload.php#L54)
+- [`date(string $date): Sujip\Xero\Accounting\Receipt\Payload`](../../src/Accounting/Receipt/Payload.php#L69)
+- [`reference(string $reference): Sujip\Xero\Accounting\Receipt\Payload`](../../src/Accounting/Receipt/Payload.php#L78)
+- [`lineAmountTypes(string $lineAmountTypes): Sujip\Xero\Accounting\Receipt\Payload`](../../src/Accounting/Receipt/Payload.php#L87)
+- [`status(string $status): Sujip\Xero\Accounting\Receipt\Payload`](../../src/Accounting/Receipt/Payload.php#L96)
+- [`using(\Sujip\Xero\Accounting\Receipt\Receipt $receipt): Sujip\Xero\Accounting\Receipt\Payload`](../../src/Accounting/Receipt/Payload.php#L105)
+- [`save(): Sujip\Xero\Accounting\Receipt\Receipt`](../../src/Accounting/Receipt/Payload.php#L113)
 
 ## Accounting\Receipt\Receipt
 
@@ -3930,8 +3848,10 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`addWarning(\Sujip\Xero\Support\ValidationError $warning): Sujip\Xero\Accounting\Receipt\Receipt`](../../src/Accounting/Receipt/Receipt.php#L293)
 - [`getAttachments(): array`](../../src/Accounting/Receipt/Receipt.php#L303)
 - [`addAttachment(\Sujip\Xero\Support\AttachmentDetail $attachment): Sujip\Xero\Accounting\Receipt\Receipt`](../../src/Accounting/Receipt/Receipt.php#L308)
-- [`attachments(): Sujip\Xero\Accounting\Receipt\Attachments`](../../src/Accounting/Receipt/Receipt.php#L351)
-- [`history(): Sujip\Xero\Accounting\History`](../../src/Accounting/Receipt/Receipt.php#L360)
+- [`toRequest(): array`](../../src/Accounting/Receipt/Receipt.php#L354)
+- [`save(): Sujip\Xero\Accounting\Receipt\Receipt`](../../src/Accounting/Receipt/Receipt.php#L371)
+- [`attachments(): Sujip\Xero\Accounting\Receipt\Attachments`](../../src/Accounting/Receipt/Receipt.php#L382)
+- [`history(): Sujip\Xero\Accounting\History`](../../src/Accounting/Receipt/Receipt.php#L391)
 
 ## Accounting\Receipt\Receipts
 
@@ -3949,9 +3869,11 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/Receipt/Receipts.php#L45)
 - [`createdByApp(bool $createdByApp = true): static`](../../src/Accounting/Receipt/Receipts.php#L51)
 - [`find(string $receiptId): ?\Sujip\Xero\Accounting\Receipt\Receipt`](../../src/Accounting/Receipt/Receipts.php#L62)
-- [`attachments(string $receiptId): Sujip\Xero\Accounting\Receipt\Attachments`](../../src/Accounting/Receipt/Receipts.php#L74)
-- [`history(string $receiptId): Sujip\Xero\Accounting\History`](../../src/Accounting/Receipt/Receipts.php#L79)
-- [`mapReceipt(array $payload): Sujip\Xero\Accounting\Receipt\Receipt`](../../src/Accounting/Receipt/Receipts.php#L87)
+- [`create(): Sujip\Xero\Accounting\Receipt\Payload`](../../src/Accounting/Receipt/Receipts.php#L74)
+- [`update(string $receiptId): Sujip\Xero\Accounting\Receipt\Payload`](../../src/Accounting/Receipt/Receipts.php#L79)
+- [`attachments(string $receiptId): Sujip\Xero\Accounting\Receipt\Attachments`](../../src/Accounting/Receipt/Receipts.php#L84)
+- [`history(string $receiptId): Sujip\Xero\Accounting\History`](../../src/Accounting/Receipt/Receipts.php#L89)
+- [`mapReceipt(array $payload): Sujip\Xero\Accounting\Receipt\Receipt`](../../src/Accounting/Receipt/Receipts.php#L97)
 
 ## Accounting\Receipt\Upload
 
@@ -3959,9 +3881,10 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(\Sujip\Xero\Client $client, string $receiptId, string $fileName, string $content)`](../../src/Accounting/Receipt/Upload.php#L14)
-- [`mimeType(string $mimeType): Sujip\Xero\Accounting\Receipt\Upload`](../../src/Accounting/Receipt/Upload.php#L22)
-- [`save(): Sujip\Xero\Accounting\Receipt\Attachment`](../../src/Accounting/Receipt/Upload.php#L30)
+- [`__construct(\Sujip\Xero\Client $client, string $receiptId, string $fileName, string $content)`](../../src/Accounting/Receipt/Upload.php#L15)
+- [`mimeType(string $mimeType): Sujip\Xero\Accounting\Receipt\Upload`](../../src/Accounting/Receipt/Upload.php#L23)
+- [`save(): Sujip\Xero\Accounting\Receipt\Attachment`](../../src/Accounting/Receipt/Upload.php#L31)
+- [`update(): Sujip\Xero\Accounting\Receipt\Attachment`](../../src/Accounting/Receipt/Upload.php#L36)
 
 ## Accounting\RepeatingInvoice\Payload
 
@@ -3973,9 +3896,12 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`id(string $repeatingInvoiceId): Sujip\Xero\Accounting\RepeatingInvoice\Payload`](../../src/Accounting/RepeatingInvoice/Payload.php#L24)
 - [`type(string $type): Sujip\Xero\Accounting\RepeatingInvoice\Payload`](../../src/Accounting/RepeatingInvoice/Payload.php#L32)
 - [`contact(string $contactId): Sujip\Xero\Accounting\RepeatingInvoice\Payload`](../../src/Accounting/RepeatingInvoice/Payload.php#L40)
-- [`reference(string $reference): Sujip\Xero\Accounting\RepeatingInvoice\Payload`](../../src/Accounting/RepeatingInvoice/Payload.php#L48)
-- [`lineItem(string $description, int\|float $quantity, int\|float $unitAmount): Sujip\Xero\Accounting\RepeatingInvoice\Payload`](../../src/Accounting/RepeatingInvoice/Payload.php#L56)
-- [`save(): Sujip\Xero\Accounting\RepeatingInvoice\RepeatingInvoice`](../../src/Accounting/RepeatingInvoice/Payload.php#L70)
+- [`schedule(int $period, string $unit, ?int $dueDate = NULL, ?string $dueDateType = NULL, ?string $startDate = NULL, ?string $endDate = NULL): Sujip\Xero\Accounting\RepeatingInvoice\Payload`](../../src/Accounting/RepeatingInvoice/Payload.php#L48)
+- [`lineAmountTypes(string $lineAmountTypes): Sujip\Xero\Accounting\RepeatingInvoice\Payload`](../../src/Accounting/RepeatingInvoice/Payload.php#L69)
+- [`status(string $status): Sujip\Xero\Accounting\RepeatingInvoice\Payload`](../../src/Accounting/RepeatingInvoice/Payload.php#L77)
+- [`reference(string $reference): Sujip\Xero\Accounting\RepeatingInvoice\Payload`](../../src/Accounting/RepeatingInvoice/Payload.php#L85)
+- [`lineItem(string $description, int\|float $quantity, int\|float $unitAmount, ?string $accountCode = NULL): Sujip\Xero\Accounting\RepeatingInvoice\Payload`](../../src/Accounting/RepeatingInvoice/Payload.php#L93)
+- [`save(): Sujip\Xero\Accounting\RepeatingInvoice\RepeatingInvoice`](../../src/Accounting/RepeatingInvoice/Payload.php#L108)
 
 ## Accounting\RepeatingInvoice\RepeatingInvoice
 
@@ -4126,29 +4052,127 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 | `ReportName` | string or null | `()` |
 | `ReportType` | string or null | `()` |
 | `ReportTitle` | string or null | `()` |
+| `ReportTitles` | array | `()` |
 | `ReportDate` | string or null | `()` |
 | `UpdatedDateUTC` | string or null | `()` |
+| `Rows` | list of objects ([Accounting\Report\ReportRow](accounting.md#accountingreportreportrow)) | `()` |
+| `Fields` | list of objects ([Accounting\Report\ReportField](accounting.md#accountingreportreportfield)) | `()` |
 | `Contacts` | list of objects ([Accounting\Report\TenNinetyNineContact](accounting.md#accountingreporttenninetyninecontact)) | `()` |
 
 ### Public methods
 
-- [`getReportID(): ?string`](../../src/Accounting/Report/Report.php#L31)
-- [`setReportID(?string $reportID): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L36)
-- [`getReportName(): ?string`](../../src/Accounting/Report/Report.php#L43)
-- [`setReportName(?string $reportName): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L48)
-- [`getReportType(): ?string`](../../src/Accounting/Report/Report.php#L55)
-- [`setReportType(?string $reportType): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L60)
-- [`getTitle(): ?string`](../../src/Accounting/Report/Report.php#L67)
-- [`setTitle(?string $title): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L72)
-- [`getReportTitle(): ?string`](../../src/Accounting/Report/Report.php#L79)
-- [`setReportTitle(?string $reportTitle): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L84)
-- [`getReportDate(): ?string`](../../src/Accounting/Report/Report.php#L91)
-- [`setReportDate(?string $reportDate): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L96)
-- [`getUpdatedDateUTC(): ?string`](../../src/Accounting/Report/Report.php#L103)
-- [`setUpdatedDateUTC(?string $updatedDateUTC): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L108)
-- [`getContacts(): array`](../../src/Accounting/Report/Report.php#L118)
-- [`addContact(\Sujip\Xero\Accounting\Report\TenNinetyNineContact $contact): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L123)
-- [`fill(array $payload): static`](../../src/Accounting/Report/Report.php#L146)
+- [`getReportID(): ?string`](../../src/Accounting/Report/Report.php#L46)
+- [`setReportID(?string $reportID): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L51)
+- [`getReportName(): ?string`](../../src/Accounting/Report/Report.php#L58)
+- [`setReportName(?string $reportName): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L63)
+- [`getReportType(): ?string`](../../src/Accounting/Report/Report.php#L70)
+- [`setReportType(?string $reportType): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L75)
+- [`getTitle(): ?string`](../../src/Accounting/Report/Report.php#L82)
+- [`setTitle(?string $title): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L87)
+- [`getReportTitle(): ?string`](../../src/Accounting/Report/Report.php#L94)
+- [`setReportTitle(?string $reportTitle): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L99)
+- [`getReportDate(): ?string`](../../src/Accounting/Report/Report.php#L106)
+- [`setReportDate(?string $reportDate): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L111)
+- [`getUpdatedDateUTC(): ?string`](../../src/Accounting/Report/Report.php#L118)
+- [`setUpdatedDateUTC(?string $updatedDateUTC): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L123)
+- [`getReportTitles(): array`](../../src/Accounting/Report/Report.php#L133)
+- [`setReportTitles(array $reportTitles): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L141)
+- [`getRows(): array`](../../src/Accounting/Report/Report.php#L151)
+- [`addRow(\Sujip\Xero\Accounting\Report\ReportRow $row): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L156)
+- [`getFields(): array`](../../src/Accounting/Report/Report.php#L166)
+- [`addField(\Sujip\Xero\Accounting\Report\ReportField $field): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L171)
+- [`getContacts(): array`](../../src/Accounting/Report/Report.php#L181)
+- [`addContact(\Sujip\Xero\Accounting\Report\TenNinetyNineContact $contact): Sujip\Xero\Accounting\Report\Report`](../../src/Accounting/Report/Report.php#L186)
+- [`fill(array $payload): static`](../../src/Accounting/Report/Report.php#L212)
+
+## Accounting\Report\ReportAttribute
+
+[Source](../../src/Accounting/Report/ReportAttribute.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `Id` | string or null | `()` |
+| `Value` | string or null | `()` |
+
+### Public methods
+
+- [`getId(): ?string`](../../src/Accounting/Report/ReportAttribute.php#L16)
+- [`setId(?string $id): Sujip\Xero\Accounting\Report\ReportAttribute`](../../src/Accounting/Report/ReportAttribute.php#L21)
+- [`getValue(): ?string`](../../src/Accounting/Report/ReportAttribute.php#L28)
+- [`setValue(?string $value): Sujip\Xero\Accounting\Report\ReportAttribute`](../../src/Accounting/Report/ReportAttribute.php#L33)
+
+## Accounting\Report\ReportCell
+
+[Source](../../src/Accounting/Report/ReportCell.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `Value` | string or null | `()` |
+| `Attributes` | list of objects ([Accounting\Report\ReportAttribute](accounting.md#accountingreportreportattribute)) | `()` |
+
+### Public methods
+
+- [`getValue(): ?string`](../../src/Accounting/Report/ReportCell.php#L19)
+- [`setValue(?string $value): Sujip\Xero\Accounting\Report\ReportCell`](../../src/Accounting/Report/ReportCell.php#L24)
+- [`getAttributes(): array`](../../src/Accounting/Report/ReportCell.php#L34)
+- [`addAttribute(\Sujip\Xero\Accounting\Report\ReportAttribute $attribute): Sujip\Xero\Accounting\Report\ReportCell`](../../src/Accounting/Report/ReportCell.php#L39)
+
+## Accounting\Report\ReportField
+
+[Source](../../src/Accounting/Report/ReportField.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `FieldID` | string or null | `()` |
+| `Description` | string or null | `()` |
+| `Value` | string or null | `()` |
+
+### Public methods
+
+- [`getFieldID(): ?string`](../../src/Accounting/Report/ReportField.php#L18)
+- [`setFieldID(?string $fieldID): Sujip\Xero\Accounting\Report\ReportField`](../../src/Accounting/Report/ReportField.php#L23)
+- [`getDescription(): ?string`](../../src/Accounting/Report/ReportField.php#L30)
+- [`setDescription(?string $description): Sujip\Xero\Accounting\Report\ReportField`](../../src/Accounting/Report/ReportField.php#L35)
+- [`getValue(): ?string`](../../src/Accounting/Report/ReportField.php#L42)
+- [`setValue(?string $value): Sujip\Xero\Accounting\Report\ReportField`](../../src/Accounting/Report/ReportField.php#L47)
+
+## Accounting\Report\ReportRow
+
+[Source](../../src/Accounting/Report/ReportRow.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `RowType` | string or null | `()` |
+| `Title` | string or null | `()` |
+| `Cells` | list of objects ([Accounting\Report\ReportCell](accounting.md#accountingreportreportcell)) | `()` |
+| `Rows` | list of objects ([Accounting\Report\ReportRow](accounting.md#accountingreportreportrow)) | `()` |
+
+### Public methods
+
+- [`getRowType(): ?string`](../../src/Accounting/Report/ReportRow.php#L26)
+- [`setRowType(?string $rowType): Sujip\Xero\Accounting\Report\ReportRow`](../../src/Accounting/Report/ReportRow.php#L31)
+- [`getTitle(): ?string`](../../src/Accounting/Report/ReportRow.php#L38)
+- [`setTitle(?string $title): Sujip\Xero\Accounting\Report\ReportRow`](../../src/Accounting/Report/ReportRow.php#L43)
+- [`getCells(): array`](../../src/Accounting/Report/ReportRow.php#L53)
+- [`addCell(\Sujip\Xero\Accounting\Report\ReportCell $cell): Sujip\Xero\Accounting\Report\ReportRow`](../../src/Accounting/Report/ReportRow.php#L58)
+- [`getRows(): array`](../../src/Accounting/Report/ReportRow.php#L68)
+- [`addRow(\Sujip\Xero\Accounting\Report\ReportRow $row): Sujip\Xero\Accounting\Report\ReportRow`](../../src/Accounting/Report/ReportRow.php#L73)
 
 ## Accounting\Report\Reports
 
@@ -4328,9 +4352,10 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`taxType(string $taxType): Sujip\Xero\Accounting\TaxRate\Payload`](../../src/Accounting/TaxRate/Payload.php#L22)
 - [`name(string $name): Sujip\Xero\Accounting\TaxRate\Payload`](../../src/Accounting/TaxRate/Payload.php#L31)
 - [`component(string $name, int\|float $rate): Sujip\Xero\Accounting\TaxRate\Payload`](../../src/Accounting/TaxRate/Payload.php#L40)
-- [`idempotencyKey(string $key): Sujip\Xero\Accounting\TaxRate\Payload`](../../src/Accounting/TaxRate/Payload.php#L53)
-- [`using(\Sujip\Xero\Accounting\TaxRate\TaxRate $taxRate): Sujip\Xero\Accounting\TaxRate\Payload`](../../src/Accounting/TaxRate/Payload.php#L61)
-- [`save(): Sujip\Xero\Accounting\TaxRate\TaxRate`](../../src/Accounting/TaxRate/Payload.php#L69)
+- [`reportTaxType(string $reportTaxType): Sujip\Xero\Accounting\TaxRate\Payload`](../../src/Accounting/TaxRate/Payload.php#L53)
+- [`idempotencyKey(string $key): Sujip\Xero\Accounting\TaxRate\Payload`](../../src/Accounting/TaxRate/Payload.php#L62)
+- [`using(\Sujip\Xero\Accounting\TaxRate\TaxRate $taxRate): Sujip\Xero\Accounting\TaxRate\Payload`](../../src/Accounting/TaxRate/Payload.php#L70)
+- [`save(): Sujip\Xero\Accounting\TaxRate\TaxRate`](../../src/Accounting/TaxRate/Payload.php#L78)
 
 ## Accounting\TaxRate\TaxRate
 
@@ -4384,9 +4409,9 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`getEffectiveRate(): ?float`](../../src/Accounting/TaxRate/TaxRate.php#L192)
 - [`setEffectiveRate(?float $effectiveRate): Sujip\Xero\Accounting\TaxRate\TaxRate`](../../src/Accounting/TaxRate/TaxRate.php#L197)
 - [`toRequest(): array`](../../src/Accounting/TaxRate/TaxRate.php#L228)
-- [`name(string $name): Sujip\Xero\Accounting\TaxRate\TaxRate`](../../src/Accounting/TaxRate/TaxRate.php#L241)
-- [`component(string $name, int\|float $rate): Sujip\Xero\Accounting\TaxRate\TaxRate`](../../src/Accounting/TaxRate/TaxRate.php#L246)
-- [`save(): Sujip\Xero\Accounting\TaxRate\TaxRate`](../../src/Accounting/TaxRate/TaxRate.php#L255)
+- [`name(string $name): Sujip\Xero\Accounting\TaxRate\TaxRate`](../../src/Accounting/TaxRate/TaxRate.php#L242)
+- [`component(string $name, int\|float $rate): Sujip\Xero\Accounting\TaxRate\TaxRate`](../../src/Accounting/TaxRate/TaxRate.php#L247)
+- [`save(): Sujip\Xero\Accounting\TaxRate\TaxRate`](../../src/Accounting/TaxRate/TaxRate.php#L256)
 
 ## Accounting\TaxRate\TaxRates
 
@@ -4469,11 +4494,12 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`find(string $trackingCategoryId): ?\Sujip\Xero\Accounting\TrackingCategory\TrackingCategory`](../../src/Accounting/TrackingCategory/TrackingCategories.php#L69)
 - [`create(): Sujip\Xero\Accounting\TrackingCategory\Payload`](../../src/Accounting/TrackingCategory/TrackingCategories.php#L81)
 - [`update(string $trackingCategoryId): Sujip\Xero\Accounting\TrackingCategory\Payload`](../../src/Accounting/TrackingCategory/TrackingCategories.php#L86)
-- [`createOption(string $trackingCategoryId, string $name, ?string $idempotencyKey = NULL): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/TrackingCategory/TrackingCategories.php#L94)
-- [`updateOption(string $trackingCategoryId, string $trackingOptionId, string $name, ?string $idempotencyKey = NULL): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/TrackingCategory/TrackingCategories.php#L109)
-- [`deleteOption(string $trackingCategoryId, string $trackingOptionId): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/TrackingCategory/TrackingCategories.php#L124)
-- [`mapTrackingCategory(array $payload): Sujip\Xero\Accounting\TrackingCategory\TrackingCategory`](../../src/Accounting/TrackingCategory/TrackingCategories.php#L137)
-- [`mapOption(array $payload): Sujip\Xero\Accounting\TrackingCategory\Option`](../../src/Accounting/TrackingCategory/TrackingCategories.php#L145)
+- [`delete(string $trackingCategoryId): Sujip\Xero\Accounting\TrackingCategory\TrackingCategory`](../../src/Accounting/TrackingCategory/TrackingCategories.php#L91)
+- [`createOption(string $trackingCategoryId, string $name, ?string $idempotencyKey = NULL): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/TrackingCategory/TrackingCategories.php#L106)
+- [`updateOption(string $trackingCategoryId, string $trackingOptionId, string $name, ?string $idempotencyKey = NULL): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/TrackingCategory/TrackingCategories.php#L121)
+- [`deleteOption(string $trackingCategoryId, string $trackingOptionId): Sujip\Xero\Support\ResourceCollection`](../../src/Accounting/TrackingCategory/TrackingCategories.php#L136)
+- [`mapTrackingCategory(array $payload): Sujip\Xero\Accounting\TrackingCategory\TrackingCategory`](../../src/Accounting/TrackingCategory/TrackingCategories.php#L149)
+- [`mapOption(array $payload): Sujip\Xero\Accounting\TrackingCategory\Option`](../../src/Accounting/TrackingCategory/TrackingCategories.php#L157)
 
 ## Accounting\TrackingCategory\TrackingCategory
 
@@ -4547,6 +4573,7 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`setUpdatedDateUTC(?string $updatedDateUTC): Sujip\Xero\Accounting\User\User`](../../src/Accounting/User/User.php#L91)
 - [`getOrganisationRole(): ?string`](../../src/Accounting/User/User.php#L98)
 - [`setOrganisationRole(?string $organisationRole): Sujip\Xero\Accounting\User\User`](../../src/Accounting/User/User.php#L103)
+- [`toRequest(): array`](../../src/Accounting/User/User.php#L113)
 
 ## Accounting\User\Users
 

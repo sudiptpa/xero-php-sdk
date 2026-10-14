@@ -254,7 +254,7 @@ $timesheet = $xero->payroll()
     ->employee('employee-id')
     ->startDate('2026-03-23')
     ->endDate('2026-03-29')
-    ->status('DRAFT')
+    ->status('Draft')
     ->save();
 ```
 

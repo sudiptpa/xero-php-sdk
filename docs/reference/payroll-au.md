@@ -522,13 +522,13 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/AU/PayItem/Payload.php#L18)
-- [`earningsRates(array $rates): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L23)
-- [`deductionTypes(array $types): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L32)
-- [`leaveTypes(array $types): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L41)
-- [`reimbursementTypes(array $types): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L50)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L58)
-- [`save(): Sujip\Xero\Payroll\AU\PayItem\PayItem`](../../src/Payroll/AU/PayItem/Payload.php#L66)
+- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/AU/PayItem/Payload.php#L24)
+- [`earningsRates(array $rates): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L29)
+- [`deductionTypes(array $types): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L38)
+- [`leaveTypes(array $types): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L47)
+- [`reimbursementTypes(array $types): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L56)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\AU\PayItem\Payload`](../../src/Payroll/AU/PayItem/Payload.php#L64)
+- [`save(): Sujip\Xero\Payroll\AU\PayItem\PayItem`](../../src/Payroll/AU/PayItem/Payload.php#L72)
 
 ## Payroll\AU\PayRun\PayRun
 
@@ -761,15 +761,16 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 - [`lastName(string $lastName): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L42)
 - [`email(string $email): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L50)
 - [`dateOfBirth(string $dateOfBirth): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L58)
-- [`homeAddress(string $addressLine1, string $city, ?string $region = null, ?string $postalCode = null, ?string $country = null, ?string $addressLine2 = null): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L66)
+- [`homeAddress(string $addressLine1, string $city, ?string $region = NULL, ?string $postalCode = NULL, ?string $country = NULL, ?string $addressLine2 = NULL): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L66)
 - [`payrollCalendar(string $payrollCalendarId): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L87)
-- [`taxDeclaration(array $taxDeclaration): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L96)
-- [`bankAccounts(array $bankAccounts): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L105)
-- [`payTemplate(array $payTemplate): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L114)
-- [`openingBalances(array $openingBalances): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L123)
-- [`superMemberships(array $superMemberships): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L132)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L140)
-- [`save(): Sujip\Xero\Payroll\AU\Employee`](../../src/Payroll/AU/Payload.php#L148)
+- [`ordinaryEarningsRate(string $earningsRateId): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L95)
+- [`taxDeclaration(array $taxDeclaration): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L104)
+- [`bankAccounts(array $bankAccounts): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L113)
+- [`payTemplate(array $payTemplate): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L122)
+- [`openingBalances(array $openingBalances): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L131)
+- [`superMemberships(array $superMemberships): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L140)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\AU\Payload`](../../src/Payroll/AU/Payload.php#L148)
+- [`save(): Sujip\Xero\Payroll\AU\Employee`](../../src/Payroll/AU/Payload.php#L156)
 
 ## Payroll\AU\PayrollAU
 

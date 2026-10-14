@@ -39,18 +39,29 @@ $leaveTypes = $employee->leaveTypes();
 $paymentMethod = $employee->paymentMethod();
 ```
 
+Call `leavePeriods()` without dates to return all available periods, or pass a
+start date, an end date, or both to limit the result.
+
 ```php
 $createdLeave = $employee->createLeave()
     ->leaveType('leave-type-id')
+    ->description('Holiday')
     ->startDate('2026-04-01')
     ->endDate('2026-04-03')
-    ->title('Holiday')
+    ->periods([[
+        'periodStartDate' => '2026-04-01',
+        'periodEndDate' => '2026-04-03',
+        'numberOfUnits' => 3,
+    ]])
     ->save();
 
 $createdLeaveType = $employee->createLeaveType()
     ->leaveType('leave-type-id')
     ->scheduleOfAccrual('OnAnniversaryDate')
     ->openingBalance(12.5)
+    ->hoursAccruedAnnually(120)
+    ->maximumToAccrue(240)
+    ->scheduleOfAccrualDate('2026-04-01')
     ->save();
 ```
 
@@ -63,6 +74,7 @@ $leaveTypes = $xero->payroll()
     ->get();
 
 $leaveTypeId = $leaveTypes->first()?->getLeaveTypeID();
+$leaveType = $xero->payroll()->uk()->leaveTypes()->find('leave-type-id');
 ```
 
 ```php
@@ -104,29 +116,24 @@ $calendar = $xero->payroll()
 $payRuns = $xero->payroll()
     ->uk()
     ->payRuns()
-    ->status('DRAFT')
+    ->status('Draft')
     ->get();
 
 $payRunId = $payRuns->first()?->getPayRunID();
 ```
 
-```php
-$payRun = $xero->payroll()
-    ->uk()
-    ->payRuns()
-    ->create()
-    ->payrollCalendar('calendar-id')
-    ->save();
-```
+UK pay runs are read-only in this API. The SDK supports listing and finding pay
+runs, but does not expose pay-run creation.
 
 ```php
 $payslips = $xero->payroll()
     ->uk()
     ->payRuns()
     ->payslips('payrun-id')
-    ->get();
+    ->get(page: 2);
 
 $totalPay = $payslips->first()?->getTotalPay();
+$earnings = $payslips->first()?->getEarningsLines();
 ```
 
 ## Timesheets
@@ -135,7 +142,11 @@ $totalPay = $payslips->first()?->getTotalPay();
 $timesheets = $xero->payroll()
     ->uk()
     ->timesheets()
-    ->status('DRAFT')
+    ->status('Draft')
+    ->filter('employeeId==employee-id')
+    ->startDate('2026-03-01')
+    ->endDate('2026-03-31')
+    ->sort('startDate')
     ->get();
 
 $timesheetStatus = $timesheets->first()?->getStatus();
@@ -149,7 +160,7 @@ $timesheet = $xero->payroll()
     ->employee('employee-id')
     ->startDate('2026-03-23')
     ->endDate('2026-03-29')
-    ->status('DRAFT')
+    ->status('Draft')
     ->save();
 ```
 
@@ -167,6 +178,7 @@ $settings = $xero->payroll()
     ->get();
 
 $accounts = $settings->getAccounts();
+$accountName = $accounts[0]->getName() ?? null;
 ```
 
 ```php
@@ -182,7 +194,7 @@ $timesheetCategoryId = $trackingCategories['timesheetTrackingCategoryID'] ?? nul
 $summary = $xero->payroll()
     ->uk()
     ->settings()
-    ->statutoryLeaveSummary('employee-id');
+    ->statutoryLeaveSummary('employee-id', activeOnly: true);
 
 $employeeId = $summary->first()?->getEmployeeID();
 ```
@@ -204,4 +216,5 @@ $reimbursementId = $reimbursement->getReimbursementID();
 - `payroll.employees.read` / `payroll.employees`: employees and leave balances
 - `payroll.settings.read` / `payroll.settings`: pay run calendars, settings
 - `payroll.payruns.read` / `payroll.payruns`: pay runs
+- `payroll.payslip.read` / `payroll.payslip`: payslips
 - `payroll.timesheets.read` / `payroll.timesheets`: timesheets
