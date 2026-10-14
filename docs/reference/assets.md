@@ -89,18 +89,18 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(\Sujip\Xero\Client $client)`](../../src/Assets/Asset/Assets.php#L30)
-- [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Assets/Asset/Assets.php#L35)
-- [`status(string $status): Sujip\Xero\Assets\Asset\Assets`](../../src/Assets/Asset/Assets.php#L43)
-- [`page(int $page): Sujip\Xero\Assets\Asset\Assets`](../../src/Assets/Asset/Assets.php#L51)
-- [`perPage(int $pageSize): Sujip\Xero\Assets\Asset\Assets`](../../src/Assets/Asset/Assets.php#L59)
-- [`orderBy(string $field, string $direction = 'ASC'): Sujip\Xero\Assets\Asset\Assets`](../../src/Assets/Asset/Assets.php#L67)
-- [`filterBy(string $value): Sujip\Xero\Assets\Asset\Assets`](../../src/Assets/Asset/Assets.php#L76)
-- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Assets/Asset/Assets.php#L87)
-- [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Assets/Asset/Assets.php#L103)
-- [`find(string $assetId): Sujip\Xero\Assets\Asset\Asset`](../../src/Assets/Asset/Assets.php#L123)
-- [`create(): Sujip\Xero\Assets\Asset\Payload`](../../src/Assets/Asset/Assets.php#L132)
-- [`mapAsset(array $asset): Sujip\Xero\Assets\Asset\Asset`](../../src/Assets/Asset/Assets.php#L174)
+- [`__construct(\Sujip\Xero\Client $client)`](../../src/Assets/Asset/Assets.php#L31)
+- [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Assets/Asset/Assets.php#L36)
+- [`status(string $status): Sujip\Xero\Assets\Asset\Assets`](../../src/Assets/Asset/Assets.php#L44)
+- [`page(int $page): Sujip\Xero\Assets\Asset\Assets`](../../src/Assets/Asset/Assets.php#L52)
+- [`perPage(int $pageSize): Sujip\Xero\Assets\Asset\Assets`](../../src/Assets/Asset/Assets.php#L60)
+- [`orderBy(string $field, string $direction = 'ASC'): Sujip\Xero\Assets\Asset\Assets`](../../src/Assets/Asset/Assets.php#L68)
+- [`filterBy(string $value): Sujip\Xero\Assets\Asset\Assets`](../../src/Assets/Asset/Assets.php#L77)
+- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Assets/Asset/Assets.php#L88)
+- [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Assets/Asset/Assets.php#L108)
+- [`find(string $assetId): Sujip\Xero\Assets\Asset\Asset`](../../src/Assets/Asset/Assets.php#L128)
+- [`create(): Sujip\Xero\Assets\Asset\Payload`](../../src/Assets/Asset/Assets.php#L137)
+- [`mapAsset(array $asset): Sujip\Xero\Assets\Asset\Asset`](../../src/Assets/Asset/Assets.php#L179)
 
 ## Assets\Asset\BookDepreciationDetail
 

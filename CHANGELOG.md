@@ -2,6 +2,29 @@
 
 All notable changes to this package are documented here.
 
+## Unreleased
+
+### Added
+
+- Added create and update support for Accounting receipts.
+- Added delete support for accounts, items, tracking categories, payments, and batch payments.
+- Added lookup by contact number and typed Accounting report rows, cells, fields, and attributes.
+- Added the missing Accounting attachment metadata and update calls.
+- Added the remaining AU, NZ, and UK payroll request fields from the Xero schemas.
+- Added typed UK payslip line items, payslip paging, timesheet filters, leave type lookup, and settings accounts.
+
+### Fixed
+
+- Corrected Accounting create and update HTTP methods, endpoint paths, request bodies, response shapes, and field names.
+- Corrected AU, NZ, and UK payroll request fields and response models.
+- Made an asset status mandatory when listing assets, as required by Xero.
+
+### Removed
+
+- Removed the retired Accounting Employees API.
+- Removed payment updates and UK pay-run creation because Xero does not provide those operations.
+- Removed fields that are not present in the Xero schemas from Accounting currencies, invoice reminders, and AU leave applications.
+
 ## 4.0.0 (2026-09-16)
 
 Add invoice rounding fields and writable totals, credit note delivery flags,

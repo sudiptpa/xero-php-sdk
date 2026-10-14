@@ -55,6 +55,8 @@ $salaryAndWage = $employee->salaryAndWage('salary-id');
 $employment = $employee->createEmployment()
     ->startDate('2026-04-01')
     ->payrollCalendar('calendar-id')
+    ->engagementType('Permanent')
+    ->fixedTermEndDate('2026-10-01')
     ->save();
 
 $leave = $employee->createLeave()
@@ -90,12 +92,19 @@ $leaveSetup = $employee->leaveSetup()
     ->includeHolidayPay(true)
     ->holidayPayOpeningBalance(10)
     ->annualLeaveOpeningBalance(100)
+    ->negativeAnnualLeaveBalancePaidAmount(0)
+    ->sickLeaveToAccrueAnnually(5)
+    ->sickLeaveMaximumToAccrue(20)
+    ->sickLeaveOpeningBalance(5)
     ->sickLeaveScheduleOfAccrual('OnAnniversaryDate')
+    ->sickLeaveAnniversaryDate('2026-04-01')
+    ->annualLeaveAnniversaryDate('2026-04-01')
     ->save();
 
 $openingBalances = $employee->openingBalances()
     ->periodEndDate('2026-03-31')
     ->daysPaid(5)
+    ->unpaidWeeks(1)
     ->grossEarnings(1730.77)
     ->save();
 ```
@@ -151,7 +160,7 @@ $calendar = $xero->payroll()
 $payRuns = $xero->payroll()
     ->nz()
     ->payRuns()
-    ->status('DRAFT')
+    ->status('Draft')
     ->get();
 
 $payRunId = $payRuns->first()?->getPayRunID();
@@ -173,7 +182,7 @@ $payRun = $xero->payroll()
 $timesheets = $xero->payroll()
     ->nz()
     ->timesheets()
-    ->status('DRAFT')
+    ->status('Draft')
     ->get();
 
 $timesheetId = $timesheets->first()?->getTimesheetID();
@@ -187,7 +196,7 @@ $timesheet = $xero->payroll()
     ->employee('employee-id')
     ->startDate('2026-03-23')
     ->endDate('2026-03-29')
-    ->status('DRAFT')
+    ->status('Draft')
     ->save();
 ```
 

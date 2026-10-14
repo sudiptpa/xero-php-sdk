@@ -11,7 +11,7 @@ source declares them. Parent links cover inherited methods.
 
 | Area | Types | Model fields | Public methods |
 | --- | ---: | ---: | ---: |
-| [Accounting](accounting.md) | 144 | 678 | 2278 |
+| [Accounting](accounting.md) | 145 | 682 | 2285 |
 | [App Store](appstore.md) | 9 | 36 | 99 |
 | [Assets](assets.md) | 10 | 51 | 158 |
 | [Auth](auth.md) | 8 | 0 | 45 |
@@ -24,20 +24,20 @@ source declares them. Parent links cover inherited methods.
 | [HTTP](http.md) | 7 | 0 | 25 |
 | [Identity](identity.md) | 3 | 7 | 23 |
 | [Payroll](payroll.md) | 2 | 0 | 5 |
-| [Payroll AU](payroll-au.md) | 31 | 173 | 525 |
-| [Payroll NZ](payroll-nz.md) | 38 | 153 | 558 |
-| [Payroll UK](payroll-uk.md) | 41 | 201 | 628 |
+| [Payroll AU](payroll-au.md) | 31 | 172 | 530 |
+| [Payroll NZ](payroll-nz.md) | 38 | 155 | 587 |
+| [Payroll UK](payroll-uk.md) | 51 | 253 | 746 |
 | [Projects](projects.md) | 14 | 51 | 228 |
 | [Support](support.md) | 10 | 16 | 60 |
 | [Webhooks](webhooks.md) | 4 | 11 | 63 |
-| Total | 398 | 1615 | 5353 |
+| Total | 409 | 1672 | 5512 |
 
 Counts cover declarations in this release. Constructors and public methods
 declared on each type are included. Inherited methods are listed on the declaring type.
 
 ## API specs
 
-The September 2026 update uses [Xero OpenAPI 19.0.0](https://github.com/XeroAPI/Xero-OpenAPI/tree/448060d7829cae23166a2e443be48c2f2422280f).
+This reference uses [Xero OpenAPI 19.0.0](https://github.com/XeroAPI/Xero-OpenAPI/tree/448060d7829cae23166a2e443be48c2f2422280f).
 Field spelling, required request values, enums, and endpoint-specific rules come
 from those specs. Not every schema property is writable. Setting a model field
 does not guarantee that a write request sends it.
