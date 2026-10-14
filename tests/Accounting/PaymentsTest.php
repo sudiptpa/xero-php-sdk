@@ -138,14 +138,14 @@ final class PaymentsTest extends TestCase
         self::assertSame(150.0, $payment->getAmount());
     }
 
-    public function test_it_can_update_a_payment(): void
+    public function test_it_can_delete_a_payment(): void
     {
         $transport = (new FakeTransport())->push(
             new Response(200, body: json_encode([
                 'Payments' => [[
                     'PaymentID' => 'payment-1',
                     'Amount' => 150,
-                    'Date' => '2026-03-25',
+                    'Status' => 'DELETED',
                 ]],
             ], JSON_THROW_ON_ERROR))
         );
@@ -154,14 +154,16 @@ final class PaymentsTest extends TestCase
             ->tenant('tenant-123')
             ->accounting()
             ->payments()
-            ->update('payment-1')
-            ->reference('PAY-1002')
-            ->save();
+            ->delete('payment-1');
 
         $request = $transport->requests()[0];
 
+        self::assertSame('POST', $request->method);
         self::assertSame('/api.xro/2.0/Payments/payment-1', $request->path);
-        self::assertSame(150.0, $payment->getAmount());
+        $json = $request->json ?? [];
+        $sent = Json::extractFirst($json, 'Payments');
+        self::assertSame(['Status' => 'DELETED'], $sent);
+        self::assertSame('DELETED', $payment->getStatus());
     }
 
     public function test_invoice_reference_hydrates_the_invoice_id(): void
@@ -216,7 +218,6 @@ final class PaymentsTest extends TestCase
             ->accounting()
             ->payments()
             ->create()
-            ->setPaymentID('payment-1')
             ->invoice('invoice-1')
             ->account('account-1')
             ->date('2026-03-25')
@@ -225,7 +226,7 @@ final class PaymentsTest extends TestCase
             ->save();
 
         $request = $transport->requests()[0];
-        self::assertSame('/api.xro/2.0/Payments/payment-1', $request->path);
+        self::assertSame('/api.xro/2.0/Payments', $request->path);
         $json = $request->json ?? [];
         $pay = Json::extractFirst($json, 'Payments');
         self::assertNotNull($pay);
@@ -328,14 +329,10 @@ final class PaymentsTest extends TestCase
         self::assertSame('account-9', $payment->getAccountID());
     }
 
-    public function test_loaded_payment_can_be_changed_and_saved(): void
+    public function test_saving_a_loaded_payment_throws(): void
     {
-        $transport = new FakeTransport();
-        $transport->push(new Response(200, body: json_encode([
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
             'Payments' => [['PaymentID' => 'payment-1', 'Amount' => 150]],
-        ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'Payments' => [['PaymentID' => 'payment-1', 'Amount' => 200]],
         ], JSON_THROW_ON_ERROR)));
 
         $payment = Xero::withAccessToken('token', $transport)
@@ -344,10 +341,9 @@ final class PaymentsTest extends TestCase
             ->payments()
             ->find('payment-1');
 
-        $saved = $payment?->amount(200)->save();
+        $this->expectException(\RuntimeException::class);
 
-        self::assertSame('/api.xro/2.0/Payments/payment-1', $transport->requests()[1]->path);
-        self::assertSame(200.0, $saved?->getAmount());
+        $payment?->amount(200)->save();
     }
 
     public function test_saving_without_a_client_throws(): void

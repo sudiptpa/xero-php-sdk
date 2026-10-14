@@ -103,9 +103,17 @@ final class Payments implements PaginatesResults, DefinesScopes
         return new Payload($this->client);
     }
 
-    public function update(string $paymentId): Payload
+    public function delete(string $paymentId): Payment
     {
-        return (new Payload($this->client))->id($paymentId);
+        $response = $this->client
+            ->post('/api.xro/2.0/Payments/' . $paymentId)
+            ->withJson(['Payments' => [['Status' => 'DELETED']]])
+            ->send();
+
+        $payload = $response->json();
+        $payment = Json::extractFirst($payload, 'Payments') ?? [];
+
+        return $this->mapPayment($payment);
     }
 
     public function history(string $paymentId): History
