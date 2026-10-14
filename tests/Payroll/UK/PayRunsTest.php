@@ -222,17 +222,76 @@ final class PayRunsTest extends TestCase
             'totalBenefits' => 5.0,
             'bacsHash' => 'hash-1',
             'paymentMethod' => 'Electronically',
-            'earningsLines' => [['earningsRateID' => 'rate-1']],
-            'leaveEarningsLines' => [['leaveTypeID' => 'leave-1']],
-            'timesheetEarningsLines' => [['timesheetEarningsID' => 'timesheet-1']],
-            'deductionLines' => [['deductionTypeID' => 'deduction-1']],
-            'reimbursementLines' => [['reimbursementTypeID' => 'reimbursement-1']],
-            'leaveAccrualLines' => [['leaveTypeID' => 'leave-2']],
-            'benefitLines' => [['benefitTypeID' => 'benefit-1']],
-            'paymentLines' => [['employeePaymentMethodID' => 'payment-1']],
-            'employeeTaxLines' => [['taxTypeID' => 'tax-1']],
-            'employerTaxLines' => [['taxTypeID' => 'tax-2']],
-            'courtOrderLines' => [['courtOrderTypeID' => 'court-1']],
+            'earningsLines' => [[
+                'earningsLineID' => 'earnings-line-1',
+                'earningsRateID' => 'rate-1',
+                'displayName' => 'Regular Hours',
+                'ratePerUnit' => 12.5,
+                'numberOfUnits' => 8.0,
+                'fixedAmount' => 0.0,
+                'amount' => 100.0,
+                'isLinkedToTimesheet' => false,
+                'isAverageDailyPayRate' => false,
+            ]],
+            'leaveEarningsLines' => [[
+                'earningsRateID' => 'leave-rate-1',
+                'ratePerUnit' => 12.5,
+                'numberOfUnits' => 4.0,
+                'fixedAmount' => 0.0,
+                'amount' => 50.0,
+                'isLinkedToTimesheet' => false,
+            ]],
+            'timesheetEarningsLines' => [[
+                'earningsRateID' => 'timesheet-rate-1',
+                'ratePerUnit' => 12.5,
+                'numberOfUnits' => 2.0,
+                'fixedAmount' => 0.0,
+                'amount' => 25.0,
+                'isLinkedToTimesheet' => true,
+            ]],
+            'deductionLines' => [[
+                'deductionTypeID' => 'deduction-1',
+                'amount' => 10.0,
+                'subjectToTax' => true,
+                'percentage' => 5.0,
+            ]],
+            'reimbursementLines' => [[
+                'reimbursementTypeID' => 'reimbursement-1',
+                'description' => 'Travel expenses',
+                'amount' => 20.0,
+            ]],
+            'leaveAccrualLines' => [['leaveTypeID' => 'leave-2', 'numberOfUnits' => 8.0]],
+            'benefitLines' => [[
+                'benefitTypeID' => 'benefit-1',
+                'displayName' => 'Company Car',
+                'amount' => 5.0,
+                'fixedAmount' => 5.0,
+                'percentage' => 0.0,
+            ]],
+            'paymentLines' => [[
+                'paymentLineID' => 'payment-1',
+                'amount' => 1200.55,
+                'accountNumber' => '12345678',
+                'sortCode' => '111111',
+                'accountName' => 'Ada Lovelace',
+            ]],
+            'employeeTaxLines' => [[
+                'taxLineID' => 'tax-1',
+                'description' => 'Income Tax',
+                'isEmployerTax' => false,
+                'amount' => 110.0,
+                'globalTaxTypeID' => 'global-tax-1',
+                'manualAdjustment' => false,
+            ]],
+            'employerTaxLines' => [[
+                'taxLineID' => 'tax-2',
+                'description' => 'Employer NIC',
+                'isEmployerTax' => true,
+                'amount' => 90.0,
+                'globalTaxTypeID' => 'global-tax-2',
+                'manualAdjustment' => true,
+            ]],
+            'courtOrderLines' => [['courtOrderTypeID' => 'court-1', 'amount' => 10.0]],
         ]);
 
         self::assertSame('payslip-1', $payslip->getPayslipID());
@@ -252,16 +311,78 @@ final class PayRunsTest extends TestCase
         self::assertSame(5.0, $payslip->getTotalBenefits());
         self::assertSame('hash-1', $payslip->getBacsHash());
         self::assertSame('Electronically', $payslip->getPaymentMethod());
-        self::assertSame([['earningsRateID' => 'rate-1']], $payslip->getEarningsLines());
-        self::assertSame([['leaveTypeID' => 'leave-1']], $payslip->getLeaveEarningsLines());
-        self::assertSame([['timesheetEarningsID' => 'timesheet-1']], $payslip->getTimesheetEarningsLines());
-        self::assertSame([['deductionTypeID' => 'deduction-1']], $payslip->getDeductionLines());
-        self::assertSame([['reimbursementTypeID' => 'reimbursement-1']], $payslip->getReimbursementLines());
-        self::assertSame([['leaveTypeID' => 'leave-2']], $payslip->getLeaveAccrualLines());
-        self::assertSame([['benefitTypeID' => 'benefit-1']], $payslip->getBenefitLines());
-        self::assertSame([['employeePaymentMethodID' => 'payment-1']], $payslip->getPaymentLines());
-        self::assertSame([['taxTypeID' => 'tax-1']], $payslip->getEmployeeTaxLines());
-        self::assertSame([['taxTypeID' => 'tax-2']], $payslip->getEmployerTaxLines());
-        self::assertSame([['courtOrderTypeID' => 'court-1']], $payslip->getCourtOrderLines());
+        $earningsLine = $payslip->getEarningsLines()[0];
+        self::assertSame('earnings-line-1', $earningsLine->getEarningsLineID());
+        self::assertSame('rate-1', $earningsLine->getEarningsRateID());
+        self::assertSame('Regular Hours', $earningsLine->getDisplayName());
+        self::assertSame(12.5, $earningsLine->getRatePerUnit());
+        self::assertSame(8.0, $earningsLine->getNumberOfUnits());
+        self::assertSame(0.0, $earningsLine->getFixedAmount());
+        self::assertSame(100.0, $earningsLine->getAmount());
+        self::assertFalse($earningsLine->getIsLinkedToTimesheet());
+        self::assertFalse($earningsLine->getIsAverageDailyPayRate());
+
+        $leaveEarningsLine = $payslip->getLeaveEarningsLines()[0];
+        self::assertSame('leave-rate-1', $leaveEarningsLine->getEarningsRateID());
+        self::assertSame(12.5, $leaveEarningsLine->getRatePerUnit());
+        self::assertSame(4.0, $leaveEarningsLine->getNumberOfUnits());
+        self::assertSame(0.0, $leaveEarningsLine->getFixedAmount());
+        self::assertSame(50.0, $leaveEarningsLine->getAmount());
+        self::assertFalse($leaveEarningsLine->getIsLinkedToTimesheet());
+
+        $timesheetEarningsLine = $payslip->getTimesheetEarningsLines()[0];
+        self::assertSame('timesheet-rate-1', $timesheetEarningsLine->getEarningsRateID());
+        self::assertSame(12.5, $timesheetEarningsLine->getRatePerUnit());
+        self::assertSame(2.0, $timesheetEarningsLine->getNumberOfUnits());
+        self::assertSame(0.0, $timesheetEarningsLine->getFixedAmount());
+        self::assertSame(25.0, $timesheetEarningsLine->getAmount());
+        self::assertTrue($timesheetEarningsLine->getIsLinkedToTimesheet());
+
+        $deductionLine = $payslip->getDeductionLines()[0];
+        self::assertSame('deduction-1', $deductionLine->getDeductionTypeID());
+        self::assertSame(10.0, $deductionLine->getAmount());
+        self::assertTrue($deductionLine->getSubjectToTax());
+        self::assertSame(5.0, $deductionLine->getPercentage());
+
+        $reimbursementLine = $payslip->getReimbursementLines()[0];
+        self::assertSame('reimbursement-1', $reimbursementLine->getReimbursementTypeID());
+        self::assertSame('Travel expenses', $reimbursementLine->getDescription());
+        self::assertSame(20.0, $reimbursementLine->getAmount());
+
+        self::assertSame('leave-2', $payslip->getLeaveAccrualLines()[0]->getLeaveTypeID());
+        self::assertSame(8.0, $payslip->getLeaveAccrualLines()[0]->getNumberOfUnits());
+
+        $benefitLine = $payslip->getBenefitLines()[0];
+        self::assertSame('benefit-1', $benefitLine->getBenefitTypeID());
+        self::assertSame('Company Car', $benefitLine->getDisplayName());
+        self::assertSame(5.0, $benefitLine->getAmount());
+        self::assertSame(5.0, $benefitLine->getFixedAmount());
+        self::assertSame(0.0, $benefitLine->getPercentage());
+
+        $paymentLine = $payslip->getPaymentLines()[0];
+        self::assertSame('payment-1', $paymentLine->getPaymentLineID());
+        self::assertSame(1200.55, $paymentLine->getAmount());
+        self::assertSame('12345678', $paymentLine->getAccountNumber());
+        self::assertSame('111111', $paymentLine->getSortCode());
+        self::assertSame('Ada Lovelace', $paymentLine->getAccountName());
+
+        $employeeTaxLine = $payslip->getEmployeeTaxLines()[0];
+        self::assertSame('tax-1', $employeeTaxLine->getTaxLineID());
+        self::assertSame('Income Tax', $employeeTaxLine->getDescription());
+        self::assertFalse($employeeTaxLine->getIsEmployerTax());
+        self::assertSame(110.0, $employeeTaxLine->getAmount());
+        self::assertSame('global-tax-1', $employeeTaxLine->getGlobalTaxTypeID());
+        self::assertFalse($employeeTaxLine->getManualAdjustment());
+
+        $employerTaxLine = $payslip->getEmployerTaxLines()[0];
+        self::assertSame('tax-2', $employerTaxLine->getTaxLineID());
+        self::assertSame('Employer NIC', $employerTaxLine->getDescription());
+        self::assertTrue($employerTaxLine->getIsEmployerTax());
+        self::assertSame(90.0, $employerTaxLine->getAmount());
+        self::assertSame('global-tax-2', $employerTaxLine->getGlobalTaxTypeID());
+        self::assertTrue($employerTaxLine->getManualAdjustment());
+
+        self::assertSame('court-1', $payslip->getCourtOrderLines()[0]->getCourtOrderTypeID());
+        self::assertSame(10.0, $payslip->getCourtOrderLines()[0]->getAmount());
     }
 }
