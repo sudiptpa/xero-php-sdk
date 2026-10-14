@@ -151,6 +151,10 @@ final class EmployeesTest extends TestCase
             ->leaveType('leave-type-2')
             ->scheduleOfAccrual('OnAnniversaryDate')
             ->openingBalance(12.5)
+            ->hoursAccruedAnnually(40.0)
+            ->maximumToAccrue(80.0)
+            ->rateAccruedHourly(0.5)
+            ->scheduleOfAccrualDate('2026-04-01')
             ->save();
 
         self::assertSame('/payroll.xro/2.0/Employees', $transport->requests()[0]->path);

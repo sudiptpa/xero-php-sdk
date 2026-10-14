@@ -45,6 +45,38 @@ final class LeaveTypePayload
         return $clone;
     }
 
+    public function hoursAccruedAnnually(float $hoursAccruedAnnually): self
+    {
+        $clone = clone $this;
+        $clone->payload['hoursAccruedAnnually'] = $hoursAccruedAnnually;
+
+        return $clone;
+    }
+
+    public function maximumToAccrue(float $maximumToAccrue): self
+    {
+        $clone = clone $this;
+        $clone->payload['maximumToAccrue'] = $maximumToAccrue;
+
+        return $clone;
+    }
+
+    public function rateAccruedHourly(float $rateAccruedHourly): self
+    {
+        $clone = clone $this;
+        $clone->payload['rateAccruedHourly'] = $rateAccruedHourly;
+
+        return $clone;
+    }
+
+    public function scheduleOfAccrualDate(string $scheduleOfAccrualDate): self
+    {
+        $clone = clone $this;
+        $clone->payload['scheduleOfAccrualDate'] = $scheduleOfAccrualDate;
+
+        return $clone;
+    }
+
     public function idempotencyKey(string $key): self
     {
         $clone = clone $this;
