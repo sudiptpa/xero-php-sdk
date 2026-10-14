@@ -43,6 +43,38 @@ final class Timesheets implements PaginatesResults, DefinesScopes
         return $clone;
     }
 
+    public function filter(string $filter): self
+    {
+        $clone = clone $this;
+        $clone->query['filter'] = $filter;
+
+        return $clone;
+    }
+
+    public function startDate(string $startDate): self
+    {
+        $clone = clone $this;
+        $clone->query['startDate'] = $startDate;
+
+        return $clone;
+    }
+
+    public function endDate(string $endDate): self
+    {
+        $clone = clone $this;
+        $clone->query['endDate'] = $endDate;
+
+        return $clone;
+    }
+
+    public function sort(string $sort): self
+    {
+        $clone = clone $this;
+        $clone->query['sort'] = $sort;
+
+        return $clone;
+    }
+
     /**
      * @return ResourceCollection<Timesheet>
      */

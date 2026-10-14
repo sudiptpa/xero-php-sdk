@@ -93,6 +93,28 @@ final class TimesheetsTest extends TestCase
         self::assertTrue($deleted);
     }
 
+    public function test_it_can_filter_timesheets_by_filter_date_range_and_sort(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode(['timesheets' => []], JSON_THROW_ON_ERROR)));
+
+        Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->timesheets()
+            ->filter('employeeId==employee-1')
+            ->startDate('2026-01-01')
+            ->endDate('2026-01-31')
+            ->sort('startDate')
+            ->get();
+
+        $query = $transport->requests()[0]->query;
+        self::assertSame('employeeId==employee-1', $query['filter']);
+        self::assertSame('2026-01-01', $query['startDate']);
+        self::assertSame('2026-01-31', $query['endDate']);
+        self::assertSame('startDate', $query['sort']);
+    }
+
     public function test_it_exposes_scopes(): void
     {
         $scopes = Xero::withAccessToken('token', new FakeTransport())
