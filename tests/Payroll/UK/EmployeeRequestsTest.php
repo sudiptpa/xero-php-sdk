@@ -41,6 +41,19 @@ final class EmployeeRequestsTest extends TestCase
         self::assertSame(['status' => 'ok'], $result);
     }
 
+    public function test_it_sends_leave_periods_requests_without_date_filters(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{"status":"ok"}'));
+        $employees = Xero::withAccessToken('token', $transport)->tenant('tenant-1')->payroll()->uk()->employees();
+        $result = $employees->leavePeriods('employee-1');
+
+        $request = $transport->requests()[0];
+        self::assertSame('GET', $request->method);
+        self::assertSame('/payroll.xro/2.0/Employees/employee-1/LeavePeriods', $request->path);
+        self::assertSame([], $request->query);
+        self::assertSame(['status' => 'ok'], $result);
+    }
+
     public function test_it_sends_salary_list_requests(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: '{"status":"ok"}'));
