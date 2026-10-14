@@ -187,12 +187,19 @@ final class EmployeesTest extends TestCase
             ->includeHolidayPay(true)
             ->holidayPayOpeningBalance(10.0)
             ->annualLeaveOpeningBalance(100.0)
+            ->negativeAnnualLeaveBalancePaidAmount(0.0)
+            ->sickLeaveToAccrueAnnually(5.0)
+            ->sickLeaveMaximumToAccrue(20.0)
+            ->sickLeaveOpeningBalance(5.0)
             ->sickLeaveScheduleOfAccrual('OnAnniversaryDate')
+            ->sickLeaveAnniversaryDate('2026-04-01')
+            ->annualLeaveAnniversaryDate('2026-04-01')
             ->idempotencyKey('leave-setup-key')
             ->save();
         $openingBalances = $employee?->openingBalances()
             ->periodEndDate('2026-03-31')
             ->daysPaid(5)
+            ->unpaidWeeks(1)
             ->grossEarnings(1730.77)
             ->idempotencyKey('opening-balances-key')
             ->save();
@@ -202,6 +209,7 @@ final class EmployeesTest extends TestCase
             ->startDate('2026-04-01')
             ->payrollCalendar('calendar-1')
             ->engagementType('Permanent')
+            ->fixedTermEndDate('2026-10-01')
             ->idempotencyKey('employment-key')
             ->save();
         $createdLeave = $employee?->createLeave()
@@ -220,6 +228,8 @@ final class EmployeesTest extends TestCase
             ->earningsRate('earning-rate-1')
             ->numberOfUnitsPerWeek(40.0)
             ->numberOfUnitsPerDay(8.0)
+            ->ratePerUnit(45.0)
+            ->daysPerWeek(5.0)
             ->effectiveFrom('2026-04-01')
             ->annualSalary(85000.0)
             ->status('Active')
@@ -275,6 +285,7 @@ final class EmployeesTest extends TestCase
             'startDate' => '2026-04-01',
             'payrollCalendarID' => 'calendar-1',
             'engagementType' => 'Permanent',
+            'fixedTermEndDate' => '2026-10-01',
         ], $transport->requests()[17]->json);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/Leave', $transport->requests()[18]->path);
         self::assertSame('/payroll.xro/2.0/Employees/employee-1/PaymentMethods', $transport->requests()[19]->path);

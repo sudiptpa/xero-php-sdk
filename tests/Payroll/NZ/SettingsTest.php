@@ -154,6 +154,20 @@ final class SettingsTest extends TestCase
         self::assertSame([], $settings->getAccounts());
     }
 
+    public function test_update_returns_blank_settings_when_response_has_no_settings_object(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $settings = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->nz()
+            ->settings()
+            ->update([]);
+
+        self::assertSame([], $settings->getAccounts());
+    }
+
     public function test_payroll_settings_expose_all_fields(): void
     {
         $settings = (new PayrollSettings())->fill([

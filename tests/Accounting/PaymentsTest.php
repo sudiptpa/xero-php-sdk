@@ -346,6 +346,24 @@ final class PaymentsTest extends TestCase
         $payment?->amount(200)->save();
     }
 
+    public function test_a_new_payment_can_save_itself(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'Payments' => [['PaymentID' => 'payment-1', 'Amount' => 150]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $payment = (new Payment($client))
+            ->setInvoiceID('invoice-1')
+            ->setAccount((new Account())->setAccountID('account-1'))
+            ->setDate('2026-03-25')
+            ->setAmount(150)
+            ->save();
+
+        self::assertSame('payment-1', $payment->getPaymentID());
+    }
+
     public function test_saving_without_a_client_throws(): void
     {
         $this->expectException(\RuntimeException::class);
