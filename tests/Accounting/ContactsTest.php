@@ -271,6 +271,30 @@ final class ContactsTest extends TestCase
         self::assertSame('something went wrong', $validationErrors[0]->getMessage());
     }
 
+    public function test_it_can_find_a_contact_by_contact_number(): void
+    {
+        $transport = (new FakeTransport())->push(
+            new Response(200, body: json_encode([
+                'Contacts' => [[
+                    'ContactID' => 'contact-1',
+                    'ContactNumber' => 'CUST-001',
+                    'Name' => 'Acme Pty Ltd',
+                ]],
+            ], JSON_THROW_ON_ERROR))
+        );
+
+        $contact = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->contacts()
+            ->findByContactNumber('CUST-001');
+
+        self::assertSame('/api.xro/2.0/Contacts/CUST-001', $transport->requests()[0]->path);
+        self::assertNotNull($contact);
+        self::assertSame('contact-1', $contact->getContactID());
+        self::assertSame('CUST-001', $contact->getContactNumber());
+    }
+
     public function test_it_can_create_a_contact(): void
     {
         $transport = (new FakeTransport())->push(
@@ -294,7 +318,7 @@ final class ContactsTest extends TestCase
 
         $request = $transport->requests()[0];
 
-        self::assertSame('POST', $request->method);
+        self::assertSame('PUT', $request->method);
         self::assertSame('/api.xro/2.0/Contacts', $request->path);
         $json = $request->json ?? [];
         $firstContact = Json::extractFirst($json, 'Contacts');
@@ -380,6 +404,7 @@ final class ContactsTest extends TestCase
 
         $request = $transport->requests()[0];
 
+        self::assertSame('POST', $request->method);
         self::assertSame('/api.xro/2.0/Contacts/contact-1', $request->path);
         self::assertSame('Acme Holdings Pty Ltd', $contact->getName());
     }

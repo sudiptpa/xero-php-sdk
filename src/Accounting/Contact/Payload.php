@@ -97,14 +97,13 @@ final class Payload
 
     public function save(): Contact
     {
-        $path = '/api.xro/2.0/Contacts';
+        $contactId = $this->contact->getContactID();
 
-        if ($this->contact->getContactID() !== null) {
-            $path .= '/' . $this->contact->getContactID();
-        }
+        $request = $contactId === null
+            ? $this->client->put('/api.xro/2.0/Contacts')
+            : $this->client->post('/api.xro/2.0/Contacts/' . $contactId);
 
-        $response = $this->client
-            ->post($path)
+        $response = $request
             ->withJson([
                 'Contacts' => [$this->contact->toRequest()],
             ])
