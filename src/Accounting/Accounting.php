@@ -14,7 +14,6 @@ use Sujip\Xero\Accounting\Contact\Contacts as ContactsResource;
 use Sujip\Xero\Accounting\ContactGroup\ContactGroups as ContactGroupsResource;
 use Sujip\Xero\Accounting\CreditNote\CreditNotes as CreditNotesResource;
 use Sujip\Xero\Accounting\Currency\Currencies as CurrenciesResource;
-use Sujip\Xero\Accounting\Employee\Employees as EmployeesResource;
 use Sujip\Xero\Accounting\ExpenseClaim\ExpenseClaims as ExpenseClaimsResource;
 use Sujip\Xero\Accounting\Invoice\Invoices as InvoicesResource;
 use Sujip\Xero\Accounting\InvoiceReminder\InvoiceReminders as InvoiceRemindersResource;
@@ -133,11 +132,6 @@ final readonly class Accounting
     public function contactGroups(): ContactGroupsResource
     {
         return new ContactGroupsResource($this->client);
-    }
-
-    public function employees(): EmployeesResource
-    {
-        return new EmployeesResource($this->client);
     }
 
     public function expenseClaims(): ExpenseClaimsResource

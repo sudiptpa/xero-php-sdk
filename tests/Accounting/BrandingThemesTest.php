@@ -105,5 +105,6 @@ final class BrandingThemesTest extends TestCase
 
         self::assertNotSame([], $scopes->broad);
         self::assertNotSame([], $scopes->granular);
+        self::assertContains('paymentservices', $scopes->broad);
     }
 }

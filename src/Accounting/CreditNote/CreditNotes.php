@@ -121,7 +121,7 @@ final class CreditNotes implements PaginatesResults, DefinesScopes
     public function pdf(string $creditNoteId): string
     {
         $response = $this->client
-            ->get('/api.xro/2.0/CreditNotes/' . $creditNoteId . '/pdf')
+            ->get('/api.xro/2.0/CreditNotes/' . $creditNoteId)
             ->withHeaders(['Accept' => 'application/pdf'])
             ->send();
 

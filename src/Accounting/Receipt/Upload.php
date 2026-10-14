@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\Receipt;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Http\PendingRequest;
 use Sujip\Xero\Support\Json;
 
 final class Upload
@@ -29,8 +30,22 @@ final class Upload
 
     public function save(): Attachment
     {
-        $response = $this->client
-            ->put('/api.xro/2.0/Receipts/' . $this->receiptId . '/Attachments/' . rawurlencode($this->fileName))
+        return $this->send($this->client->put($this->path()));
+    }
+
+    public function update(): Attachment
+    {
+        return $this->send($this->client->post($this->path()));
+    }
+
+    private function path(): string
+    {
+        return '/api.xro/2.0/Receipts/' . $this->receiptId . '/Attachments/' . rawurlencode($this->fileName);
+    }
+
+    private function send(PendingRequest $request): Attachment
+    {
+        $response = $request
             ->withHeaders($this->mimeType === null ? [] : ['Content-Type' => $this->mimeType])
             ->withBody($this->content)
             ->send();
@@ -41,7 +56,9 @@ final class Upload
         return new Attachment(
             is_string($attachment['AttachmentID'] ?? null) ? $attachment['AttachmentID'] : null,
             is_string($attachment['FileName'] ?? null) ? $attachment['FileName'] : null,
+            is_string($attachment['Url'] ?? null) ? $attachment['Url'] : null,
             is_string($attachment['MimeType'] ?? null) ? $attachment['MimeType'] : null,
+            is_int($attachment['ContentLength'] ?? null) ? $attachment['ContentLength'] : null,
             isset($attachment['IncludeOnline']) ? (bool) $attachment['IncludeOnline'] : null,
             $attachment
         );

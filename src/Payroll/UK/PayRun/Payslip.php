@@ -30,37 +30,37 @@ final class Payslip extends Model
     ) {
     }
 
-    /** @var list<array<string, mixed>> */
+    /** @var list<EarningsLine> */
     private array $earningsLines = [];
 
-    /** @var list<array<string, mixed>> */
+    /** @var list<LeaveEarningsLine> */
     private array $leaveEarningsLines = [];
 
-    /** @var list<array<string, mixed>> */
+    /** @var list<TimesheetEarningsLine> */
     private array $timesheetEarningsLines = [];
 
-    /** @var list<array<string, mixed>> */
+    /** @var list<DeductionLine> */
     private array $deductionLines = [];
 
-    /** @var list<array<string, mixed>> */
+    /** @var list<ReimbursementLine> */
     private array $reimbursementLines = [];
 
-    /** @var list<array<string, mixed>> */
+    /** @var list<LeaveAccrualLine> */
     private array $leaveAccrualLines = [];
 
-    /** @var list<array<string, mixed>> */
+    /** @var list<BenefitLine> */
     private array $benefitLines = [];
 
-    /** @var list<array<string, mixed>> */
+    /** @var list<PaymentLine> */
     private array $paymentLines = [];
 
-    /** @var list<array<string, mixed>> */
+    /** @var list<TaxLine> */
     private array $employeeTaxLines = [];
 
-    /** @var list<array<string, mixed>> */
+    /** @var list<TaxLine> */
     private array $employerTaxLines = [];
 
-    /** @var list<array<string, mixed>> */
+    /** @var list<CourtOrderLine> */
     private array $courtOrderLines = [];
 
     public function getPayslipID(): ?string
@@ -267,156 +267,145 @@ final class Payslip extends Model
         return $this;
     }
 
-    /** @return list<array<string, mixed>> */
+    /** @return list<EarningsLine> */
     public function getEarningsLines(): array
     {
         return $this->earningsLines;
     }
 
-    /** @param list<array<string, mixed>> $earningsLines */
-    public function setEarningsLines(array $earningsLines): self
+    public function addEarningsLine(EarningsLine $earningsLine): self
     {
-        $this->earningsLines = $earningsLines;
+        $this->earningsLines[] = $earningsLine;
 
         return $this;
     }
 
-    /** @return list<array<string, mixed>> */
+    /** @return list<LeaveEarningsLine> */
     public function getLeaveEarningsLines(): array
     {
         return $this->leaveEarningsLines;
     }
 
-    /** @param list<array<string, mixed>> $leaveEarningsLines */
-    public function setLeaveEarningsLines(array $leaveEarningsLines): self
+    public function addLeaveEarningsLine(LeaveEarningsLine $leaveEarningsLine): self
     {
-        $this->leaveEarningsLines = $leaveEarningsLines;
+        $this->leaveEarningsLines[] = $leaveEarningsLine;
 
         return $this;
     }
 
-    /** @return list<array<string, mixed>> */
+    /** @return list<TimesheetEarningsLine> */
     public function getTimesheetEarningsLines(): array
     {
         return $this->timesheetEarningsLines;
     }
 
-    /** @param list<array<string, mixed>> $timesheetEarningsLines */
-    public function setTimesheetEarningsLines(array $timesheetEarningsLines): self
+    public function addTimesheetEarningsLine(TimesheetEarningsLine $timesheetEarningsLine): self
     {
-        $this->timesheetEarningsLines = $timesheetEarningsLines;
+        $this->timesheetEarningsLines[] = $timesheetEarningsLine;
 
         return $this;
     }
 
-    /** @return list<array<string, mixed>> */
+    /** @return list<DeductionLine> */
     public function getDeductionLines(): array
     {
         return $this->deductionLines;
     }
 
-    /** @param list<array<string, mixed>> $deductionLines */
-    public function setDeductionLines(array $deductionLines): self
+    public function addDeductionLine(DeductionLine $deductionLine): self
     {
-        $this->deductionLines = $deductionLines;
+        $this->deductionLines[] = $deductionLine;
 
         return $this;
     }
 
-    /** @return list<array<string, mixed>> */
+    /** @return list<ReimbursementLine> */
     public function getReimbursementLines(): array
     {
         return $this->reimbursementLines;
     }
 
-    /** @param list<array<string, mixed>> $reimbursementLines */
-    public function setReimbursementLines(array $reimbursementLines): self
+    public function addReimbursementLine(ReimbursementLine $reimbursementLine): self
     {
-        $this->reimbursementLines = $reimbursementLines;
+        $this->reimbursementLines[] = $reimbursementLine;
 
         return $this;
     }
 
-    /** @return list<array<string, mixed>> */
+    /** @return list<LeaveAccrualLine> */
     public function getLeaveAccrualLines(): array
     {
         return $this->leaveAccrualLines;
     }
 
-    /** @param list<array<string, mixed>> $leaveAccrualLines */
-    public function setLeaveAccrualLines(array $leaveAccrualLines): self
+    public function addLeaveAccrualLine(LeaveAccrualLine $leaveAccrualLine): self
     {
-        $this->leaveAccrualLines = $leaveAccrualLines;
+        $this->leaveAccrualLines[] = $leaveAccrualLine;
 
         return $this;
     }
 
-    /** @return list<array<string, mixed>> */
+    /** @return list<BenefitLine> */
     public function getBenefitLines(): array
     {
         return $this->benefitLines;
     }
 
-    /** @param list<array<string, mixed>> $benefitLines */
-    public function setBenefitLines(array $benefitLines): self
+    public function addBenefitLine(BenefitLine $benefitLine): self
     {
-        $this->benefitLines = $benefitLines;
+        $this->benefitLines[] = $benefitLine;
 
         return $this;
     }
 
-    /** @return list<array<string, mixed>> */
+    /** @return list<PaymentLine> */
     public function getPaymentLines(): array
     {
         return $this->paymentLines;
     }
 
-    /** @param list<array<string, mixed>> $paymentLines */
-    public function setPaymentLines(array $paymentLines): self
+    public function addPaymentLine(PaymentLine $paymentLine): self
     {
-        $this->paymentLines = $paymentLines;
+        $this->paymentLines[] = $paymentLine;
 
         return $this;
     }
 
-    /** @return list<array<string, mixed>> */
+    /** @return list<TaxLine> */
     public function getEmployeeTaxLines(): array
     {
         return $this->employeeTaxLines;
     }
 
-    /** @param list<array<string, mixed>> $employeeTaxLines */
-    public function setEmployeeTaxLines(array $employeeTaxLines): self
+    public function addEmployeeTaxLine(TaxLine $employeeTaxLine): self
     {
-        $this->employeeTaxLines = $employeeTaxLines;
+        $this->employeeTaxLines[] = $employeeTaxLine;
 
         return $this;
     }
 
-    /** @return list<array<string, mixed>> */
+    /** @return list<TaxLine> */
     public function getEmployerTaxLines(): array
     {
         return $this->employerTaxLines;
     }
 
-    /** @param list<array<string, mixed>> $employerTaxLines */
-    public function setEmployerTaxLines(array $employerTaxLines): self
+    public function addEmployerTaxLine(TaxLine $employerTaxLine): self
     {
-        $this->employerTaxLines = $employerTaxLines;
+        $this->employerTaxLines[] = $employerTaxLine;
 
         return $this;
     }
 
-    /** @return list<array<string, mixed>> */
+    /** @return list<CourtOrderLine> */
     public function getCourtOrderLines(): array
     {
         return $this->courtOrderLines;
     }
 
-    /** @param list<array<string, mixed>> $courtOrderLines */
-    public function setCourtOrderLines(array $courtOrderLines): self
+    public function addCourtOrderLine(CourtOrderLine $courtOrderLine): self
     {
-        $this->courtOrderLines = $courtOrderLines;
+        $this->courtOrderLines[] = $courtOrderLine;
 
         return $this;
     }
@@ -444,17 +433,17 @@ final class Payslip extends Model
             'totalBenefits' => Field::number()->using('setTotalBenefits'),
             'bacsHash' => Field::string()->using('setBacsHash'),
             'paymentMethod' => Field::string()->using('setPaymentMethod'),
-            'earningsLines' => Field::array()->using('setEarningsLines'),
-            'leaveEarningsLines' => Field::array()->using('setLeaveEarningsLines'),
-            'timesheetEarningsLines' => Field::array()->using('setTimesheetEarningsLines'),
-            'deductionLines' => Field::array()->using('setDeductionLines'),
-            'reimbursementLines' => Field::array()->using('setReimbursementLines'),
-            'leaveAccrualLines' => Field::array()->using('setLeaveAccrualLines'),
-            'benefitLines' => Field::array()->using('setBenefitLines'),
-            'paymentLines' => Field::array()->using('setPaymentLines'),
-            'employeeTaxLines' => Field::array()->using('setEmployeeTaxLines'),
-            'employerTaxLines' => Field::array()->using('setEmployerTaxLines'),
-            'courtOrderLines' => Field::array()->using('setCourtOrderLines'),
+            'earningsLines' => Field::many(EarningsLine::class),
+            'leaveEarningsLines' => Field::many(LeaveEarningsLine::class),
+            'timesheetEarningsLines' => Field::many(TimesheetEarningsLine::class),
+            'deductionLines' => Field::many(DeductionLine::class),
+            'reimbursementLines' => Field::many(ReimbursementLine::class),
+            'leaveAccrualLines' => Field::many(LeaveAccrualLine::class),
+            'benefitLines' => Field::many(BenefitLine::class),
+            'paymentLines' => Field::many(PaymentLine::class),
+            'employeeTaxLines' => Field::many(TaxLine::class),
+            'employerTaxLines' => Field::many(TaxLine::class),
+            'courtOrderLines' => Field::many(CourtOrderLine::class),
         ];
     }
 }

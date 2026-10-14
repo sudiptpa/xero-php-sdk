@@ -406,11 +406,14 @@ final class Employees implements PaginatesResults, DefinesScopes
     /**
      * @return array<string, mixed>
      */
-    public function leavePeriods(string $employeeId, string $startDate, string $endDate): array
+    public function leavePeriods(string $employeeId, ?string $startDate = null, ?string $endDate = null): array
     {
         return $this->client
             ->get('/payroll.xro/2.0/Employees/' . $employeeId . '/LeavePeriods')
-            ->withQuery(['startDate' => $startDate, 'endDate' => $endDate])
+            ->withQuery(array_filter([
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ], static fn (mixed $value): bool => $value !== null))
             ->send()
             ->json();
     }

@@ -95,6 +95,47 @@ final class BatchPayments implements PaginatesResults, DefinesScopes
         return new Payload($this->client);
     }
 
+    public function delete(string $batchPaymentId): BatchPayment
+    {
+        $response = $this->client
+            ->post('/api.xro/2.0/BatchPayments/' . $batchPaymentId)
+            ->withJson(['Status' => 'DELETED'])
+            ->send();
+
+        $payload = $response->json();
+        $batchPayment = Json::extractFirst($payload, 'BatchPayments') ?? [];
+
+        return $this->mapBatchPayment($batchPayment);
+    }
+
+    /**
+     * @param list<string> $batchPaymentIds
+     * @return ResourceCollection<BatchPayment>
+     */
+    public function deleteMany(array $batchPaymentIds): ResourceCollection
+    {
+        $response = $this->client
+            ->post('/api.xro/2.0/BatchPayments')
+            ->withJson([
+                'BatchPayments' => array_map(
+                    static fn (string $batchPaymentId): array => [
+                        'BatchPaymentID' => $batchPaymentId,
+                        'Status' => 'DELETED',
+                    ],
+                    $batchPaymentIds
+                ),
+            ])
+            ->send();
+
+        $payload = $response->json();
+        $items = array_map(
+            fn (array $batchPayment): BatchPayment => $this->mapBatchPayment($batchPayment),
+            Json::extractList($payload, 'BatchPayments')
+        );
+
+        return new ResourceCollection($items);
+    }
+
     public function history(string $batchPaymentId): History
     {
         return new History($this->client, '/api.xro/2.0/BatchPayments/' . $batchPaymentId . '/History');

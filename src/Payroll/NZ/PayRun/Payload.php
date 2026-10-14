@@ -37,6 +37,14 @@ final class Payload
         return $clone;
     }
 
+    public function payRunType(string $payRunType): self
+    {
+        $clone = clone $this;
+        $clone->payload['payRunType'] = $payRunType;
+
+        return $clone;
+    }
+
     public function idempotencyKey(string $key): self
     {
         $clone = clone $this;

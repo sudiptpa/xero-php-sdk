@@ -62,7 +62,7 @@ final class Payload
             ->send();
 
         $payload = $response->json();
-        $currency = Json::extractFirst($payload, 'Currencies') ?? Json::extractObject($payload, 'Currency');
+        $currency = Json::extractFirst($payload, 'Currencies') ?? [];
 
         return (new Currencies($this->client))->mapCurrency($currency);
     }

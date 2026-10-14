@@ -161,6 +161,7 @@ final class BankTransactionsTest extends TestCase
         $bt0 = Json::extractFirst($json0, 'BankTransactions');
         self::assertNotNull($bt0);
         self::assertSame('/api.xro/2.0/BankTransactions', $transport->requests()[0]->path);
+        self::assertSame('PUT', $transport->requests()[0]->method);
         self::assertSame('SPEND', $bt0['Type']);
         self::assertSame('contact-1', Json::extractObject($bt0, 'Contact')['ContactID']);
         self::assertSame('account-1', Json::extractObject($bt0, 'BankAccount')['AccountID']);
@@ -173,7 +174,8 @@ final class BankTransactionsTest extends TestCase
         $json1 = $transport->requests()[1]->json ?? [];
         $bt1 = Json::extractFirst($json1, 'BankTransactions');
         self::assertNotNull($bt1);
-        self::assertSame('/api.xro/2.0/BankTransactions', $transport->requests()[1]->path);
+        self::assertSame('/api.xro/2.0/BankTransactions/bank-1', $transport->requests()[1]->path);
+        self::assertSame('POST', $transport->requests()[1]->method);
         self::assertSame('bank-1', $bt1['BankTransactionID']);
         self::assertSame('BT-1002', $updated->getReference());
     }

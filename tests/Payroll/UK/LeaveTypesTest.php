@@ -53,6 +53,44 @@ final class LeaveTypesTest extends TestCase
         self::assertSame('leave-type-2', $created->getLeaveTypeID());
     }
 
+    public function test_it_can_find_a_leave_type(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'leaveType' => [
+                'leaveTypeID' => 'leave-type-1',
+                'name' => 'Holiday',
+                'isPaidLeave' => true,
+                'showOnPayslip' => true,
+            ],
+        ], JSON_THROW_ON_ERROR)));
+
+        $found = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->leaveTypes()
+            ->find('leave-type-1');
+
+        self::assertSame('/payroll.xro/2.0/LeaveTypes/leave-type-1', $transport->requests()[0]->path);
+        self::assertNotNull($found);
+        self::assertSame('leave-type-1', $found->getLeaveTypeID());
+        self::assertSame('Holiday', $found->getName());
+    }
+
+    public function test_find_returns_null_when_leave_type_missing(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
+
+        $found = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->leaveTypes()
+            ->find('leave-type-1');
+
+        self::assertNull($found);
+    }
+
     public function test_it_exposes_scopes(): void
     {
         $scopes = Xero::withAccessToken('token', new FakeTransport())

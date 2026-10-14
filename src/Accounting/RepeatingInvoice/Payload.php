@@ -45,6 +45,43 @@ final class Payload
         return $clone;
     }
 
+    public function schedule(
+        int $period,
+        string $unit,
+        ?int $dueDate = null,
+        ?string $dueDateType = null,
+        ?string $startDate = null,
+        ?string $endDate = null,
+    ): self {
+        $clone = clone $this;
+        $clone->payload['Schedule'] = array_filter([
+            'Period' => $period,
+            'Unit' => strtoupper($unit),
+            'DueDate' => $dueDate,
+            'DueDateType' => $dueDateType,
+            'StartDate' => $startDate,
+            'EndDate' => $endDate,
+        ], static fn (mixed $value): bool => $value !== null);
+
+        return $clone;
+    }
+
+    public function lineAmountTypes(string $lineAmountTypes): self
+    {
+        $clone = clone $this;
+        $clone->payload['LineAmountTypes'] = $lineAmountTypes;
+
+        return $clone;
+    }
+
+    public function status(string $status): self
+    {
+        $clone = clone $this;
+        $clone->payload['Status'] = strtoupper($status);
+
+        return $clone;
+    }
+
     public function reference(string $reference): self
     {
         $clone = clone $this;
@@ -53,15 +90,16 @@ final class Payload
         return $clone;
     }
 
-    public function lineItem(string $description, int|float $quantity, int|float $unitAmount): self
+    public function lineItem(string $description, int|float $quantity, int|float $unitAmount, ?string $accountCode = null): self
     {
         $clone = clone $this;
         $lineItems = is_array($clone->payload['LineItems'] ?? null) ? $clone->payload['LineItems'] : [];
-        $lineItems[] = [
+        $lineItems[] = array_filter([
             'Description' => $description,
             'Quantity' => $quantity,
             'UnitAmount' => $unitAmount,
-        ];
+            'AccountCode' => $accountCode,
+        ], static fn (mixed $value): bool => $value !== null);
         $clone->payload['LineItems'] = $lineItems;
 
         return $clone;

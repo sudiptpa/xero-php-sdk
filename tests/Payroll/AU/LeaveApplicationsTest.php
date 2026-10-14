@@ -22,13 +22,11 @@ final class LeaveApplicationsTest extends TestCase
                 'EmployeeID' => 'employee-1',
                 'LeaveTypeID' => 'type-1',
                 'Title' => 'Annual Leave',
-                'Status' => 'REQUESTED',
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'LeaveApplication' => [
                 'LeaveApplicationID' => 'leave-1',
-                'Status' => 'REQUESTED',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -37,25 +35,21 @@ final class LeaveApplicationsTest extends TestCase
                 'EmployeeID' => 'employee-1',
                 'LeaveTypeID' => 'type-1',
                 'Title' => 'Annual Leave',
-                'Status' => 'REQUESTED',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'LeaveApplication' => [
                 'LeaveApplicationID' => 'leave-2',
-                'Status' => 'APPROVED',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'LeaveApplication' => [
                 'LeaveApplicationID' => 'leave-2',
-                'Status' => 'APPROVED',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'LeaveApplication' => [
                 'LeaveApplicationID' => 'leave-2',
-                'Status' => 'REJECTED',
             ],
         ], JSON_THROW_ON_ERROR)));
 
@@ -97,7 +91,7 @@ final class LeaveApplicationsTest extends TestCase
         self::assertSame('/payroll.xro/1.0/LeaveApplications/leave-2/approve', $transport->requests()[4]->path);
         self::assertSame('/payroll.xro/1.0/LeaveApplications/leave-2/reject', $transport->requests()[5]->path);
         self::assertSame('leave-2', $updated->getLeaveApplicationID());
-        self::assertSame('REJECTED', $rejected->getStatus());
+        self::assertSame('leave-2', $rejected->getLeaveApplicationID());
         self::assertSame('leave-1', $application?->getLeaveApplicationID());
     }
 
@@ -122,7 +116,6 @@ final class LeaveApplicationsTest extends TestCase
                 'LeaveApplications' => [[
                     'LeaveApplicationID' => 'leave-1',
                     'EmployeeID' => 'employee-1',
-                    'Status' => 'SCHEDULED',
                 ]],
             ], JSON_THROW_ON_ERROR))
         );
@@ -176,7 +169,6 @@ final class LeaveApplicationsTest extends TestCase
                 'PayPeriodStartDate' => '/Date(1743465600000+0000)/',
                 'PayPeriodEndDate' => '/Date(1743552000000+0000)/',
             ]],
-            'Status' => 'SCHEDULED',
             'UpdatedDateUTC' => '/Date(1583967733054+0000)/',
             'ValidationErrors' => [['Message' => 'Invalid leave application']],
         ]);
@@ -191,7 +183,7 @@ final class LeaveApplicationsTest extends TestCase
         self::assertSame('Invalid leave application', $application->getValidationErrors()[0]->getMessage());
     }
 
-    public function test_model_getters_and_status_helper(): void
+    public function test_model_getters(): void
     {
         $application = (new LeaveApplication())->fill([
             'LeaveApplicationID' => 'leave-1',
@@ -205,7 +197,6 @@ final class LeaveApplicationsTest extends TestCase
         self::assertSame('Annual Leave', $application->getTitle());
         self::assertSame('2026-04-01', $application->getStartDate());
         self::assertSame('2026-04-02', $application->getEndDate());
-        self::assertSame('APPROVED', $application->status('approved')->getStatus());
     }
 
     public function test_loaded_model_can_be_saved(): void

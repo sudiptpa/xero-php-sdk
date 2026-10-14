@@ -31,6 +31,14 @@ final class Payload
         return $clone;
     }
 
+    public function title(string $title): self
+    {
+        $clone = clone $this;
+        $clone->payload['title'] = $title;
+
+        return $clone;
+    }
+
     public function firstName(string $firstName): self
     {
         $clone = clone $this;
@@ -59,6 +67,81 @@ final class Payload
     {
         $clone = clone $this;
         $clone->payload['dateOfBirth'] = $dateOfBirth;
+
+        return $clone;
+    }
+
+    public function gender(string $gender): self
+    {
+        $clone = clone $this;
+        $clone->payload['gender'] = $gender;
+
+        return $clone;
+    }
+
+    public function address(
+        string $addressLine1,
+        string $city,
+        string $postCode,
+        ?string $addressLine2 = null,
+        ?string $countryName = null,
+    ): self {
+        $clone = clone $this;
+        $clone->payload['address'] = array_filter([
+            'addressLine1' => $addressLine1,
+            'addressLine2' => $addressLine2,
+            'city' => $city,
+            'postCode' => $postCode,
+            'countryName' => $countryName,
+        ], static fn (mixed $value): bool => $value !== null);
+
+        return $clone;
+    }
+
+    public function phoneNumber(string $phoneNumber): self
+    {
+        $clone = clone $this;
+        $clone->payload['phoneNumber'] = $phoneNumber;
+
+        return $clone;
+    }
+
+    public function startDate(string $startDate): self
+    {
+        $clone = clone $this;
+        $clone->payload['startDate'] = $startDate;
+
+        return $clone;
+    }
+
+    public function endDate(string $endDate): self
+    {
+        $clone = clone $this;
+        $clone->payload['endDate'] = $endDate;
+
+        return $clone;
+    }
+
+    public function payrollCalendar(string $payrollCalendarId): self
+    {
+        $clone = clone $this;
+        $clone->payload['payrollCalendarID'] = $payrollCalendarId;
+
+        return $clone;
+    }
+
+    public function nationalInsuranceNumber(string $nationalInsuranceNumber): self
+    {
+        $clone = clone $this;
+        $clone->payload['nationalInsuranceNumber'] = $nationalInsuranceNumber;
+
+        return $clone;
+    }
+
+    public function isOffPayrollWorker(bool $isOffPayrollWorker = true): self
+    {
+        $clone = clone $this;
+        $clone->payload['isOffPayrollWorker'] = $isOffPayrollWorker;
 
         return $clone;
     }

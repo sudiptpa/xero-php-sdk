@@ -97,14 +97,13 @@ final class Draft
 
     public function save(): Invoice
     {
-        $path = '/api.xro/2.0/Invoices';
+        $invoiceId = $this->invoice->getInvoiceID();
 
-        if ($this->invoice->getInvoiceID() !== null) {
-            $path .= '/' . $this->invoice->getInvoiceID();
-        }
+        $request = $invoiceId === null
+            ? $this->client->put('/api.xro/2.0/Invoices')
+            : $this->client->post('/api.xro/2.0/Invoices/' . $invoiceId);
 
-        $response = $this->client
-            ->post($path)
+        $response = $request
             ->withQuery(array_filter([
                 'allowBackorders' => $this->allowBackorders === null ? null : ($this->allowBackorders ? 'true' : 'false'),
                 'unitdp' => $this->unitDp,

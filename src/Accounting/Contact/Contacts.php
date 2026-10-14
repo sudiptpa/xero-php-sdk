@@ -119,6 +119,18 @@ final class Contacts implements PaginatesResults, DefinesScopes
         return $contact !== null ? $this->mapContact($contact) : null;
     }
 
+    public function findByContactNumber(string $contactNumber): ?Contact
+    {
+        $response = $this->client
+            ->get('/api.xro/2.0/Contacts/' . $contactNumber)
+            ->send();
+
+        $payload = $response->json();
+        $contact = Json::extractFirst($payload, 'Contacts');
+
+        return $contact !== null ? $this->mapContact($contact) : null;
+    }
+
     public function create(): Payload
     {
         return new Payload($this->client);

@@ -1936,11 +1936,8 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`getEnabled(): bool`](../../src/Accounting/InvoiceReminder/InvoiceReminderSettings.php#L19)
-- [`setEnabled(bool $enabled): Sujip\Xero\Accounting\InvoiceReminder\InvoiceReminderSettings`](../../src/Accounting/InvoiceReminder/InvoiceReminderSettings.php#L24)
-- [`getDays(): array`](../../src/Accounting/InvoiceReminder/InvoiceReminderSettings.php#L34)
-- [`setDays(array $days): Sujip\Xero\Accounting\InvoiceReminder\InvoiceReminderSettings`](../../src/Accounting/InvoiceReminder/InvoiceReminderSettings.php#L42)
-- [`fill(array $payload): static`](../../src/Accounting/InvoiceReminder/InvoiceReminderSettings.php#L59)
+- [`getEnabled(): bool`](../../src/Accounting/InvoiceReminder/InvoiceReminderSettings.php#L15)
+- [`setEnabled(bool $enabled): Sujip\Xero\Accounting\InvoiceReminder\InvoiceReminderSettings`](../../src/Accounting/InvoiceReminder/InvoiceReminderSettings.php#L20)
 
 ## Accounting\InvoiceReminder\InvoiceReminders
 
@@ -4306,14 +4303,20 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 | --- | --- | --- |
 | `Name` | string or null | `()` |
 | `Rate` | int, float, or null | `()` |
+| `IsCompound` | bool or null | `()` |
+| `IsNonRecoverable` | bool or null | `()` |
 
 ### Public methods
 
-- [`getName(): ?string`](../../src/Accounting/TaxRate/Component.php#L17)
-- [`setName(?string $name): Sujip\Xero\Accounting\TaxRate\Component`](../../src/Accounting/TaxRate/Component.php#L22)
-- [`getRate(): int\|float\|null`](../../src/Accounting/TaxRate/Component.php#L29)
-- [`setRate(int\|float\|null $rate): Sujip\Xero\Accounting\TaxRate\Component`](../../src/Accounting/TaxRate/Component.php#L34)
-- [`toRequest(): array`](../../src/Accounting/TaxRate/Component.php#L55)
+- [`getName(): ?string`](../../src/Accounting/TaxRate/Component.php#L21)
+- [`setName(?string $name): Sujip\Xero\Accounting\TaxRate\Component`](../../src/Accounting/TaxRate/Component.php#L26)
+- [`getRate(): int\|float\|null`](../../src/Accounting/TaxRate/Component.php#L33)
+- [`setRate(int\|float\|null $rate): Sujip\Xero\Accounting\TaxRate\Component`](../../src/Accounting/TaxRate/Component.php#L38)
+- [`getIsCompound(): ?bool`](../../src/Accounting/TaxRate/Component.php#L45)
+- [`setIsCompound(?bool $isCompound): Sujip\Xero\Accounting\TaxRate\Component`](../../src/Accounting/TaxRate/Component.php#L50)
+- [`getIsNonRecoverable(): ?bool`](../../src/Accounting/TaxRate/Component.php#L57)
+- [`setIsNonRecoverable(?bool $isNonRecoverable): Sujip\Xero\Accounting\TaxRate\Component`](../../src/Accounting/TaxRate/Component.php#L62)
+- [`toRequest(): array`](../../src/Accounting/TaxRate/Component.php#L85)
 
 ## Accounting\TaxRate\Payload
 
@@ -4419,16 +4422,19 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 | `TrackingOptionID` | string or null | `()` |
 | `Name` | string or null | `()` |
 | `Status` | string or null | `()` |
+| `TrackingCategoryID` | string or null | `()` |
 
 ### Public methods
 
-- [`getTrackingOptionID(): ?string`](../../src/Accounting/TrackingCategory/Option.php#L19)
-- [`setTrackingOptionID(?string $trackingOptionID): Sujip\Xero\Accounting\TrackingCategory\Option`](../../src/Accounting/TrackingCategory/Option.php#L24)
-- [`getName(): ?string`](../../src/Accounting/TrackingCategory/Option.php#L31)
-- [`setName(?string $name): Sujip\Xero\Accounting\TrackingCategory\Option`](../../src/Accounting/TrackingCategory/Option.php#L36)
-- [`getStatus(): ?string`](../../src/Accounting/TrackingCategory/Option.php#L43)
-- [`setStatus(?string $status): Sujip\Xero\Accounting\TrackingCategory\Option`](../../src/Accounting/TrackingCategory/Option.php#L48)
-- [`toRequest(): array`](../../src/Accounting/TrackingCategory/Option.php#L70)
+- [`getTrackingOptionID(): ?string`](../../src/Accounting/TrackingCategory/Option.php#L21)
+- [`setTrackingOptionID(?string $trackingOptionID): Sujip\Xero\Accounting\TrackingCategory\Option`](../../src/Accounting/TrackingCategory/Option.php#L26)
+- [`getName(): ?string`](../../src/Accounting/TrackingCategory/Option.php#L33)
+- [`setName(?string $name): Sujip\Xero\Accounting\TrackingCategory\Option`](../../src/Accounting/TrackingCategory/Option.php#L38)
+- [`getStatus(): ?string`](../../src/Accounting/TrackingCategory/Option.php#L45)
+- [`setStatus(?string $status): Sujip\Xero\Accounting\TrackingCategory\Option`](../../src/Accounting/TrackingCategory/Option.php#L50)
+- [`getTrackingCategoryID(): ?string`](../../src/Accounting/TrackingCategory/Option.php#L57)
+- [`setTrackingCategoryID(?string $trackingCategoryID): Sujip\Xero\Accounting\TrackingCategory\Option`](../../src/Accounting/TrackingCategory/Option.php#L62)
+- [`toRequest(): array`](../../src/Accounting/TrackingCategory/Option.php#L85)
 
 ## Accounting\TrackingCategory\Payload
 

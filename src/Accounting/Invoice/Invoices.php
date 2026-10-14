@@ -147,7 +147,7 @@ final class Invoices implements PaginatesResults, DefinesScopes
     public function pdf(string $invoiceId): string
     {
         $response = $this->client
-            ->get('/api.xro/2.0/Invoices/' . $invoiceId . '/pdf')
+            ->get('/api.xro/2.0/Invoices/' . $invoiceId)
             ->withHeaders(['Accept' => 'application/pdf'])
             ->send();
 

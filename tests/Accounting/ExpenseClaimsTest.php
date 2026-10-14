@@ -44,7 +44,7 @@ final class ExpenseClaimsTest extends TestCase
             'ExpenseClaims' => [[
                 'ExpenseClaimID' => 'expense-2',
                 'Status' => 'DRAFT',
-                'Employee' => ['EmployeeID' => 'employee-1'],
+                'User' => ['UserID' => 'user-1'],
                 'Receipts' => [['ReceiptID' => 'receipt-1']],
             ]],
         ], JSON_THROW_ON_ERROR)));
@@ -52,7 +52,7 @@ final class ExpenseClaimsTest extends TestCase
             'ExpenseClaims' => [[
                 'ExpenseClaimID' => 'expense-2',
                 'Status' => 'SUBMITTED',
-                'Employee' => ['EmployeeID' => 'employee-1'],
+                'User' => ['UserID' => 'user-1'],
                 'Receipts' => [['ReceiptID' => 'receipt-1']],
             ]],
         ], JSON_THROW_ON_ERROR)));
@@ -68,7 +68,7 @@ final class ExpenseClaimsTest extends TestCase
         $claims = $client->accounting()->expenseClaims()->where('Status == :status', status: 'SUBMITTED')->get();
         $claim = $client->accounting()->expenseClaims()->find('expense-1');
         $created = $client->accounting()->expenseClaims()->create()
-            ->employee('employee-1')
+            ->employee('user-1')
             ->receipt('receipt-1')
             ->status('DRAFT')
             ->save();
@@ -88,7 +88,7 @@ final class ExpenseClaimsTest extends TestCase
         $json2 = $transport->requests()[2]->json ?? [];
         $ec2 = Json::extractFirst($json2, 'ExpenseClaims');
         self::assertNotNull($ec2);
-        self::assertSame('employee-1', Json::extractObject($ec2, 'Employee')['EmployeeID']);
+        self::assertSame('user-1', Json::extractObject($ec2, 'User')['UserID']);
         $json3 = $transport->requests()[3]->json ?? [];
         $ec3 = Json::extractFirst($json3, 'ExpenseClaims');
         self::assertNotNull($ec3);
@@ -96,7 +96,7 @@ final class ExpenseClaimsTest extends TestCase
         self::assertSame('/api.xro/2.0/ExpenseClaims/expense-2', $transport->requests()[3]->path);
         self::assertSame('expense-2', $ec3['ExpenseClaimID']);
         self::assertSame('SUBMITTED', $updated->getStatus());
-        self::assertSame('employee-1', $updated->getEmployeeID());
+        self::assertSame('user-1', $updated->getEmployeeID());
         self::assertSame(['receipt-1'], $updated->getReceiptIDs());
         self::assertSame('expense-1', $claim?->getExpenseClaimID());
         self::assertSame(80, $claim->getTotal());

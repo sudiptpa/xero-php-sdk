@@ -82,14 +82,39 @@ final class TrackingCategoriesTest extends TestCase
 
         $updated = $created->name('Sales Region')->save();
 
+        self::assertSame('PUT', $transport->requests()[0]->method);
         self::assertSame('/api.xro/2.0/TrackingCategories', $transport->requests()[0]->path);
         self::assertSame('tracking-key', $transport->requests()[0]->headers['Idempotency-Key']);
         $json0 = $transport->requests()[0]->json ?? [];
         self::assertSame('Region', $json0['Name'] ?? null);
         $options0 = Json::extractList($json0, 'Options');
         self::assertSame('APAC', $options0[0]['Name'] ?? null);
+        self::assertSame('POST', $transport->requests()[1]->method);
         self::assertSame('/api.xro/2.0/TrackingCategories/tracking-1', $transport->requests()[1]->path);
         self::assertSame('Sales Region', $updated->getName());
+    }
+
+    public function test_it_can_delete_a_tracking_category(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'TrackingCategories' => [[
+                'TrackingCategoryID' => 'tracking-1',
+                'Name' => 'Region',
+                'Status' => 'DELETED',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $category = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->trackingCategories()
+            ->delete('tracking-1');
+
+        $request = $transport->requests()[0];
+
+        self::assertSame('DELETE', $request->method);
+        self::assertSame('/api.xro/2.0/TrackingCategories/tracking-1', $request->path);
+        self::assertSame('DELETED', $category->getStatus());
     }
 
     public function test_it_updates_via_builder_and_exposes_helpers(): void
@@ -111,8 +136,14 @@ final class TrackingCategoriesTest extends TestCase
 
         self::assertNotSame([], $categories->scopes()->broad);
 
-        $option = $categories->mapOption(['Name' => 'EMEA', 'TrackingOptionID' => 'opt-1', 'Status' => 'ACTIVE']);
+        $option = $categories->mapOption([
+            'Name' => 'EMEA',
+            'TrackingOptionID' => 'opt-1',
+            'Status' => 'ACTIVE',
+            'TrackingCategoryID' => 'category-1',
+        ]);
         self::assertSame('EMEA', $option->getName());
+        self::assertSame('category-1', $option->getTrackingCategoryID());
 
         $model = (new TrackingCategory())->option('APAC');
         self::assertSame('APAC', $model->getOptions()[0]->getName());
@@ -120,9 +151,10 @@ final class TrackingCategoriesTest extends TestCase
         $replaced = (new TrackingCategory())->setOptions([new Option()]);
         self::assertCount(1, $replaced->getOptions());
 
-        $opt = (new Option())->setTrackingOptionID('opt-9')->setStatus('ACTIVE');
+        $opt = (new Option())->setTrackingOptionID('opt-9')->setStatus('ACTIVE')->setTrackingCategoryID('category-9');
         self::assertSame('opt-9', $opt->getTrackingOptionID());
         self::assertSame('ACTIVE', $opt->getStatus());
+        self::assertSame('category-9', $opt->getTrackingCategoryID());
     }
 
     public function test_it_manages_tracking_options_via_dedicated_endpoints(): void

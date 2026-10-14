@@ -14,6 +14,10 @@ final class Component extends Model implements SerializesRequest
 
     private int|float|null $rate = null;
 
+    private ?bool $isCompound = null;
+
+    private ?bool $isNonRecoverable = null;
+
     public function getName(): ?string
     {
         return $this->name;
@@ -38,6 +42,30 @@ final class Component extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getIsCompound(): ?bool
+    {
+        return $this->isCompound;
+    }
+
+    public function setIsCompound(?bool $isCompound): self
+    {
+        $this->isCompound = $isCompound;
+
+        return $this;
+    }
+
+    public function getIsNonRecoverable(): ?bool
+    {
+        return $this->isNonRecoverable;
+    }
+
+    public function setIsNonRecoverable(?bool $isNonRecoverable): self
+    {
+        $this->isNonRecoverable = $isNonRecoverable;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -46,6 +74,8 @@ final class Component extends Model implements SerializesRequest
         return [
             'Name' => Field::string(),
             'Rate' => Field::number(),
+            'IsCompound' => Field::boolean(),
+            'IsNonRecoverable' => Field::boolean(),
         ];
     }
 
@@ -57,6 +87,8 @@ final class Component extends Model implements SerializesRequest
         return array_filter([
             'Name' => $this->getName(),
             'Rate' => $this->getRate(),
+            'IsCompound' => $this->getIsCompound(),
+            'IsNonRecoverable' => $this->getIsNonRecoverable(),
         ], static fn (mixed $value): bool => $value !== null);
     }
 }

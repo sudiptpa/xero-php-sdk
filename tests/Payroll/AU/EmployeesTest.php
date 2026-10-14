@@ -68,6 +68,8 @@ final class EmployeesTest extends TestCase
             ->firstName('Grace')
             ->lastName('Hopper')
             ->email('grace@example.test')
+            ->dateOfBirth('1990-05-12')
+            ->homeAddress('101 Green St', 'Island Bay', 'NSW', '6023', 'AUSTRALIA')
             ->save();
         $updated = $client->payroll()->au()->employees()->update('employee-2')
             ->firstName('Grace')
@@ -83,11 +85,92 @@ final class EmployeesTest extends TestCase
         self::assertNotNull($firstEmp);
         self::assertSame('/payroll.xro/1.0/Employees/employee-1', $transport->requests()[1]->path);
         self::assertSame('/payroll.xro/1.0/Employees', $transport->requests()[2]->path);
+        $createdRow = Json::extractRows(Json::decodeObject((string) $transport->requests()[2]->body))[0] ?? [];
+        self::assertSame([
+            'AddressLine1' => '101 Green St',
+            'City' => 'Island Bay',
+            'Region' => 'NSW',
+            'PostalCode' => '6023',
+            'Country' => 'AUSTRALIA',
+        ], $createdRow['HomeAddress'] ?? null);
         self::assertSame('/payroll.xro/1.0/Employees/employee-2', $transport->requests()[3]->path);
         self::assertSame('Jane', $firstEmp->getFirstName());
         self::assertSame('employee-1', $employee?->getEmployeeID());
         self::assertSame('employee-2', $created->getEmployeeID());
         self::assertSame('employee-2', $updated->getEmployeeID());
+    }
+
+    public function test_it_can_update_employee_sub_resources_via_the_payload_builder(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'Employee' => [
+                'EmployeeID' => 'employee-1',
+                'FirstName' => 'Olivia',
+                'LastName' => 'Bennett',
+            ],
+        ], JSON_THROW_ON_ERROR)));
+
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $updated = $client->payroll()->au()->employees()->update('employee-1')
+            ->payrollCalendar('calendar-1')
+            ->ordinaryEarningsRate('rate-1')
+            ->taxDeclaration([
+                'EmploymentBasis' => 'FULLTIME',
+                'TaxFileNumber' => '123456782',
+            ])
+            ->bankAccounts([[
+                'AccountName' => 'Olivia Bennett',
+                'BSB' => '484799',
+                'AccountNumber' => '123456789',
+                'Remainder' => true,
+            ]])
+            ->payTemplate([
+                'EarningsLines' => [[
+                    'EarningsRateID' => 'rate-1',
+                    'CalculationType' => 'ANNUALSALARY',
+                    'AnnualSalary' => 85000.0,
+                ]],
+            ])
+            ->openingBalances([
+                'OpeningBalanceDate' => '2026-07-01',
+                'EarningsLines' => [['EarningsRateID' => 'rate-1', 'Amount' => 2500.0]],
+            ])
+            ->superMemberships([[
+                'SuperFundID' => 'fund-1',
+                'EmployeeNumber' => 'EMP-001',
+            ]])
+            ->save();
+
+        $row = Json::extractRows(Json::decodeObject((string) $transport->requests()[0]->body))[0] ?? [];
+        self::assertSame('calendar-1', $row['PayrollCalendarID'] ?? null);
+        self::assertSame('rate-1', $row['OrdinaryEarningsRateID'] ?? null);
+        self::assertSame([
+            'EmploymentBasis' => 'FULLTIME',
+            'TaxFileNumber' => '123456782',
+        ], $row['TaxDeclaration'] ?? null);
+        self::assertSame([[
+            'AccountName' => 'Olivia Bennett',
+            'BSB' => '484799',
+            'AccountNumber' => '123456789',
+            'Remainder' => true,
+        ]], $row['BankAccounts'] ?? null);
+        self::assertSame([
+            'EarningsLines' => [[
+                'EarningsRateID' => 'rate-1',
+                'CalculationType' => 'ANNUALSALARY',
+                'AnnualSalary' => 85000,
+            ]],
+        ], $row['PayTemplate'] ?? null);
+        self::assertSame([
+            'OpeningBalanceDate' => '2026-07-01',
+            'EarningsLines' => [['EarningsRateID' => 'rate-1', 'Amount' => 2500]],
+        ], $row['OpeningBalances'] ?? null);
+        self::assertSame([[
+            'SuperFundID' => 'fund-1',
+            'EmployeeNumber' => 'EMP-001',
+        ]], $row['SuperMemberships'] ?? null);
+        self::assertSame('employee-1', $updated->getEmployeeID());
     }
 
     public function test_it_can_create_a_leave_application_for_an_employee(): void

@@ -16,6 +16,8 @@ final class Option extends Model implements SerializesRequest
 
     private ?string $status = null;
 
+    private ?string $trackingCategoryID = null;
+
     public function getTrackingOptionID(): ?string
     {
         return $this->trackingOptionID;
@@ -52,6 +54,18 @@ final class Option extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getTrackingCategoryID(): ?string
+    {
+        return $this->trackingCategoryID;
+    }
+
+    public function setTrackingCategoryID(?string $trackingCategoryID): self
+    {
+        $this->trackingCategoryID = $trackingCategoryID;
+
+        return $this;
+    }
+
     /**
      * @return array<string, Field>
      */
@@ -61,6 +75,7 @@ final class Option extends Model implements SerializesRequest
             'TrackingOptionID' => Field::string(),
             'Name' => Field::string(),
             'Status' => Field::string(),
+            'TrackingCategoryID' => Field::string(),
         ];
     }
 

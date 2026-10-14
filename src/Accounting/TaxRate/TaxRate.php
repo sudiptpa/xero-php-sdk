@@ -231,6 +231,7 @@ final class TaxRate extends Model implements SerializesRequest
             'Name' => $this->getName(),
             'TaxType' => $this->getTaxType(),
             'Status' => $this->getStatus(),
+            'ReportTaxType' => $this->getReportTaxType(),
             'TaxComponents' => array_map(
                 static fn (Component $component): array => $component->toRequest(),
                 $this->getTaxComponents()

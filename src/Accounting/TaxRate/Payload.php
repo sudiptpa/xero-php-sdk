@@ -50,6 +50,15 @@ final class Payload
         return $clone;
     }
 
+    public function reportTaxType(string $reportTaxType): self
+    {
+        $clone = clone $this;
+        $clone->taxRate = clone $this->taxRate;
+        $clone->taxRate->setReportTaxType($reportTaxType);
+
+        return $clone;
+    }
+
     public function idempotencyKey(string $key): self
     {
         $clone = clone $this;
@@ -68,8 +77,13 @@ final class Payload
 
     public function save(): TaxRate
     {
-        $response = $this->client
-            ->post('/api.xro/2.0/TaxRates')
+        $isUpdate = $this->taxRate->getTaxType() !== null;
+
+        $request = $isUpdate
+            ? $this->client->post('/api.xro/2.0/TaxRates')
+            : $this->client->put('/api.xro/2.0/TaxRates');
+
+        $response = $request
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
             ->withJson([
                 'TaxRates' => [$this->taxRate->toRequest()],

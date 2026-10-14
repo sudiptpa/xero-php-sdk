@@ -306,7 +306,7 @@ final class CreditNotesTest extends TestCase
         $pdf = $creditNote->pdf();
 
         self::assertSame('%PDF-1.4 credit', $pdf);
-        self::assertSame('/api.xro/2.0/CreditNotes/credit-1/pdf', $transport->requests()[1]->path);
+        self::assertSame('/api.xro/2.0/CreditNotes/credit-1', $transport->requests()[1]->path);
     }
 
     public function test_it_serializes_writable_credit_note_fields_to_request(): void

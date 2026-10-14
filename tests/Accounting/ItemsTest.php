@@ -208,6 +208,18 @@ final class ItemsTest extends TestCase
         $updated->history();
     }
 
+    public function test_it_can_delete_an_item(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(204));
+
+        Xero::withAccessToken('token', $transport)->tenant('tenant-123')->accounting()
+            ->items()
+            ->delete('item-1');
+
+        self::assertSame('DELETE', $transport->requests()[0]->method);
+        self::assertSame('/api.xro/2.0/Items/item-1', $transport->requests()[0]->path);
+    }
+
     public function test_item_model_guards_require_a_bound_client(): void
     {
         $this->expectException(RuntimeException::class);

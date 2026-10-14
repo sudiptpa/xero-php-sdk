@@ -13,6 +13,7 @@ final readonly class HistoryRecord
         public ?string $details,
         public ?string $user,
         public ?string $changes,
+        public ?string $dateUtc = null,
         public array $raw = []
     ) {
     }

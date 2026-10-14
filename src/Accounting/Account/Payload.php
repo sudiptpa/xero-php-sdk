@@ -72,20 +72,15 @@ final class Payload
 
     public function save(): Account
     {
-        $path = '/api.xro/2.0/Accounts';
+        $accountId = $this->account->getAccountID();
 
-        if ($this->account->getAccountID() !== null) {
-            $path .= '/' . $this->account->getAccountID();
-        }
-
-        $response = $this->client
-            ->post($path)
-            ->withJson([
+        $request = $accountId === null
+            ? $this->client->put('/api.xro/2.0/Accounts')->withJson($this->account->toRequest())
+            : $this->client->post('/api.xro/2.0/Accounts/' . $accountId)->withJson([
                 'Accounts' => [$this->account->toRequest()],
-            ])
-            ->send();
+            ]);
 
-        $payload = $response->json();
+        $payload = $request->send()->json();
         $account = Json::extractFirst($payload, 'Accounts') ?? [];
 
         return (new Accounts($this->client))

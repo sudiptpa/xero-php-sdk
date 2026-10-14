@@ -141,14 +141,18 @@ final class ManualJournalsTest extends TestCase
             'Attachments' => [[
                 'AttachmentID' => 'attachment-1',
                 'FileName' => 'journal.pdf',
+                'Url' => 'https://api.xero.com/api.xro/2.0/ManualJournals/journal-1/Attachments/journal.pdf',
                 'MimeType' => 'application/pdf',
+                'ContentLength' => 16,
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'Attachments' => [[
                 'AttachmentID' => 'attachment-1',
                 'FileName' => 'journal.pdf',
+                'Url' => 'https://api.xero.com/api.xro/2.0/ManualJournals/journal-1/Attachments/journal.pdf',
                 'MimeType' => 'application/pdf',
+                'ContentLength' => 16,
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: 'journal-by-name'));
@@ -175,8 +179,36 @@ final class ManualJournalsTest extends TestCase
         self::assertSame('/api.xro/2.0/ManualJournals/journal-1/Attachments/attachment-1', $transport->requests()[3]->path);
         self::assertCount(1, $list);
         self::assertSame('journal.pdf', $uploaded->fileName);
+        $firstListed = $list->first();
+        self::assertNotNull($firstListed);
+        self::assertSame('https://api.xero.com/api.xro/2.0/ManualJournals/journal-1/Attachments/journal.pdf', $firstListed->url);
+        self::assertSame(16, $firstListed->contentLength);
         self::assertSame('journal-by-name', $byName);
         self::assertSame('journal-by-id', $byId);
+    }
+
+    public function test_it_can_update_a_manual_journal_attachment(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'Attachments' => [[
+                'AttachmentID' => 'attachment-1',
+                'FileName' => 'journal.pdf',
+                'MimeType' => 'application/pdf',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $updated = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->manualJournals()
+            ->attachments('journal-1')
+            ->upload('journal.pdf', 'binary-journal-v2')
+            ->mimeType('application/pdf')
+            ->update();
+
+        self::assertSame('POST', $transport->requests()[0]->method);
+        self::assertSame('/api.xro/2.0/ManualJournals/journal-1/Attachments/journal.pdf', $transport->requests()[0]->path);
+        self::assertSame('attachment-1', $updated->id);
     }
 
     public function test_it_can_access_manual_journal_attachments_from_a_loaded_model(): void

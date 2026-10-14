@@ -24,7 +24,7 @@ final class SalaryAndWagePayload
     public function paymentType(string $paymentType): self
     {
         $clone = clone $this;
-        $clone->payload['PaymentType'] = $paymentType;
+        $clone->payload['paymentType'] = $paymentType;
 
         return $clone;
     }
@@ -32,7 +32,63 @@ final class SalaryAndWagePayload
     public function earningsRate(string $earningsRateId): self
     {
         $clone = clone $this;
-        $clone->payload['EarningsRateID'] = $earningsRateId;
+        $clone->payload['earningsRateID'] = $earningsRateId;
+
+        return $clone;
+    }
+
+    public function numberOfUnitsPerWeek(float $numberOfUnitsPerWeek): self
+    {
+        $clone = clone $this;
+        $clone->payload['numberOfUnitsPerWeek'] = $numberOfUnitsPerWeek;
+
+        return $clone;
+    }
+
+    public function numberOfUnitsPerDay(float $numberOfUnitsPerDay): self
+    {
+        $clone = clone $this;
+        $clone->payload['numberOfUnitsPerDay'] = $numberOfUnitsPerDay;
+
+        return $clone;
+    }
+
+    public function ratePerUnit(float $ratePerUnit): self
+    {
+        $clone = clone $this;
+        $clone->payload['ratePerUnit'] = $ratePerUnit;
+
+        return $clone;
+    }
+
+    public function daysPerWeek(float $daysPerWeek): self
+    {
+        $clone = clone $this;
+        $clone->payload['daysPerWeek'] = $daysPerWeek;
+
+        return $clone;
+    }
+
+    public function effectiveFrom(string $effectiveFrom): self
+    {
+        $clone = clone $this;
+        $clone->payload['effectiveFrom'] = $effectiveFrom;
+
+        return $clone;
+    }
+
+    public function annualSalary(float $annualSalary): self
+    {
+        $clone = clone $this;
+        $clone->payload['annualSalary'] = $annualSalary;
+
+        return $clone;
+    }
+
+    public function status(string $status): self
+    {
+        $clone = clone $this;
+        $clone->payload['status'] = $status;
 
         return $clone;
     }

@@ -105,6 +105,19 @@ final class Items implements PaginatesResults, DefinesScopes
         return new Payload($this->client);
     }
 
+    public function delete(string $itemId): void
+    {
+        $this->client
+            ->delete('/api.xro/2.0/Items/' . $itemId)
+            ->send();
+    }
+
+    /**
+     * Xero's write endpoint is an upsert (POST /Items), not a true PATCH: it
+     * always requires Code, so a bare update($id)->name(...)->save() call
+     * fails with "Price List Item Code must be supplied". Either call
+     * code() as well, or pass the existing item to using() first.
+     */
     public function update(string $itemId): Payload
     {
         return (new Payload($this->client))->id($itemId);

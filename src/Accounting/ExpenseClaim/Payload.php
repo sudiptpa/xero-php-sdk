@@ -39,10 +39,10 @@ final class Payload
         return $clone;
     }
 
-    public function employee(string $employeeId): self
+    public function employee(string $userId): self
     {
         $clone = clone $this;
-        $clone->payload['Employee'] = ['EmployeeID' => $employeeId];
+        $clone->payload['User'] = ['UserID' => $userId];
 
         return $clone;
     }

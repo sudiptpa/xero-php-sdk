@@ -29,10 +29,10 @@ final class PdfHelpersTest extends TestCase
         $invoice = $client->accounting()->invoices()->find('invoice-1');
         $modelPdf = $invoice?->pdf();
 
-        self::assertSame('/api.xro/2.0/Invoices/invoice-1/pdf', $transport->requests()[0]->path);
+        self::assertSame('/api.xro/2.0/Invoices/invoice-1', $transport->requests()[0]->path);
         self::assertSame('application/pdf', $transport->requests()[0]->headers['Accept']);
         self::assertSame('%PDF-invoice-direct', $pdf);
-        self::assertSame('/api.xro/2.0/Invoices/invoice-1/pdf', $transport->requests()[2]->path);
+        self::assertSame('/api.xro/2.0/Invoices/invoice-1', $transport->requests()[2]->path);
         self::assertSame('%PDF-invoice-model', $modelPdf);
     }
 
@@ -54,9 +54,9 @@ final class PdfHelpersTest extends TestCase
         $quote = $client->accounting()->quotes()->find('quote-1');
         $modelPdf = $quote?->pdf();
 
-        self::assertSame('/api.xro/2.0/Quotes/quote-1/pdf', $transport->requests()[0]->path);
+        self::assertSame('/api.xro/2.0/Quotes/quote-1', $transport->requests()[0]->path);
         self::assertSame('%PDF-quote-direct', $pdf);
-        self::assertSame('/api.xro/2.0/Quotes/quote-1/pdf', $transport->requests()[2]->path);
+        self::assertSame('/api.xro/2.0/Quotes/quote-1', $transport->requests()[2]->path);
         self::assertSame('%PDF-quote-model', $modelPdf);
     }
 
@@ -78,10 +78,10 @@ final class PdfHelpersTest extends TestCase
         $purchaseOrder = $client->accounting()->purchaseOrders()->find('po-1');
         $modelPdf = $purchaseOrder?->pdf();
 
-        self::assertSame('/api.xro/2.0/PurchaseOrders/po-1/pdf', $transport->requests()[0]->path);
+        self::assertSame('/api.xro/2.0/PurchaseOrders/po-1', $transport->requests()[0]->path);
         self::assertSame('application/pdf', $transport->requests()[0]->headers['Accept']);
         self::assertSame('%PDF-po-direct', $pdf);
-        self::assertSame('/api.xro/2.0/PurchaseOrders/po-1/pdf', $transport->requests()[2]->path);
+        self::assertSame('/api.xro/2.0/PurchaseOrders/po-1', $transport->requests()[2]->path);
         self::assertSame('%PDF-po-model', $modelPdf);
     }
 }

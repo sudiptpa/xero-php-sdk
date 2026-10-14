@@ -24,7 +24,7 @@ final class LeavePayload
     public function leaveType(string $leaveTypeId): self
     {
         $clone = clone $this;
-        $clone->payload['LeaveTypeID'] = $leaveTypeId;
+        $clone->payload['leaveTypeID'] = $leaveTypeId;
 
         return $clone;
     }
@@ -32,7 +32,7 @@ final class LeavePayload
     public function startDate(string $startDate): self
     {
         $clone = clone $this;
-        $clone->payload['StartDate'] = $startDate;
+        $clone->payload['startDate'] = $startDate;
 
         return $clone;
     }
@@ -40,15 +40,15 @@ final class LeavePayload
     public function endDate(string $endDate): self
     {
         $clone = clone $this;
-        $clone->payload['EndDate'] = $endDate;
+        $clone->payload['endDate'] = $endDate;
 
         return $clone;
     }
 
-    public function title(string $title): self
+    public function description(string $description): self
     {
         $clone = clone $this;
-        $clone->payload['Title'] = $title;
+        $clone->payload['description'] = $description;
 
         return $clone;
     }

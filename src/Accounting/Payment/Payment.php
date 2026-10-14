@@ -524,7 +524,6 @@ final class Payment extends Model implements SerializesRequest
         $account = $this->getAccount();
 
         return array_filter([
-            'PaymentID' => $this->getPaymentID(),
             'Amount' => $this->getAmount(),
             'Date' => $this->getDate(),
             'Reference' => $this->getReference(),
@@ -559,6 +558,10 @@ final class Payment extends Model implements SerializesRequest
     {
         if ($this->client === null) {
             throw new RuntimeException('Cannot save a payment without a bound client context.');
+        }
+
+        if ($this->paymentID !== null) {
+            throw new RuntimeException('Payments against invoices or credit notes cannot be updated; use delete() instead.');
         }
 
         $payload = new Payload($this->client);

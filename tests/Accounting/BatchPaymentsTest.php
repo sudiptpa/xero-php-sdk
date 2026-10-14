@@ -121,6 +121,7 @@ final class BatchPaymentsTest extends TestCase
             )
             ->save();
 
+        self::assertSame('PUT', $transport->requests()[0]->method);
         self::assertSame('/api.xro/2.0/BatchPayments', $transport->requests()[0]->path);
         $json0 = $transport->requests()[0]->json ?? [];
         $bp0 = Json::extractFirst($json0, 'BatchPayments');
@@ -198,15 +199,18 @@ final class BatchPaymentsTest extends TestCase
             ->create()
             ->account('account-1')
             ->reference('BATCH-9001')
+            ->date('2026-04-01')
             ->payment('invoice-1', 100)
             ->payment('invoice-2', 200)
             ->save();
 
+        self::assertSame('PUT', $transport->requests()[0]->method);
         $json = $transport->requests()[0]->json ?? [];
         $bp = Json::extractFirst($json, 'BatchPayments');
         self::assertNotNull($bp);
         self::assertSame('account-1', Json::extractObject($bp, 'Account')['AccountID']);
         self::assertSame('BATCH-9001', $bp['Reference']);
+        self::assertSame('2026-04-01', $bp['Date']);
         $payments = Json::extractList($bp, 'Payments');
         self::assertCount(2, $payments);
     }
@@ -219,6 +223,58 @@ final class BatchPaymentsTest extends TestCase
             ]);
 
         self::assertSame('invoice-9', $batchPayment->getPayments()[0]->getInvoiceID());
+    }
+
+    public function test_it_can_delete_a_batch_payment(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'BatchPayments' => [[
+                'BatchPaymentID' => 'batch-1',
+                'Status' => 'DELETED',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $batchPayment = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->batchPayments()
+            ->delete('batch-1');
+
+        $request = $transport->requests()[0];
+
+        self::assertSame('POST', $request->method);
+        self::assertSame('/api.xro/2.0/BatchPayments/batch-1', $request->path);
+        self::assertSame(['Status' => 'DELETED'], $request->json);
+        self::assertSame('DELETED', $batchPayment->getStatus());
+    }
+
+    public function test_it_can_delete_many_batch_payments(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'BatchPayments' => [
+                ['BatchPaymentID' => 'batch-1', 'Status' => 'DELETED'],
+                ['BatchPaymentID' => 'batch-2', 'Status' => 'DELETED'],
+            ],
+        ], JSON_THROW_ON_ERROR)));
+
+        $batchPayments = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->batchPayments()
+            ->deleteMany(['batch-1', 'batch-2']);
+
+        $request = $transport->requests()[0];
+
+        self::assertSame('POST', $request->method);
+        self::assertSame('/api.xro/2.0/BatchPayments', $request->path);
+        self::assertSame([
+            'BatchPayments' => [
+                ['BatchPaymentID' => 'batch-1', 'Status' => 'DELETED'],
+                ['BatchPaymentID' => 'batch-2', 'Status' => 'DELETED'],
+            ],
+        ], $request->json);
+        self::assertCount(2, $batchPayments->all());
+        self::assertSame('DELETED', $batchPayments->first()?->getStatus());
     }
 
     public function test_history_without_a_client_throws(): void

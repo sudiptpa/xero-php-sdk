@@ -92,11 +92,6 @@ final class PayRuns implements PaginatesResults, DefinesScopes
         return $payRun !== null ? $this->mapPayRun($payRun) : null;
     }
 
-    public function create(): Payload
-    {
-        return new Payload($this->client);
-    }
-
     public function payslips(string $payRunId): Payslips
     {
         return new Payslips($this->client, $payRunId);

@@ -108,9 +108,10 @@ final class EmployeesTest extends TestCase
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
-            'EmployeeLeave' => [
-                'LeaveID' => 'leave-2',
-                'Status' => 'DRAFT',
+            'leave' => [
+                'leaveID' => 'leave-2',
+                'leaveTypeID' => 'leave-type-1',
+                'description' => 'Holiday',
             ],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
@@ -144,12 +145,16 @@ final class EmployeesTest extends TestCase
             ->leaveType('leave-type-1')
             ->startDate('2026-04-01')
             ->endDate('2026-04-03')
-            ->title('Holiday')
+            ->description('Holiday')
             ->save();
         $createdLeaveType = $employee?->createLeaveType()
             ->leaveType('leave-type-2')
             ->scheduleOfAccrual('OnAnniversaryDate')
             ->openingBalance(12.5)
+            ->hoursAccruedAnnually(40.0)
+            ->maximumToAccrue(80.0)
+            ->rateAccruedHourly(0.5)
+            ->scheduleOfAccrualDate('2026-04-01')
             ->save();
 
         self::assertSame('/payroll.xro/2.0/Employees', $transport->requests()[0]->path);
@@ -182,8 +187,58 @@ final class EmployeesTest extends TestCase
         $firstLt = $leaveTypes->first();
         self::assertNotNull($firstLt);
         self::assertSame('leave-type-1', $firstLt->getLeaveTypeID());
-        self::assertSame('leave-2', Json::extractObject($createdLeave ?? [], 'EmployeeLeave')['LeaveID'] ?? null);
+        self::assertSame('leave-2', Json::extractObject($createdLeave ?? [], 'leave')['leaveID'] ?? null);
+        self::assertSame([
+            'leaveTypeID' => 'leave-type-1',
+            'startDate' => '2026-04-01',
+            'endDate' => '2026-04-03',
+            'description' => 'Holiday',
+        ], $transport->requests()[10]->json);
         self::assertSame('leave-type-2', Json::extractObject($createdLeaveType ?? [], 'leaveType')['leaveTypeID'] ?? null);
+    }
+
+    public function test_it_can_create_an_employee_with_all_required_fields(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'employee' => ['employeeID' => 'employee-1'],
+        ], JSON_THROW_ON_ERROR)));
+
+        Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->employees()
+            ->create()
+            ->title('Mrs')
+            ->firstName('Grace')
+            ->lastName('Hopper')
+            ->dateOfBirth('1990-01-01')
+            ->gender('F')
+            ->address('123 Main St', 'Fulham', 'SW6 6EY', 'Apt 4', 'United Kingdom')
+            ->phoneNumber('415-555-1212')
+            ->startDate('2026-04-01')
+            ->endDate('2026-12-31')
+            ->payrollCalendar('calendar-1')
+            ->nationalInsuranceNumber('AB123456C')
+            ->isOffPayrollWorker()
+            ->save();
+
+        $json = $transport->requests()[0]->json ?? [];
+        self::assertSame('Mrs', $json['title']);
+        self::assertSame('F', $json['gender']);
+        self::assertSame([
+            'addressLine1' => '123 Main St',
+            'addressLine2' => 'Apt 4',
+            'city' => 'Fulham',
+            'postCode' => 'SW6 6EY',
+            'countryName' => 'United Kingdom',
+        ], $json['address']);
+        self::assertSame('415-555-1212', $json['phoneNumber']);
+        self::assertSame('2026-04-01', $json['startDate']);
+        self::assertSame('2026-12-31', $json['endDate']);
+        self::assertSame('calendar-1', $json['payrollCalendarID']);
+        self::assertSame('AB123456C', $json['nationalInsuranceNumber']);
+        self::assertTrue($json['isOffPayrollWorker']);
     }
 
     public function test_it_exposes_scopes(): void
@@ -486,6 +541,11 @@ final class EmployeesTest extends TestCase
             ->leaveType('leave-type-1')
             ->startDate('2026-04-01')
             ->endDate('2026-04-03')
+            ->periods([[
+                'periodStartDate' => '2026-04-01',
+                'periodEndDate' => '2026-04-03',
+                'numberOfUnits' => 3.0,
+            ]])
             ->idempotencyKey('leave-key')
             ->save();
         $employees->createLeaveType('employee-1')

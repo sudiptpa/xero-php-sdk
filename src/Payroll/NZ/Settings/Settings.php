@@ -43,6 +43,27 @@ final readonly class Settings implements DefinesScopes
     }
 
     /**
+     * @param list<array<string, mixed>> $accounts
+     */
+    public function update(array $accounts): PayrollSettings
+    {
+        $payload = $this->client
+            ->put('/payroll.xro/2.0/Settings')
+            ->withJson(['accounts' => $accounts])
+            ->send()
+            ->json();
+
+        /** @var array<string, mixed>|null $settings */
+        $settings = $payload['settings'] ?? null;
+
+        if (! is_array($settings)) {
+            return new PayrollSettings();
+        }
+
+        return $this->mapSettings($settings);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function trackingCategories(): array

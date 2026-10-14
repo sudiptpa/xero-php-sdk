@@ -66,20 +66,19 @@ final class Payload
 
     public function save(): TrackingCategory
     {
-        $path = '/api.xro/2.0/TrackingCategories';
+        $trackingCategoryId = $this->trackingCategory->getTrackingCategoryID();
 
-        if ($this->trackingCategory->getTrackingCategoryID() !== null) {
-            $path .= '/' . $this->trackingCategory->getTrackingCategoryID();
-        }
+        $request = $trackingCategoryId === null
+            ? $this->client->put('/api.xro/2.0/TrackingCategories')
+            : $this->client->post('/api.xro/2.0/TrackingCategories/' . $trackingCategoryId);
 
-        $response = $this->client
-            ->post($path)
+        $response = $request
             ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
             ->withJson($this->trackingCategory->toRequest())
             ->send();
 
         $payload = $response->json();
-        $trackingCategory = Json::extractFirst($payload, 'TrackingCategories') ?? Json::extractObject($payload, 'TrackingCategory');
+        $trackingCategory = Json::extractFirst($payload, 'TrackingCategories') ?? [];
 
         return (new TrackingCategories($this->client))
             ->mapTrackingCategory($trackingCategory);

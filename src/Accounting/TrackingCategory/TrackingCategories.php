@@ -88,6 +88,18 @@ final class TrackingCategories implements DefinesScopes
         return (new Payload($this->client))->id($trackingCategoryId);
     }
 
+    public function delete(string $trackingCategoryId): TrackingCategory
+    {
+        $response = $this->client
+            ->delete('/api.xro/2.0/TrackingCategories/' . $trackingCategoryId)
+            ->send();
+
+        $payload = $response->json();
+        $trackingCategory = Json::extractFirst($payload, 'TrackingCategories') ?? [];
+
+        return $this->mapTrackingCategory($trackingCategory);
+    }
+
     /**
      * @return ResourceCollection<Option>
      */

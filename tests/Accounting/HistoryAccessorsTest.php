@@ -27,7 +27,7 @@ final class HistoryAccessorsTest extends TestCase
 
         for ($i = 0; $i < count($expectations); $i++) {
             $transport->push(new Response(200, body: json_encode([
-                'HistoryRecords' => [['Details' => 'Created', 'User' => 'System', 'DateUTC' => '/Date(1573755038314)/']],
+                'HistoryRecords' => [['Details' => 'Created', 'User' => 'System', 'DateUTC' => '/Date(1573755038314)/', 'Changes' => 'Created']],
             ], JSON_THROW_ON_ERROR)));
         }
 
@@ -38,15 +38,19 @@ final class HistoryAccessorsTest extends TestCase
         foreach ($expectations as $index => [$method, $path]) {
             $records = $accounting->{$method}()->history('id-1')->get();
 
+            $record = $records->first();
+
             self::assertSame($path, $transport->requests()[$index]->path);
-            self::assertSame('Created', $records->first()?->details);
+            self::assertNotNull($record);
+            self::assertSame('Created', $record->details);
+            self::assertSame('Created', $record->changes);
         }
     }
 
     public function test_a_history_record_can_be_created_against_a_contact(): void
     {
         $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
-            'HistoryRecords' => [['Details' => 'Note added', 'User' => 'System', 'DateUTC' => '/Date(1573755038314)/']],
+            'HistoryRecords' => [['Details' => 'Note added', 'User' => 'System', 'DateUTC' => '/Date(1573755038314)/', 'Changes' => 'Note added']],
         ], JSON_THROW_ON_ERROR)));
 
         $record = Xero::withAccessToken('token', $transport)
@@ -61,5 +65,6 @@ final class HistoryAccessorsTest extends TestCase
         self::assertSame('/api.xro/2.0/Contacts/contact-1/History', $request->path);
         self::assertSame(['HistoryRecords' => [['Details' => 'Note added']]], $request->json);
         self::assertSame('Note added', $record->details);
+        self::assertSame('Note added', $record->changes);
     }
 }

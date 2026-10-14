@@ -62,20 +62,6 @@ final class Payload
         return $clone;
     }
 
-    public function id(string $paymentId): self
-    {
-        $clone = clone $this;
-        $clone->payment = clone $this->payment;
-        $clone->payment->setPaymentID($paymentId);
-
-        return $clone;
-    }
-
-    public function setPaymentID(?string $paymentId): self
-    {
-        return $this->id((string) $paymentId);
-    }
-
     public function using(Payment $payment): self
     {
         $clone = clone $this;
@@ -86,14 +72,8 @@ final class Payload
 
     public function save(): Payment
     {
-        $path = '/api.xro/2.0/Payments';
-
-        if ($this->payment->getPaymentID() !== null) {
-            $path .= '/' . $this->payment->getPaymentID();
-        }
-
         $response = $this->client
-            ->post($path)
+            ->post('/api.xro/2.0/Payments')
             ->withJson([
                 'Payments' => [$this->payment->toRequest()],
             ])

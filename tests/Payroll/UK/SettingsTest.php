@@ -7,6 +7,7 @@ namespace Sujip\Xero\Tests\Payroll\UK;
 use PHPUnit\Framework\TestCase;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
+use Sujip\Xero\Payroll\UK\Settings\Account;
 use Sujip\Xero\Payroll\UK\Settings\PayrollSettings;
 use Sujip\Xero\Payroll\UK\Settings\Reimbursement;
 use Sujip\Xero\Payroll\UK\Settings\StatutoryLeaveSummary;
@@ -88,7 +89,10 @@ final class SettingsTest extends TestCase
             'name' => 'Meals',
             'accountID' => 'account-2',
         ], $transport->requests()[5]->json);
-        self::assertSame('account-1', $payrollSettings->getAccounts()[0]['accountID'] ?? null);
+        self::assertSame('account-1', $payrollSettings->getAccounts()[0]->getAccountID());
+        self::assertSame('WAGESPAYABLE', $payrollSettings->getAccounts()[0]->getType());
+        self::assertSame('814', $payrollSettings->getAccounts()[0]->getCode());
+        self::assertSame('Wages Payable', $payrollSettings->getAccounts()[0]->getName());
         self::assertSame('employee-groups-1', $trackingCategories['employeeGroupsTrackingCategoryID'] ?? null);
         self::assertSame('timesheet-1', $trackingCategories['timesheetTrackingCategoryID'] ?? null);
         $firstReimb = $reimbursements->first();
@@ -110,6 +114,21 @@ final class SettingsTest extends TestCase
 
         self::assertSame(['payroll.settings'], $scopes->broad);
         self::assertSame(['payroll.settings.read', 'payroll.settings'], $scopes->granular);
+    }
+
+    public function test_it_can_filter_statutory_leave_summary_by_active_only(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode(['statutoryLeaves' => []], JSON_THROW_ON_ERROR)));
+
+        Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->settings()
+            ->statutoryLeaveSummary('employee-1', true);
+
+        self::assertSame('/payroll.xro/2.0/StatutoryLeaves/Summary/employee-1', $transport->requests()[0]->path);
+        self::assertSame('true', $transport->requests()[0]->query['activeOnly']);
     }
 
     public function test_it_returns_empty_collection_when_response_has_no_statutory_leaves(): void
@@ -146,7 +165,16 @@ final class SettingsTest extends TestCase
             'accounts' => [['accountID' => 'account-1', 'type' => 'WAGESPAYABLE']],
         ]);
 
-        self::assertSame('account-1', $settings->getAccounts()[0]['accountID'] ?? null);
+        self::assertSame('account-1', $settings->getAccounts()[0]->getAccountID());
+        self::assertSame('WAGESPAYABLE', $settings->getAccounts()[0]->getType());
+    }
+
+    public function test_payroll_settings_accounts_can_be_set_directly(): void
+    {
+        $account = (new Account())->setAccountID('account-1');
+        $settings = (new PayrollSettings())->setAccounts([$account]);
+
+        self::assertSame([$account], $settings->getAccounts());
     }
 
     public function test_reimbursement_save_returns_blank_model_on_empty_response(): void

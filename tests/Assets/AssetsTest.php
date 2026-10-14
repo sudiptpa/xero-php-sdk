@@ -5,12 +5,23 @@ declare(strict_types=1);
 namespace Sujip\Xero\Tests\Assets;
 
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Sujip\Xero\Http\FakeTransport;
 use Sujip\Xero\Http\Response;
 use Sujip\Xero\Xero;
 
 final class AssetsTest extends TestCase
 {
+    public function test_it_requires_a_status_before_listing_assets(): void
+    {
+        $transport = new FakeTransport();
+        $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
+
+        $this->expectException(RuntimeException::class);
+
+        $client->assets()->get();
+    }
+
     public function test_it_can_query_list_paginate_and_find_assets(): void
     {
         $transport = new FakeTransport();

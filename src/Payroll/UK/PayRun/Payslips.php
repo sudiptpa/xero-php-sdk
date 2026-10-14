@@ -21,19 +21,22 @@ final readonly class Payslips implements DefinesScopes
     public function scopes(): ScopeRequirements
     {
         return new ScopeRequirements(
-            broad: ['payroll.payruns'],
-            granular: ['payroll.payruns.read', 'payroll.payruns']
+            broad: ['payroll.payslip'],
+            granular: ['payroll.payslip.read', 'payroll.payslip']
         );
     }
 
     /**
      * @return ResourceCollection<Payslip>
      */
-    public function get(): ResourceCollection
+    public function get(?int $page = null): ResourceCollection
     {
         $payload = $this->client
             ->get('/payroll.xro/2.0/Payslips')
-            ->withQuery(['PayRunID' => $this->payRunId])
+            ->withQuery(array_filter([
+                'PayRunID' => $this->payRunId,
+                'page' => $page,
+            ], static fn (mixed $value): bool => $value !== null))
             ->send()
             ->json();
 

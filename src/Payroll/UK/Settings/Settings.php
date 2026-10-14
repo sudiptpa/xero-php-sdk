@@ -93,10 +93,11 @@ final readonly class Settings implements DefinesScopes
     /**
      * @return ResourceCollection<StatutoryLeaveSummary>
      */
-    public function statutoryLeaveSummary(string $employeeId): ResourceCollection
+    public function statutoryLeaveSummary(string $employeeId, ?bool $activeOnly = null): ResourceCollection
     {
         $payload = $this->client
             ->get('/payroll.xro/2.0/StatutoryLeaves/Summary/' . $employeeId)
+            ->withQuery($activeOnly === null ? [] : ['activeOnly' => $activeOnly ? 'true' : 'false'])
             ->send()
             ->json();
 
