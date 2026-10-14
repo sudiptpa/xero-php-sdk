@@ -87,10 +87,6 @@ New endpoints and resources. These are additive and do not change existing metho
   - timesheet lines: create, update, and delete a line on a timesheet
   - employee pay template earnings: list, create, update, delete, and bulk create
 
-### Added (infrastructure)
-
-- CI audit workflow (`.github/workflows/audit.yml`): downloads the latest Xero OpenAPI specs from `XeroAPI/Xero-OpenAPI` on every push and PR, then runs `.github/scripts/audit.py` (endpoint coverage) and `.github/scripts/schema_audit.py` (model field audit). Any finding fails the build; there is zero tolerance for spec drift.
-
 ### Fixed
 
 These are bug fixes against the official Xero OpenAPI specs. The affected calls previously 404'd, returned empty data, or sent a payload Xero ignores. They change method signatures and serialized payloads, so they are breaking. See `UPGRADE.md` for the full list of affected methods.

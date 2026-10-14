@@ -18,7 +18,7 @@ final class ResponseErrorMapperTest extends TestCase
     public function test_it_maps_insufficient_scope_errors(): void
     {
         $exception = ResponseErrorMapper::map(
-            new Response(401, ['WWW-Authenticate' => 'Bearer error="insufficient_scope"'])
+            new Response(401, ['www-authenticate' => 'Bearer error="insufficient_scope"'])
         );
 
         self::assertInstanceOf(InsufficientScopeException::class, $exception);

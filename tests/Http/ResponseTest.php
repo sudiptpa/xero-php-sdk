@@ -24,6 +24,7 @@ final class ResponseTest extends TestCase
         $response = new Response(200, ['Content-Type' => 'application/json']);
 
         self::assertSame('application/json', $response->header('Content-Type'));
+        self::assertSame('application/json', $response->header('content-type'));
         self::assertNull($response->header('X-Missing'));
         self::assertSame('fallback', $response->header('X-Missing', 'fallback'));
     }

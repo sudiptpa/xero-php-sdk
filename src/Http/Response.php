@@ -32,6 +32,12 @@ final readonly class Response
 
     public function header(string $name, ?string $default = null): ?string
     {
-        return $this->headers[$name] ?? $default;
+        foreach ($this->headers as $headerName => $value) {
+            if (strcasecmp($headerName, $name) === 0) {
+                return $value;
+            }
+        }
+
+        return $default;
     }
 }
