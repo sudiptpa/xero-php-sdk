@@ -19,7 +19,9 @@ final class InvoiceAttachmentsTest extends TestCase
                 'Attachments' => [[
                     'AttachmentID' => 'attachment-1',
                     'FileName' => 'invoice.pdf',
+                    'Url' => 'https://api.xero.com/api.xro/2.0/Invoices/invoice-1/Attachments/invoice.pdf',
                     'MimeType' => 'application/pdf',
+                    'ContentLength' => 16,
                     'IncludeOnline' => true,
                 ]],
             ], JSON_THROW_ON_ERROR))
@@ -35,7 +37,10 @@ final class InvoiceAttachmentsTest extends TestCase
         $request = $transport->requests()[0];
 
         self::assertSame('/api.xro/2.0/Invoices/invoice-1/Attachments', $request->path);
-        self::assertInstanceOf(Attachment::class, $attachments->first());
+        $first = $attachments->first();
+        self::assertInstanceOf(Attachment::class, $first);
+        self::assertSame('https://api.xero.com/api.xro/2.0/Invoices/invoice-1/Attachments/invoice.pdf', $first->url);
+        self::assertSame(16, $first->contentLength);
     }
 
     public function test_it_can_upload_an_invoice_attachment(): void

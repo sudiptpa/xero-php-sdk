@@ -29,7 +29,9 @@ final class AttachmentAccessorsTest extends TestCase
                 'Attachments' => [[
                     'AttachmentID' => 'attachment-1',
                     'FileName' => 'receipt.png',
+                    'Url' => 'https://api.xero.com/api.xro/2.0/Accounts/id-1/Attachments/receipt.png',
                     'MimeType' => 'image/png',
+                    'ContentLength' => 2878711,
                     'IncludeOnline' => true,
                 ]],
             ], JSON_THROW_ON_ERROR)));
@@ -47,7 +49,9 @@ final class AttachmentAccessorsTest extends TestCase
             self::assertNotNull($first);
             self::assertSame('attachment-1', $first->id);
             self::assertSame('receipt.png', $first->fileName);
+            self::assertSame('https://api.xero.com/api.xro/2.0/Accounts/id-1/Attachments/receipt.png', $first->url);
             self::assertSame('image/png', $first->mimeType);
+            self::assertSame(2878711, $first->contentLength);
             self::assertTrue($first->includeOnline);
         }
     }

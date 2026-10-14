@@ -141,14 +141,18 @@ final class ManualJournalsTest extends TestCase
             'Attachments' => [[
                 'AttachmentID' => 'attachment-1',
                 'FileName' => 'journal.pdf',
+                'Url' => 'https://api.xero.com/api.xro/2.0/ManualJournals/journal-1/Attachments/journal.pdf',
                 'MimeType' => 'application/pdf',
+                'ContentLength' => 16,
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: json_encode([
             'Attachments' => [[
                 'AttachmentID' => 'attachment-1',
                 'FileName' => 'journal.pdf',
+                'Url' => 'https://api.xero.com/api.xro/2.0/ManualJournals/journal-1/Attachments/journal.pdf',
                 'MimeType' => 'application/pdf',
+                'ContentLength' => 16,
             ]],
         ], JSON_THROW_ON_ERROR)));
         $transport->push(new Response(200, body: 'journal-by-name'));
@@ -175,6 +179,10 @@ final class ManualJournalsTest extends TestCase
         self::assertSame('/api.xro/2.0/ManualJournals/journal-1/Attachments/attachment-1', $transport->requests()[3]->path);
         self::assertCount(1, $list);
         self::assertSame('journal.pdf', $uploaded->fileName);
+        $firstListed = $list->first();
+        self::assertNotNull($firstListed);
+        self::assertSame('https://api.xero.com/api.xro/2.0/ManualJournals/journal-1/Attachments/journal.pdf', $firstListed->url);
+        self::assertSame(16, $firstListed->contentLength);
         self::assertSame('journal-by-name', $byName);
         self::assertSame('journal-by-id', $byId);
     }

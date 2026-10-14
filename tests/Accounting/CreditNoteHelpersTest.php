@@ -19,7 +19,9 @@ final class CreditNoteHelpersTest extends TestCase
             'Attachments' => [[
                 'AttachmentID' => 'attachment-1',
                 'FileName' => 'credit-note.pdf',
+                'Url' => 'https://api.xero.com/api.xro/2.0/CreditNotes/credit-1/Attachments/credit-note.pdf',
                 'MimeType' => 'application/pdf',
+                'ContentLength' => 2878711,
                 'IncludeOnline' => true,
             ]],
         ], JSON_THROW_ON_ERROR)));
@@ -27,7 +29,9 @@ final class CreditNoteHelpersTest extends TestCase
             'Attachments' => [[
                 'AttachmentID' => 'attachment-2',
                 'FileName' => 'credit-note.pdf',
+                'Url' => 'https://api.xero.com/api.xro/2.0/CreditNotes/credit-1/Attachments/credit-note.pdf',
                 'MimeType' => 'application/pdf',
+                'ContentLength' => 2878711,
                 'IncludeOnline' => true,
             ]],
         ], JSON_THROW_ON_ERROR)));
@@ -42,11 +46,15 @@ final class CreditNoteHelpersTest extends TestCase
             ->save();
 
         self::assertSame('/api.xro/2.0/CreditNotes/credit-1/Attachments', $transport->requests()[0]->path);
-        self::assertNotNull($attachments->first());
+        $first = $attachments->first();
+        self::assertNotNull($first);
+        self::assertSame('https://api.xero.com/api.xro/2.0/CreditNotes/credit-1/Attachments/credit-note.pdf', $first->url);
+        self::assertSame(2878711, $first->contentLength);
         self::assertSame('PUT', $transport->requests()[1]->method);
         self::assertStringContainsString('/api.xro/2.0/CreditNotes/credit-1/Attachments/credit-note.pdf', $transport->requests()[1]->path);
         self::assertSame('application/pdf', $transport->requests()[1]->headers['Content-Type']);
         self::assertTrue((bool) $uploaded->includeOnline);
+        self::assertSame(2878711, $uploaded->contentLength);
     }
 
     public function test_it_can_download_credit_note_attachments_by_name_and_id(): void

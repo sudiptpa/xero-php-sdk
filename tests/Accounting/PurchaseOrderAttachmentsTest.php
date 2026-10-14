@@ -19,7 +19,9 @@ final class PurchaseOrderAttachmentsTest extends TestCase
             'Attachments' => [[
                 'AttachmentID' => 'attachment-1',
                 'FileName' => 'purchase-order.pdf',
+                'Url' => 'https://api.xero.com/api.xro/2.0/PurchaseOrders/po-1/Attachments/purchase-order.pdf',
                 'MimeType' => 'application/pdf',
+                'ContentLength' => 16,
                 'IncludeOnline' => false,
             ]],
         ], JSON_THROW_ON_ERROR)));
@@ -27,7 +29,9 @@ final class PurchaseOrderAttachmentsTest extends TestCase
             'Attachments' => [[
                 'AttachmentID' => 'attachment-2',
                 'FileName' => 'purchase-order.pdf',
+                'Url' => 'https://api.xero.com/api.xro/2.0/PurchaseOrders/po-1/Attachments/purchase-order.pdf',
                 'MimeType' => 'application/pdf',
+                'ContentLength' => 16,
                 'IncludeOnline' => true,
             ]],
         ], JSON_THROW_ON_ERROR)));
@@ -42,7 +46,10 @@ final class PurchaseOrderAttachmentsTest extends TestCase
             ->save();
 
         self::assertSame('/api.xro/2.0/PurchaseOrders/po-1/Attachments', $transport->requests()[0]->path);
-        self::assertInstanceOf(Attachment::class, $attachments->first());
+        $first = $attachments->first();
+        self::assertInstanceOf(Attachment::class, $first);
+        self::assertSame('https://api.xero.com/api.xro/2.0/PurchaseOrders/po-1/Attachments/purchase-order.pdf', $first->url);
+        self::assertSame(16, $first->contentLength);
         self::assertSame('PUT', $transport->requests()[1]->method);
         self::assertStringContainsString('/api.xro/2.0/PurchaseOrders/po-1/Attachments/purchase-order.pdf', $transport->requests()[1]->path);
         self::assertSame('application/pdf', $transport->requests()[1]->headers['Content-Type']);
