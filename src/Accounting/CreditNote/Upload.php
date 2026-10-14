@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sujip\Xero\Accounting\CreditNote;
 
 use Sujip\Xero\Client;
+use Sujip\Xero\Http\PendingRequest;
 use Sujip\Xero\Support\Json;
 
 final class Upload
@@ -39,14 +40,28 @@ final class Upload
 
     public function save(): Attachment
     {
+        return $this->send($this->client->put($this->path()));
+    }
+
+    public function update(): Attachment
+    {
+        return $this->send($this->client->post($this->path()));
+    }
+
+    private function path(): string
+    {
         $path = '/api.xro/2.0/CreditNotes/' . $this->creditNoteId . '/Attachments/' . rawurlencode($this->fileName);
 
         if ($this->includeOnline) {
             $path .= '?IncludeOnline=true';
         }
 
-        $response = $this->client
-            ->put($path)
+        return $path;
+    }
+
+    private function send(PendingRequest $request): Attachment
+    {
+        $response = $request
             ->withHeaders($this->mimeType === null ? [] : ['Content-Type' => $this->mimeType])
             ->withBody($this->content)
             ->send();

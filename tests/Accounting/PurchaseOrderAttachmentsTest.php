@@ -49,6 +49,29 @@ final class PurchaseOrderAttachmentsTest extends TestCase
         self::assertTrue((bool) $uploaded->includeOnline);
     }
 
+    public function test_it_can_update_a_purchase_order_attachment(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'Attachments' => [[
+                'AttachmentID' => 'attachment-1',
+                'FileName' => 'purchase-order.pdf',
+                'MimeType' => 'application/pdf',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $updated = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->purchaseOrders()
+            ->attachments('po-1')
+            ->upload('purchase-order.pdf', 'binary-pdf-v2')
+            ->update();
+
+        self::assertSame('POST', $transport->requests()[0]->method);
+        self::assertSame('/api.xro/2.0/PurchaseOrders/po-1/Attachments/purchase-order.pdf', $transport->requests()[0]->path);
+        self::assertSame('attachment-1', $updated->id);
+    }
+
     public function test_it_can_download_purchase_order_attachments_by_name_and_id(): void
     {
         $transport = new FakeTransport();

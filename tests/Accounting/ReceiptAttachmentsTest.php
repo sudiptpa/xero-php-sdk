@@ -46,6 +46,29 @@ final class ReceiptAttachmentsTest extends TestCase
         self::assertSame('attachment-2', $uploaded->id);
     }
 
+    public function test_it_can_update_a_receipt_attachment(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'Attachments' => [[
+                'AttachmentID' => 'attachment-1',
+                'FileName' => 'receipt.jpg',
+                'MimeType' => 'image/jpeg',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $updated = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->receipts()
+            ->attachments('receipt-1')
+            ->upload('receipt.jpg', 'binary-image-v2')
+            ->update();
+
+        self::assertSame('POST', $transport->requests()[0]->method);
+        self::assertSame('/api.xro/2.0/Receipts/receipt-1/Attachments/receipt.jpg', $transport->requests()[0]->path);
+        self::assertSame('attachment-1', $updated->id);
+    }
+
     public function test_it_can_download_receipt_attachments_by_name_and_id_and_from_model(): void
     {
         $transport = new FakeTransport();

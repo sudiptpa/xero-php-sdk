@@ -71,6 +71,29 @@ final class CreditNoteHelpersTest extends TestCase
         self::assertSame('credit-note-by-id', $byId);
     }
 
+    public function test_it_can_update_a_credit_note_attachment(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'Attachments' => [[
+                'AttachmentID' => 'attachment-1',
+                'FileName' => 'credit-note.pdf',
+                'MimeType' => 'application/pdf',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $updated = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->creditNotes()
+            ->attachments('credit-1')
+            ->upload('credit-note.pdf', 'binary-pdf-v2')
+            ->update();
+
+        self::assertSame('POST', $transport->requests()[0]->method);
+        self::assertSame('/api.xro/2.0/CreditNotes/credit-1/Attachments/credit-note.pdf', $transport->requests()[0]->path);
+        self::assertSame('attachment-1', $updated->id);
+    }
+
     public function test_it_can_list_history_record_history_and_fetch_pdf(): void
     {
         $transport = new FakeTransport();

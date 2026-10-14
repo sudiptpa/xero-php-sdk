@@ -70,6 +70,29 @@ final class InvoiceAttachmentsTest extends TestCase
         self::assertTrue((bool) $attachment->includeOnline);
     }
 
+    public function test_it_can_update_an_invoice_attachment(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode([
+            'Attachments' => [[
+                'AttachmentID' => 'attachment-1',
+                'FileName' => 'invoice.pdf',
+                'MimeType' => 'application/pdf',
+            ]],
+        ], JSON_THROW_ON_ERROR)));
+
+        $updated = Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->accounting()
+            ->invoices()
+            ->attachments('invoice-1')
+            ->upload('invoice.pdf', 'binary-pdf-v2')
+            ->update();
+
+        self::assertSame('POST', $transport->requests()[0]->method);
+        self::assertSame('/api.xro/2.0/Invoices/invoice-1/Attachments/invoice.pdf', $transport->requests()[0]->path);
+        self::assertSame('attachment-1', $updated->id);
+    }
+
     public function test_it_can_download_invoice_attachments_by_name_and_id(): void
     {
         $transport = new FakeTransport();

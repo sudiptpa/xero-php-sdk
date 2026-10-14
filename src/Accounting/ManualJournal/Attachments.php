@@ -28,8 +28,10 @@ final readonly class Attachments
 
         $items = array_map(
             static fn (array $attachment): Attachment => new Attachment(
+                is_string($attachment['AttachmentID'] ?? null) ? $attachment['AttachmentID'] : null,
                 is_string($attachment['FileName'] ?? null) ? $attachment['FileName'] : null,
-                is_string($attachment['Url'] ?? null) ? $attachment['Url'] : null,
+                is_string($attachment['MimeType'] ?? null) ? $attachment['MimeType'] : null,
+                isset($attachment['IncludeOnline']) ? (bool) $attachment['IncludeOnline'] : null,
                 $attachment
             ),
             Json::extractList($payload, 'Attachments')
