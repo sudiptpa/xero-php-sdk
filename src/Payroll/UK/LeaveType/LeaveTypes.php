@@ -68,6 +68,18 @@ final class LeaveTypes implements PaginatesResults, DefinesScopes
         return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/2.0/LeaveTypes']);
     }
 
+    public function find(string $leaveTypeId): ?LeaveType
+    {
+        $payload = $this->client
+            ->get('/payroll.xro/2.0/LeaveTypes/' . $leaveTypeId)
+            ->send()
+            ->json();
+
+        $leaveType = Json::extractObject($payload, 'leaveType');
+
+        return $leaveType !== [] ? $this->mapLeaveType($leaveType) : null;
+    }
+
     /**
      * @param array<string, mixed> $leaveType
      */
