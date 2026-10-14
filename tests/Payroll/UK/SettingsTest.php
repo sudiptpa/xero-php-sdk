@@ -88,7 +88,7 @@ final class SettingsTest extends TestCase
             'name' => 'Meals',
             'accountID' => 'account-2',
         ], $transport->requests()[5]->json);
-        self::assertSame('account-1', $payrollSettings->getAccounts()[0]['accountID'] ?? null);
+        self::assertSame('account-1', $payrollSettings->getAccounts()[0]->getAccountID());
         self::assertSame('employee-groups-1', $trackingCategories['employeeGroupsTrackingCategoryID'] ?? null);
         self::assertSame('timesheet-1', $trackingCategories['timesheetTrackingCategoryID'] ?? null);
         $firstReimb = $reimbursements->first();
@@ -146,7 +146,8 @@ final class SettingsTest extends TestCase
             'accounts' => [['accountID' => 'account-1', 'type' => 'WAGESPAYABLE']],
         ]);
 
-        self::assertSame('account-1', $settings->getAccounts()[0]['accountID'] ?? null);
+        self::assertSame('account-1', $settings->getAccounts()[0]->getAccountID());
+        self::assertSame('WAGESPAYABLE', $settings->getAccounts()[0]->getType());
     }
 
     public function test_reimbursement_save_returns_blank_model_on_empty_response(): void

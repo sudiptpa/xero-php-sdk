@@ -10,7 +10,7 @@ use Sujip\Xero\Support\Model;
 final class PayrollSettings extends Model
 {
     /**
-     * @param list<array<string, mixed>> $accounts
+     * @param list<Account> $accounts
      */
     public function __construct(
         private array $accounts = [],
@@ -18,7 +18,7 @@ final class PayrollSettings extends Model
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return list<Account>
      */
     public function getAccounts(): array
     {
@@ -26,11 +26,18 @@ final class PayrollSettings extends Model
     }
 
     /**
-     * @param list<array<string, mixed>> $accounts
+     * @param list<Account> $accounts
      */
     public function setAccounts(array $accounts): self
     {
         $this->accounts = $accounts;
+
+        return $this;
+    }
+
+    public function addAccount(Account $account): self
+    {
+        $this->accounts[] = $account;
 
         return $this;
     }
@@ -41,7 +48,7 @@ final class PayrollSettings extends Model
     protected static function getDefinitions(): array
     {
         return [
-            'accounts' => Field::array()->using('setAccounts'),
+            'accounts' => Field::many(Account::class),
         ];
     }
 }
