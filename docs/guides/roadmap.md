@@ -2,31 +2,30 @@
 
 ## Current state
 
-The package covers every endpoint and model field in the official Xero OpenAPI
-specs (Accounting, Payroll AU/NZ/UK, Files, Assets, Projects, Finance, App Store,
-Identity, Webhooks). There are no known gaps.
+The package supports Accounting, Payroll AU/NZ/UK, Files, Assets, Projects,
+Finance, App Store, Identity, and Webhooks.
 
 ## Staying correct
 
-The audit CI workflow (`.github/workflows/audit.yml`) downloads the latest Xero
-OpenAPI specs on every push and pull request, then runs two checks:
+Before each release, compare the package with the official Xero OpenAPI specs.
+Review:
 
-- every spec endpoint must be implemented (`.github/scripts/audit.py`)
-- every model field name and type must match the spec exactly
-  (`.github/scripts/schema_audit.py`)
+- supported endpoints and SDK operations
+- model field names and types
+- request methods, paths, bodies, and response shapes
 
-Either check failing blocks the merge. Spec drift from Xero (a renamed field, a new
-endpoint, a changed type) gets caught automatically instead of going unnoticed.
+Repository CI runs formatting, static analysis, tests, and coverage. Keep
+OpenAPI snapshots and review tools local.
 
 ## When Xero changes the spec
 
-If the audit starts failing after an upstream spec update:
+When Xero publishes a new spec version:
 
-1. read the failing endpoint or field finding
-2. fix the SDK to match the new spec exactly
-3. document the change in `UPGRADE.md` and `CHANGELOG.md` if it breaks a public
-   method signature or removes a field
-4. cut a new major version if the fix is a breaking change
+1. Compare it with the currently supported version.
+2. Review every added, removed, or changed endpoint and field.
+3. Update the SDK, tests, and public docs.
+4. Document breaking changes in `UPGRADE.md` and `CHANGELOG.md`.
+5. Use a major release when a required correction breaks existing callers.
 
 ## Out of scope
 
