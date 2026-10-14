@@ -137,7 +137,7 @@ final class CreditNoteHelpersTest extends TestCase
         self::assertSame('Updated from ERP', $hr['Details']);
         self::assertSame('Updated from ERP', $record->details);
         self::assertSame('2026-03-26T00:00:00', $record->dateUtc);
-        self::assertSame('/api.xro/2.0/CreditNotes/credit-1/pdf', $transport->requests()[2]->path);
+        self::assertSame('/api.xro/2.0/CreditNotes/credit-1', $transport->requests()[2]->path);
         self::assertSame('application/pdf', $transport->requests()[2]->headers['Accept']);
         self::assertSame('%PDF-credit-note', $pdf);
     }

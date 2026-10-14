@@ -31,10 +31,11 @@ final class InvoicesTest extends TestCase
         $requests = $transport->requests();
         self::assertSame(['allowBackorders' => 'true', 'unitdp' => 4], $requests[0]->query);
         self::assertSame('invoice-attempt-1', $requests[0]->headers['Idempotency-Key']);
-        self::assertSame('POST', $requests[0]->method);
+        self::assertSame('PUT', $requests[0]->method);
         self::assertSame('/api.xro/2.0/Invoices', $requests[0]->path);
         self::assertArrayNotHasKey('allowBackorders', Json::extractFirst($requests[0]->json ?? [], 'Invoices') ?? []);
         self::assertSame(['allowBackorders' => 'false', 'unitdp' => 4], $requests[1]->query);
+        self::assertSame('POST', $requests[1]->method);
         self::assertSame('/api.xro/2.0/Invoices/invoice-1', $requests[1]->path);
         self::assertSame([], $requests[2]->query);
         self::assertArrayNotHasKey('Idempotency-Key', $requests[2]->headers);
@@ -132,7 +133,7 @@ final class InvoicesTest extends TestCase
 
         $request = $transport->requests()[0];
 
-        self::assertSame('POST', $request->method);
+        self::assertSame('PUT', $request->method);
         self::assertSame('/api.xro/2.0/Invoices', $request->path);
         $json = $request->json ?? [];
         $inv = Json::extractFirst($json, 'Invoices');
@@ -488,7 +489,8 @@ final class InvoicesTest extends TestCase
         $pdf = $invoice->pdf();
 
         self::assertSame('%PDF-1.4 invoice', $pdf);
-        self::assertSame('/api.xro/2.0/Invoices/invoice-1/pdf', $transport->requests()[1]->path);
+        self::assertSame('/api.xro/2.0/Invoices/invoice-1', $transport->requests()[1]->path);
+        self::assertSame('application/pdf', $transport->requests()[1]->headers['Accept']);
     }
 
     public function test_it_can_email_an_invoice(): void

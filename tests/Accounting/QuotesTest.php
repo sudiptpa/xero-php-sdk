@@ -283,7 +283,7 @@ final class QuotesTest extends TestCase
         $pdf = $quote->pdf();
 
         self::assertSame('%PDF-1.4 quote', $pdf);
-        self::assertSame('/api.xro/2.0/Quotes/quote-1/pdf', $transport->requests()[1]->path);
+        self::assertSame('/api.xro/2.0/Quotes/quote-1', $transport->requests()[1]->path);
     }
 
     public function test_saving_without_a_client_throws(): void

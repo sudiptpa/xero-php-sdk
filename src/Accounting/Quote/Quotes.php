@@ -115,7 +115,7 @@ final class Quotes implements PaginatesResults, DefinesScopes
     public function pdf(string $quoteId): string
     {
         $response = $this->client
-            ->get('/api.xro/2.0/Quotes/' . $quoteId . '/pdf')
+            ->get('/api.xro/2.0/Quotes/' . $quoteId)
             ->withHeaders(['Accept' => 'application/pdf'])
             ->send();
 

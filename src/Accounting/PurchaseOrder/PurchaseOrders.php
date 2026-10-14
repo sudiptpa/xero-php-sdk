@@ -114,7 +114,7 @@ final class PurchaseOrders implements PaginatesResults, DefinesScopes
     public function pdf(string $purchaseOrderId): string
     {
         $response = $this->client
-            ->get('/api.xro/2.0/PurchaseOrders/' . $purchaseOrderId . '/pdf')
+            ->get('/api.xro/2.0/PurchaseOrders/' . $purchaseOrderId)
             ->withHeaders(['Accept' => 'application/pdf'])
             ->send();
 
