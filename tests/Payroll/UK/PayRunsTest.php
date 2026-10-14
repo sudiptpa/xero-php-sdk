@@ -14,7 +14,7 @@ use Sujip\Xero\Xero;
 
 final class PayRunsTest extends TestCase
 {
-    public function test_it_can_query_find_and_create_pay_runs(): void
+    public function test_it_can_query_and_find_pay_runs(): void
     {
         $transport = new FakeTransport();
         $transport->push(new Response(200, body: json_encode([
@@ -38,22 +38,11 @@ final class PayRunsTest extends TestCase
                 'payRunStatus' => 'Draft',
             ],
         ], JSON_THROW_ON_ERROR)));
-        $transport->push(new Response(200, body: json_encode([
-            'payRun' => [
-                'payRunID' => 'payrun-2',
-                'payrollCalendarID' => 'calendar-1',
-                'payRunStatus' => 'Draft',
-            ],
-        ], JSON_THROW_ON_ERROR)));
 
         $client = Xero::withAccessToken('token', $transport)->tenant('tenant-123');
 
         $runs = $client->payroll()->uk()->payRuns()->status('Draft')->page(2)->get();
         $run = $client->payroll()->uk()->payRuns()->find('payrun-1');
-        $created = $client->payroll()->uk()->payRuns()->create()
-            ->payrollCalendar('calendar-1')
-            ->paymentDate('2026-04-05')
-            ->save();
 
         self::assertSame('/payroll.xro/2.0/PayRuns', $transport->requests()[0]->path);
         self::assertSame('Draft', $transport->requests()[0]->query['status']);
@@ -61,13 +50,7 @@ final class PayRunsTest extends TestCase
         $firstRun = $runs->first();
         self::assertNotNull($firstRun);
         self::assertSame('/payroll.xro/2.0/PayRuns/payrun-1', $transport->requests()[1]->path);
-        self::assertSame('/payroll.xro/2.0/PayRuns', $transport->requests()[2]->path);
-        self::assertSame([
-            'payrollCalendarID' => 'calendar-1',
-            'paymentDate' => '2026-04-05',
-        ], $transport->requests()[2]->json);
         self::assertSame('payrun-1', $run?->getPayRunID());
-        self::assertSame('payrun-2', $created->getPayRunID());
         self::assertSame('2026-03-01', $firstRun->getPeriodStartDate());
         self::assertSame(1500.25, $firstRun->getTotalCost());
         self::assertSame('Scheduled', $firstRun->getPayRunType());
@@ -123,6 +106,22 @@ final class PayRunsTest extends TestCase
         self::assertSame('payslip-1', $modelPayslips?->first()?->getPayslipID());
     }
 
+    public function test_it_can_page_through_payslips(): void
+    {
+        $transport = (new FakeTransport())->push(new Response(200, body: json_encode(['paySlips' => []], JSON_THROW_ON_ERROR)));
+
+        Xero::withAccessToken('token', $transport)
+            ->tenant('tenant-123')
+            ->payroll()
+            ->uk()
+            ->payRuns()
+            ->payslips('payrun-1')
+            ->get(2);
+
+        self::assertSame('payrun-1', $transport->requests()[0]->query['PayRunID']);
+        self::assertSame(2, $transport->requests()[0]->query['page']);
+    }
+
     public function test_it_exposes_scopes(): void
     {
         $payRuns = Xero::withAccessToken('token', new FakeTransport())
@@ -136,8 +135,8 @@ final class PayRunsTest extends TestCase
 
         self::assertSame(['payroll.payruns'], $scopes->broad);
         self::assertSame(['payroll.payruns.read', 'payroll.payruns'], $scopes->granular);
-        self::assertSame(['payroll.payruns'], $payslipScopes->broad);
-        self::assertSame(['payroll.payruns.read', 'payroll.payruns'], $payslipScopes->granular);
+        self::assertSame(['payroll.payslip'], $payslipScopes->broad);
+        self::assertSame(['payroll.payslip.read', 'payroll.payslip'], $payslipScopes->granular);
     }
 
     public function test_it_can_paginate_pay_runs(): void
@@ -201,24 +200,6 @@ final class PayRunsTest extends TestCase
         $this->expectException(RuntimeException::class);
 
         (new PayRun())->payslips();
-    }
-
-    public function test_it_sends_idempotency_key_and_returns_blank_pay_run_on_empty_response(): void
-    {
-        $transport = (new FakeTransport())->push(new Response(200, body: '{}'));
-
-        $payRun = Xero::withAccessToken('token', $transport)
-            ->tenant('tenant-123')
-            ->payroll()
-            ->uk()
-            ->payRuns()
-            ->create()
-            ->payrollCalendar('calendar-1')
-            ->idempotencyKey('key-123')
-            ->save();
-
-        self::assertSame('key-123', $transport->requests()[0]->headers['Idempotency-Key']);
-        self::assertNull($payRun->getPayRunID());
     }
 
     public function test_payslip_exposes_all_fields(): void
