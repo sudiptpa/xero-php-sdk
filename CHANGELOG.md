@@ -21,6 +21,7 @@ All notable changes to this package are documented here.
 
 ### Removed
 
+- Replaced AU Payroll Timesheets V1 with V2. This removes V1 filters, the whole-timesheet update call, and legacy fields, and requires a major release.
 - Removed the retired Accounting Employees API.
 - Removed payment updates and UK pay-run creation because Xero does not provide those operations.
 - Removed fields that are not present in the Xero schemas from Accounting currencies, invoice reminders, and AU leave applications.

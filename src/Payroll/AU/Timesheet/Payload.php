@@ -9,24 +9,19 @@ use Sujip\Xero\Support\Json;
 
 final class Payload
 {
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     private array $payload = [];
-
-    private ?string $timesheetId = null;
 
     private ?string $idempotencyKey = null;
 
-    public function __construct(
-        private readonly Client $client
-    ) {
+    public function __construct(private readonly Client $client)
+    {
     }
 
-    public function id(string $timesheetId): self
+    public function payrollCalendar(string $payrollCalendarId): self
     {
         $clone = clone $this;
-        $clone->timesheetId = $timesheetId;
+        $clone->payload['payrollCalendarID'] = $payrollCalendarId;
 
         return $clone;
     }
@@ -34,7 +29,7 @@ final class Payload
     public function employee(string $employeeId): self
     {
         $clone = clone $this;
-        $clone->payload['EmployeeID'] = $employeeId;
+        $clone->payload['employeeID'] = $employeeId;
 
         return $clone;
     }
@@ -42,7 +37,7 @@ final class Payload
     public function startDate(string $startDate): self
     {
         $clone = clone $this;
-        $clone->payload['StartDate'] = $startDate;
+        $clone->payload['startDate'] = $startDate;
 
         return $clone;
     }
@@ -50,15 +45,19 @@ final class Payload
     public function endDate(string $endDate): self
     {
         $clone = clone $this;
-        $clone->payload['EndDate'] = $endDate;
+        $clone->payload['endDate'] = $endDate;
 
         return $clone;
     }
 
-    public function status(string $status): self
+    /** @param list<TimesheetLine> $lines */
+    public function timesheetLines(array $lines): self
     {
         $clone = clone $this;
-        $clone->payload['Status'] = strtoupper($status);
+        $clone->payload['timesheetLines'] = array_map(
+            static fn (TimesheetLine $line): array => $line->toRequest(),
+            $lines
+        );
 
         return $clone;
     }
@@ -73,27 +72,23 @@ final class Payload
 
     public function save(): Timesheet
     {
-        $request = $this->timesheetId === null
-            ? $this->client->post('/payroll.xro/1.0/Timesheets')
-            : $this->client->post('/payroll.xro/1.0/Timesheets/' . $this->timesheetId);
+        $payload = $this->client
+            ->post('/payroll.xro/2.0/Timesheets')
+            ->withHeaders($this->idempotencyHeaders())
+            ->withJson($this->payload)
+            ->send()
+            ->json();
 
-        if ($this->timesheetId !== null) {
-            $this->payload['TimesheetID'] = $this->timesheetId;
-        }
+        $timesheet = Json::extractFirstOrObject($payload, 'timesheets', 'timesheet');
 
-        $response = $request
-            ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
-            ->contentTypeJson()
-            ->withBody(Json::encodeList([$this->payload]))
-            ->send();
+        return $timesheet !== null
+            ? (new Timesheets($this->client))->mapTimesheet($timesheet)
+            : new Timesheet($this->client);
+    }
 
-        $payload = $response->json();
-        $timesheet = Json::extractFirst($payload, 'Timesheets') ?? Json::extractObject($payload, 'Timesheet');
-
-        if ($timesheet === []) {
-            return new Timesheet($this->client);
-        }
-
-        return (new Timesheets($this->client))->mapTimesheet($timesheet);
+    /** @return array<string, string> */
+    private function idempotencyHeaders(): array
+    {
+        return $this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey];
     }
 }

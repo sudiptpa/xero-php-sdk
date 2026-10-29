@@ -256,7 +256,7 @@ $payslip = $xero->payroll()
 $timesheets = $xero->payroll()
     ->au()
     ->timesheets()
-    ->where('Status=="DRAFT"')
+    ->status('Draft')
     ->get();
 
 $timesheetId = $timesheets->first()?->getTimesheetID();
@@ -268,11 +268,23 @@ $timesheet = $xero->payroll()
     ->au()
     ->timesheets()
     ->create()
+    ->payrollCalendar('payroll-calendar-id')
     ->employee('employee-id')
     ->startDate('2026-03-23')
     ->endDate('2026-03-29')
-    ->status('DRAFT')
     ->save();
+```
+
+AU timesheets use Payroll API 2.0. Create requests require a payroll calendar, employee, and date range. Update individual lines with `updateLine()`, and use `approve()`, `revert()`, or `delete()` for timesheet actions. The API has no operation to update a whole timesheet.
+
+```php
+$line = $xero->payroll()
+    ->au()
+    ->timesheets()
+    ->createLine($timesheet->getTimesheetID(), new \Sujip\Xero\Payroll\AU\Timesheet\TimesheetLine()
+        ->setDate('2026-03-23')
+        ->setEarningsRateID('earnings-rate-id')
+        ->setNumberOfUnits(7.5));
 ```
 
 ## Settings

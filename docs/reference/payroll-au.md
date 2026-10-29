@@ -40,6 +40,7 @@ without a dedicated SDK model.
 - [Payroll\AU\SuperFund\SuperFunds](#payrollausuperfundsuperfunds)
 - [Payroll\AU\Timesheet\Payload](#payrollautimesheetpayload)
 - [Payroll\AU\Timesheet\Timesheet](#payrollautimesheettimesheet)
+- [Payroll\AU\Timesheet\TimesheetLine](#payrollautimesheettimesheetline)
 - [Payroll\AU\Timesheet\Timesheets](#payrollautimesheettimesheets)
 
 ## Payroll\AU\Employee
@@ -1004,14 +1005,14 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/AU/Timesheet/Payload.php#L21)
-- [`id(string $timesheetId): Sujip\Xero\Payroll\AU\Timesheet\Payload`](../../src/Payroll/AU/Timesheet/Payload.php#L26)
-- [`employee(string $employeeId): Sujip\Xero\Payroll\AU\Timesheet\Payload`](../../src/Payroll/AU/Timesheet/Payload.php#L34)
-- [`startDate(string $startDate): Sujip\Xero\Payroll\AU\Timesheet\Payload`](../../src/Payroll/AU/Timesheet/Payload.php#L42)
-- [`endDate(string $endDate): Sujip\Xero\Payroll\AU\Timesheet\Payload`](../../src/Payroll/AU/Timesheet/Payload.php#L50)
-- [`status(string $status): Sujip\Xero\Payroll\AU\Timesheet\Payload`](../../src/Payroll/AU/Timesheet/Payload.php#L58)
-- [`idempotencyKey(string $key): Sujip\Xero\Payroll\AU\Timesheet\Payload`](../../src/Payroll/AU/Timesheet/Payload.php#L66)
-- [`save(): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Payload.php#L74)
+- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/AU/Timesheet/Payload.php#L18)
+- [`payrollCalendar(string $payrollCalendarId): Sujip\Xero\Payroll\AU\Timesheet\Payload`](../../src/Payroll/AU/Timesheet/Payload.php#L22)
+- [`employee(string $employeeId): Sujip\Xero\Payroll\AU\Timesheet\Payload`](../../src/Payroll/AU/Timesheet/Payload.php#L30)
+- [`startDate(string $startDate): Sujip\Xero\Payroll\AU\Timesheet\Payload`](../../src/Payroll/AU/Timesheet/Payload.php#L38)
+- [`endDate(string $endDate): Sujip\Xero\Payroll\AU\Timesheet\Payload`](../../src/Payroll/AU/Timesheet/Payload.php#L46)
+- [`timesheetLines(array $lines): Sujip\Xero\Payroll\AU\Timesheet\Payload`](../../src/Payroll/AU/Timesheet/Payload.php#L55)
+- [`idempotencyKey(string $key): Sujip\Xero\Payroll\AU\Timesheet\Payload`](../../src/Payroll/AU/Timesheet/Payload.php#L65)
+- [`save(): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Payload.php#L72)
 
 ## Payroll\AU\Timesheet\Timesheet
 
@@ -1023,38 +1024,40 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 | API field | Hydrated value | Hydration method |
 | --- | --- | --- |
-| `TimesheetID` | string or null | `setTimesheetID()` |
-| `EmployeeID` | string or null | `setEmployeeID()` |
-| `StartDate` | string or null | `setStartDate()` |
-| `EndDate` | string or null | `setEndDate()` |
-| `Status` | string or null | `setStatus()` |
-| `Hours` | int, float, or null | `setHours()` |
-| `TimesheetLines` | array | `setTimesheetLines()` |
-| `UpdatedDateUTC` | string or null | `setUpdatedDateUTC()` |
-| `ValidationErrors` | list of objects ([Support\ValidationError](support.md#supportvalidationerror)) | `()` |
+| `timesheetID` | string or null | `setTimesheetID()` |
+| `payrollCalendarID` | string or null | `setPayrollCalendarID()` |
+| `employeeID` | string or null | `setEmployeeID()` |
+| `startDate` | string or null | `setStartDate()` |
+| `endDate` | string or null | `setEndDate()` |
+| `status` | string or null | `setStatus()` |
+| `totalHours` | int, float, or null | `setTotalHours()` |
+| `updatedDateUTC` | string or null | `setUpdatedDateUTC()` |
+| `timesheetLines` | list of objects ([Payroll\AU\Timesheet\TimesheetLine](#payrollautimesheettimesheetline)) | `()` |
 
 ### Public methods
 
-- [`__construct(?\Sujip\Xero\Client $client = NULL)`](../../src/Payroll/AU/Timesheet/Timesheet.php#L33)
-- [`getTimesheetID(): ?string`](../../src/Payroll/AU/Timesheet/Timesheet.php#L38)
-- [`setTimesheetID(?string $timesheetID): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheet.php#L43)
-- [`getEmployeeID(): ?string`](../../src/Payroll/AU/Timesheet/Timesheet.php#L50)
-- [`setEmployeeID(?string $employeeID): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheet.php#L55)
-- [`getStartDate(): ?string`](../../src/Payroll/AU/Timesheet/Timesheet.php#L62)
-- [`setStartDate(?string $startDate): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheet.php#L67)
-- [`getEndDate(): ?string`](../../src/Payroll/AU/Timesheet/Timesheet.php#L74)
-- [`setEndDate(?string $endDate): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheet.php#L79)
-- [`getStatus(): ?string`](../../src/Payroll/AU/Timesheet/Timesheet.php#L86)
-- [`setStatus(?string $status): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheet.php#L91)
-- [`getHours(): ?float`](../../src/Payroll/AU/Timesheet/Timesheet.php#L98)
-- [`setHours(?float $hours): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheet.php#L103)
-- [`getTimesheetLines(): array`](../../src/Payroll/AU/Timesheet/Timesheet.php#L113)
-- [`setTimesheetLines(array $timesheetLines): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheet.php#L121)
-- [`getUpdatedDateUTC(): ?string`](../../src/Payroll/AU/Timesheet/Timesheet.php#L128)
-- [`setUpdatedDateUTC(?string $updatedDateUTC): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheet.php#L133)
-- [`getValidationErrors(): array`](../../src/Payroll/AU/Timesheet/Timesheet.php#L143)
-- [`addValidationError(\Sujip\Xero\Support\ValidationError $validationError): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheet.php#L148)
-- [`save(): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheet.php#L173)
+- [`__construct(?\Sujip\Xero\Client $client = NULL)`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`getTimesheetID(): ?string`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`setTimesheetID(?string $timesheetID): self`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`getPayrollCalendarID(): ?string`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`setPayrollCalendarID(?string $payrollCalendarID): self`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`getEmployeeID(): ?string`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`setEmployeeID(?string $employeeID): self`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`getStartDate(): ?string`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`setStartDate(?string $startDate): self`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`getEndDate(): ?string`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`setEndDate(?string $endDate): self`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`getStatus(): ?string`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`setStatus(?string $status): self`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`getTotalHours(): ?float`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`setTotalHours(?float $totalHours): self`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`getUpdatedDateUTC(): ?string`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`setUpdatedDateUTC(?string $updatedDateUTC): self`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`getTimesheetLines(): array`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`addTimesheetLine(TimesheetLine $line): self`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`approve(?string $idempotencyKey = NULL): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`revert(?string $idempotencyKey = NULL): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheet.php)
+- [`delete(): bool`](../../src/Payroll/AU/Timesheet/Timesheet.php)
 
 ## Payroll\AU\Timesheet\Timesheets
 
@@ -1062,16 +1065,55 @@ Extends [Support\Model](support.md#supportmodel). Inherited methods are document
 
 ### Public methods
 
-- [`page(int $page): static`](../../src/Payroll/AU/Timesheet/Timesheets.php#L13)
-- [`perPage(int $perPage): static`](../../src/Payroll/AU/Timesheet/Timesheets.php#L21)
-- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/AU/Timesheet/Timesheets.php#L29)
-- [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Payroll/AU/Timesheet/Timesheets.php#L34)
-- [`modifiedSince(\DateTimeInterface $date): Sujip\Xero\Payroll\AU\Timesheet\Timesheets`](../../src/Payroll/AU/Timesheet/Timesheets.php#L42)
-- [`where(string $where): Sujip\Xero\Payroll\AU\Timesheet\Timesheets`](../../src/Payroll/AU/Timesheet/Timesheets.php#L50)
-- [`orderBy(string $order): Sujip\Xero\Payroll\AU\Timesheet\Timesheets`](../../src/Payroll/AU/Timesheet/Timesheets.php#L58)
-- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/AU/Timesheet/Timesheets.php#L69)
-- [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Payroll/AU/Timesheet/Timesheets.php#L89)
-- [`find(string $timesheetId): ?\Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheets.php#L104)
-- [`create(): Sujip\Xero\Payroll\AU\Timesheet\Payload`](../../src/Payroll/AU/Timesheet/Timesheets.php#L116)
-- [`update(string $timesheetId): Sujip\Xero\Payroll\AU\Timesheet\Payload`](../../src/Payroll/AU/Timesheet/Timesheets.php#L121)
-- [`mapTimesheet(array $timesheet): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheets.php#L129)
+- [`page(int $page): static`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`perPage(int $perPage): static`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`__construct(\Sujip\Xero\Client $client)`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`scopes(): Sujip\Xero\Support\ScopeRequirements`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`filter(string $filter): Sujip\Xero\Payroll\AU\Timesheet\Timesheets`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`status(string $status): Sujip\Xero\Payroll\AU\Timesheet\Timesheets`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`startDate(string $date): Sujip\Xero\Payroll\AU\Timesheet\Timesheets`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`endDate(string $date): Sujip\Xero\Payroll\AU\Timesheet\Timesheets`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`sort(string $sort): Sujip\Xero\Payroll\AU\Timesheet\Timesheets`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`get(): Sujip\Xero\Support\ResourceCollection`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`paginate(?int $page = NULL, ?int $perPage = NULL): Sujip\Xero\Support\PaginatedCollection`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`find(string $timesheetId): ?\Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`create(): Sujip\Xero\Payroll\AU\Timesheet\Payload`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`approve(string $timesheetId, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`revert(string $timesheetId, ?string $idempotencyKey = NULL): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`delete(string $timesheetId): bool`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`createLine(string $timesheetId, TimesheetLine $line, ?string $idempotencyKey = NULL): TimesheetLine`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`updateLine(string $timesheetId, string $timesheetLineId, TimesheetLine $line, ?string $idempotencyKey = NULL): TimesheetLine`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`deleteLine(string $timesheetId, string $timesheetLineId): bool`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+- [`mapTimesheet(array $timesheet): Sujip\Xero\Payroll\AU\Timesheet\Timesheet`](../../src/Payroll/AU/Timesheet/Timesheets.php)
+
+## Payroll\AU\Timesheet\TimesheetLine
+
+[Source](../../src/Payroll/AU/Timesheet/TimesheetLine.php)
+
+Extends [Support\Model](support.md#supportmodel). Inherited methods are documented on the parent type.
+
+### Model fields
+
+| API field | Hydrated value | Hydration method |
+| --- | --- | --- |
+| `timesheetLineID` | string or null | `setTimesheetLineID()` |
+| `date` | string or null | `setDate()` |
+| `earningsRateID` | string or null | `setEarningsRateID()` |
+| `trackingItemID` | string or null | `setTrackingItemID()` |
+| `numberOfUnits` | int, float, or null | `setNumberOfUnits()` |
+
+Implements `SerializesRequest` for line create and update requests.
+
+### Public methods
+
+- [`getTimesheetLineID(): ?string`](../../src/Payroll/AU/Timesheet/TimesheetLine.php)
+- [`setTimesheetLineID(?string $timesheetLineID): self`](../../src/Payroll/AU/Timesheet/TimesheetLine.php)
+- [`getDate(): ?string`](../../src/Payroll/AU/Timesheet/TimesheetLine.php)
+- [`setDate(?string $date): self`](../../src/Payroll/AU/Timesheet/TimesheetLine.php)
+- [`getEarningsRateID(): ?string`](../../src/Payroll/AU/Timesheet/TimesheetLine.php)
+- [`setEarningsRateID(?string $earningsRateID): self`](../../src/Payroll/AU/Timesheet/TimesheetLine.php)
+- [`getTrackingItemID(): ?string`](../../src/Payroll/AU/Timesheet/TimesheetLine.php)
+- [`setTrackingItemID(?string $trackingItemID): self`](../../src/Payroll/AU/Timesheet/TimesheetLine.php)
+- [`getNumberOfUnits(): ?float`](../../src/Payroll/AU/Timesheet/TimesheetLine.php)
+- [`setNumberOfUnits(?float $numberOfUnits): self`](../../src/Payroll/AU/Timesheet/TimesheetLine.php)
+- [`toRequest(): array`](../../src/Payroll/AU/Timesheet/TimesheetLine.php)

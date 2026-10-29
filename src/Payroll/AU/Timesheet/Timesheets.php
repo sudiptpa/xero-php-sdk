@@ -4,31 +4,24 @@ declare(strict_types=1);
 
 namespace Sujip\Xero\Payroll\AU\Timesheet;
 
-use DateTimeInterface;
 use Sujip\Xero\Client;
 use Sujip\Xero\Concerns\HasPagination;
 use Sujip\Xero\Contracts\DefinesScopes;
 use Sujip\Xero\Contracts\PaginatesResults;
+use Sujip\Xero\Support\Json;
 use Sujip\Xero\Support\PaginatedCollection;
 use Sujip\Xero\Support\ResourceCollection;
 use Sujip\Xero\Support\ScopeRequirements;
-use Sujip\Xero\Support\Json;
 
 final class Timesheets implements PaginatesResults, DefinesScopes
 {
     use HasPagination;
 
-    /**
-     * @var array<string, scalar|array<int, scalar>|null>
-     */
+    /** @var array<string, scalar|array<int, scalar>|null> */
     private array $query = [];
 
-    /** @var array<string, string> */
-    private array $headers = [];
-
-    public function __construct(
-        private readonly Client $client
-    ) {
+    public function __construct(private readonly Client $client)
+    {
     }
 
     public function scopes(): ScopeRequirements
@@ -39,76 +32,81 @@ final class Timesheets implements PaginatesResults, DefinesScopes
         );
     }
 
-    public function modifiedSince(DateTimeInterface $date): self
+    public function filter(string $filter): self
     {
         $clone = clone $this;
-        $clone->headers['If-Modified-Since'] = $date->format(DateTimeInterface::ATOM);
+        $clone->query['filter'] = $filter;
 
         return $clone;
     }
 
-    public function where(string $where): self
+    public function status(string $status): self
     {
         $clone = clone $this;
-        $clone->query['where'] = $where;
+        $clone->query['status'] = $status;
 
         return $clone;
     }
 
-    public function orderBy(string $order): self
+    public function startDate(string $date): self
     {
         $clone = clone $this;
-        $clone->query['order'] = $order;
+        $clone->query['startDate'] = $date;
 
         return $clone;
     }
 
-    /**
-     * @return ResourceCollection<Timesheet>
-     */
+    public function endDate(string $date): self
+    {
+        $clone = clone $this;
+        $clone->query['endDate'] = $date;
+
+        return $clone;
+    }
+
+    public function sort(string $sort): self
+    {
+        $clone = clone $this;
+        $clone->query['sort'] = $sort;
+
+        return $clone;
+    }
+
+    /** @return ResourceCollection<Timesheet> */
     public function get(): ResourceCollection
     {
-        $response = $this->client
-            ->get('/payroll.xro/1.0/Timesheets')
-            ->withHeaders($this->headers)
+        $payload = $this->client
+            ->get('/payroll.xro/2.0/Timesheets')
             ->withQuery(array_merge($this->query, $this->paginationQuery()))
-            ->send();
+            ->send()
+            ->json();
 
-        $payload = $response->json();
         $items = array_map(
             fn (array $timesheet): Timesheet => $this->mapTimesheet($timesheet),
-            Json::extractList($payload, 'Timesheets')
+            Json::extractList($payload, 'timesheets')
         );
 
         return new ResourceCollection($items);
     }
 
-    /**
-     * @return PaginatedCollection<Timesheet>
-     */
+    /** @return PaginatedCollection<Timesheet> */
     public function paginate(?int $page = null, ?int $perPage = null): PaginatedCollection
     {
         $builder = $this;
-
         if ($page !== null) {
             $builder = $builder->page($page);
         }
-
         if ($perPage !== null) {
             $builder = $builder->perPage($perPage);
         }
 
-        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/1.0/Timesheets']);
+        return new PaginatedCollection($builder->get(), $builder->currentPage(), $builder->currentPerPage(), ['path' => '/payroll.xro/2.0/Timesheets']);
     }
 
     public function find(string $timesheetId): ?Timesheet
     {
-        $response = $this->client
-            ->get('/payroll.xro/1.0/Timesheets/' . $timesheetId)
-            ->send();
-
-        $payload = $response->json();
-        $timesheet = Json::extractFirst($payload, 'Timesheets') ?? Json::extractObject($payload, 'Timesheet') ?: null;
+        $payload = $this->client->get('/payroll.xro/2.0/Timesheets/' . $timesheetId)->send()->json();
+        $timesheet = Json::extractFirstOrObject($payload, 'timesheets', 'timesheet');
 
         return $timesheet !== null ? $this->mapTimesheet($timesheet) : null;
     }
@@ -118,16 +116,75 @@ final class Timesheets implements PaginatesResults, DefinesScopes
         return new Payload($this->client);
     }
 
-    public function update(string $timesheetId): Payload
+    public function approve(string $timesheetId, ?string $idempotencyKey = null): Timesheet
     {
-        return (new Payload($this->client))->id($timesheetId);
+        return $this->transition($timesheetId, 'Approve', $idempotencyKey);
     }
 
-    /**
-     * @param array<string, mixed> $timesheet
-     */
+    public function revert(string $timesheetId, ?string $idempotencyKey = null): Timesheet
+    {
+        return $this->transition($timesheetId, 'RevertToDraft', $idempotencyKey);
+    }
+
+    public function delete(string $timesheetId): bool
+    {
+        $this->client->delete('/payroll.xro/2.0/Timesheets/' . $timesheetId)->send();
+
+        return true;
+    }
+
+    public function createLine(string $timesheetId, TimesheetLine $line, ?string $idempotencyKey = null): TimesheetLine
+    {
+        $payload = $this->client
+            ->post('/payroll.xro/2.0/Timesheets/' . $timesheetId . '/Lines')
+            ->withHeaders($this->idempotencyHeaders($idempotencyKey))
+            ->withJson($line->toRequest())
+            ->send()
+            ->json();
+
+        return (new TimesheetLine())->fill(Json::extractObject($payload, 'timesheetLine'));
+    }
+
+    public function updateLine(string $timesheetId, string $timesheetLineId, TimesheetLine $line, ?string $idempotencyKey = null): TimesheetLine
+    {
+        $payload = $this->client
+            ->put('/payroll.xro/2.0/Timesheets/' . $timesheetId . '/Lines/' . $timesheetLineId)
+            ->withHeaders($this->idempotencyHeaders($idempotencyKey))
+            ->withJson($line->toRequest())
+            ->send()
+            ->json();
+
+        return (new TimesheetLine())->fill(Json::extractObject($payload, 'timesheetLine'));
+    }
+
+    public function deleteLine(string $timesheetId, string $timesheetLineId): bool
+    {
+        $this->client->delete('/payroll.xro/2.0/Timesheets/' . $timesheetId . '/Lines/' . $timesheetLineId)->send();
+
+        return true;
+    }
+
+    /** @param array<string, mixed> $timesheet */
     public function mapTimesheet(array $timesheet): Timesheet
     {
         return (new Timesheet($this->client))->fill($timesheet);
+    }
+
+    private function transition(string $timesheetId, string $action, ?string $idempotencyKey): Timesheet
+    {
+        $payload = $this->client
+            ->post('/payroll.xro/2.0/Timesheets/' . $timesheetId . '/' . $action)
+            ->withHeaders($this->idempotencyHeaders($idempotencyKey))
+            ->send()
+            ->json();
+        $timesheet = Json::extractFirstOrObject($payload, 'timesheets', 'timesheet');
+
+        return $timesheet !== null ? $this->mapTimesheet($timesheet) : new Timesheet($this->client);
+    }
+
+    /** @return array<string, string> */
+    private function idempotencyHeaders(?string $key): array
+    {
+        return $key === null ? [] : ['Idempotency-Key' => $key];
     }
 }
