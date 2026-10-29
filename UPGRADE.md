@@ -1,6 +1,6 @@
 # Upgrade Guide
 
-## Unreleased
+## 5.0.0
 
 The latest Accounting and Payroll audit removed operations and fields that are
 not present in the current Xero OpenAPI schemas. It also corrected several write
