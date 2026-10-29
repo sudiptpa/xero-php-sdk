@@ -74,7 +74,7 @@ final class Payload
     {
         $payload = $this->client
             ->post('/payroll.xro/2.0/Timesheets')
-            ->withHeaders($this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey])
+            ->withHeaders($this->idempotencyHeaders())
             ->withJson($this->payload)
             ->send()
             ->json();
@@ -84,5 +84,11 @@ final class Payload
         return $timesheet !== null
             ? (new Timesheets($this->client))->mapTimesheet($timesheet)
             : new Timesheet($this->client);
+    }
+
+    /** @return array<string, string> */
+    private function idempotencyHeaders(): array
+    {
+        return $this->idempotencyKey === null ? [] : ['Idempotency-Key' => $this->idempotencyKey];
     }
 }
