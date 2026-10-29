@@ -8,31 +8,23 @@ use RuntimeException;
 use Sujip\Xero\Client;
 use Sujip\Xero\Support\Field;
 use Sujip\Xero\Support\Model;
-use Sujip\Xero\Support\ValidationError;
 
 final class Timesheet extends Model
 {
     private ?string $timesheetID = null;
+    private ?string $payrollCalendarID = null;
     private ?string $employeeID = null;
     private ?string $startDate = null;
     private ?string $endDate = null;
     private ?string $status = null;
-    private ?float $hours = null;
-
-    /**
-     * @var list<array<string, mixed>>
-     */
-    private array $timesheetLines = [];
+    private ?float $totalHours = null;
     private ?string $updatedDateUTC = null;
 
-    /**
-     * @var list<ValidationError>
-     */
-    private array $validationErrors = [];
+    /** @var list<TimesheetLine> */
+    private array $timesheetLines = [];
 
-    public function __construct(
-        private ?Client $client = null
-    ) {
+    public function __construct(private ?Client $client = null)
+    {
     }
 
     public function getTimesheetID(): ?string
@@ -43,6 +35,18 @@ final class Timesheet extends Model
     public function setTimesheetID(?string $timesheetID): self
     {
         $this->timesheetID = $timesheetID;
+
+        return $this;
+    }
+
+    public function getPayrollCalendarID(): ?string
+    {
+        return $this->payrollCalendarID;
+    }
+
+    public function setPayrollCalendarID(?string $payrollCalendarID): self
+    {
+        $this->payrollCalendarID = $payrollCalendarID;
 
         return $this;
     }
@@ -95,32 +99,14 @@ final class Timesheet extends Model
         return $this;
     }
 
-    public function getHours(): ?float
+    public function getTotalHours(): ?float
     {
-        return $this->hours;
+        return $this->totalHours;
     }
 
-    public function setHours(?float $hours): self
+    public function setTotalHours(?float $totalHours): self
     {
-        $this->hours = $hours;
-
-        return $this;
-    }
-
-    /**
-     * @return list<array<string, mixed>>
-     */
-    public function getTimesheetLines(): array
-    {
-        return $this->timesheetLines;
-    }
-
-    /**
-     * @param list<array<string, mixed>> $timesheetLines
-     */
-    public function setTimesheetLines(array $timesheetLines): self
-    {
-        $this->timesheetLines = $timesheetLines;
+        $this->totalHours = $totalHours;
 
         return $this;
     }
@@ -137,67 +123,65 @@ final class Timesheet extends Model
         return $this;
     }
 
-    /**
-     * @return list<ValidationError>
-     */
-    public function getValidationErrors(): array
+    /** @return list<TimesheetLine> */
+    public function getTimesheetLines(): array
     {
-        return $this->validationErrors;
+        return $this->timesheetLines;
     }
 
-    public function addValidationError(ValidationError $validationError): self
+    public function addTimesheetLine(TimesheetLine $line): self
     {
-        $this->validationErrors[] = $validationError;
+        $this->timesheetLines[] = $line;
 
         return $this;
     }
 
-    /**
-     * @return array<string, Field>
-     */
+    /** @return array<string, Field> */
     protected static function getDefinitions(): array
     {
         return [
-            'TimesheetID' => Field::string()->using('setTimesheetID'),
-            'EmployeeID' => Field::string()->using('setEmployeeID'),
-            'StartDate' => Field::string()->using('setStartDate'),
-            'EndDate' => Field::string()->using('setEndDate'),
-            'Status' => Field::string()->using('setStatus'),
-            'Hours' => Field::number()->using('setHours'),
-            'TimesheetLines' => Field::array()->using('setTimesheetLines'),
-            'UpdatedDateUTC' => Field::string()->using('setUpdatedDateUTC'),
-            'ValidationErrors' => Field::many(ValidationError::class),
+            'timesheetID' => Field::string()->using('setTimesheetID'),
+            'payrollCalendarID' => Field::string()->using('setPayrollCalendarID'),
+            'employeeID' => Field::string()->using('setEmployeeID'),
+            'startDate' => Field::string()->using('setStartDate'),
+            'endDate' => Field::string()->using('setEndDate'),
+            'status' => Field::string()->using('setStatus'),
+            'totalHours' => Field::number()->using('setTotalHours'),
+            'updatedDateUTC' => Field::string()->using('setUpdatedDateUTC'),
+            'timesheetLines' => Field::many(TimesheetLine::class),
         ];
     }
 
-    public function save(): self
+    public function approve(?string $idempotencyKey = null): self
+    {
+        return $this->resource()->approve($this->requireId(), $idempotencyKey);
+    }
+
+    public function revert(?string $idempotencyKey = null): self
+    {
+        return $this->resource()->revert($this->requireId(), $idempotencyKey);
+    }
+
+    public function delete(): bool
+    {
+        return $this->resource()->delete($this->requireId());
+    }
+
+    private function resource(): Timesheets
     {
         if ($this->client === null) {
-            throw new RuntimeException('Cannot save a timesheet without a bound client context.');
+            throw new RuntimeException('Cannot change a timesheet without a bound client context.');
         }
 
-        $payload = new Payload($this->client);
+        return new Timesheets($this->client);
+    }
 
-        if ($this->timesheetID !== null) {
-            $payload = $payload->id($this->timesheetID);
+    private function requireId(): string
+    {
+        if ($this->timesheetID === null) {
+            throw new RuntimeException('Cannot change a timesheet without a timesheet id.');
         }
 
-        if ($this->employeeID !== null) {
-            $payload = $payload->employee($this->employeeID);
-        }
-
-        if ($this->startDate !== null) {
-            $payload = $payload->startDate($this->startDate);
-        }
-
-        if ($this->endDate !== null) {
-            $payload = $payload->endDate($this->endDate);
-        }
-
-        if ($this->status !== null) {
-            $payload = $payload->status($this->status);
-        }
-
-        return $payload->save();
+        return $this->timesheetID;
     }
 }

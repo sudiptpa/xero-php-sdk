@@ -25,6 +25,9 @@ requests. Review these changes before updating.
 
 - `LeaveApplication::getStatus()`, `setStatus()`, and `status()` have been removed because the AU leave application schema has no status field.
 - Employee create and update requests can now include the full nested address, payroll calendar, earnings rate, tax declaration, bank account, pay template, opening balance, and super membership fields.
+- AU `Timesheets` now uses Payroll API 2.0. List filters use `filter()`, `status()`, `startDate()`, `endDate()`, and `sort()` with V2 camelCase names and values.
+- AU timesheet models now use V2 camelCase fields, including `payrollCalendarID`, `totalHours`, and typed `TimesheetLine` values. Legacy PascalCase fields, array-valued `Hours`, validation errors, `where()`, `modifiedSince()`, and `orderBy()` have been removed.
+- Whole-timesheet updates are no longer available. Remove `Timesheets::update()` and `Timesheet::save()` calls. Create timesheets with `timesheets()->create()->...->save()`, then edit content through `createLine()`, `updateLine()`, and `deleteLine()`. Use `approve()`, `revert()`, and `delete()` for supported timesheet actions.
 
 ### Payroll NZ
 
