@@ -2,6 +2,12 @@
 
 All notable changes to this package are documented here.
 
+## 5.1.0 (2026-11-05)
+
+### Added
+
+- Added the account creation date to Accounting accounts.
+
 ## 5.0.0 (2026-10-29)
 
 ### Added

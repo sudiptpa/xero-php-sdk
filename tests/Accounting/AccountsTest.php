@@ -35,6 +35,7 @@ final class AccountsTest extends TestCase
                     'ReportingCodeName' => 'Revenue',
                     'HasAttachments' => true,
                     'UpdatedDateUTC' => '2026-04-01T01:00:00',
+                    'CreatedDateUTC' => '2026-03-15T09:30:00',
                     'AddToWatchlist' => true,
                     'ValidationErrors' => [['Message' => 'Bad account']],
                 ]],
@@ -69,6 +70,7 @@ final class AccountsTest extends TestCase
         self::assertSame('Revenue', $firstAccount->getReportingCodeName());
         self::assertTrue($firstAccount->getHasAttachments());
         self::assertSame('2026-04-01T01:00:00', $firstAccount->getUpdatedDateUTC());
+        self::assertSame('2026-03-15T09:30:00', $firstAccount->getCreatedDateUTC());
         self::assertTrue($firstAccount->getAddToWatchlist());
         self::assertCount(1, $firstAccount->getValidationErrors());
         self::assertSame('Bad account', $firstAccount->getValidationErrors()[0]->getMessage());
