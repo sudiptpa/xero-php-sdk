@@ -54,6 +54,8 @@ final class Account extends Model implements SerializesRequest
 
     private ?string $updatedDateUTC = null;
 
+    private ?string $createdDateUTC = null;
+
     private ?bool $addToWatchlist = null;
 
     /**
@@ -277,6 +279,18 @@ final class Account extends Model implements SerializesRequest
         return $this;
     }
 
+    public function getCreatedDateUTC(): ?string
+    {
+        return $this->createdDateUTC;
+    }
+
+    public function setCreatedDateUTC(?string $createdDateUTC): self
+    {
+        $this->createdDateUTC = $createdDateUTC;
+
+        return $this;
+    }
+
     public function getAddToWatchlist(): ?bool
     {
         return $this->addToWatchlist;
@@ -328,6 +342,7 @@ final class Account extends Model implements SerializesRequest
             'ReportingCodeName' => Field::string(),
             'HasAttachments' => Field::boolean(),
             'UpdatedDateUTC' => Field::string(),
+            'CreatedDateUTC' => Field::string(),
             'AddToWatchlist' => Field::boolean(),
             'ValidationErrors' => Field::many(ValidationError::class),
         ];
